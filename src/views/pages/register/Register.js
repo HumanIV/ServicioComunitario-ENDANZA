@@ -13,6 +13,8 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import logoPersonalizado from '../../../assets/images/Minect.JPG'
+import logoUnefa from '../../../assets/images/unefa.png'
 
 const Register = () => {
   return (
@@ -21,6 +23,31 @@ const Register = () => {
         <CRow className="justify-content-center">
           <CCol md={9} lg={7} xl={6}>
             <CCard className="mx-4">
+                          {/* ⭐ CONTENEDOR DE LOGOS ACOMODADOS ⭐ */}
+                          <div className="d-flex justify-content-between "
+                          >
+                            <img
+                              src={logoPersonalizado}
+                              alt="Logo Minect"
+                              style={{
+                                height: "100px",
+                                width: "100px",
+                                objectFit: "contain",
+                              }}
+                              className="justify-content-start"
+                            />
+              
+                            <img
+                              src={logoUnefa}
+                              alt="Logo Unefa"
+                              style={{
+                                height: "100px",
+                                width: "100px",
+                                objectFit: "contain",
+                              }}
+                              className="justify-content-end"
+                            />
+                          </div>
               <CCardBody className="p-4">
                 <CForm>
                   <h1>Register</h1>

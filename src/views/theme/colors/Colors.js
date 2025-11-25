@@ -6,7 +6,7 @@ import { rgbToHex } from '@coreui/utils'
 import { DocsLink } from 'src/components'
 
 const ThemeView = () => {
-  const [color, setColor] = useState('rgb(255, 255, 255)')
+  const [color, setColor] = useState('rgb(255, 200, 100)')
   const ref = createRef()
 
   useEffect(() => {

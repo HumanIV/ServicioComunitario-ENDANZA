@@ -1,0 +1,6 @@
+- como primer gran actualizacion se dio paso a la creacion de 3 modulos visualmente completos hasta los momentos como tambien la edicion de el sidevar que corresponde al acceso de dichos modulos estos mismo no tienen funcionalidad mas alla de algo visual pero faltan implementar algunas cosas
+
+tareas pendientes:
+edicion del modulo users
+creacion de una pagina principal de acceso publico para las demas personas 
+edicion del modulo login/register

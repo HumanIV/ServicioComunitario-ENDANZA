@@ -4,7 +4,6 @@ import {
   CButton,
   CCard,
   CCardBody,
-  CCardGroup,
   CCol,
   CContainer,
   CForm,
@@ -15,67 +14,81 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import logoPersonalizado from '../../../assets/images/Minect.JPG'
+import logoUnefa from '../../../assets/images/unefa.png'
 
 const Login = () => {
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
-        <CRow className="justify-content-center">
-          <CCol md={8}>
-            <CCardGroup>
-              <CCard className="p-4">
-                <CCardBody>
-                  <CForm>
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Sign In to your account</p>
-                    <CInputGroup className="mb-3">
-                      <CInputGroupText>
-                        <CIcon icon={cilUser} />
-                      </CInputGroupText>
-                      <CFormInput placeholder="Username" autoComplete="username" />
-                    </CInputGroup>
-                    <CInputGroup className="mb-4">
-                      <CInputGroupText>
-                        <CIcon icon={cilLockLocked} />
-                      </CInputGroupText>
-                      <CFormInput
-                        type="password"
-                        placeholder="Password"
-                        autoComplete="current-password"
-                      />
-                    </CInputGroup>
-                    <CRow>
-                      <CCol xs={6}>
-                        <CButton color="primary" className="px-4">
-                          Login
-                        </CButton>
-                      </CCol>
-                      <CCol xs={6} className="text-right">
-                        <CButton color="link" className="px-0">
-                          Forgot password?
-                        </CButton>
-                      </CCol>
-                    </CRow>
-                  </CForm>
-                </CCardBody>
-              </CCard>
-              <CCard className="text-white bg-primary py-5" style={{ width: '44%' }}>
-                <CCardBody className="text-center">
-                  <div>
-                    <h2>Sign up</h2>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
-                    </p>
-                    <Link to="/register">
-                      <CButton color="primary" className="mt-3" active tabIndex={-1}>
-                        Register Now!
+          <CRow className="justify-content-center">
+          <CCol md={6} lg={5} xl={4}>
+            <CCard className="p-4 text-center">
+            {/* ⭐ CONTENEDOR DE LOGOS ACOMODADOS ⭐ */}
+            <div className="d-flex justify-content-between "
+            >
+              <img
+                src={logoPersonalizado}
+                alt="Logo Minect"
+                style={{
+                  height: "100px",
+                  width: "100px",
+                  objectFit: "contain",
+                }}
+                className="justify-content-start"
+              />
+
+              <img
+                src={logoUnefa}
+                alt="Logo Unefa"
+                style={{
+                  height: "100px",
+                  width: "100px",
+                  objectFit: "contain",
+                }}
+                className="justify-content-end"
+              />
+            </div>
+              <CCardBody>
+                <CForm>
+                  <h1>Inicio de Sesion </h1>
+                  <p className="text-body-secondary">Inicia en tu cuenta</p>
+
+                  <CInputGroup className="mb-3">
+                    <CInputGroupText>
+                      <CIcon icon={cilUser} />
+                    </CInputGroupText>
+                    <CFormInput placeholder="Username" autoComplete="username" />
+                  </CInputGroup>
+
+                  <CInputGroup className="mb-4">
+                    <CInputGroupText>
+                      <CIcon icon={cilLockLocked} />
+                    </CInputGroupText>
+                    <CFormInput
+                      type="password"
+                      placeholder="Password"
+                      autoComplete="current-password"
+                    />
+                  </CInputGroup>
+
+                  <CRow>
+                    <CCol xs={6}>
+                      
+                      <CButton color="primary" className="px-4">
+                        Login
                       </CButton>
-                    </Link>
-                  </div>
-                </CCardBody>
-              </CCard>
-            </CCardGroup>
+                    
+                    </CCol>
+                    <CCol xs={6} className="text-right">
+                      <CButton color="link" className="px-0">
+                        ¿Olvidaste la contraseña?
+                      </CButton>
+                    </CCol>
+                  </CRow>
+                </CForm>
+              </CCardBody>
+            </CCard>
           </CCol>
         </CRow>
       </CContainer>
