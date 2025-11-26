@@ -6,6 +6,11 @@ import {
   cilBook,
   cilReportSlash,
   cilStar,
+  cilPencil,
+  cilBlurLinear,
+  cilClock,
+  cilRoom,
+  cilApple,
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -24,26 +29,84 @@ const _nav = [
 
   {
     component: CNavGroup,
-    name: 'Gestion Administrativa',
-    icon: <CIcon icon={cilLibraryBuilding} customClassName="nav-icon" />,
+    name: 'Inscripcion',
+    icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Panel Administrativo',
-        to: '/AdminPanel',
+        name: 'Inscripciones',
+        to: '/Inscripcion',
+      },
+      {
+        component: CNavItem,
+        name: 'Students',
+        to: '/Students',
+      }
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'Notas',
+    icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Notas',
+        to: '/Notas',
+      },
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Boletin',
+    icon: <CIcon icon={cilBlurLinear} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Ver Boletin',
+        to: '/Boletin',
       },
     ],
   },
 
   {
     component: CNavGroup,
-    name: 'Recursos Humanos',
-    icon: <CIcon icon={cilBook} customClassName="nav-icon" />,
+    name: 'Horario',
+    icon: <CIcon icon={cilClock} customClassName="nav-icon" />,
     items: [
       {
         component: CNavItem,
-        name: 'Panel de RRHH',
-        to: '/PanelRRHH',
+        name: 'Ver Horarios',
+        to: '/Horario',
+      },
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'Aulas',
+    icon: <CIcon icon={cilRoom} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Ver Aulas',
+        to: '/Aulas',
+      },
+    ],
+  },
+
+
+
+  {
+    component: CNavGroup,
+    name: 'Nutricion',
+    icon: <CIcon icon={cilApple} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Nutricion del estudiante',
+        to: '/Nutricion',
       },
     ],
   },
@@ -60,6 +123,7 @@ const _nav = [
       },
     ],
   },
+
 
   {
     component: CNavGroup,

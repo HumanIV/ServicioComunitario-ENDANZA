@@ -4,15 +4,12 @@ import React from 'react'
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 
 // Base
-const Tabs = React.lazy(() => import('./views/base/tabs/Tabs'))
 const Products = React.lazy(() => import('./views/base/products/products'))
 
 // Login / Register (si planeas usarlos)
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 const Register = React.lazy(() => import('./views/pages/register/Register'))
 
-//RUTA
-const Buttons = React.lazy(() => import('./views/buttons/buttons/Buttons'))
 
 //Users
 const Users = React.lazy(() => import('./views/users/users'))
@@ -27,17 +24,39 @@ const LandingPages= React.lazy(() => import('./views/pages/LandingPages/LandingP
 
 const Inicio = React.lazy(() => import ('./views/Inicio/Inicio'))
 
-// Gestión Administrativa
-
-const AdminPanel = React.lazy(() => import('./views/GestionAdministrativa/AdminPanel'))
-
-//Recursos Humanos RRHH
-
-const PanelRRHH = React.lazy(() => import('./views/RRHH/PanelRRHH'))
-
 //Reportes y Estadísticas
 
 const Reports = React.lazy(() => import('./views/Reportes/Reports'))
+
+
+//Students
+const Students = React.lazy(() => import('./views/Students/Students'))
+const PerfilStudents = React.lazy(() => import('./views/Students/PerfilStudents'))
+
+//Inscripcion
+
+const Inscripcion = React.lazy(() => import('./views/Inscripcion/Inscripcion'))
+const InscripcionStep = React.lazy(() => import('./views/Inscripcion/InscripcionStep'))
+
+//Notas 
+
+const Notas = React.lazy(() => import('./views/Notas/Notas'))
+
+//Boletin
+const Boletin = React.lazy(() => import('./views/Boletin/Boletin'))
+
+//Horario
+
+const Horario = React.lazy(() => import('./views/Horario/Horario'))
+
+//Aulas
+
+const Aulas = React.lazy(() => import('./views/Aulas/Aulas'))
+
+//Nutricion
+
+const Nutricion = React.lazy(() => import('./views/Nutricion/Nutricion'))
+
 
 
 //FIN RUTAS AGG
@@ -51,23 +70,33 @@ const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
 
   // Base (Gestión de Contenido)
-  { path: '/base/tabs', name: 'Tabs', element: Tabs },
   { path: '/base/products', name: 'Products', element: Products },
 
   // Login y Register
   { path: '/login', name: 'Login', element: Login },
   { path: '/register', name: 'Register', element: Register },
   //RUTA
-  {path: '/buttons/buttons', name: 'Buttons', element: Buttons},
+
   //Users
   {path: '/users', name: 'Users', element: Users},
 
   //RUTAS
   {path: '/Inicio', name: 'Inicio', element: Inicio},
-  {path: '/AdminPanel', name: 'AdminPanel', element: AdminPanel}, // Gestión Administrativa
-  {path: '/PanelRRHH', name: 'PanelRRHH', element: PanelRRHH}, // Recursos Humanos RRHH
   {path: '/Reports', name: 'Reports', element: Reports}, // Reportes y Estadísticas
   {path: '/LandingPages', name: 'LandingPages', element: LandingPages},
+
+  {path: '/Inscripcion', name: 'Inscripcion', element: Inscripcion}, // Inscripción
+  {path: '/InscripcionStep', name: 'InscripcionStep', element: InscripcionStep}, // Inscripción Stepper
+  {path: '/Notas', name: 'Notas', element: Notas}, // Notas
+  {path: '/Boletin', name: 'Boletin', element: Boletin}, // Boletín
+  {path: '/Horario', name: 'Horario', element: Horario}, // Horario
+  {path: '/Aulas', name: 'Aulas', element: Aulas}, // Aulas
+  {path: '/Nutricion', name: 'Nutricion', element: Nutricion}, // Nutrición
+  {path: '/Students', name: 'Students', element: Students}, // Students
+  {path: '/PerfilStudents/:id', name: 'PerfilStudents', element: PerfilStudents}, // Perfil Students
+
+
+
   //FIN RUTAS AGG
 
 
