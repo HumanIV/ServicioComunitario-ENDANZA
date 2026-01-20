@@ -1,5 +1,3 @@
- // src/views/Students/PerfilStudents.jsx
-
 import React, { useEffect, useState } from "react"
 import {
   CCard,
@@ -39,7 +37,7 @@ import {
   CToastHeader,
   CToastBody
 } from "@coreui/react"
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import CIcon from "@coreui/icons-react"
 import { 
   cilArrowLeft, 
@@ -63,118 +61,98 @@ import {
   cilEnvelopeClosed
 } from "@coreui/icons"
 
+// Importa tu modal
+import EditStudentModal from "./components/editModal" // Ajusta la ruta según donde la tengas
+
 const PerfilStudents = () => {
-  const { id } = useParams()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [student, setStudent] = useState(null)
   const [activeKey, setActiveKey] = useState(1)
-  const [modalVisible, setModalVisible] = useState(false)
-  const [modalType, setModalType] = useState("")
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+  const [editModalVisible, setEditModalVisible] = useState(false) // Nueva state para la modal de edición
+  const [saving, setSaving] = useState(false) // Para mostrar estado de guardado
   const [toasts, setToasts] = useState([])
 
-  // Datos de ejemplo mejorados
-  const dummyData = [
-    {
-      id: 1,
-      Grado: "1er Grado",
-      Seccion: "D1",
-      NombreEstudiante: "María",
-      ApellidoEstudiante: "González",
-      FechaNacimiento: "2014-02-15",
-      Edad: "10 años",
-      Sexo: "Femenino",
-      TipoSangre: "O+",
-      Direccion: "Av. Sucre, Urbanización El Paraíso, Caracas 1010",
-      Ciudad: "Caracas",
-      Estado: "Distrito Capital",
-      Telefono: "0412-1234567",
-      Email: "maria.gonzalez@email.com",
-      Estatus: "Activo",
-      FechaIngreso: "2023-09-10",
-      RepresentanteNombre: "Ana",
-      RepresentanteApellido: "González",
-      RepresentanteCedula: "V-12345678",
-      RepresentanteTelefono: "0424-1234567",
-      RepresentanteEmail: "ana.gonzalez@email.com",
-      RepresentanteParentesco: "Madre",
-      RepresentanteOcupacion: "Ingeniero",
-      NutricionPeso: "32 kg",
-      NutricionAltura: "1.35 m",
-      NutricionIMC: "17.5 (Normal)",
-      NutricionObs: "Buen estado nutricional",
-      Alergias: "Ninguna",
-      Medicamentos: "Ninguno",
-      Enfermedades: "Ninguna",
-      ObservacionesAcad: "Excelente rendimiento en matemáticas y ciencias. Participa activamente en clase.",
-      Conducta: "Excelente",
-      Asistencia: "95%",
-      PromedioGeneral: "18.5/20",
-      Notas: [
-        { materia: "Matemáticas", nota: "10", observacion: "Excelente" },
-        { materia: "Ciencias", nota: "13", observacion: "Muy Bueno" },
-        { materia: "Lengua", nota: "12", observacion: "Bueno" },
-        { materia: "Historia", nota: "11    ", observacion: "Excelente" }
-      ],
-      HistorialMedico: [
-        { fecha: "2024-01-15", diagnostico: "Control médico anual", tratamiento: "Ninguno", medico: "Dr. Pérez" },
-        { fecha: "2023-11-20", diagnostico: "Gripe común", tratamiento: "Reposo y líquidos", medico: "Dr. López" }
-      ]
-    },
-    {
-      id: 2,
-      Grado: "2do Grado",
-      Seccion: "D2",
-      NombreEstudiante: "Carlos",
-      ApellidoEstudiante: "Pérez",
-      FechaNacimiento: "2013-05-20",
-      Edad: "11 años",
-      Sexo: "Masculino",
-      TipoSangre: "A+",
-      Direccion: "Calle Miranda, El Rosal, Caracas",
-      Ciudad: "Caracas",
-      Estado: "Distrito Capital",
-      Telefono: "0414-7654321",
-      Email: "carlos.perez@email.com",
-      Estatus: "Activo",
-      FechaIngreso: "2023-09-10",
-      RepresentanteNombre: "José",
-      RepresentanteApellido: "Pérez",
-      RepresentanteCedula: "V-98765432",
-      RepresentanteTelefono: "0416-9876543",
-      RepresentanteEmail: "jose.perez@email.com",
-      RepresentanteParentesco: "Padre",
-      RepresentanteOcupacion: "Empresario",
-      NutricionPeso: "35 kg",
-      NutricionAltura: "1.40 m",
-      NutricionIMC: "17.9 (Normal)",
-      NutricionObs: "Estado nutricional óptimo",
-      Alergias: "Polvo",
-      Medicamentos: "Antihistamínico en temporada",
-      Enfermedades: "Ninguna",
-      ObservacionesAcad: "Destacado en deportes, necesita reforzar lectura",
-      Conducta: "Muy Buena",
-      Asistencia: "92%",
-      PromedioGeneral: "16.8/20",
-      Notas: [
-        { materia: "Matemáticas", nota: "17", observacion: "Bueno" },
-        { materia: "Ciencias", nota: "16", observacion: "Regular" },
-        { materia: "Lengua", nota: "15", observacion: "Necesita mejorar" },
-        { materia: "Educación Física", nota: "20", observacion: "Excelente" }
-      ]
-    }
-  ]
+  // Datos de ejemplo mejorados - SOLO UN ESTUDIANTE
+  const estudianteEjemplo = {
+    id: 1,
+    Grado: "5to Grado",
+    Seccion: "Danza A",
+    NombreEstudiante: "Ana",
+    ApellidoEstudiante: "López",
+    FechaNacimiento: "2012-05-15",
+    Edad: "12 años",
+    Sexo: "Femenino",
+    TipoSangre: "O+",
+    Direccion: "Av. Principal 123, Ciudad",
+    Ciudad: "Caracas",
+    Estado: "Distrito Capital",
+    Telefono: "+1 234-567-8900",
+    Email: "ana.lopez@endanza.edu",
+    Estatus: "Activo",
+    FechaIngreso: "2020-03-10",
+    
+    // DATOS DEL PADRE (nuevos campos agregados)
+    PadreNombre: "José Antonio",
+    PadreApellido: "Pérez",
+    PadreCedula: "V-98765432",
+    PadreTelefono: "+1 234-567-8902",
+    PadreEmail: "jose.perez@email.com",
+    PadreParentesco: "Padre",
+    PadreOcupacion: "Empresario",
+    
+    // DATOS DE LA MADRE (campos existentes renombrados para consistencia)
+    MadreNombre: "María Isabel",
+    MadreApellido: "González",
+    MadreCedula: "V-12345678",
+    MadreTelefono: "+1 234-567-8901",
+    MadreEmail: "maria.gonzalez@email.com",
+    MadreParentesco: "Madre",
+    MadreOcupacion: "Ingeniera",
+
+    // Campos originales (mantenidos para compatibilidad)
+    RepresentanteNombre: "María Isabel", // Mantener compatibilidad con código original
+    RepresentanteApellido: "González", // Mantener compatibilidad con código original
+    RepresentanteCedula: "V-12345678", // Mantener compatibilidad con código original
+    RepresentanteTelefono: "+1 234-567-8901", // Mantener compatibilidad con código original
+    RepresentanteEmail: "maria.gonzalez@email.com", // Mantener compatibilidad con código original
+    RepresentanteParentesco: "Madre", // Mantener compatibilidad con código original
+    RepresentanteOcupacion: "Ingeniera", // Mantener compatibilidad con código original
+    
+    // Resto de datos...
+    NutricionPeso: "32 kg",
+    NutricionAltura: "1.35 m",
+    NutricionIMC: "17.5 (Normal)",
+    NutricionObs: "Buen estado nutricional",
+    Alergias: "Ninguna",
+    Medicamentos: "Ninguno",
+    Enfermedades: "Ninguna",
+    ObservacionesAcad: "Excelente rendimiento en Ballet y Jazz. Participa activamente en clase.",
+    Conducta: "Excelente",
+    Asistencia: "95%",
+    PromedioGeneral: "18.5/20",
+    Notas: [
+      { materia: "Ballet", nota: "18", observacion: "Excelente" },
+      { materia: "Jazz", nota: "16", observacion: "Muy Bueno" },
+      { materia: "Contemporáneo", nota: "15", observacion: "Bueno" },
+      { materia: "Folklor", nota: "13", observacion: "Regular" },
+      { materia: "Hip Hop", nota: "17", observacion: "Excelente" }
+    ],
+    HistorialMedico: [
+      { fecha: "2024-01-15", diagnostico: "Control médico anual", tratamiento: "Ninguno", medico: "Dr. Pérez" },
+      { fecha: "2023-11-20", diagnostico: "Gripe común", tratamiento: "Reposo y líquidos", medico: "Dr. López" }
+    ]
+  }
 
   // Simular carga de datos
   useEffect(() => {
-    const found = dummyData.find((s) => s.id === Number(id))
-    
     // Simular tiempo de carga
     setTimeout(() => {
-      setStudent(found)
+      setStudent(estudianteEjemplo)
       setLoading(false)
     }, 800)
-  }, [id])
+  }, [])
 
   // Función para mostrar toasts
   const showToast = (type, title, message) => {
@@ -187,10 +165,10 @@ const PerfilStudents = () => {
     }])
   }
 
-  // Funcionalidad de edición
+  // Funcionalidad de edición - Ahora abre la modal
   const handleEdit = () => {
-    showToast("info", "Editar", "Funcionalidad de edición activada")
-    // Aquí iría la lógica para editar
+    showToast("info", "Editar", "Abriendo editor de estudiante")
+    setEditModalVisible(true)
   }
 
   const handlePrint = () => {
@@ -204,13 +182,56 @@ const PerfilStudents = () => {
   }
 
   const handleDelete = () => {
-    setModalType("delete")
-    setModalVisible(true)
+    setDeleteModalVisible(true)
   }
 
   const confirmDelete = () => {
     showToast("danger", "Eliminado", "Estudiante eliminado del sistema")
     setTimeout(() => navigate("/students"), 1500)
+  }
+
+  // NUEVA FUNCIÓN: Manejar guardado de datos desde la modal
+  const handleSaveStudent = async (updatedData) => {
+    setSaving(true)
+    
+    try {
+      // Simular una llamada API
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Actualizar los datos del estudiante localmente
+      setStudent(prev => ({
+        ...prev,
+        ...updatedData,
+        // Mantener los datos que no están en el formulario
+        id: prev.id,
+        Edad: prev.Edad, // La edad se calcularía automáticamente
+        FechaIngreso: prev.FechaIngreso,
+        // Actualizar los campos del padre y madre
+        PadreNombre: updatedData.PadreNombre || prev.PadreNombre,
+        PadreApellido: updatedData.PadreApellido || prev.PadreApellido,
+        PadreCedula: updatedData.PadreCedula || prev.PadreCedula,
+        PadreTelefono: updatedData.PadreTelefono || prev.PadreTelefono,
+        PadreEmail: updatedData.PadreEmail || prev.PadreEmail,
+        PadreOcupacion: updatedData.PadreOcupacion || prev.PadreOcupacion,
+        MadreNombre: updatedData.MadreNombre || prev.MadreNombre,
+        MadreApellido: updatedData.MadreApellido || prev.MadreApellido,
+        MadreCedula: updatedData.MadreCedula || prev.MadreCedula,
+        MadreTelefono: updatedData.MadreTelefono || prev.MadreTelefono,
+        MadreEmail: updatedData.MadreEmail || prev.MadreEmail,
+        MadreOcupacion: updatedData.MadreOcupacion || prev.MadreOcupacion,
+      }))
+      
+      // Mostrar toast de éxito
+      showToast("success", "Guardado", "Datos del estudiante actualizados correctamente")
+      
+      // Cerrar modal
+      setEditModalVisible(false)
+    } catch (error) {
+      showToast("danger", "Error", "No se pudieron guardar los datos")
+      console.error("Error al guardar:", error)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const calcularProgreso = (promedio) => {
@@ -249,7 +270,7 @@ const PerfilStudents = () => {
           <CIcon icon={cilWarning} className="flex-shrink-0 me-3" size="xl" />
           <div>
             <h4 className="alert-heading">Estudiante no encontrado</h4>
-            <p>No se encontró un estudiante con el ID: {id}</p>
+            <p>No se encontró el estudiante solicitado</p>
             <Link to="/students">
               <CButton color="primary">
                 <CIcon icon={cilArrowLeft} className="me-2" />
@@ -284,29 +305,6 @@ const PerfilStudents = () => {
                 </ol>
               </nav>
             </div>
-          </div>
-        </CCol>
-        
-        <CCol xs={12} md={6} className="mt-3 mt-md-0">
-          <div className="d-flex justify-content-md-end gap-2 flex-wrap">
-            <CButtonGroup>
-              <CButton color="primary" onClick={handleEdit}>
-                <CIcon icon={cilPencil} className="me-2" />
-                Editar
-              </CButton>
-              <CButton color="secondary" variant="outline" onClick={handlePrint}>
-                <CIcon icon={cilPrint} className="me-2" />
-                Imprimir
-              </CButton>
-              <CButton color="info" variant="outline" onClick={handleExport}>
-                <CIcon icon={cilCloudDownload} className="me-2" />
-                Exportar
-              </CButton>
-              <CButton color="danger" variant="outline" onClick={handleDelete}>
-                <CIcon icon={cilTrash} className="me-2" />
-                Eliminar
-              </CButton>
-            </CButtonGroup>
           </div>
         </CCol>
       </CRow>
@@ -377,21 +375,7 @@ const PerfilStudents = () => {
               </CCard>
             </CCol>
 
-            <CCol xs={12} md={6} className="mb-3">
-              <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-success">
-                <CCardBody>
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h6 className="text-muted mb-1">Asistencia</h6>
-                      <h4 className="mb-0">{student.Asistencia || "N/A"}</h4>
-                    </div>
-                    <CIcon icon={cilCalendar} className="text-success" size="lg" />
-                  </div>
-                  <CProgress value={parseInt(student.Asistencia) || 0} color="success" className="mb-2" />
-                  <small className="text-muted">Porcentaje de asistencia</small>
-                </CCardBody>
-              </CCard>
-            </CCol>
+
 
             <CCol xs={12} md={6} className="mb-3">
               <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-info">
@@ -409,18 +393,56 @@ const PerfilStudents = () => {
               </CCard>
             </CCol>
 
-            <CCol xs={12} md={6} className="mb-3">
+            {/* Este es el CCol que cambiamos por botones */}
+            <CCol xs={12} md={15} className="mb-3">
               <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-warning">
-                <CCardBody>
-                  <div className="d-flex justify-content-between align-items-start mb-3">
+                <CCardBody className="d-flex flex-column">
+                  <div className="d-flex justify-content-between align-items-start mb-4">
                     <div>
-                      <h6 className="text-muted mb-1">Estado Nutricional</h6>
-                      <h4 className="mb-0">{student.NutricionIMC?.split(" ")[0] || "N/A"}</h4>
+                      <h6 className="text-muted mb-1">Acciones Rápidas</h6>
+                      <h4 className="mb-0">Actualizar Datos</h4>
                     </div>
-                    <CIcon icon={cilMedicalCross} className="text-warning" size="lg" />
+                    <CIcon icon={cilPencil} className="text-warning" size="lg" />
                   </div>
-                  <CBadge color="success" className="fs-6">{student.NutricionIMC?.split("(")[1]?.replace(")", "") || "Normal"}</CBadge>
-                  <small className="text-muted d-block mt-2">Índice de Masa Corporal</small>
+                  
+                  {/* Botones uno al lado del otro */}
+                  <div className="d-flex gap-3 mt-2">
+                    {/* Botón 1: Actualizar Información Personal */}
+                    <CButton 
+                      color="warning" 
+                      variant="outline" 
+                      className="flex-fill d-flex flex-column align-items-center justify-content-center py-4"
+                      onClick={() => {
+                        showToast("info", "Actualizar", "Editar información personal")
+                        setActiveKey(1) // Ir a pestaña de información personal
+                        setEditModalVisible(true) // Abrir modal de edición
+                      }}
+                    >
+                      <CIcon icon={cilUser} className="mb-2" size="xl" />
+                      <div className="text-center">
+                        <div className="fw-bold">Información Personal</div>
+                        <small className="text-muted d-block">Datos básicos</small>
+                      </div>
+                    </CButton>
+
+                    {/* Botón 2: Actualizar Datos de Representantes */}
+                    <CButton 
+                      color="success" 
+                      variant="outline" 
+                      className="flex-fill d-flex flex-column align-items-center justify-content-center py-4"
+                      onClick={() => {
+                        showToast("info", "Actualizar", "Editar datos de representantes")
+                        setActiveKey(2) // Ir a pestaña de representantes
+                        setEditModalVisible(true) // Abrir modal de edición
+                      }}
+                    >
+                      <CIcon icon={cilBadge} className="mb-2" size="xl" />
+                      <div className="text-center">
+                        <div className="fw-bold">Representantes</div>
+                        <small className="text-muted d-block">Padre y madre</small>
+                      </div>
+                    </CButton>
+                  </div>
                 </CCardBody>
               </CCard>
             </CCol>
@@ -428,7 +450,7 @@ const PerfilStudents = () => {
         </CCol>
       </CRow>
 
-      {/* Pestañas de información detallada - VERSIÓN CORREGIDA */}
+      {/* Pestañas de información detallada */}
       <CTabs activeTabKey={activeKey} onActiveTabKeyChange={setActiveKey}>
         <CNav variant="tabs">
           <CNavItem>
@@ -441,12 +463,6 @@ const PerfilStudents = () => {
             <CNavLink onClick={() => setActiveKey(2)}>
               <CIcon icon={cilBadge} className="me-2" />
               Representante
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink onClick={() => setActiveKey(3)}>
-              <CIcon icon={cilBook} className="me-2" />
-              Académico
             </CNavLink>
           </CNavItem>
           <CNavItem>
@@ -533,177 +549,221 @@ const PerfilStudents = () => {
             </div>
           </CTabPane>
 
-          {/* Información del Representante - Tab 2 */}
-          <CTabPane visible={activeKey === 2}>
-            <div className="mt-4">
-              <CCard className="border-0 shadow-sm">
-                <CCardHeader className="bg-warning bg-opacity-10 border-0 d-flex align-items-center">
-                  <CIcon icon={cilBadge} className="me-2 text-warning" />
-                  <h5 className="mb-0">Datos del Representante</h5>
-                </CCardHeader>
-                <CCardBody>
+        {/* Información del Representante - Tab 2 */}
+         <CTabPane visible={activeKey === 2}>
+  <div className="mt-4">
+    <CCard className="border-0 shadow-sm">
+      <CCardHeader className="bg-warning bg-opacity-10 border-0 d-flex align-items-center">
+        <CIcon icon={cilBadge} className="me-2 text-warning" />
+        <h5 className="mb-0">Datos de los Representantes</h5>
+      </CCardHeader>
+      <CCardBody>
+        <CRow>
+          {/* PADRE */}
+          <CCol xs={12} md={6}>
+            <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-primary">
+              <CCardHeader className="bg-primary bg-opacity-10 border-0 d-flex align-items-center">
+                <CIcon icon={cilUser} className="me-2 text-primary" />
+                <h6 className="mb-0">Padre</h6>
+              </CCardHeader>
+              <CCardBody>
+                <div className="mb-3">
+                  <h6 className="text-muted mb-3">Información Básica</h6>
                   <CRow>
-                    <CCol xs={12} md={6}>
-                      <div className="p-4  rounded mb-4">
-                        <h6 className="text-muted mb-3">Información Básica</h6>
-                        <CRow>
-                          <CCol xs={12} className="mb-3">
-                            <label className="form-label text-muted">Nombre Completo</label>
-                            <div className="fs-5 fw-bold">
-                              {student.RepresentanteNombre} {student.RepresentanteApellido}
-                            </div>
-                          </CCol>
-                          <CCol xs={12} md={6} className="mb-3">
-                            <label className="form-label text-muted">Cédula de Identidad</label>
-                            <div className="fs-5">
-                              <code>{student.RepresentanteCedula}</code>
-                            </div>
-                          </CCol>
-                          <CCol xs={12} md={6} className="mb-3">
-                            <label className="form-label text-muted">Parentesco</label>
-                            <div className="fs-5">
-                              <CBadge color="info">{student.RepresentanteParentesco}</CBadge>
-                            </div>
-                          </CCol>
-                          <CCol xs={12} className="mb-3">
-                            <label className="form-label text-muted">Ocupación</label>
-                            <div className="fs-5">{student.RepresentanteOcupacion}</div>
-                          </CCol>
-                        </CRow>
+                    <CCol xs={12} className="mb-3">
+                      <label className="form-label text-muted">Nombre Completo</label>
+                      <div className="fs-5 fw-bold">
+                        {student.PadreNombre} {student.PadreApellido}
                       </div>
                     </CCol>
-                    
-                    <CCol xs={12} md={6}>
-                      <div className="p-4 rounded">
-                        <h6 className="text-muted mb-3">Contacto</h6>
-                        <CListGroup className="list-group-flush">
-                          <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
-                            <CIcon icon={cilPhone} className="me-3 text-primary" />
-                            <div>
-                              <div className="text-muted">Teléfono</div>
-                              <strong>{student.RepresentanteTelefono}</strong>
-                            </div>
-                          </CListGroupItem>
-                          <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
-                            <CIcon icon={cilEnvelopeClosed} className="me-3 text-primary" />
-                            <div>
-                              <div className="text-muted">Correo Electrónico</div>
-                              <strong>{student.RepresentanteEmail}</strong>
-                            </div>
-                          </CListGroupItem>
-                        </CListGroup>
-                        
-                        <div className="mt-4 pt-3 border-top">
-                          <h6 className="text-muted mb-3">Información Adicional</h6>
-                          <CAlert color="info" className="d-flex align-items-center">
-                            <CIcon icon={cilInfo} className="me-2" />
-                            <small>Contacto principal para emergencias y comunicaciones escolares</small>
-                          </CAlert>
-                        </div>
+                    <CCol xs={12} md={6} className="mb-3">
+                      <label className="form-label text-muted">Cédula de Identidad</label>
+                      <div className="fs-5">
+                        <code>{student.PadreCedula}</code>
                       </div>
+                    </CCol>
+                    <CCol xs={12} md={6} className="mb-3">
+                      <label className="form-label text-muted">Parentesco</label>
+                      <div className="fs-5">
+                        <CBadge color="primary">{student.PadreParentesco}</CBadge>
+                      </div>
+                    </CCol>
+                    <CCol xs={12} className="mb-3">
+                      <label className="form-label text-muted">Ocupación</label>
+                      <div className="fs-5">{student.PadreOcupacion}</div>
                     </CCol>
                   </CRow>
-                </CCardBody>
-              </CCard>
-            </div>
-          </CTabPane>
-
-          {/* Información Académica - Tab 3 */}
-          <CTabPane visible={activeKey === 3}>
-            <div className="mt-4">
-              <CRow>
-                <CCol xs={12} lg={8}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-success bg-opacity-10 border-0 d-flex justify-content-between align-items-center">
-                      <div className="d-flex align-items-center">
-                        <CIcon icon={cilBook} className="me-2 text-success" />
-                        <h5 className="mb-0">Notas y Rendimiento</h5>
-                      </div>
-                      <CBadge color="success" className="fs-6">Promedio: {student.PromedioGeneral}</CBadge>
-                    </CCardHeader>
-                    <CCardBody>
-                      <CTable responsive hover className="align-middle">
-                        <CTableHead>
-                          <CTableRow>
-                            <CTableHeaderCell>Materia</CTableHeaderCell>
-                            <CTableHeaderCell className="text-center">Nota</CTableHeaderCell>
-                            <CTableHeaderCell>Observación</CTableHeaderCell>
-                            <CTableHeaderCell className="text-center">Progreso</CTableHeaderCell>
-                          </CTableRow>
-                        </CTableHead>
-                        <CTableBody>
-                          {student.Notas?.map((nota, index) => {
-                            const progresoNota = (parseFloat(nota.nota) / 20) * 100
-                            let color = "success"
-                            if (progresoNota < 70) color = "warning"
-                            if (progresoNota < 50) color = "danger"
-                            
-                            return (
-                              <CTableRow key={index}>
-                                <CTableDataCell>
-                                  <strong>{nota.materia}</strong>
-                                </CTableDataCell>
-                                <CTableDataCell className="text-center">
-                                  <span className="badge bg-primary rounded-pill fs-6">{nota.nota}/20</span>
-                                </CTableDataCell>
-                                <CTableDataCell>
-                                  <span className="badge  text-dark">{nota.observacion}</span>
-                                </CTableDataCell>
-                                <CTableDataCell className="text-center">
-                                  <CProgress value={progresoNota} color={color} style={{ height: "8px" }} />
-                                </CTableDataCell>
-                              </CTableRow>
-                            )
-                          })}
-                        </CTableBody>
-                      </CTable>
-                    </CCardBody>
-                    <CCardFooter >
-                      <div className="d-flex justify-content-between align-items-center">
-                        <small className="text-muted">Última actualización: {new Date().toLocaleDateString()}</small>
-                        <CButton color="primary" size="sm">
-                          <CIcon icon={cilPencil} className="me-1" />
-                          Editar Notas
-                        </CButton>
-                      </div>
-                    </CCardFooter>
-                  </CCard>
-                </CCol>
+                </div>
                 
-                <CCol xs={12} lg={4}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-info bg-opacity-10 border-0 d-flex align-items-center">
-                      <CIcon icon={cilClipboard} className="me-2 text-info" />
-                      <h5 className="mb-0">Observaciones Académicas</h5>
-                    </CCardHeader>
-                    <CCardBody>
-                      <div className="p-3  rounded">
-                        <p className="mb-0">{student.ObservacionesAcad}</p>
+                <div className="mt-4 pt-3 border-top">
+                  <h6 className="text-muted mb-3">Contacto</h6>
+                  <CListGroup className="list-group-flush">
+                    <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
+                      <CIcon icon={cilPhone} className="me-3 text-primary" />
+                      <div>
+                        <div className="text-muted">Teléfono</div>
+                        <strong>{student.PadreTelefono}</strong>
                       </div>
-                      
-                      <div className="mt-4">
-                        <h6 className="text-muted mb-3">Estadísticas</h6>
-                        <CListGroup className="list-group-flush">
-                          <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span>Asistencia</span>
-                            <CBadge color="success">{student.Asistencia}</CBadge>
-                          </CListGroupItem>
-                          <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span>Conducta</span>
-                            <CBadge color="info">{student.Conducta}</CBadge>
-                          </CListGroupItem>
-                          <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span>Participación</span>
-                            <CBadge color="warning">Alta</CBadge>
-                          </CListGroupItem>
-                        </CListGroup>
+                    </CListGroupItem>
+                    <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
+                      <CIcon icon={cilEnvelopeClosed} className="me-3 text-primary" />
+                      <div>
+                        <div className="text-muted">Correo Electrónico</div>
+                        <strong>{student.PadreEmail}</strong>
                       </div>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-              </CRow>
-            </div>
-          </CTabPane>
+                    </CListGroupItem>
+                  </CListGroup>
+                </div>
+              </CCardBody>
+            </CCard>
+          </CCol>
+
+          {/* MADRE */}
+          <CCol xs={12} md={6}>
+            <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-success">
+              <CCardHeader className="bg-success bg-opacity-10 border-0 d-flex align-items-center">
+                <CIcon icon={cilUser} className="me-2 text-success" />
+                <h6 className="mb-0">Madre</h6>
+              </CCardHeader>
+              <CCardBody>
+                <div className="mb-3">
+                  <h6 className="text-muted mb-3">Información Básica</h6>
+                  <CRow>
+                    <CCol xs={12} className="mb-3">
+                      <label className="form-label text-muted">Nombre Completo</label>
+                      <div className="fs-5 fw-bold">
+                        {student.MadreNombre} {student.MadreApellido}
+                      </div>
+                    </CCol>
+                    <CCol xs={12} md={6} className="mb-3">
+                      <label className="form-label text-muted">Cédula de Identidad</label>
+                      <div className="fs-5">
+                        <code>{student.MadreCedula}</code>
+                      </div>
+                    </CCol>
+                    <CCol xs={12} md={6} className="mb-3">
+                      <label className="form-label text-muted">Parentesco</label>
+                      <div className="fs-5">
+                        <CBadge color="success">{student.MadreParentesco}</CBadge>
+                      </div>
+                    </CCol>
+                    <CCol xs={12} className="mb-3">
+                      <label className="form-label text-muted">Ocupación</label>
+                      <div className="fs-5">{student.MadreOcupacion}</div>
+                    </CCol>
+                  </CRow>
+                </div>
+                
+                <div className="mt-4 pt-3 border-top">
+                  <h6 className="text-muted mb-3">Contacto</h6>
+                  <CListGroup className="list-group-flush">
+                    <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
+                      <CIcon icon={cilPhone} className="me-3 text-primary" />
+                      <div>
+                        <div className="text-muted">Teléfono</div>
+                        <strong>{student.MadreTelefono}</strong>
+                      </div>
+                    </CListGroupItem>
+                    <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
+                      <CIcon icon={cilEnvelopeClosed} className="me-3 text-primary" />
+                      <div>
+                        <div className="text-muted">Correo Electrónico</div>
+                        <strong>{student.MadreEmail}</strong>
+                      </div>
+                    </CListGroupItem>
+                  </CListGroup>
+                </div>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+
+        {/* REPRESENTANTE PRINCIPAL (Compatibilidad) */}
+        <CRow className="mt-4">
+          <CCol xs={12}>
+            <CCard className="border-0 shadow-sm border-top border-top-3 border-warning">
+              <CCardHeader className="bg-warning bg-opacity-10 border-0 d-flex align-items-center">
+                <CIcon icon={cilBadge} className="me-2 text-warning" />
+                <h6 className="mb-0">Representante Principal</h6>
+              </CCardHeader>
+              <CCardBody>
+                <CRow>
+                  <CCol xs={12} md={6}>
+                    <div className="mb-3">
+                      <h6 className="text-muted mb-3">Información Básica</h6>
+                      <CRow>
+                        <CCol xs={12} className="mb-3">
+                          <label className="form-label text-muted">Nombre Completo</label>
+                          <div className="fs-5 fw-bold">
+                            {student.RepresentanteNombre} {student.RepresentanteApellido}
+                          </div>
+                        </CCol>
+                        <CCol xs={12} md={6} className="mb-3">
+                          <label className="form-label text-muted">Cédula de Identidad</label>
+                          <div className="fs-5">
+                            <code>{student.RepresentanteCedula}</code>
+                          </div>
+                        </CCol>
+                        <CCol xs={12} md={6} className="mb-3">
+                          <label className="form-label text-muted">Parentesco</label>
+                          <div className="fs-5">
+                            <CBadge color="warning">{student.RepresentanteParentesco}</CBadge>
+                          </div>
+                        </CCol>
+                        <CCol xs={12} className="mb-3">
+                          <label className="form-label text-muted">Ocupación</label>
+                          <div className="fs-5">{student.RepresentanteOcupacion}</div>
+                        </CCol>
+                      </CRow>
+                    </div>
+                  </CCol>
+                  
+                  <CCol xs={12} md={6}>
+                    <div className="mb-3">
+                      <h6 className="text-muted mb-3">Contacto</h6>
+                      <CListGroup className="list-group-flush">
+                        <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
+                          <CIcon icon={cilPhone} className="me-3 text-primary" />
+                          <div>
+                            <div className="text-muted">Teléfono</div>
+                            <strong>{student.RepresentanteTelefono}</strong>
+                          </div>
+                        </CListGroupItem>
+                        <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
+                          <CIcon icon={cilEnvelopeClosed} className="me-3 text-primary" />
+                          <div>
+                            <div className="text-muted">Correo Electrónico</div>
+                            <strong>{student.RepresentanteEmail}</strong>
+                          </div>
+                        </CListGroupItem>
+                      </CListGroup>
+                    </div>
+                  </CCol>
+                </CRow>
+                
+                <div className="mt-4 pt-3 border-top">
+                  <CAlert color="info" className="d-flex align-items-center">
+                    <CIcon icon={cilInfo} className="me-2" />
+                    <div>
+                      <strong>Contacto principal para emergencias y comunicaciones escolares</strong>
+                      <div className="mt-1">
+                        <small>
+                          Este es el contacto principal designado para todas las comunicaciones oficiales de la escuela.
+                          Para asuntos específicos, también se puede contactar a los padres según corresponda.
+                        </small>
+                      </div>
+                    </div>
+                  </CAlert>
+                </div>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+      </CCardBody>
+    </CCard>
+  </div>
+</CTabPane>
+
 
           {/* Información de Salud - Tab 4 */}
           <CTabPane visible={activeKey === 4}>
@@ -732,7 +792,7 @@ const PerfilStudents = () => {
                           </div>
                         </CCol>
                         <CCol xs={12}>
-                          <div className="p-3  rounded">
+                          <div className="p-3 rounded">
                             <h6 className="text-muted mb-2">Índice de Masa Corporal (IMC)</h6>
                             <div className="d-flex align-items-center">
                               <div className="flex-grow-1 me-3">
@@ -769,7 +829,7 @@ const PerfilStudents = () => {
                         <CListGroupItem className="border-0 px-0 py-3">
                           <div className="d-flex">
                             <div className="flex-shrink-0">
-                              <div className="avatar avatar-sm  rounded">
+                              <div className="avatar avatar-sm rounded">
                                 <CIcon icon={cilMedicalCross} className="text-danger" />
                               </div>
                             </div>
@@ -815,7 +875,7 @@ const PerfilStudents = () => {
                         <CListGroupItem className="border-0 px-0 py-3">
                           <div className="d-flex">
                             <div className="flex-shrink-0">
-                              <div className="avatar avatar-sm  rounded">
+                              <div className="avatar avatar-sm rounded">
                                 <CIcon icon={cilMedicalCross} className="text-info" />
                               </div>
                             </div>
@@ -835,22 +895,6 @@ const PerfilStudents = () => {
                           </div>
                         </CListGroupItem>
                       </CListGroup>
-                      
-                      {student.HistorialMedico && student.HistorialMedico.length > 0 && (
-                        <div className="mt-4">
-                          <h6 className="text-muted mb-3">Consultas Recientes</h6>
-                          {student.HistorialMedico.map((consulta, index) => (
-                            <div key={index} className="border-start border-3 border-primary ps-3 mb-3">
-                              <div className="d-flex justify-content-between">
-                                <strong>{consulta.diagnostico}</strong>
-                                <small className="text-muted">{consulta.fecha}</small>
-                              </div>
-                              <p className="mb-1">{consulta.tratamiento}</p>
-                              <small className="text-muted">Médico: {consulta.medico}</small>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </CCardBody>
                   </CCard>
                 </CCol>
@@ -862,7 +906,7 @@ const PerfilStudents = () => {
 
       {/* Pie de página con información adicional */}
       <CCard className="mt-4 border-0 shadow-sm">
-        <CCardFooter className=" d-flex justify-content-between align-items-center">
+        <CCardFooter className="d-flex justify-content-between align-items-center">
           <div>
             <small className="text-muted">
               Estudiante registrado desde: {student.FechaIngreso} | 
@@ -870,52 +914,26 @@ const PerfilStudents = () => {
             </small>
           </div>
           <div className="d-flex gap-2">
-            <CButton color="light" size="sm" variant="outline" onClick={() => window.print()}>
+            <CButton color="light" size="sm" variant="outline" onClick={handlePrint}>
               <CIcon icon={cilPrint} className="me-1" />
               Imprimir Perfil
             </CButton>
-            <Link to={`/students/edit/${student.id}`}>
-              <CButton color="primary" size="sm">
-                <CIcon icon={cilPencil} className="me-1" />
-                Editar Información
-              </CButton>
-            </Link>
+            <CButton color="primary" size="sm" onClick={handleEdit}>
+              <CIcon icon={cilPencil} className="me-1" />
+              Editar Información
+            </CButton>
           </div>
         </CCardFooter>
       </CCard>
 
-      {/* Modal de Confirmación de Eliminación */}
-      <CModal visible={modalVisible} onClose={() => setModalVisible(false)}>
-        <CModalHeader>
-          <CModalTitle>
-            <CIcon icon={cilTrash} className="me-2 text-danger" />
-            Confirmar Eliminación
-          </CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <div className="text-center py-3">
-            <div className="avatar-circle-lg bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
-              <CIcon icon={cilTrash} size="xl" />
-            </div>
-            <h5>¿Está seguro de eliminar este estudiante?</h5>
-            <p className="text-muted">
-              Se eliminarán todos los datos de <strong>{student.NombreEstudiante} {student.ApellidoEstudiante}</strong> del sistema.
-            </p>
-            <CAlert color="danger">
-              <CIcon icon={cilWarning} className="me-2" />
-              <strong>¡Esta acción no se puede deshacer!</strong>
-            </CAlert>
-          </div>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setModalVisible(false)}>
-            Cancelar
-          </CButton>
-          <CButton color="danger" onClick={confirmDelete}>
-            Sí, eliminar estudiante
-          </CButton>
-        </CModalFooter>
-      </CModal>
+      {/* NUEVA MODAL DE EDICIÓN */}
+      <EditStudentModal
+        visible={editModalVisible}
+        onClose={() => setEditModalVisible(false)}
+        studentData={student}
+        onSave={handleSaveStudent}
+        loading={saving}
+      />
 
       {/* Toaster para notificaciones */}
       <CToaster placement="top-end">
@@ -931,7 +949,7 @@ const PerfilStudents = () => {
             <CToastHeader closeButton className={`bg-${t.type} text-white`}>
               <strong className="me-auto">{t.title}</strong>
             </CToastHeader>
-            <CToastBody >
+            <CToastBody>
               {t.message}
             </CToastBody>
           </CToast>

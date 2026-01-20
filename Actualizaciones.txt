@@ -9,6 +9,8 @@ Tareas:
 -EDITAR EL SIDEBAR  (COMPLETADA)
 -EDITAR Y ELIMINAR LOS MODULOS QUE ESTAN YA CREADOS (COMPLETADA)
 
--Creacion de modulo de estudiantes capaz de filtrar y mostrar estudiantes de los diferentes grados y secciones como una pequeña parte de los datos del mismo 
+-Creacion de modulo de estudSiantes capaz de filtrar y mostrar estudiantes de los diferentes grados y secciones como una pequeña parte de los datos del mismo ACTUALIZACION: NO SE AH TERMINADO AL 100 ESTE MODULO FALTA PULIR DETALLES ESTETICOS Y DE FUNCIONALIDAD EN LOS APARTADOS DE INPUTS 
+
+
 
 

@@ -13,6 +13,7 @@ const Register = React.lazy(() => import('./views/pages/register/Register'))
 
 //Users
 const Users = React.lazy(() => import('./views/users/users'))
+const profile = React.lazy(() => import('./views/profile/Profile'))
 
 //Landing pages 
 
@@ -36,14 +37,17 @@ const PerfilStudents = React.lazy(() => import('./views/Students/PerfilStudents'
 //Inscripcion
 
 const Inscripcion = React.lazy(() => import('./views/Inscripcion/Inscripcion'))
-const InscripcionStep = React.lazy(() => import('./views/Inscripcion/InscripcionStep'))
+const inscripcionPrevia = React.lazy(() => import('./views/Inscripcion/inscripcionPrevia'))
 
 //Notas 
 
 const Notas = React.lazy(() => import('./views/Notas/Notas'))
 
+
+
 //Boletin
 const Boletin = React.lazy(() => import('./views/Boletin/Boletin'))
+const boletinEstudiante = React.lazy(() => import('./views/profile/boletinEstudiante'))
 
 //Horario
 
@@ -56,6 +60,16 @@ const Aulas = React.lazy(() => import('./views/Aulas/Aulas'))
 //Nutricion
 
 const Nutricion = React.lazy(() => import('./views/Nutricion/Nutricion'))
+
+//provisional experemintal
+
+const Registro = React.lazy(() => import('./views/Registro/registro'))
+const RegistroMain = React.lazy(() => import('./views/Registro/registro-estudiantil-main'))
+const buscarEstudiante = React.lazy(() => import('./views/Registro/registro-estudiantil/buscar-estudiante'))
+const crearEstudiante = React.lazy(() => import('./views/Registro/registro-estudiantil/crear-alumno'))
+const InscripcionPeriodo = React.lazy(() => import('./views/Registro/registro-estudiantil/inscripcion-periodo'))
+const tipoInscripcion = React.lazy(() => import('./views/Registro/registro-estudiantil/tipo-inscripcion'))
+const validacionGrados= React.lazy(() => import('./views/Registro/registro-estudiantil/validacion-grados'))
 
 
 
@@ -86,7 +100,7 @@ const routes = [
   {path: '/LandingPages', name: 'LandingPages', element: LandingPages},
 
   {path: '/Inscripcion', name: 'Inscripcion', element: Inscripcion}, // Inscripción
-  {path: '/InscripcionStep', name: 'InscripcionStep', element: InscripcionStep}, // Inscripción Stepper
+  {path: '/inscripcionPrevia', name: 'Inscripcion Previa', element: inscripcionPrevia}, // Inscripción Stepper
   {path: '/Notas', name: 'Notas', element: Notas}, // Notas
   {path: '/Boletin', name: 'Boletin', element: Boletin}, // Boletín
   {path: '/Horario', name: 'Horario', element: Horario}, // Horario
@@ -94,7 +108,8 @@ const routes = [
   {path: '/Nutricion', name: 'Nutricion', element: Nutricion}, // Nutrición
   {path: '/Students', name: 'Students', element: Students}, // Students
   {path: '/PerfilStudents/:id', name: 'PerfilStudents', element: PerfilStudents}, // Perfil Students
-
+  {path: '/profile', name: 'Profile', element: profile}, // Profile
+  {path: '/boletinEstudiante', name: 'BoletinEstudiante', element: boletinEstudiante}, // Boletín Estudiante
 
 
   //FIN RUTAS AGG

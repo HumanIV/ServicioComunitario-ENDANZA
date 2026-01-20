@@ -11,10 +11,14 @@ import {
   cilClock,
   cilRoom,
   cilApple,
+  cilAccountLogout,
+  cilUser
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
+
+
   {
     component: CNavItem,
     name: 'INICIO',
@@ -29,6 +33,56 @@ const _nav = [
 
   {
     component: CNavGroup,
+    name: 'Perfil ',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Perfil del estudiante',
+        to: '/Profile',
+      },
+      {
+        component: CNavItem,
+        name: 'Boletin',
+        to: '/boletinEstudiante',
+      },
+      {
+        component: CNavItem,
+        name: 'Inscripcion',
+        to: '/inscripcionPrevia',
+      },
+      {
+        component: CNavItem,
+        name: 'Horario',
+        to: '/Horario',
+      }
+    ],
+  },
+
+
+
+
+
+
+
+
+
+  {
+    component: CNavGroup,
+    name: 'Estudiantes',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Estudiantes',
+        to: '/Students',
+      }
+    ],
+  },
+
+
+  {
+    component: CNavGroup,
     name: 'Inscripcion',
     icon: <CIcon icon={cilPencil} customClassName="nav-icon" />,
     items: [
@@ -37,11 +91,6 @@ const _nav = [
         name: 'Inscripciones',
         to: '/Inscripcion',
       },
-      {
-        component: CNavItem,
-        name: 'Students',
-        to: '/Students',
-      }
     ],
   },
 
@@ -57,6 +106,7 @@ const _nav = [
       },
     ],
   },
+
   {
     component: CNavGroup,
     name: 'Boletin',
@@ -111,7 +161,7 @@ const _nav = [
     ],
   },
 
-  {
+  /*{
     component: CNavGroup,
     name: 'Reportes y Estadísticas',
     icon: <CIcon icon={cilReportSlash} customClassName="nav-icon" />,
@@ -122,7 +172,7 @@ const _nav = [
         to: '/Reports',
       },
     ],
-  },
+  },*/
 
 
   {
