@@ -13,4 +13,15 @@ Tareas:
 
 
 
+arreglar boletin que llegue a filtar principalmente por el promedio de la seccion y muestre un mini resume de estadisticas  COMPLETADA
+
+arreglar horario a nivel de usuario que sera el padre que descargara el boletin  completado   
+
+arreglar inscripciones para que tenga todos los campos necesarios (completada a medias hay una logica que necesita un ojo ) (completada falta configurar los formularios al 100 incluir que agregue al papa y mama o en caso opcional representante legal)
+
+diseñar y incluir el modulo de permisos para habilitar incripciones aprobacion de notas y plazos , a su vez diseñar el modulo para la inclusion al sistema de usuarios a nivel institucional por completar  (creado hasta cierto punto lo mejor seria con lo que se tiene agrandarlo se tiene modulado solo es agregar logica que se conecte con los demas modulos)
+
+
+arrelgar login y register hacerlos bonitos esteticamente para que sean bonitos xd por completar 
+
 

@@ -62,7 +62,7 @@ import {
 } from "@coreui/icons"
 
 // Importa tu modal
-import EditStudentModal from "./components/editModal" // Ajusta la ruta según donde la tengas
+import EditStudentModal from "./components/profile/editModal" // Ajusta la ruta según donde la tengas
 
 const PerfilStudents = () => {
   const navigate = useNavigate()
@@ -291,11 +291,6 @@ const PerfilStudents = () => {
       <CRow className="mb-4 align-items-center">
         <CCol xs={12} md={6}>
           <div className="d-flex align-items-center">
-            <Link to="/students" className="text-decoration-none">
-              <CButton color="light" variant="outline" className="me-3">
-                <CIcon icon={cilArrowLeft} />
-              </CButton>
-            </Link>
             <div>
               <h1 className="h3 mb-0">Perfil del Estudiante</h1>
               <nav aria-label="breadcrumb">

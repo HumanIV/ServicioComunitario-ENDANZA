@@ -1,0 +1,813 @@
+import React, { useState, useEffect, useCallback } from 'react'
+import {
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CCardFooter,
+  CContainer,
+  CRow,
+  CCol,
+  CButton,
+  CAlert,
+  CBadge,
+  CToaster,
+  CToast,
+  CToastHeader,
+  CToastBody,
+  CFormInput,
+  CFormSelect,
+  CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
+  CTableBody,
+  CTableDataCell,
+  CModal,
+  CModalHeader,
+  CModalTitle,
+  CModalBody,
+  CModalFooter,
+  CPagination,
+  CFormCheck,
+  CInputGroup,
+  CInputGroupText,
+  CSpinner,
+  CTooltip
+} from "@coreui/react"
+import CIcon from "@coreui/icons-react"
+import { 
+  cilDownload,
+  cilCheckCircle,
+  cilXCircle,
+  cilEye,
+  cilFilter,
+  cilSearch,
+  cilUser,
+  cilCalendar,
+  cilFile,
+  cilPrint,
+  cilSend,
+  cilBook,
+  cilChart,
+  cilListFilter,
+  cilReload
+} from "@coreui/icons"
+import jsPDF from 'jspdf'
+import 'jspdf-autotable'
+
+// Datos de ejemplo - en producción vendría de API
+const estudiantesData = [
+  {
+    id: 1,
+    codigo: "END-2024-001",
+    nombre: "Ana López Rodríguez",
+    dni: "87654321",
+    grado: "4to Grado",
+    seccion: "A",
+    representante: "María Rodríguez Pérez",
+    telefono: "999888777",
+    email: "representante@email.com",
+    periodos: {
+      1: { estado: 'aprobado', fechaAprobacion: '15/04/2024', aprobadoPor: 'Admin' },
+      2: { estado: 'pendiente', fechaAprobacion: null, aprobadoPor: null },
+      3: { estado: 'no_iniciado', fechaAprobacion: null, aprobadoPor: null }
+    },
+    notas: {
+      1: [
+        { materia: "Ballet Clásico I", nota: 18, observacion: "Excelente" },
+        { materia: "Ritmo y Movimiento", nota: 16, observacion: "Bueno" },
+        { materia: "Expresión Corporal", nota: 14, observacion: "Regular" }
+      ],
+      2: [
+        { materia: "Ballet Clásico I", nota: 17, observacion: "Muy bien" },
+        { materia: "Ritmo y Movimiento", nota: 15, observacion: "Aplica correcciones" },
+        { materia: "Expresión Corporal", nota: null, observacion: "Pendiente" }
+      ]
+    }
+  },
+  {
+    id: 2,
+    codigo: "END-2024-002",
+    nombre: "Carlos Méndez Sánchez",
+    dni: "76543210",
+    grado: "5to Grado",
+    seccion: "B",
+    representante: "Juan Méndez López",
+    telefono: "999777666",
+    email: "juan@email.com",
+    periodos: {
+      1: { estado: 'aprobado', fechaAprobacion: '16/04/2024', aprobadoPor: 'Admin' },
+      2: { estado: 'aprobado', fechaAprobacion: '10/07/2024', aprobadoPor: 'Secretaria' },
+      3: { estado: 'pendiente', fechaAprobacion: null, aprobadoPor: null }
+    },
+    notas: {
+      1: [
+        { materia: "Ballet Clásico I", nota: 19, observacion: "Sobresaliente" },
+        { materia: "Ritmo y Movimiento", nota: 17, observacion: "Excelente" }
+      ],
+      2: [
+        { materia: "Ballet Clásico I", nota: 18, observacion: "Muy buen progreso" },
+        { materia: "Ritmo y Movimiento", nota: 16, observacion: "Buen desempeño" }
+      ]
+    }
+  },
+  // Más estudiantes...
+]
+
+const GradosSecciones = [
+  "Preparatorio A", "Preparatorio B",
+  "1er Grado A", "1er Grado B", "1er Grado C",
+  "2do Grado A", "2do Grado B",
+  "3er Grado A", "3er Grado B",
+  "4to Grado A", "4to Grado B",
+  "5to Grado A", "5to Grado B",
+  "6to Grado A",
+  "7mo Grado A",
+  "8vo Grado A"
+]
+
+const GestionBoletines = () => {
+  // Estados principales
+  const [estudiantes, setEstudiantes] = useState([])
+  const [filtros, setFiltros] = useState({
+    busqueda: '',
+    gradoSeccion: '',
+    periodo: '1',
+    estado: ''
+  })
+  const [selectedEstudiantes, setSelectedEstudiantes] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage] = useState(10)
+  const [loading, setLoading] = useState(false)
+  const [toasts, setToasts] = useState([])
+  const [modalDetalle, setModalDetalle] = useState({ visible: false, estudiante: null, periodo: 1 })
+  const [modalAprobacion, setModalAprobacion] = useState({ visible: false, estudiante: null, periodo: 1 })
+
+  // Inicializar datos
+  useEffect(() => {
+    setLoading(true)
+    // Simular carga de API
+    setTimeout(() => {
+      setEstudiantes(estudiantesData)
+      setLoading(false)
+    }, 1000)
+  }, [])
+
+  // Mostrar toast
+  const showToast = useCallback((type, message) => {
+    const id = Date.now()
+    const newToast = { id, type, message }
+    setToasts(prev => [...prev, newToast])
+    
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+    }, 4000)
+  }, [])
+
+  // Filtrar estudiantes
+  const estudiantesFiltrados = estudiantes.filter(est => {
+    const { busqueda, gradoSeccion, periodo, estado } = filtros
+    
+    if (busqueda && !est.nombre.toLowerCase().includes(busqueda.toLowerCase()) && 
+        !est.codigo.includes(busqueda) && 
+        !est.dni.includes(busqueda)) {
+      return false
+    }
+    
+    if (gradoSeccion) {
+      const gradoSeccionStr = `${est.grado} ${est.seccion}`
+      if (gradoSeccionStr !== gradoSeccion) return false
+    }
+    
+    if (estado && est.periodos[periodo]?.estado !== estado) {
+      return false
+    }
+    
+    return true
+  })
+
+  // Paginación
+  const indexOfLastItem = currentPage * itemsPerPage
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage
+  const currentItems = estudiantesFiltrados.slice(indexOfFirstItem, indexOfLastItem)
+  const totalPages = Math.ceil(estudiantesFiltrados.length / itemsPerPage)
+
+  // Seleccionar/deseleccionar estudiantes
+  const toggleSelectEstudiante = (id) => {
+    setSelectedEstudiantes(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    )
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedEstudiantes.length === currentItems.length) {
+      setSelectedEstudiantes([])
+    } else {
+      setSelectedEstudiantes(currentItems.map(est => est.id))
+    }
+  }
+
+  // Descargar boletín individual
+  const descargarBoletinIndividual = (estudiante, periodo) => {
+    const periodoData = estudiante.periodos[periodo]
+    
+    if (!periodoData || periodoData.estado !== 'aprobado') {
+      showToast('warning', `El período ${periodo} no está aprobado para ${estudiante.nombre}`)
+      return
+    }
+
+    showToast('info', `Generando boletín de ${estudiante.nombre}...`)
+    
+    // Crear PDF
+    const doc = new jsPDF()
+    const fecha = new Date().toLocaleDateString('es-ES')
+    
+    // Encabezado
+    doc.setFontSize(16)
+    doc.text('ESCUELA DE DANZA ENDANZA', 105, 20, { align: 'center' })
+    doc.setFontSize(14)
+    doc.text('BOLETÍN ACADÉMICO', 105, 30, { align: 'center' })
+    
+    // Información del estudiante
+    doc.setFontSize(10)
+    doc.text(`Estudiante: ${estudiante.nombre}`, 20, 45)
+    doc.text(`Código: ${estudiante.codigo}`, 20, 52)
+    doc.text(`Grado: ${estudiante.grado} - Sección: ${estudiante.seccion}`, 20, 59)
+    doc.text(`Período: ${periodo}`, 20, 66)
+    doc.text(`Fecha de descarga: ${fecha}`, 20, 73)
+    
+    // Tabla de notas
+    const notas = estudiante.notas[periodo] || []
+    const tableData = notas.map(item => [
+      item.materia,
+      item.nota || 'Pendiente',
+      item.observacion || ''
+    ])
+    
+    doc.autoTable({
+      startY: 80,
+      head: [['Asignatura', 'Nota', 'Observaciones']],
+      body: tableData,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [41, 128, 185] }
+    })
+    
+    // Pie de página
+    const finalY = doc.lastAutoTable.finalY + 10
+    doc.setFontSize(9)
+    doc.text('Este documento es oficial de la Escuela de Danza Endanza.', 105, finalY, { align: 'center' })
+    doc.text('Firma del Director: ________________________', 105, finalY + 10, { align: 'center' })
+    
+    // Descargar
+    doc.save(`Boletin_${estudiante.codigo}_Periodo${periodo}.pdf`)
+    showToast('success', `Boletín descargado: ${estudiante.nombre}`)
+  }
+
+  // Descargar boletines en lote
+  const descargarBoletinesLote = () => {
+    if (selectedEstudiantes.length === 0) {
+      showToast('warning', 'Seleccione al menos un estudiante')
+      return
+    }
+
+    const periodo = filtros.periodo
+    const estudiantesSeleccionados = estudiantes.filter(est => 
+      selectedEstudiantes.includes(est.id)
+    )
+
+    // Verificar que todos tengan el período aprobado
+    const noAprobados = estudiantesSeleccionados.filter(est => 
+      !est.periodos[periodo] || est.periodos[periodo].estado !== 'aprobado'
+    )
+
+    if (noAprobados.length > 0) {
+      showToast('error', `${noAprobados.length} estudiantes no tienen el período ${periodo} aprobado`)
+      return
+    }
+
+    showToast('info', `Generando ${selectedEstudiantes.length} boletines...`)
+    
+    // En producción, esto generaría un ZIP con todos los PDFs
+    setTimeout(() => {
+      showToast('success', `Se descargaron ${selectedEstudiantes.length} boletines`)
+      setSelectedEstudiantes([])
+    }, 2000)
+  }
+
+  // Aprobar período
+  const aprobarPeriodo = (estudianteId, periodo) => {
+    setEstudiantes(prev => prev.map(est => {
+      if (est.id === estudianteId) {
+        const updatedPeriodos = { ...est.periodos }
+        updatedPeriodos[periodo] = {
+          estado: 'aprobado',
+          fechaAprobacion: new Date().toLocaleDateString('es-ES'),
+          aprobadoPor: 'Administrador'
+        }
+        return { ...est, periodos: updatedPeriodos }
+      }
+      return est
+    }))
+
+    showToast('success', `Período ${periodo} aprobado para el estudiante`)
+    setModalAprobacion({ visible: false, estudiante: null, periodo: 1 })
+  }
+
+  // Rechazar período
+  const rechazarPeriodo = (estudianteId, periodo) => {
+    setEstudiantes(prev => prev.map(est => {
+      if (est.id === estudianteId) {
+        const updatedPeriodos = { ...est.periodos }
+        updatedPeriodos[periodo] = {
+          estado: 'rechazado',
+          fechaAprobacion: null,
+          aprobadoPor: null
+        }
+        return { ...est, periodos: updatedPeriodos }
+      }
+      return est
+    }))
+
+    showToast('warning', `Período ${periodo} rechazado`)
+    setModalAprobacion({ visible: false, estudiante: null, periodo: 1 })
+  }
+
+  // Calcular estadísticas
+  const estadisticas = {
+    total: estudiantes.length,
+    aprobados: estudiantes.filter(est => 
+      est.periodos[filtros.periodo]?.estado === 'aprobado'
+    ).length,
+    pendientes: estudiantes.filter(est => 
+      est.periodos[filtros.periodo]?.estado === 'pendiente'
+    ).length,
+    noIniciados: estudiantes.filter(est => 
+      !est.periodos[filtros.periodo] || est.periodos[filtros.periodo].estado === 'no_iniciado'
+    ).length
+  }
+
+  // Limpiar filtros
+  const limpiarFiltros = () => {
+    setFiltros({
+      busqueda: '',
+      gradoSeccion: '',
+      periodo: '1',
+      estado: ''
+    })
+    setSelectedEstudiantes([])
+    setCurrentPage(1)
+  }
+
+  return (
+    <CContainer fluid className="py-4">
+      <h2 className="mb-4">
+        <CIcon icon={cilFile} className="me-2" />
+        Gestión de Boletines Académicos
+      </h2>
+
+      {/* Tarjetas de estadísticas */}
+      <CRow className="mb-4">
+        <CCol md={3}>
+          <CCard className="text-center border-primary">
+            <CCardBody>
+              <h4 className="text-primary">{estadisticas.total}</h4>
+              <p className="text-muted mb-0">Total Estudiantes</p>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol md={3}>
+          <CCard className="text-center border-success">
+            <CCardBody>
+              <h4 className="text-success">{estadisticas.aprobados}</h4>
+              <p className="text-muted mb-0">Períodos Aprobados</p>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol md={3}>
+          <CCard className="text-center border-warning">
+            <CCardBody>
+              <h4 className="text-warning">{estadisticas.pendientes}</h4>
+              <p className="text-muted mb-0">Pendientes de Revisión</p>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol md={3}>
+          <CCard className="text-center border-secondary">
+            <CCardBody>
+              <h4 className="text-secondary">{estadisticas.noIniciados}</h4>
+              <p className="text-muted mb-0">No Iniciados</p>
+            </CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>
+
+      {/* Panel de filtros */}
+      <CCard className="mb-4 shadow-sm">
+        <CCardHeader className="bg-body-tertiary">
+          <h5 className="mb-0">
+            <CIcon icon={cilFilter} className="me-2" />
+            Filtros y Búsqueda
+          </h5>
+        </CCardHeader>
+        <CCardBody>
+          <CRow className="g-3">
+            <CCol md={3}>
+              <CFormInput
+                placeholder="Buscar por nombre, código o DNI..."
+                value={filtros.busqueda}
+                onChange={(e) => setFiltros({...filtros, busqueda: e.target.value})}
+              />
+            </CCol>
+            <CCol md={2}>
+              <CFormSelect
+                value={filtros.gradoSeccion}
+                onChange={(e) => setFiltros({...filtros, gradoSeccion: e.target.value})}
+              >
+                <option value="">Todos los grados</option>
+                {GradosSecciones.map(grado => (
+                  <option key={grado} value={grado}>{grado}</option>
+                ))}
+              </CFormSelect>
+            </CCol>
+            <CCol md={2}>
+              <CFormSelect
+                value={filtros.periodo}
+                onChange={(e) => setFiltros({...filtros, periodo: e.target.value})}
+              >
+                <option value="1">Período 1</option>
+                <option value="2">Período 2</option>
+                <option value="3">Período 3</option>
+              </CFormSelect>
+            </CCol>
+            <CCol md={2}>
+              <CFormSelect
+                value={filtros.estado}
+                onChange={(e) => setFiltros({...filtros, estado: e.target.value})}
+              >
+                <option value="">Todos los estados</option>
+                <option value="aprobado">Aprobados</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="rechazado">Rechazados</option>
+                <option value="no_iniciado">No iniciados</option>
+              </CFormSelect>
+            </CCol>
+            <CCol md={3} className="d-flex gap-2">
+              <CButton color="secondary" variant="outline" onClick={limpiarFiltros}>
+                <CIcon icon={cilReload} /> Limpiar
+              </CButton>
+              <CButton color="primary" onClick={() => showToast('info', 'Filtros aplicados')}>
+                <CIcon icon={cilSearch} /> Buscar
+              </CButton>
+            </CCol>
+          </CRow>
+
+          {/* Selección múltiple */}
+          {selectedEstudiantes.length > 0 && (
+            <CAlert color="info" className="mt-3">
+              <div className="d-flex justify-content-between align-items-center">
+                <span>
+                  <CIcon icon={cilUser} className="me-2" />
+                  <strong>{selectedEstudiantes.length}</strong> estudiantes seleccionados
+                </span>
+                <div className="d-flex gap-2">
+                  <CButton size="sm" color="success" onClick={descargarBoletinesLote}>
+                    <CIcon icon={cilDownload} /> Descargar {selectedEstudiantes.length} boletines
+                  </CButton>
+                  <CButton size="sm" color="secondary" variant="outline" onClick={() => setSelectedEstudiantes([])}>
+                    <CIcon icon={cilXCircle} /> Deseleccionar
+                  </CButton>
+                </div>
+              </div>
+            </CAlert>
+          )}
+        </CCardBody>
+      </CCard>
+
+      {/* Tabla de estudiantes */}
+      <CCard className="shadow-sm">
+        <CCardHeader className="bg-body-tertiary d-flex justify-content-between align-items-center">
+          <h5 className="mb-0">Listado de Estudiantes</h5>
+          <div className="d-flex gap-2">
+            <CButton color="primary" onClick={descargarBoletinesLote} disabled={selectedEstudiantes.length === 0}>
+              <CIcon icon={cilDownload} /> Descargar Seleccionados
+            </CButton>
+            <CButton color="success" onClick={() => showToast('info', 'Exportando a Excel...')}>
+              <CIcon icon={cilSend} /> Exportar Excel
+            </CButton>
+          </div>
+        </CCardHeader>
+        <CCardBody>
+          {loading ? (
+            <div className="text-center py-5">
+              <CSpinner color="primary" />
+              <p className="mt-3">Cargando datos...</p>
+            </div>
+          ) : (
+            <>
+              <CTable hover responsive>
+                <CTableHead>
+                  <CTableRow>
+                    <CTableHeaderCell style={{ width: '50px' }}>
+                      <CFormCheck 
+                        checked={selectedEstudiantes.length === currentItems.length}
+                        onChange={toggleSelectAll}
+                      />
+                    </CTableHeaderCell>
+                    <CTableHeaderCell>Código</CTableHeaderCell>
+                    <CTableHeaderCell>Estudiante</CTableHeaderCell>
+                    <CTableHeaderCell>Grado/Sección</CTableHeaderCell>
+                    <CTableHeaderCell>Período {filtros.periodo}</CTableHeaderCell>
+                    <CTableHeaderCell>Acciones</CTableHeaderCell>
+                  </CTableRow>
+                </CTableHead>
+                <CTableBody>
+                  {currentItems.map(estudiante => {
+                    const periodoData = estudiante.periodos[filtros.periodo]
+                    
+                    return (
+                      <CTableRow key={estudiante.id}>
+                        <CTableDataCell>
+                          <CFormCheck 
+                            checked={selectedEstudiantes.includes(estudiante.id)}
+                            onChange={() => toggleSelectEstudiante(estudiante.id)}
+                          />
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          <strong>{estudiante.codigo}</strong>
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          <div>
+                            <strong>{estudiante.nombre}</strong>
+                            <div className="small text-muted">DNI: {estudiante.dni}</div>
+                          </div>
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {estudiante.grado} - {estudiante.seccion}
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          {periodoData ? (
+                            <CBadge 
+                              color={
+                                periodoData.estado === 'aprobado' ? 'success' :
+                                periodoData.estado === 'pendiente' ? 'warning' :
+                                periodoData.estado === 'rechazado' ? 'danger' : 'secondary'
+                              }
+                            >
+                              {periodoData.estado === 'aprobado' ? (
+                                <>
+                                  <CIcon icon={cilCheckCircle} /> Aprobado
+                                  <div className="small">{periodoData.fechaAprobacion}</div>
+                                </>
+                              ) : periodoData.estado === 'pendiente' ? 'Pendiente' : 'No Iniciado'}
+                            </CBadge>
+                          ) : (
+                            <CBadge color="secondary">No Iniciado</CBadge>
+                          )}
+                        </CTableDataCell>
+                        <CTableDataCell>
+                          <div className="d-flex gap-2">
+                            <CTooltip content="Ver detalle">
+                              <CButton 
+                                size="sm" 
+                                color="info" 
+                                variant="outline"
+                                onClick={() => setModalDetalle({ 
+                                  visible: true, 
+                                  estudiante, 
+                                  periodo: parseInt(filtros.periodo) 
+                                })}
+                              >
+                                <CIcon icon={cilEye} />
+                              </CButton>
+                            </CTooltip>
+                            
+                            <CTooltip content="Descargar boletín">
+                              <CButton 
+                                size="sm" 
+                                color="success" 
+                                variant="outline"
+                                onClick={() => descargarBoletinIndividual(estudiante, filtros.periodo)}
+                                disabled={!periodoData || periodoData.estado !== 'aprobado'}
+                              >
+                                <CIcon icon={cilDownload} />
+                              </CButton>
+                            </CTooltip>
+                            
+                            <CTooltip content="Gestionar aprobación">
+                              <CButton 
+                                size="sm" 
+                                color="warning" 
+                                variant="outline"
+                                onClick={() => setModalAprobacion({ 
+                                  visible: true, 
+                                  estudiante, 
+                                  periodo: parseInt(filtros.periodo) 
+                                })}
+                              >
+                                <CIcon icon={cilCheckCircle} />
+                              </CButton>
+                            </CTooltip>
+                          </div>
+                        </CTableDataCell>
+                      </CTableRow>
+                    )
+                  })}
+                </CTableBody>
+              </CTable>
+
+              {/* Paginación */}
+              {totalPages > 1 && (
+                <div className="d-flex justify-content-center mt-3">
+                  <CPagination>
+                    <CPagination.Item 
+                      onClick={() => setCurrentPage(1)} 
+                      disabled={currentPage === 1}
+                    >
+                      Primera
+                    </CPagination.Item>
+                    <CPagination.Item 
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
+                      disabled={currentPage === 1}
+                    >
+                      Anterior
+                    </CPagination.Item>
+                    
+                    {[...Array(totalPages)].map((_, i) => (
+                      <CPagination.Item 
+                        key={i + 1}
+                        active={currentPage === i + 1}
+                        onClick={() => setCurrentPage(i + 1)}
+                      >
+                        {i + 1}
+                      </CPagination.Item>
+                    ))}
+                    
+                    <CPagination.Item 
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Siguiente
+                    </CPagination.Item>
+                    <CPagination.Item 
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Última
+                    </CPagination.Item>
+                  </CPagination>
+                </div>
+              )}
+            </>
+          )}
+        </CCardBody>
+        <CCardFooter className="text-muted small">
+          Mostrando {currentItems.length} de {estudiantesFiltrados.length} estudiantes
+        </CCardFooter>
+      </CCard>
+
+      {/* Modal de detalle */}
+      <CModal size="lg" visible={modalDetalle.visible} onClose={() => setModalDetalle({ visible: false, estudiante: null })}>
+        <CModalHeader>
+          <CModalTitle>
+            <CIcon icon={cilEye} className="me-2" />
+            Detalle de Boletín - {modalDetalle.estudiante?.nombre}
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          {modalDetalle.estudiante && (
+            <>
+              <CRow className="mb-3">
+                <CCol md={6}>
+                  <p><strong>Código:</strong> {modalDetalle.estudiante.codigo}</p>
+                  <p><strong>Grado/Sección:</strong> {modalDetalle.estudiante.grado} - {modalDetalle.estudiante.seccion}</p>
+                </CCol>
+                <CCol md={6}>
+                  <p><strong>Representante:</strong> {modalDetalle.estudiante.representante}</p>
+                  <p><strong>Teléfono:</strong> {modalDetalle.estudiante.telefono}</p>
+                </CCol>
+              </CRow>
+              
+              <h6 className="mb-3">Notas del Período {modalDetalle.periodo}</h6>
+              <CTable bordered>
+                <CTableHead>
+                  <CTableRow>
+                    <CTableHeaderCell>Asignatura</CTableHeaderCell>
+                    <CTableHeaderCell>Nota</CTableHeaderCell>
+                    <CTableHeaderCell>Observaciones</CTableHeaderCell>
+                  </CTableRow>
+                </CTableHead>
+                <CTableBody>
+                  {modalDetalle.estudiante.notas[modalDetalle.periodo]?.map((nota, idx) => (
+                    <CTableRow key={idx}>
+                      <CTableDataCell>{nota.materia}</CTableDataCell>
+                      <CTableDataCell>
+                        {nota.nota ? (
+                          <CBadge color={nota.nota >= 13 ? 'success' : 'danger'}>
+                            {nota.nota}
+                          </CBadge>
+                        ) : 'Pendiente'}
+                      </CTableDataCell>
+                      <CTableDataCell>{nota.observacion || '-'}</CTableDataCell>
+                    </CTableRow>
+                  )) || (
+                    <CTableRow>
+                      <CTableDataCell colSpan={3} className="text-center">
+                        No hay notas registradas para este período
+                      </CTableDataCell>
+                    </CTableRow>
+                  )}
+                </CTableBody>
+              </CTable>
+            </>
+          )}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setModalDetalle({ visible: false, estudiante: null })}>
+            Cerrar
+          </CButton>
+          <CButton 
+            color="primary"
+            onClick={() => {
+              if (modalDetalle.estudiante) {
+                descargarBoletinIndividual(modalDetalle.estudiante, modalDetalle.periodo)
+              }
+            }}
+          >
+            <CIcon icon={cilDownload} /> Descargar Boletin
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* Modal de aprobación */}
+      <CModal visible={modalAprobacion.visible} onClose={() => setModalAprobacion({ visible: false, estudiante: null })}>
+        <CModalHeader>
+          <CModalTitle>
+            <CIcon icon={cilCheckCircle} className="me-2" />
+            Gestionar Aprobación
+          </CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          {modalAprobacion.estudiante && (
+            <>
+              <p>
+                <strong>Estudiante:</strong> {modalAprobacion.estudiante.nombre}
+              </p>
+              <p>
+                <strong>Período:</strong> {modalAprobacion.periodo}
+              </p>
+              <p className="mb-4">
+                <strong>Estado actual:</strong> 
+                <CBadge color="warning" className="ms-2">
+                  {modalAprobacion.estudiante.periodos[modalAprobacion.periodo]?.estado || 'No iniciado'}
+                </CBadge>
+              </p>
+              
+              <div className="alert alert-info">
+                <CIcon icon={cilBook} className="me-2" />
+                ¿Desea aprobar o rechazar este período académico?
+              </div>
+            </>
+          )}
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setModalAprobacion({ visible: false, estudiante: null })}>
+            Cancelar
+          </CButton>
+          <CButton 
+            color="danger" 
+            onClick={() => rechazarPeriodo(modalAprobacion.estudiante.id, modalAprobacion.periodo)}
+          >
+            <CIcon icon={cilXCircle} /> Rechazar
+          </CButton>
+          <CButton 
+            color="success"
+            onClick={() => aprobarPeriodo(modalAprobacion.estudiante.id, modalAprobacion.periodo)}
+          >
+            <CIcon icon={cilCheckCircle} /> Aprobar
+          </CButton>
+        </CModalFooter>
+      </CModal>
+
+      {/* Toasts */}
+      <CToaster placement="top-end">
+        {toasts.map((t) => (
+          <CToast key={t.id} visible color={t.type} className="text-white">
+            <CToastHeader closeButton className="text-white">
+              <strong className="me-auto">
+                {t.type === 'success' ? '✅ Éxito' : 
+                 t.type === 'warning' ? '⚠ Advertencia' : 
+                 t.type === 'danger' ? '❌ Error' : 'ℹ Información'}
+              </strong>
+            </CToastHeader>
+            <CToastBody>{t.message}</CToastBody>
+          </CToast>
+        ))}
+      </CToaster>
+    </CContainer>
+  )
+}
+
+export default GestionBoletines

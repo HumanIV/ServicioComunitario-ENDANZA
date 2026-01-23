@@ -25,7 +25,7 @@ import {
   useEffect,
   useCallback 
 } from "react"
-import PeriodoTab from "./components/periodoTab"
+import PeriodoTab from "./components/boletin/periodoTab"
 import { 
   cilUser, 
   cilCalendar, 

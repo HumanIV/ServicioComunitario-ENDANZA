@@ -1,7 +1,7 @@
 import React from 'react'
 
 // Dashboard
-const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const Dashboard = React.lazy(() => import('./views/superRootDashboard/Dashboard'))
 
 // Base
 const Products = React.lazy(() => import('./views/base/products/products'))
@@ -36,8 +36,7 @@ const PerfilStudents = React.lazy(() => import('./views/Students/PerfilStudents'
 
 //Inscripcion
 
-const Inscripcion = React.lazy(() => import('./views/Inscripcion/Inscripcion'))
-const inscripcionPrevia = React.lazy(() => import('./views/Inscripcion/inscripcionPrevia'))
+const Inscripcion = React.lazy(() => import('./views/profile/Inscripcion'))
 
 //Notas 
 
@@ -52,6 +51,7 @@ const boletinEstudiante = React.lazy(() => import('./views/profile/boletinEstudi
 //Horario
 
 const Horario = React.lazy(() => import('./views/Horario/Horario'))
+const horarioEstudiante = React.lazy(() => import('./views/profile/horarioEstudiante'))
 
 //Aulas
 
@@ -72,6 +72,13 @@ const tipoInscripcion = React.lazy(() => import('./views/Registro/registro-estud
 const validacionGrados= React.lazy(() => import('./views/Registro/registro-estudiantil/validacion-grados'))
 
 
+
+
+
+
+//prueba 
+
+const prueba = React.lazy(() => import('./views/Boletin/components/resumenSeccion'))
 
 //FIN RUTAS AGG
 
@@ -100,7 +107,8 @@ const routes = [
   {path: '/LandingPages', name: 'LandingPages', element: LandingPages},
 
   {path: '/Inscripcion', name: 'Inscripcion', element: Inscripcion}, // Inscripción
-  {path: '/inscripcionPrevia', name: 'Inscripcion Previa', element: inscripcionPrevia}, // Inscripción Stepper
+
+
   {path: '/Notas', name: 'Notas', element: Notas}, // Notas
   {path: '/Boletin', name: 'Boletin', element: Boletin}, // Boletín
   {path: '/Horario', name: 'Horario', element: Horario}, // Horario
@@ -108,12 +116,20 @@ const routes = [
   {path: '/Nutricion', name: 'Nutricion', element: Nutricion}, // Nutrición
   {path: '/Students', name: 'Students', element: Students}, // Students
   {path: '/PerfilStudents/:id', name: 'PerfilStudents', element: PerfilStudents}, // Perfil Students
+  
+  
+  //USERS
   {path: '/profile', name: 'Profile', element: profile}, // Profile
-  {path: '/boletinEstudiante', name: 'BoletinEstudiante', element: boletinEstudiante}, // Boletín Estudiante
+  {path: '/boletinEstudiante', name: 'BoletinEstudiante', element: boletinEstudiante},// Boletín Estudiante
+  {path: '/horarioEstudiante', name: 'HorarioEstudiante', element: horarioEstudiante},// Horario Estudiante
+
 
 
   //FIN RUTAS AGG
 
+
+
+  {path: '/prueba', name: 'prueba', element: prueba}, // prueba
 
 
 

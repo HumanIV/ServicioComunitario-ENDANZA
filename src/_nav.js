@@ -49,12 +49,12 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Inscripcion',
-        to: '/inscripcionPrevia',
+        to: '/inscripcion',
       },
       {
         component: CNavItem,
         name: 'Horario',
-        to: '/Horario',
+        to: '/horarioEstudiante',
       }
     ],
   },

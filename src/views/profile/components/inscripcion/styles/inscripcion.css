@@ -1,0 +1,254 @@
+/* Estilos generales para el sistema de inscripción */
+.inscripcion-system {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Tarjetas de selección */
+.hover-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border-color: #3498db;
+}
+
+/* Estilos para formulario completo */
+.inscripcion-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.inscripcion-progress {
+  height: 12px !important;
+  border-radius: 6px;
+}
+
+.inscripcion-tabs {
+  border-bottom: 2px solid #dee2e6;
+}
+
+.inscripcion-tab {
+  padding: 12px 24px !important;
+  font-weight: 500;
+  border: none !important;
+  border-radius: 8px 8px 0 0 !important;
+  margin-right: 5px;
+  transition: all 0.3s ease;
+}
+
+.inscripcion-tab:hover {
+  background-color: #f8f9fa !important;
+}
+
+.inscripcion-tab.active {
+  background-color: #3498db !important;
+  color: white !important;
+  border-bottom: 3px solid #217dbb !important;
+}
+
+.inscripcion-content {
+  padding: 20px 0;
+}
+
+.inscripcion-buttons {
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.inscripcion-btn {
+  min-width: 120px;
+  padding: 10px 25px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.inscripcion-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.inscripcion-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 15px;
+}
+
+/* Estilos para pre-inscripción */
+.preinscripcion-card {
+  border: 2px solid #17a2b8;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.preinscripcion-paso {
+  animation: fadeIn 0.5s ease;
+}
+
+.preinscripcion-buttons {
+  padding-top: 25px;
+  margin-top: 20px;
+  border-top: 1px dashed #dee2e6;
+}
+
+.preinscripcion-confirmacion {
+  animation: slideIn 0.5s ease;
+}
+
+.confirmacion-icon {
+  animation: bounceIn 1s ease;
+}
+
+.codigo-reserva {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  color: #e74c3c;
+}
+
+.pasos-lista li {
+  padding: 8px 0;
+  border-bottom: 1px dashed #dee2e6;
+}
+
+.pasos-lista li:last-child {
+  border-bottom: none;
+}
+
+.preinscripcion-footer {
+  background-color: #e3f2fd;
+  border-top: 1px solid #bbdefb;
+  padding: 12px;
+  font-size: 0.9em;
+}
+
+/* Estilos específicos para confirmación */
+.codigo-badge {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+.accion-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.accion-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para formularios */
+.form-control:focus, .form-select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+}
+
+.invalid-feedback {
+  font-size: 0.85em;
+  margin-top: 5px;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .inscripcion-tab {
+    padding: 10px 15px !important;
+    font-size: 0.9em;
+  }
+  
+  .inscripcion-btn, .preinscripcion-btn, .accion-btn {
+    padding: 8px 15px;
+    font-size: 0.9em;
+    min-width: 100px;
+  }
+  
+  .codigo-reserva {
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 576px) {
+  .inscripcion-tabs {
+    flex-direction: column;
+  }
+  
+  .inscripcion-tab {
+    margin-bottom: 5px;
+    border-radius: 8px !important;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .d-flex.justify-content-between > div {
+    width: 100%;
+  }
+  
+  .inscripcion-btn, .preinscripcion-btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+/* Estilos para impresión */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .inscripcion-card, .preinscripcion-card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .inscripcion-buttons, .preinscripcion-buttons {
+    display: none !important;
+  }
+}
