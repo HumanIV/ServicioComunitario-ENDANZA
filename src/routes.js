@@ -48,13 +48,13 @@ const Aulas = React.lazy(() => import('./views/Aulas/Aulas'))
 
 //provisional experemintal
 
-const Registro = React.lazy(() => import('./views/Registro/registro'))
-const RegistroMain = React.lazy(() => import('./views/Registro/registro-estudiantil-main'))
-const buscarEstudiante = React.lazy(() => import('./views/Registro/registro-estudiantil/buscar-estudiante'))
-const crearEstudiante = React.lazy(() => import('./views/Registro/registro-estudiantil/crear-alumno'))
-const InscripcionPeriodo = React.lazy(() => import('./views/Registro/registro-estudiantil/inscripcion-periodo'))
-const tipoInscripcion = React.lazy(() => import('./views/Registro/registro-estudiantil/tipo-inscripcion'))
-const validacionGrados = React.lazy(() => import('./views/Registro/registro-estudiantil/validacion-grados'))
+const Registro = React.lazy(() => import('./views/registro/registro'))
+const RegistroMain = React.lazy(() => import('./views/registro/registro-estudiantil-main'))
+const buscarEstudiante = React.lazy(() => import('./views/registro/registro-estudiantil/buscar-estudiante'))
+const crearEstudiante = React.lazy(() => import('./views/registro/registro-estudiantil/crear-alumno'))
+const InscripcionPeriodo = React.lazy(() => import('./views/registro/registro-estudiantil/inscripcion-periodo'))
+const tipoInscripcion = React.lazy(() => import('./views/registro/registro-estudiantil/tipo-inscripcion'))
+const validacionGrados = React.lazy(() => import('./views/registro/registro-estudiantil/validacion-grados'))
 
 
 
