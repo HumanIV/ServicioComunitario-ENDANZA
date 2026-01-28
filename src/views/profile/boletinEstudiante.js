@@ -20,20 +20,18 @@ import {
   CToastBody
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
-import { 
-  useState, 
+import {
+  useState,
   useEffect,
-  useCallback 
+  useCallback
 } from "react"
 import PeriodoTab from "./components/boletin/periodoTab"
-import { 
-  cilUser, 
-  cilCalendar, 
-  cilLockLocked, 
-  cilCheckCircle,
+import {
+  cilLockLocked,
   cilEducation,
-  cilEyedropper,
-  cilBan
+  cilBan,
+  cilCloudDownload,
+  cilFolderOpen
 } from "@coreui/icons"
 
 // Simulación de datos
@@ -89,24 +87,22 @@ const BoletinView = () => {
   const [activeKey, setActiveKey] = useState(null)
   const [periodosEstado, setPeriodosEstado] = useState({})
   const [toasts, setToasts] = useState([])
-  
+
   // Cargar estado de períodos
   useEffect(() => {
     const estadosGuardados = localStorage.getItem('periodosEstadoEndanza')
     if (estadosGuardados) {
       const estados = JSON.parse(estadosGuardados)
       setPeriodosEstado(estados)
-      
-      // Encontrar primer período aprobado para activar
+
       const primerPeriodoAprobado = Object.keys(estados).find(
         periodo => estados[periodo].estadoSecretaria === 'aprobado'
       )
-      
+
       if (primerPeriodoAprobado) {
         setActiveKey(parseInt(primerPeriodoAprobado))
       }
     } else {
-      // Inicializar con datos por defecto
       const estadoInicial = {}
       Object.keys(boletinData.periodos).forEach(key => {
         estadoInicial[key] = {
@@ -116,8 +112,7 @@ const BoletinView = () => {
         }
       })
       setPeriodosEstado(estadoInicial)
-      
-      // Mostrar solo períodos aprobados
+
       const primerAprobado = Object.keys(estadoInicial).find(
         key => estadoInicial[key].estadoSecretaria === 'aprobado'
       )
@@ -127,7 +122,6 @@ const BoletinView = () => {
     }
   }, [])
 
-  // Guardar estado cuando cambia
   useEffect(() => {
     localStorage.setItem('periodosEstadoEndanza', JSON.stringify(periodosEstado))
   }, [periodosEstado])
@@ -136,7 +130,7 @@ const BoletinView = () => {
     const id = Date.now()
     const newToast = { id, type, message }
     setToasts(prev => [...prev, newToast])
-    
+
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id))
     }, 4000)
@@ -148,9 +142,8 @@ const BoletinView = () => {
       showToast('warning', `El ${periodo}° período no está disponible para descarga`)
       return
     }
-    
+
     showToast('info', `📥 Descargando boletín del ${periodo}° período...`)
-    // Simular descarga
     setTimeout(() => {
       showToast('success', `✅ Boletin del ${periodo}° período descargado`)
     }, 2000)
@@ -158,7 +151,6 @@ const BoletinView = () => {
 
   const { estudiante } = boletinData
 
-  // Determinar qué períodos puede ver (solo los aprobados)
   const periodosVisibles = Object.keys(boletinData.periodos).filter(periodoKey => {
     const periodo = parseInt(periodoKey)
     const estado = periodosEstado[periodo]?.estadoSecretaria
@@ -168,120 +160,122 @@ const BoletinView = () => {
   const noHayPeriodosDisponibles = periodosVisibles.length === 0
 
   return (
-    <CContainer className="py-4">
-      <CCard className="shadow-sm">
-        <CCardHeader className="bg-primary text-white">
+    <CContainer className="py-4 animate__animated animate__fadeIn">
+      <CCard className="premium-card border-0 overflow-hidden shadow-lg pb-4">
+        <CCardHeader className="bg-orange-soft border-0 py-4 px-4 px-md-5">
           <CRow className="align-items-center">
             <CCol md={8}>
-              <h4 className="mb-1">
-                <CIcon icon={cilEducation} className="me-2" />
-                BOLETÍN ACADÉMICO
-              </h4>
-              <p className="mb-0">
-                Escuela de Danza Endanza • Año Académico 2024
-              </p>
+              <div className="d-flex align-items-center">
+                <div className="p-3 bg-primary rounded-circle me-3 shadow-sm d-none d-md-block">
+                  <CIcon icon={cilFolderOpen} size="xl" className="text-white" />
+                </div>
+                <div>
+                  <h3 className="mb-0 fw-bold ls-1 text-dark text-uppercase">Expediente Académico</h3>
+                  <p className="mb-0 text-muted small text-uppercase ls-1 fw-bold">Consulta de Boletines • Período 2024</p>
+                </div>
+              </div>
             </CCol>
-            <CCol md={4} className="text-end">
-              <CBadge color="light" className="text-dark fs-6">
-                Código: {estudiante.codigo}
+            <CCol md={4} className="text-md-end mt-3 mt-md-0">
+              <CBadge className="bg-white text-primary border border-primary border-opacity-10 px-4 py-2 rounded-pill fs-6 shadow-sm">
+                ID ESTUDIANTE: <span className="font-monospace">{estudiante.codigo}</span>
               </CBadge>
             </CCol>
           </CRow>
         </CCardHeader>
 
-        <CCardBody>
-          {/* Información del estudiante */}
-          <CRow className="mb-4">
+        <CCardBody className="p-4 p-md-5">
+          <CRow className="mb-5 g-4">
             <CCol md={8}>
-              <h5>
-                <CIcon icon={cilUser} className="me-2" />
-                INFORMACIÓN DEL ESTUDIANTE
-              </h5>
-              <div className="row">
-                <div className="col-md-6">
-                  <p className="mb-1"><strong>Nombre:</strong> {estudiante.nombre}</p>
-                  <p className="mb-1"><strong>Grado y Sección:</strong> {estudiante.grado} – {estudiante.seccion}</p>
-                  <p className="mb-1"><strong>DNI:</strong> {estudiante.dni}</p>
+              <div className="p-4 rounded-4 bg-light h-100 border border-light">
+                <div className="d-flex align-items-center mb-4">
+                  <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
+                    <CIcon icon={cilEducation} size="sm" />
+                  </span>
+                  <h6 className="text-primary mb-0 fw-bold text-uppercase ls-1">Información Institucional</h6>
                 </div>
-                <div className="col-md-6">
-                  <p className="mb-1"><strong>Representante:</strong> {estudiante.representante}</p>
-                  <p className="mb-1"><strong>Fecha Nacimiento:</strong> {estudiante.fechaNacimiento}</p>
-                  <p className="mb-1"><strong>Dirección:</strong> {estudiante.direccion}</p>
-                </div>
+
+                <CRow className="g-4">
+                  <CCol sm={6}>
+                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Estudiante Registrado</label>
+                    <div className="fw-bold fs-5 text-dark">{estudiante.nombre}</div>
+                  </CCol>
+                  <CCol sm={6}>
+                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Nivel Académico</label>
+                    <div className="fw-bold fs-5 text-primary">{estudiante.grado} <span className="text-muted fw-normal ms-1">– Secc {estudiante.seccion}</span></div>
+                  </CCol>
+                  <CCol sm={6}>
+                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Documento de Identidad</label>
+                    <div className="fw-bold fs-5 text-dark font-monospace">{estudiante.dni}</div>
+                  </CCol>
+                  <CCol sm={6}>
+                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Representante Legal</label>
+                    <div className="fw-bold fs-5 text-dark">{estudiante.representante}</div>
+                  </CCol>
+                </CRow>
               </div>
             </CCol>
             <CCol md={4}>
-              <div className="border rounded p-3">
-                <h6 className="text-center mb-3">
-                  <CIcon icon={cilCalendar} className="me-2" />
-                  PERÍODOS DISPONIBLES
-                </h6>
-                {Object.entries(periodosEstado).map(([periodo, data]) => (
-                  <div key={periodo} className="d-flex justify-content-between align-items-center mb-2">
-                    <span>Período {periodo}:</span>
-                    {data.estadoSecretaria === 'aprobado' ? (
-                      <CBadge color="success">
-                        ✓ Disponible
-                      </CBadge>
-                    ) : (
-                      <CBadge color="secondary">
-                        <CIcon icon={cilLockLocked} className="me-1" />
-                        No disponible
-                      </CBadge>
-                    )}
-                  </div>
-                ))}
+              <div className="p-4 rounded-4 bg-orange-soft h-100 border border-primary border-opacity-10">
+                <div className="d-flex align-items-center mb-4">
+                  <span className="p-2 bg-white text-primary rounded-circle me-3 shadow-sm">
+                    <CIcon icon={cilFolderOpen} size="sm" />
+                  </span>
+                  <h6 className="text-primary mb-0 fw-bold text-uppercase ls-1">Disponibilidad</h6>
+                </div>
+                <div className="d-flex flex-column gap-3">
+                  {Object.entries(periodosEstado).map(([periodo, data]) => (
+                    <div key={periodo} className="d-flex justify-content-between align-items-center p-3 rounded-3 bg-white shadow-sm border border-light">
+                      <span className="fw-bold small text-dark">Período Académico {periodo}</span>
+                      {data.estadoSecretaria === 'aprobado' ? (
+                        <div className="d-flex align-items-center text-success small fw-bold">
+                          <div className="bg-success rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div>
+                          ACCESIBLE
+                        </div>
+                      ) : (
+                        <div className="d-flex align-items-center text-muted small fw-bold opacity-50">
+                          <div className="bg-secondary rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div>
+                          BLOQUEADO
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </CCol>
           </CRow>
 
-          {/* Navegación de períodos */}
-          {!noHayPeriodosDisponibles && (
-            <div className="mb-4">
-              <h5>
-                <CIcon icon={cilEyedropper} className="me-2" />
-                PERÍODOS ACADÉMICOS
-              </h5>
-              
-              <CAlert color="success" className="mb-3">
-                <CIcon icon={cilCheckCircle} className="me-2" />
-                <strong>Períodos Disponibles:</strong> Solo puede ver los períodos que han sido habilitados por secretaría.
-              </CAlert>
-
-              <CNav variant="tabs" role="tablist">
+          {!noHayPeriodosDisponibles ? (
+            <div className="px-md-2">
+              <CNav variant="pills" className="bg-light p-2 rounded-pill mb-4 d-inline-flex gap-2">
                 {Object.keys(boletinData.periodos).map(periodoKey => {
                   const periodo = parseInt(periodoKey)
                   const estado = periodosEstado[periodo]?.estadoSecretaria
-                  
-                  // Solo mostrar pestaña si está aprobado
                   if (estado !== 'aprobado') return null
-                  
+
                   return (
                     <CNavItem key={periodo}>
                       <CNavLink
-                        active={activeKey === periodo}
+                        className={`rounded-pill px-4 fw-bold py-2 transition-all ${activeKey === periodo ? 'bg-white shadow-sm text-primary' : 'text-muted hover-bg-gray'}`}
+                        style={{ cursor: 'pointer' }}
                         onClick={() => setActiveKey(periodo)}
                       >
-                        {periodo}° Período
-                        <CIcon icon={cilCheckCircle} className="ms-1 text-success" />
+                        {periodo}° Llapso
                       </CNavLink>
                     </CNavItem>
                   )
                 })}
               </CNav>
 
-              <CTabContent className="mt-3">
+              <CTabContent className="mt-2">
                 {Object.keys(boletinData.periodos).map(periodoKey => {
                   const periodo = parseInt(periodoKey)
                   const periodoData = boletinData.periodos[periodo]
                   const estado = periodosEstado[periodo]
-                  
-                  // Solo renderizar contenido si está aprobado
                   if (estado?.estadoSecretaria !== 'aprobado') return null
-                  
+
                   return (
-                    <CTabPane key={periodo} visible={activeKey === periodo}>
-                      <PeriodoTab 
+                    <CTabPane key={periodo} visible={activeKey === periodo} className="animate__animated animate__fadeIn">
+                      <PeriodoTab
                         notas={periodoData.notas}
                         periodoNumero={periodo}
                         periodoNombre={periodoData.nombre}
@@ -295,61 +289,48 @@ const BoletinView = () => {
                 })}
               </CTabContent>
             </div>
-          )}
-
-          {/* Mensaje cuando no hay períodos disponibles */}
-          {noHayPeriodosDisponibles && (
+          ) : (
             <div className="text-center py-5">
-              <CIcon icon={cilBan} size="xxl" className="text-warning mb-3" />
-              <h4 className="text-warning mb-3">
-                No hay períodos disponibles
-              </h4>
-              <CAlert color="warning" className="mx-auto" style={{ maxWidth: '600px' }}>
-                <p className="mb-2">
-                  <strong>Los períodos académicos aún no han sido habilitados por secretaría.</strong>
-                </p>
-                <p className="mb-0">
-                  Los boletines se habilitan una vez que secretaría/dirección revise y apruebe las calificaciones de cada período.
-                  Será notificado cuando estén disponibles.
-                </p>
-              </CAlert>
-              
-              <div className="mt-4">
-                <CButton 
-                  color="primary"
-                  onClick={() => showToast('info', 'Se ha enviado una solicitud a secretaría')}
-                >
-                  <CIcon icon={cilLockLocked} className="me-2" />
-                  Solicitar información a secretaría
-                </CButton>
+              <div className="p-4 bg-orange-soft rounded-circle d-inline-flex mb-4 border border-white border-4 shadow-sm">
+                <CIcon icon={cilBan} size="4xl" className="text-primary" />
               </div>
+              <h3 className="fw-bold mb-3 text-dark">Información No Disponible</h3>
+              <p className="text-muted mx-auto mb-4" style={{ maxWidth: '500px' }}>
+                Los boletines académicos correspondientes al período actual aún se encuentran en proceso de validación administrativa.
+              </p>
+              <CButton className="btn-premium px-5 py-3 rounded-pill shadow-sm hover-lift">
+                <CIcon icon={cilCloudDownload} className="me-2" />
+                SOLICITAR NOTIFICACIÓN
+              </CButton>
             </div>
           )}
         </CCardBody>
 
-        <CCardFooter className="text-center">
-          <small className="text-muted">
-            <CIcon icon={cilLockLocked} className="me-1" />
-            Este documento es oficial de la Escuela de Danza Endanza. Los boletines solo están disponibles una vez aprobados por secretaría.
+        <CCardFooter className="bg-light border-0 py-4 text-center">
+          <small className="text-muted fw-bold text-uppercase ls-1 opacity-75" style={{ fontSize: '0.7rem' }}>
+            <CIcon icon={cilLockLocked} className="me-2" size="sm" />
+            Documento Oficial Validado por la Coordinación Académica | ENDANZA {new Date().getFullYear()}
           </small>
         </CCardFooter>
       </CCard>
 
-      {/* Toasts */}
       <CToaster placement="top-end">
         {toasts.map((t) => (
-          <CToast key={t.id} visible color={t.type} className="text-white">
-            <CToastHeader closeButton className="text-white">
-              <strong className="me-auto">
-                {t.type === 'success' ? '✅ Éxito' : 
-                 t.type === 'warning' ? '⚠ Advertencia' : 
-                 t.type === 'danger' ? '❌ Error' : 'ℹ Información'}
-              </strong>
+          <CToast key={t.id} visible color={t.type === 'success' ? 'success' : 'warning'} className="border-0 shadow-lg text-white">
+            <CToastHeader closeButton className="bg-transparent border-0 text-white">
+              <strong className="me-auto">Sistema Académico</strong>
             </CToastHeader>
-            <CToastBody>{t.message}</CToastBody>
+            <CToastBody className="fw-medium">{t.message}</CToastBody>
           </CToast>
         ))}
       </CToaster>
+
+      <style>{`
+        .ls-1 { letter-spacing: 1px; }
+        .hover-bg-gray:hover { background-color: rgba(0,0,0,0.05); }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(242, 140, 15, 0.2) !important; transition: all 0.3s ease; }
+        .transition-all { transition: all 0.2s ease; }
+      `}</style>
     </CContainer>
   )
 }

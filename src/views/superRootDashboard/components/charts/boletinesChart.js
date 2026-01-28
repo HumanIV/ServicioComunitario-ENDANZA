@@ -5,8 +5,8 @@ import { getStyle } from '@coreui/utils'
 
 const BoletinesChart = ({ boletines }) => {
   return (
-    <CCard className="shadow border-0" style={{ borderRadius: '16px' }}>
-      <CCardHeader className="fw-bold">Descargas de Boletines - Por Curso</CCardHeader>
+    <CCard className="premium-card border-0 h-100">
+      <CCardHeader className="bg-orange-soft border-0 py-3 fw-bold">Estado de Boletines</CCardHeader>
       <CCardBody>
         <CChartBar
           data={{
@@ -14,7 +14,7 @@ const BoletinesChart = ({ boletines }) => {
             datasets: [
               {
                 label: 'Descargas',
-                backgroundColor: boletines.map(b => 
+                backgroundColor: boletines.map(b =>
                   b.disponible ? 'rgba(0,123,255,0.7)' : 'rgba(108,117,125,0.5)'
                 ),
                 data: boletines.map(b => b.descargas),
@@ -24,7 +24,7 @@ const BoletinesChart = ({ boletines }) => {
           options={{
             scales: {
               x: { ticks: { color: getStyle('--cui-body-color') } },
-              y: { 
+              y: {
                 ticks: { color: getStyle('--cui-body-color') },
                 beginAtZero: true
               },

@@ -1,239 +1,309 @@
-    import React, { useState } from 'react'
-    import {
-    CContainer,
-    CAvatar,
-    CCard,
-    CCardBody,
-    CFormInput,
-    CButton,
-    CCardHeader,
-    CToaster,
-    CToast,
-    CToastBody,
-    CToastHeader,
-    CModal,
-    CModalBody,
-    CModalHeader,
-    CModalTitle,
-    CForm,
-    } from '@coreui/react'
+import React, { useEffect, useState } from 'react'
+import {
+    CCard, CCardBody, CCardHeader, CContainer, CRow, CCol,
+    CButton, CTable, CTableHead, CTableRow, CTableHeaderCell,
+    CTableBody, CTableDataCell, CBadge, CSpinner, CDropdown,
+    CDropdownToggle, CDropdownMenu, CDropdownItem,
+    CToaster, CToast, CToastHeader, CToastBody
+} from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import {
+    cilPlus, cilPencil, cilTrash, cilUser, cilShieldAlt,
+    cilPeople, cilInfo, cilSearch, cilCheckCircle, cilWarning
+} from '@coreui/icons'
 
-    import CIcon from '@coreui/icons-react'
-    import {
-    cilUser,
-    cilEnvelopeOpen,
-    cilLockLocked,
-    cilClock,
-    } from '@coreui/icons'
+import UserForm from './UserForm'
+import InfoUser from './InfoUser'
+import * as UserService from './Users.service'
+import AvatarLetter from 'src/components/AvatarLetter'
+import SearchInput from 'src/components/SearchInput'
+import Pagination from 'src/components/Pagination'
+import ConfirmationModal from 'src/components/ConfirmationModal'
 
-    // =============================
-    // USERS PANEL – ADMIN VERSION
-    // =============================
-
-    export const Users = () => {
-    const [modalVisible, setModalVisible] = useState(false)
+const Users = () => {
+    const [data, setData] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [showForm, setShowForm] = useState(false)
+    const [showInfo, setShowInfo] = useState(false)
+    const [editing, setEditing] = useState(null)
+    const [selectedUser, setSelectedUser] = useState(null)
     const [toasts, setToasts] = useState([])
 
-    const showToast = (type, message) => {
-        setToasts((prev) => [...prev, { type, message, id: Date.now() }])
+    const [currentPage, setCurrentPage] = useState(1)
+    const [itemsPerPage] = useState(8)
+    const [searchTerm, setSearchTerm] = useState('')
+
+    const [deleteModal, setDeleteModal] = useState({
+        visible: false,
+        userId: null,
+        userName: ''
+    })
+
+    useEffect(() => {
+        fetchData()
+    }, [])
+
+    async function fetchData() {
+        setLoading(true)
+        try {
+            const res = await UserService.listUsers()
+            setData(res || [])
+        } catch (error) {
+            console.error('Error fetching users:', error)
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const updatePassword = () => {
-        showToast('success', 'Contraseña actualizada correctamente')
-        setModalVisible(false)
+    const showToast = (message, color = 'success') => {
+        setToasts(prev => [...prev, { id: Date.now(), message, color }])
     }
 
-    // Simulación de usuario administrativo
-    const user = {
-        name: 'Juan Pérez',
-        email: 'juanperez@mail.com',
-        role: 'Administrador de Área',
-        avatar: 'https://i.pravatar.cc/300',
-        department: 'Gestión Operativa',
-        employeeCode: 'EMP-2045',
-        lastLogin: 'Hace 2 horas',
+    const filteredUsers = data.filter(user => {
+        if (!searchTerm) return true
+        const searchLower = searchTerm.toLowerCase()
+        return (
+            user.first_name?.toLowerCase().includes(searchLower) ||
+            user.last_name?.toLowerCase().includes(searchLower) ||
+            user.dni?.toLowerCase().includes(searchLower) ||
+            user.email?.toLowerCase().includes(searchLower)
+        )
+    })
+
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+    const currentPageData = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+    async function handleSave(payload) {
+        try {
+            if (editing) {
+                await UserService.updateUser(editing.id, payload)
+                showToast('Usuario actualizado correctamente')
+            } else {
+                await UserService.createUser(payload)
+                showToast('Usuario registrado exitosamente')
+            }
+            setShowForm(false)
+            setEditing(null)
+            fetchData()
+        } catch (error) {
+            showToast('Error al procesar la solicitud', 'danger')
+        }
+    }
+
+    async function handleDelete() {
+        try {
+            await UserService.deleteUser(deleteModal.userId)
+            showToast('Usuario eliminado del sistema', 'warning')
+            setDeleteModal({ visible: false, userId: null, userName: '' })
+            fetchData()
+        } catch (error) {
+            showToast('Error al eliminar usuario', 'danger')
+        }
+    }
+
+    async function handleStatusUpdate(id, status) {
+        try {
+            await UserService.changeUserStatus(id, status)
+            showToast(`Estado cambiado a ${status}`)
+            fetchData()
+        } catch (error) {
+            showToast('Error al cambiar estado', 'danger')
+        }
+    }
+
+    async function handleRoleUpdate(id, role) {
+        try {
+            await UserService.changeUserRole(id, role)
+            showToast(`Rol cambiado a ${role}`)
+            fetchData()
+        } catch (error) {
+            showToast('Error al cambiar rol', 'danger')
+        }
+    }
+
+    const getRoleBadge = (role) => {
+        const r = role?.toLowerCase()
+        const config = {
+            'superadmin': { color: 'danger', icon: cilShieldAlt, text: 'SUPERADMIN' },
+            'admin': { color: 'warning', icon: cilShieldAlt, text: 'ADMIN' },
+            'docente': { color: 'info', icon: cilPeople, text: 'DOCENTE' },
+            'representante': { color: 'primary', icon: cilUser, text: 'REPRESENTANTE' }
+        }[r] || { color: 'secondary', icon: cilUser, text: role }
+
+        return (
+            <CBadge color={config.color} className="d-flex align-items-center gap-2 px-3 py-2 rounded-pill">
+                <CIcon icon={config.icon} size="sm" />
+                {config.text}
+            </CBadge>
+        )
+    }
+
+    const getStatusBadge = (status) => {
+        const s = status?.toLowerCase()
+        const config = {
+            'active': { color: 'success', text: 'Activo' },
+            'suspended': { color: 'warning', text: 'Suspendido' },
+            'inactive': { color: 'secondary', text: 'Inactivo' }
+        }[s] || { color: 'secondary', text: status }
+        return <CBadge color={config.color} shape="rounded-pill" className="px-2 py-1">{config.text.toUpperCase()}</CBadge>
     }
 
     return (
-        <>
-        <CContainer fluid className="mt-4 d-flex justify-content-center">
-            <CCard
-            className="shadow-lg border-0 p-4"
-            style={{
-                borderRadius: 22,
-                maxWidth: 1200,
-                width: '100%',
-                background: 'rgba(10,15,35,0.65)',
-                backdropFilter: 'blur(18px)',
-                boxShadow: '0 0 35px rgba(0,0,0,0.55)',
-            }}
-            >
-            <CCardHeader className="border-0 mb-3 text-white">
-                <h3 className="fw-bold mb-1 text-center">Perfil</h3>
-                <p className="text-center opacity-75 m-0" style={{ fontSize: '0.9rem' }}>
-                </p>
-            </CCardHeader>
-
-            <CCardBody>
-                <div className="row g-4 align-items-start">
-                {/* Panel izquierdo - Perfil */}
-                <div className="col-md-4 text-center">
-                    <div
-                    style={{
-                        width: 200,
-                        height: 200,
-                        margin: '0 auto 20px auto',
-                        borderRadius: '50%',
-                        padding: 8,
-                        background:
-                        'linear-gradient(135deg, #4bffb470, #2e8f21ff, #4bff81ff)',
-                        boxShadow:
-                        '0 0 30px rgba(80, 255, 138, 0.77), 0 0 45px rgba(86, 255, 80, 0.35)',
-                    }}
-                    >
-                    <CAvatar
-                        src={user.avatar}
-                        style={{ width: '100%', height: '100%' }}
-                        className="shadow-lg"
-                    />
+        <CContainer fluid className="mt-4 pb-5">
+            <CCard className="shadow-sm border-0 overflow-hidden" style={{ borderRadius: '20px' }}>
+                <div className="bg-primary" style={{ height: '8px' }}></div>
+                <CCardHeader className="bg-white border-0 pt-4 px-4">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div>
+                            <h3 className="fw-bold text-dark mb-1">
+                                <CIcon icon={cilPeople} className="me-2 text-primary" size="lg" />
+                                Gestión de Usuarios
+                            </h3>
+                            <p className="text-muted mb-0 small fw-medium">Control de accesos y administración del personal</p>
+                        </div>
+                        <CButton
+                            className="btn-premium px-4 d-flex align-items-center"
+                            onClick={() => { setEditing(null); setShowForm(true); }}
+                        >
+                            <CIcon icon={cilPlus} className="me-2 fw-bold" />
+                            NUEVO USUARIO
+                        </CButton>
+                    </div>
+                </CCardHeader>
+                <CCardBody className="p-4">
+                    <div className="mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 bg-light p-3 rounded-4 border border-white shadow-sm">
+                        <div className="small fw-bold text-muted text-uppercase ls-1">
+                            Total Registros: <span className="text-primary">{filteredUsers.length}</span>
+                        </div>
+                        <div style={{ maxWidth: '400px', width: '100%' }}>
+                            <SearchInput
+                                value={searchTerm}
+                                onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                                placeholder="Buscar por nombre, cédula o email..."
+                            />
+                        </div>
                     </div>
 
-                    <h3 className="fw-bold text-white mb-1">{user.name}</h3>
-                    <p className="text-light opacity-75 mb-1">{user.department}</p>
-                    <p className="text-light opacity-75">
-                    Código de empleado: <strong>{user.employeeCode}</strong>
-                    </p>
-
-                    <span
-                    className="px-4 py-2 fw-semibold d-inline-block"
-                    style={{
-                        background: '#4b79ff',
-                        borderRadius: 12,
-                        color: 'white',
-                        fontSize: '0.9rem',
-                        boxShadow: '0 4px 14px rgba(80,110,255,0.35)',
-                    }}
-                    >
-                    {user.role}
-                    </span>
-                </div>
-
-                {/* Panel central - Información */}
-                <div className="col-md-5 text-white">
-                    <h5 className="fw-bold mb-3">
-                    <CIcon icon={cilUser} className="me-2 text-primary" />
-                    Información del Usuario
-                    </h5>
-
-                    <p className="mb-3">
-                    <CIcon icon={cilUser} className="me-2 text-info" />
-                    <strong>Nombre Completo:</strong> {user.name}
-                    </p>
-
-                    <p className="mb-3">
-                    <CIcon icon={cilEnvelopeOpen} className="me-2 text-success" />
-                    <strong>Correo Corporativo:</strong> {user.email}
-                    </p>
-
-                    <p className="mb-3">
-                    <CIcon icon={cilClock} className="me-2 text-warning" />
-                    <strong>Último acceso:</strong> {user.lastLogin}
-                    </p>
-
-                    <p className="mb-3">
-                    <CIcon icon={cilUser} className="me-2 text-primary" />
-                    <strong>Departamento:</strong> {user.department}
-                    </p>
-
-                    <p>
-                    <CIcon icon={cilUser} className="me-2 text-danger" />
-                    <strong>Código de Empleado:</strong> {user.employeeCode}
-                    </p>
-                </div>
-
-                {/* Panel derecho - Seguridad */}
-                <div className="col-md-3 text-white">
-                    <h5 className="fw-bold mb-3">
-                    <CIcon icon={cilLockLocked} className="me-2 text-warning" />
-                    Seguridad
-                    </h5>
-
-                    <p
-                    className="text-light opacity-75 mb-4"
-                    style={{ fontSize: '0.9rem' }}
-                    >
-                    Configuraciones relacionadas con la seguridad del trabajador.
-                    </p>
-
-                    <CButton
-                    color="warning"
-                    className="w-100 fw-bold text-dark shadow-sm"
-                    style={{ borderRadius: 14 }}
-                    onClick={() => setModalVisible(true)}
-                    >
-                    Cambiar Contraseña
-                    </CButton>
-                </div>
-                </div>
-            </CCardBody>
+                    {loading ? (
+                        <div className="text-center py-5">
+                            <CSpinner color="primary" variant="grow" />
+                            <div className="mt-3 text-muted fw-medium">Cargando base de datos segura...</div>
+                        </div>
+                    ) : currentPageData.length > 0 ? (
+                        <>
+                            <div className="table-responsive">
+                                <CTable align="middle" hover className="mb-0 border-top">
+                                    <CTableHead>
+                                        <CTableRow>
+                                            <CTableHeaderCell className="border-0 bg-transparent py-3 text-muted small fw-bold">PERFIL</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 bg-transparent py-3 text-muted small fw-bold">CONTACTO</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 bg-transparent py-3 text-muted small fw-bold">ROL</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 bg-transparent py-3 text-muted small fw-bold">ESTADO</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 bg-transparent py-3 text-muted small fw-bold text-end">ACCIONES</CTableHeaderCell>
+                                        </CTableRow>
+                                    </CTableHead>
+                                    <CTableBody>
+                                        {currentPageData.map(user => (
+                                            <CTableRow key={user.id}>
+                                                <CTableDataCell>
+                                                    <div className="d-flex align-items-center py-2">
+                                                        <AvatarLetter name={user.first_name} lastName={user.last_name} size="md" />
+                                                        <div className="ms-3">
+                                                            <div className="fw-bold text-dark">{user.first_name} {user.last_name}</div>
+                                                            <div className="small text-muted font-monospace">{user.dni}</div>
+                                                        </div>
+                                                    </div>
+                                                </CTableDataCell>
+                                                <CTableDataCell>
+                                                    <div className="small">
+                                                        <div className="fw-medium text-dark">{user.email}</div>
+                                                        <div className="text-muted">{user.phone || 'S/T'}</div>
+                                                    </div>
+                                                </CTableDataCell>
+                                                <CTableDataCell>
+                                                    {getRoleBadge(user.role)}
+                                                </CTableDataCell>
+                                                <CTableDataCell>
+                                                    {getStatusBadge(user.status)}
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-end">
+                                                    <div className="d-flex justify-content-end gap-2">
+                                                        <CButton size="sm" color="light" className="text-info" onClick={() => { setSelectedUser(user); setShowInfo(true); }}>
+                                                            <CIcon icon={cilInfo} />
+                                                        </CButton>
+                                                        <CDropdown variant="btn-group">
+                                                            <CDropdownToggle size="sm" color="light" className="text-primary border-0" split={false}>
+                                                                <CIcon icon={cilPencil} />
+                                                            </CDropdownToggle>
+                                                            <CDropdownMenu className="dropdown-menu-premium-scroll">
+                                                                <CDropdownItem onClick={() => { setEditing(user); setShowForm(true); }}>Editar Datos</CDropdownItem>
+                                                                <CDropdownItem divider />
+                                                                <CDropdownItem header>Cambiar Rol</CDropdownItem>
+                                                                {['superadmin', 'admin', 'docente', 'representante'].filter(r => r !== user.role).map(r => (
+                                                                    <CDropdownItem key={r} onClick={() => handleRoleUpdate(user.id, r)}>Habilitar {r}</CDropdownItem>
+                                                                ))}
+                                                                <CDropdownItem divider />
+                                                                <CDropdownItem header>Cambiar Estado</CDropdownItem>
+                                                                {['active', 'inactive', 'suspended'].filter(s => s !== user.status).map(s => (
+                                                                    <CDropdownItem key={s} onClick={() => handleStatusUpdate(user.id, s)}>Pasar a {s}</CDropdownItem>
+                                                                ))}
+                                                            </CDropdownMenu>
+                                                        </CDropdown>
+                                                        <CButton size="sm" color="light" className="text-danger"
+                                                            disabled={user.role === 'superadmin'}
+                                                            onClick={() => setDeleteModal({ visible: true, userId: user.id, userName: `${user.first_name} ${user.last_name}` })}
+                                                        >
+                                                            <CIcon icon={cilTrash} />
+                                                        </CButton>
+                                                    </div>
+                                                </CTableDataCell>
+                                            </CTableRow>
+                                        ))}
+                                    </CTableBody>
+                                </CTable>
+                            </div>
+                            {totalPages > 1 && (
+                                <div className="mt-4 d-flex justify-content-center">
+                                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="text-center py-5 border rounded-4 border-dashed bg-light">
+                            <CIcon icon={cilSearch} size="3xl" className="text-muted opacity-25 mb-3" />
+                            <h5 className="text-muted">No se encontraron usuarios</h5>
+                            <CButton color="link" onClick={() => setSearchTerm('')}>Limpiar búsqueda</CButton>
+                        </div>
+                    )}
+                </CCardBody>
             </CCard>
+
+            <UserForm visible={showForm} onClose={() => setShowForm(false)} onSave={handleSave} initial={editing} />
+            <InfoUser visible={showInfo} onClose={() => setShowInfo(false)} user={selectedUser} />
+
+            <ConfirmationModal
+                visible={deleteModal.visible}
+                onClose={() => setDeleteModal({ visible: false, userId: null, userName: '' })}
+                onConfirm={handleDelete}
+                title="Eliminar Usuario"
+                message={`¿Está seguro de eliminar a "${deleteModal.userName}"? Esta acción revocará todo acceso al sistema.`}
+                confirmText="ELIMINAR AHORA"
+                color="danger"
+            />
+
+            <CToaster placement="top-end">
+                {toasts.map(t => (
+                    <CToast key={t.id} autohide={true} visible={true} color={t.color} className="text-white shadow">
+                        <CToastHeader closeButton className="bg-transparent border-0 text-white">
+                            <CIcon icon={cilCheckCircle} className="me-2" />
+                            <strong className="me-auto">Sistema ENDANZA</strong>
+                        </CToastHeader>
+                        <CToastBody className="pt-0">{t.message}</CToastBody>
+                    </CToast>
+                ))}
+            </CToaster>
         </CContainer>
-
-        {/* TOASTS */}
-        <CToaster placement="top-end">
-            {toasts.map((t) => (
-            <CToast
-                key={t.id}
-                autohide
-                delay={2500}
-                color={t.type}
-                visible
-                className="rounded-3 shadow"
-            >
-                <CToastHeader closeButton>
-                <strong className="me-auto">{t.message}</strong>
-                </CToastHeader>
-                <CToastBody>Operación realizada con éxito.</CToastBody>
-            </CToast>
-            ))}
-        </CToaster>
-
-        {/* MODAL */}
-        <CModal
-            size="lg"
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-        >
-            <CModalHeader>
-            <CModalTitle>
-                <CIcon icon={cilLockLocked} className="me-2" /> Cambiar Contraseña
-            </CModalTitle>
-            </CModalHeader>
-
-            <CModalBody>
-            <CForm>
-                <CFormInput
-                className="mb-3"
-                type="password"
-                label="Contraseña Actual"
-                placeholder="Ingrese su contraseña actual"
-                />
-
-                <CFormInput
-                className="mb-3"
-                type="password"
-                label="Nueva Contraseña"
-                placeholder="Ingrese su nueva contraseña"
-                />
-
-                <CButton color="success" onClick={updatePassword}>
-                Guardar Cambios
-                </CButton>
-            </CForm>
-            </CModalBody>
-        </CModal>
-        </>
     )
-    }
+}
 
-    export default Users
+export default Users

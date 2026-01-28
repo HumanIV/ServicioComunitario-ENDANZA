@@ -1,49 +1,16 @@
-// SistemaBoletinesDanza.jsx - VERSIÓN COMPLETA MODIFICADA
 import React, { useState, useEffect, useMemo, useCallback, useReducer } from "react";
 import {
   CContainer,
   CCard,
   CCardBody,
-  CCardHeader,
-  CCardFooter,
   CButton,
-  CTable,
-  CTableHead,
-  CTableRow,
-  CTableHeaderCell,
-  CTableBody,
-  CTableDataCell,
-  CAlert,
-  CBadge,
-  CModal,
-  CModalHeader,
-  CModalBody,
-  CModalFooter,
-  CToaster,
-  CToast,
-  CToastHeader,
-  CToastBody,
-  CRow,
-  CCol,
-  CSpinner,
-  CListGroup,
-  CListGroupItem,
   CProgress
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
-import { 
-  cilSend, 
-  cilCheckCircle, 
-  cilUser, 
+import {
   cilFile,
   cilEducation,
-  cilPrint,
-  cilWarning,
-  cilNotes,
-  cilChartLine,
-  cilStar,
-  cilChartPie,
-  cilPeople
+  cilArrowLeft
 } from "@coreui/icons";
 
 // Importar utilidades y hooks que vamos a crear
@@ -55,14 +22,13 @@ import { estadoReducer, estadoInicial } from './reducers/estadoReducer';
 // Importar componentes
 import { VistaGrados } from './components/vistaGrados';
 import { TablaEstudiantes } from './components/tablaEstudiantes';
-import { TarjetasResumen } from './components/tarjetasResumen';
 import { VistaBoletin } from './components/vistaBoletin';
 import { ModalBoletinesLote } from './components/modalBoletinesLote';
 import { ToastContainer } from './components/toastContainer';
 import { ResumenSeccion } from "./components/resumenSeccion";
 
 const SistemaBoletinesDanza = () => {
-  
+
   // Normalizar datos iniciales
   const dataNormalizada = useMemo(() => normalizarDatos([
     {
@@ -161,8 +127,8 @@ const SistemaBoletinesDanza = () => {
   const calculos = useCalculos(notasCargadas);
 
   // Datos derivados
-  const estudiantesUnicos = useMemo(() => 
-    obtenerEstudiantesUnicos(gradoSeleccionado), 
+  const estudiantesUnicos = useMemo(() =>
+    obtenerEstudiantesUnicos(gradoSeleccionado),
     [gradoSeleccionado]
   );
 
@@ -172,7 +138,7 @@ const SistemaBoletinesDanza = () => {
       const promedio = calculos.calcularPromedioEstudiante(e.id);
       return promedio && parseFloat(promedio) >= 10;
     });
-    
+
     return {
       total: estudiantesUnicos.length,
       conNotas: conNotas.length,
@@ -204,14 +170,14 @@ const SistemaBoletinesDanza = () => {
 
     const promedio = calculos.calcularPromedioEstudiante(estudiante.id);
     const promocion = calculos.determinarPromocion(promedio);
-    
+
     const obtenerMateriasEstudiante = (estudianteId) => {
       if (!gradoSeleccionado) return [];
-      
+
       return gradoSeleccionado.materias.map(materia => {
         const notas = notasCargadas[estudianteId]?.[materia.id] || { t1: "", t2: "", t3: "", final: "" };
         const estado = notas.final ? (parseFloat(notas.final) >= 10 ? "Aprobado" : "Reprobado") : "Pendiente";
-        
+
         return {
           ...materia,
           notas,
@@ -221,7 +187,7 @@ const SistemaBoletinesDanza = () => {
     };
 
     const generarObservaciones = (promocion, promedio) => {
-      switch(promocion) {
+      switch (promocion) {
         case "Excelente":
           return "Rendimiento excepcional. Promovido con honores al siguiente grado.";
         case "Bueno":
@@ -234,21 +200,21 @@ const SistemaBoletinesDanza = () => {
           return "Faltan notas para determinar el resultado final.";
       }
     };
-    
+
     const boletin = {
       estudiante,
       grado: gradoSeleccionado.grado,
-      fecha: new Date().toLocaleDateString('es-ES', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+      fecha: new Date().toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       }),
       materias: obtenerMateriasEstudiante(estudiante.id),
       promedio,
       promocion,
       observaciones: generarObservaciones(promocion, promedio)
     };
-    
+
     dispatch({ type: 'MOSTRAR_BOLETIN', payload: boletin });
   }, [gradoSeleccionado, notasCargadas, calculos]);
 
@@ -260,7 +226,7 @@ const SistemaBoletinesDanza = () => {
     }
 
     dispatch({ type: 'INICIAR_ENVIO' });
-    
+
     // Simular generación de boletines
     setTimeout(() => {
       const boletinesGenerados = Array.from(estudiantesSeleccionados).map(id => {
@@ -275,7 +241,7 @@ const SistemaBoletinesDanza = () => {
 
       console.log("Boletines generados:", boletinesGenerados);
       dispatch({ type: 'FINALIZAR_ENVIO' });
-      
+
       showToast("success", `✅ ${boletinesGenerados.length} boletines generados correctamente`);
     }, 2000);
   }, [estudiantesSeleccionados, mapaEstudiantes, promediosCache, calculos, showToast]);
@@ -296,59 +262,67 @@ const SistemaBoletinesDanza = () => {
 
   // Renderizar vista actual - VERSIÓN MODIFICADA CON RESUMEN DE SECCIÓN
   const renderVistaActual = () => {
-    switch(vistaActual) {
+    switch (vistaActual) {
       case 'estudiantes':
         return (
-          <>
-            <div className="d-flex align-items-center justify-content-between mb-4">
+          <div className="animate__animated animate__fadeIn">
+            <div className="d-flex align-items-center justify-content-between mb-5">
               <div className="d-flex align-items-center">
                 <CButton
-                  color="secondary"
-                  className="me-3"
+                  color="light"
+                  className="me-3 rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm"
+                  style={{ width: '45px', height: '45px' }}
                   onClick={() => dispatch({ type: 'VOLVER_A_GRADOS' })}
                 >
-                  ← Volver a Grados
+                  <CIcon icon={cilArrowLeft} />
                 </CButton>
                 <div>
-                  <h3 className="mb-0">{gradoSeleccionado.grado}</h3>
-                  <small className="text-muted">Seleccione estudiantes para generar boletines</small>
+                  <h3 className="mb-0 fw-bold text-dark">{gradoSeleccionado.grado}</h3>
+                  <small className="text-muted fw-bold ls-1 text-uppercase" style={{ fontSize: '0.7rem' }}>Gestión de Boletines</small>
                 </div>
               </div>
-              
+
               <div className="d-flex gap-2">
                 <CButton
-                  color="info"
+                  color="light"
+                  className="text-primary fw-bold"
                   onClick={() => handleToggleSeleccion('todos')}
                 >
-                  {estudiantesSeleccionados.size === estudiantesUnicos.length 
-                    ? "Deseleccionar Todos" 
+                  {estudiantesSeleccionados.size === estudiantesUnicos.length
+                    ? "Deseleccionar Todos"
                     : "Seleccionar Todos"}
                 </CButton>
-                
+
                 <CButton
-                  color="success"
+                  className={`btn-premium px-4 d-flex align-items-center ${estudiantesSeleccionados.size === 0 ? 'opacity-50' : ''}`}
                   onClick={() => dispatch({ type: 'MOSTRAR_MODAL' })}
                   disabled={estudiantesSeleccionados.size === 0}
                 >
-                  <CIcon icon={cilFile} className="me-1" />
-                  Generar {estudiantesSeleccionados.size > 0 ? `(${estudiantesSeleccionados.size})` : ''} Boletines
+                  <CIcon icon={cilFile} className="me-2" />
+                  GENERAR {estudiantesSeleccionados.size > 0 ? `(${estudiantesSeleccionados.size})` : ''} BOLETINES
                 </CButton>
               </div>
             </div>
 
-            {/* =========== NUEVO: RESUMEN DE SECCIÓN =========== */}
-            <ResumenSeccion 
+            {/* =========== RESUMEN DE SECCIÓN =========== */}
+            <ResumenSeccion
               gradoSeleccionado={gradoSeleccionado}
               estudiantesUnicos={estudiantesUnicos}
               promediosCache={promediosCache}
               calculos={calculos}
+              estudiantesSeleccionados={estudiantesSeleccionados}
             />
-            {/* =========== FIN NUEVO =========== */}
+            {/* =========== FIN RESUMEN =========== */}
 
-            <CCard>
-              <CCardHeader>
-                <h5 className="mb-0">Estudiantes - {gradoSeleccionado.grado}</h5>
-              </CCardHeader>
+            <CCard className="premium-card border-0 shadow-sm overflow-hidden mb-5">
+              <div className="px-4 py-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+                <h6 className="mb-0 fw-bold text-uppercase ls-1 text-dark small">
+                  Listado de Estudiantes Inscritos
+                </h6>
+                <div className="text-muted small fw-bold">
+                  Total: {estudiantesUnicos.length}
+                </div>
+              </div>
               <CCardBody className="p-0">
                 <TablaEstudiantes
                   estudiantes={estudiantesUnicos}
@@ -360,58 +334,36 @@ const SistemaBoletinesDanza = () => {
                   onAgregarBoletin={handleAgregarBoletin}
                 />
               </CCardBody>
-              <CCardFooter>
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <small className="text-muted">
-                      Estudiantes seleccionados: <strong>{estudiantesSeleccionados.size}</strong> de {estudiantesUnicos.length}
-                    </small>
-                    <CProgress 
-                      value={(estudiantesSeleccionados.size / estudiantesUnicos.length) * 100} 
-                      className="mt-1" 
-                      color="primary"
-                      style={{ height: '5px', width: '200px' }}
-                    />
-                  </div>
-                  <div>
-                    <CBadge color="info" className="me-2">
-                      Con notas: {estadisticas.conNotas}
-                    </CBadge>
-                    <CBadge color="warning">
-                      Sin notas: {estadisticas.pendientes}
-                    </CBadge>
-                  </div>
-                </div>
-              </CCardFooter>
+              {/* Barra de progreso eliminada según solicitud */}
             </CCard>
-
-            <TarjetasResumen
-              estadisticas={estadisticas}
-              estudiantesSeleccionados={estudiantesSeleccionados}
-              totalEstudiantes={estudiantesUnicos.length}
-            />
-          </>
+          </div>
         );
-      
+
       case 'boletin':
         return <VistaBoletin boletinData={boletinActual} calculos={calculos} dispatch={dispatch} />;
-      
+
       default:
         return <VistaGrados data={dataNormalizada} onSeleccionarGrado={(grado) => dispatch({ type: 'SELECCIONAR_GRADO', payload: grado })} />;
     }
   };
 
+  if (!vistaActual) return null; // Evitar renderizado si no hay estado
+
   return (
     <CContainer className="py-4">
-      <header className="mb-4 text-center">
-        <h1 className="text-primary fw-bold mb-2">
-          <CIcon icon={cilEducation} className="me-2" />
-          Sistema de Boletines - Endanza
-        </h1>
-        <p className="text-muted">
-          Generación y visualización de boletines académicos
-        </p>
-      </header>
+      {vistaActual === 'grados' && (
+        <header className="mb-5 text-center">
+          <div className="d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-orange-soft mb-3 text-primary">
+            <CIcon icon={cilEducation} size="xl" />
+          </div>
+          <h2 className="text-dark fw-bold mb-1 ls-1">
+            Sistema de Boletines
+          </h2>
+          <p className="text-muted small text-uppercase ls-1 fw-bold">
+            Ciclo Académico 2024 - 2025
+          </p>
+        </header>
+      )}
 
       {renderVistaActual()}
 
@@ -443,6 +395,7 @@ const SistemaBoletinesDanza = () => {
               display: none !important;
             }
           }
+          .ls-1 { letter-spacing: 1px; }
         `}
       </style>
     </CContainer>

@@ -11,8 +11,10 @@ import {
   CFormLabel,
   CButton,
   CRow,
-  CCol
+  CCol,
 } from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilCalendarCheck, cilClock, cilSave, cilWarning, cilCheckCircle, cilCalendar } from '@coreui/icons'
 
 const PeriodoInscripcionModal = ({
   visible,
@@ -21,57 +23,146 @@ const PeriodoInscripcionModal = ({
   setPeriodoInscripcion,
   onSave
 }) => {
+  const formatDateDisplay = (dateStr) => {
+    if (!dateStr) return '---'
+    const parts = dateStr.split('-')
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  }
+
+  const getEnrollmentStatus = () => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const startDate = new Date(periodoInscripcion.fechaInicio)
+    const endDate = new Date(periodoInscripcion.fechaFin)
+
+    if (!periodoInscripcion.activo) {
+      return { type: 'closed', message: 'Sistema Cerrado', detail: 'El portal de inscripciones no aceptará nuevos registros', icon: cilWarning, color: 'muted' }
+    }
+
+    if (today > endDate) {
+      return { type: 'expired', message: 'Periodo Vencido', detail: `Las inscripciones finalizaron el ${formatDateDisplay(periodoInscripcion.fechaFin)}`, icon: cilWarning, color: 'danger' }
+    }
+
+    if (today < startDate) {
+      return { type: 'pending', message: 'Próximamente', detail: `Las inscripciones abrirán el ${formatDateDisplay(periodoInscripcion.fechaInicio)}`, icon: cilClock, color: 'warning' }
+    }
+
+    return { type: 'active', message: 'Inscripciones Activas', detail: `Válidas desde ${formatDateDisplay(periodoInscripcion.fechaInicio)} hasta ${formatDateDisplay(periodoInscripcion.fechaFin)}`, icon: cilCheckCircle, color: 'success' }
+  }
+
+  const status = getEnrollmentStatus()
+
   return (
-    <CModal visible={visible} onClose={onClose} size="lg">
-      <CModalHeader>
-        <CModalTitle>Configurar Período de Inscripciones</CModalTitle>
-      </CModalHeader>
-      <CModalBody>
-        <CForm>
-          <div className="mb-3">
-            <CFormCheck
-              id="inscripcionesActivas"
-              label="Período de inscripciones activo"
-              checked={periodoInscripcion.activo}
-              onChange={(e) => setPeriodoInscripcion({...periodoInscripcion, activo: e.target.checked})}
-            />
+    <CModal visible={visible} onClose={onClose} size="lg" backdrop="static" className="animate-fade-in">
+      <div className="bg-primary" style={{ height: '8px', borderTopLeftRadius: 'var(--cui-modal-border-radius)', borderTopRightRadius: 'var(--cui-modal-border-radius)' }}></div>
+      <CModalHeader className="bg-white border-0 py-4 px-4">
+        <CModalTitle className="fw-bold d-flex align-items-center text-dark">
+          <div className="bg-orange-soft p-2 rounded-3 me-3">
+            <CIcon icon={cilCalendarCheck} className="text-primary" size="xl" />
           </div>
-          <CRow className="g-3">
-            <CCol xs={12} md={6}>
-              <CFormLabel>Fecha de inicio</CFormLabel>
-              <CFormInput
-                type="date"
-                value={periodoInscripcion.fechaInicio}
-                onChange={(e) => setPeriodoInscripcion({...periodoInscripcion, fechaInicio: e.target.value})}
+          <div>
+            <div className="h4 mb-0 fw-bold">Periodo de Inscripción</div>
+            <div className="small text-muted fw-normal">Control de apertura y cierre del sistema académico</div>
+          </div>
+        </CModalTitle>
+      </CModalHeader>
+
+      <CModalBody className="p-4 bg-white">
+        <CForm>
+          <div className="p-4 rounded-4 bg-light border border-white shadow-sm mb-4">
+            <div className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+              <div>
+                <h5 className="fw-bold text-dark mb-1">Estatus del Proceso</h5>
+                <p className="small text-muted mb-0">Habilitar o deshabilitar inscripciones globales</p>
+              </div>
+              <CFormCheck
+                id="inscripcionesActivas"
+                switch
+                checked={periodoInscripcion.activo}
+                onChange={(e) => setPeriodoInscripcion({ ...periodoInscripcion, activo: e.target.checked })}
+                className="switch-premium"
+                style={{ scale: '1.5' }}
               />
-            </CCol>
-            <CCol xs={12} md={6}>
-              <CFormLabel>Fecha de fin</CFormLabel>
-              <CFormInput
-                type="date"
-                value={periodoInscripcion.fechaFin}
-                onChange={(e) => setPeriodoInscripcion({...periodoInscripcion, fechaFin: e.target.value})}
-              />
-            </CCol>
-          </CRow>
-          <div className="mt-4 p-3 bg-light rounded">
-            <h6>Estado actual:</h6>
-            <p className={periodoInscripcion.activo ? "text-success" : "text-secondary"}>
-              {periodoInscripcion.activo 
-                ? `✓ Las inscripciones están ABIERTAS desde ${periodoInscripcion.fechaInicio} hasta ${periodoInscripcion.fechaFin}`
-                : "✗ Las inscripciones están CERRADAS"}
-            </p>
+            </div>
+
+            <CRow className="g-4">
+              <CCol xs={12} md={6}>
+                <div className="p-3 bg-white rounded-3 border border-light">
+                  <CFormLabel className="small fw-bold text-uppercase text-muted ls-1 mb-2">
+                    <CIcon icon={cilCalendar} className="me-2 text-primary" />
+                    Fecha de Apertura
+                  </CFormLabel>
+                  <CFormInput
+                    type="date"
+                    value={periodoInscripcion.fechaInicio}
+                    onChange={(e) => setPeriodoInscripcion({ ...periodoInscripcion, fechaInicio: e.target.value })}
+                    className="input-premium border-0 shadow-none bg-light p-2"
+                    style={{ fontSize: '1.1rem', fontWeight: '600' }}
+                  />
+                </div>
+              </CCol>
+              <CCol xs={12} md={6}>
+                <div className="p-3 bg-white rounded-3 border border-light">
+                  <CFormLabel className="small fw-bold text-uppercase text-muted ls-1 mb-2">
+                    <CIcon icon={cilWarning} className="me-2 text-danger" />
+                    Fecha de Cierre
+                  </CFormLabel>
+                  <CFormInput
+                    type="date"
+                    value={periodoInscripcion.fechaFin}
+                    onChange={(e) => setPeriodoInscripcion({ ...periodoInscripcion, fechaFin: e.target.value })}
+                    className="input-premium border-0 shadow-none bg-light p-2"
+                    style={{ fontSize: '1.1rem', fontWeight: '600' }}
+                  />
+                </div>
+              </CCol>
+            </CRow>
+          </div>
+
+          <div className={`p-4 rounded-4 text-center border-2 transition-all border-${status.color} bg-${status.color === 'muted' ? 'light' : status.color}-soft text-${status.color}`}>
+            <div className="d-flex align-items-center justify-content-center gap-3">
+              <CIcon icon={status.icon} size="3xl" />
+              <div className="text-start">
+                <h6 className="fw-bold mb-0 text-uppercase ls-1">{status.message}</h6>
+                <div className="small opacity-75">{status.detail}</div>
+              </div>
+            </div>
           </div>
         </CForm>
       </CModalBody>
-      <CModalFooter>
-        <CButton color="secondary" onClick={onClose}>
-          Cancelar
+
+      <CModalFooter className="border-0 p-4 pt-0">
+        <CButton color="light" onClick={onClose} className="px-4 fw-bold">
+          CANCELAR
         </CButton>
-        <CButton color="primary" onClick={onSave}>
-          Guardar Configuración
+        <CButton onClick={onSave} className="btn-premium px-5 py-2 fw-bold ms-auto">
+          <CIcon icon={cilSave} className="me-2" />
+          GUARDAR AJUSTES
         </CButton>
       </CModalFooter>
+
+      <style>{`
+        .ls-1 { letter-spacing: 1px; }
+        .bg-orange-soft { background-color: rgba(242, 140, 15, 0.1); }
+        .bg-success-soft { background-color: rgba(46, 143, 33, 0.08); }
+        .bg-warning-soft { background-color: rgba(255, 193, 7, 0.08); }
+        .bg-danger-soft { background-color: rgba(220, 53, 69, 0.08); }
+        .transition-all { transition: all 0.3s ease; }
+        
+        .switch-premium .form-check-input:checked {
+          background-color: #E07B00;
+          border-color: #E07B00;
+          box-shadow: 0 0 10px rgba(224, 123, 0, 0.3);
+        }
+
+        .input-premium:focus {
+          background-color: white !important;
+          box-shadow: 0 0 0 3px rgba(242, 140, 15, 0.2) !important;
+        }
+
+        .border-dashed { border-style: dashed !important; }
+      `}</style>
     </CModal>
   )
 }

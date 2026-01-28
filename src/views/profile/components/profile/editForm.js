@@ -1,108 +1,14 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import {
   CForm,
   CRow,
   CCol,
   CFormInput,
   CFormSelect,
-  CFormTextarea,
   CFormLabel,
-  CAlert
 } from "@coreui/react"
 
-const editForm = ({ studentData, onFormChange }) => {
-  const [formData, setFormData] = useState({
-    // Datos personales
-    NombreEstudiante: "",
-    ApellidoEstudiante: "",
-    FechaNacimiento: "",
-    Sexo: "",
-    TipoSangre: "",
-    
-    // Datos de contacto
-    Direccion: "",
-    Ciudad: "",
-    Estado: "",
-    Telefono: "",
-    Email: "",
-    
-    // Datos académicos
-    Grado: "",
-    Seccion: "",
-    Estatus: "",
-    
-    // Datos del padre
-    PadreNombre: "",
-    PadreApellido: "",
-    PadreCedula: "",
-    PadreTelefono: "",
-    PadreEmail: "",
-    PadreParentesco: "Padre",
-    PadreOcupacion: "",
-    
-    // Datos de la madre
-    MadreNombre: "",
-    MadreApellido: "",
-    MadreCedula: "",
-    MadreTelefono: "",
-    MadreEmail: "",
-    MadreParentesco: "Madre",
-    MadreOcupacion: "",
-  })
-
-  // Inicializar datos del formulario cuando studentData cambia
-  useEffect(() => {
-    if (studentData) {
-      setFormData({
-        NombreEstudiante: studentData.NombreEstudiante || "",
-        ApellidoEstudiante: studentData.ApellidoEstudiante || "",
-        FechaNacimiento: studentData.FechaNacimiento || "",
-        Sexo: studentData.Sexo || "",
-        TipoSangre: studentData.TipoSangre || "",
-        
-        Direccion: studentData.Direccion || "",
-        Ciudad: studentData.Ciudad || "",
-        Estado: studentData.Estado || "",
-        Telefono: studentData.Telefono || "",
-        Email: studentData.Email || "",
-        
-        Grado: studentData.Grado || "",
-        Seccion: studentData.Seccion || "",
-        Estatus: studentData.Estatus || "",
-        
-        PadreNombre: studentData.PadreNombre || "",
-        PadreApellido: studentData.PadreApellido || "",
-        PadreCedula: studentData.PadreCedula || "",
-        PadreTelefono: studentData.PadreTelefono || "",
-        PadreEmail: studentData.PadreEmail || "",
-        PadreParentesco: studentData.PadreParentesco || "Padre",
-        PadreOcupacion: studentData.PadreOcupacion || "",
-        
-        MadreNombre: studentData.MadreNombre || "",
-        MadreApellido: studentData.MadreApellido || "",
-        MadreCedula: studentData.MadreCedula || "",
-        MadreTelefono: studentData.MadreTelefono || "",
-        MadreEmail: studentData.MadreEmail || "",
-        MadreParentesco: studentData.MadreParentesco || "Madre",
-        MadreOcupacion: studentData.MadreOcupacion || "",
-      })
-    }
-  }, [studentData])
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    const updatedData = {
-      ...formData,
-      [name]: value
-    }
-    setFormData(updatedData)
-    
-    // Notificar al componente padre del cambio
-    if (onFormChange) {
-      onFormChange(updatedData)
-    }
-  }
-
+const editForm = ({ formData, onInputChange, activeTab }) => {
   // Opciones para selects
   const sexoOptions = [
     { value: "", label: "Seleccionar sexo" },
@@ -131,276 +37,335 @@ const editForm = ({ studentData, onFormChange }) => {
   ]
 
   return (
-    <CForm>
-      {/* Sección: Datos Personales */}
-      <h5 className="mb-3 text-primary">Datos Personales</h5>
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Nombre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="NombreEstudiante"
-            value={formData.NombreEstudiante}
-            onChange={handleChange}
-            placeholder="Nombre del estudiante"
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel>Apellido</CFormLabel>
-          <CFormInput
-            type="text"
-            name="ApellidoEstudiante"
-            value={formData.ApellidoEstudiante}
-            onChange={handleChange}
-            placeholder="Apellido del estudiante"
-          />
-        </CCol>
-      </CRow>
+    <CForm className="animate__animated animate__fadeIn">
+      {/* SECCIÓN 0: DATOS PERSONALES */}
+      {activeTab === 0 && (
+        <>
+          <h5 className="mb-3 text-primary border-bottom pb-2">Información de Identidad</h5>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Nombre</CFormLabel>
+              <CFormInput
+                type="text"
+                name="NombreEstudiante"
+                value={formData.NombreEstudiante || ""}
+                onChange={onInputChange}
+                placeholder="Nombre del estudiante"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Apellido</CFormLabel>
+              <CFormInput
+                type="text"
+                name="ApellidoEstudiante"
+                value={formData.ApellidoEstudiante || ""}
+                onChange={onInputChange}
+                placeholder="Apellido del estudiante"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={4}>
-          <CFormLabel>Fecha de Nacimiento</CFormLabel>
-          <CFormInput
-            type="date"
-            name="FechaNacimiento"
-            value={formData.FechaNacimiento}
-            onChange={handleChange}
-          />
-        </CCol>
-        <CCol md={4}>
-          <CFormLabel>Sexo</CFormLabel>
-          <CFormSelect
-            name="Sexo"
-            value={formData.Sexo}
-            onChange={handleChange}
-            options={sexoOptions}
-          />
-        </CCol>
-        <CCol md={4}>
-          <CFormLabel>Tipo de Sangre</CFormLabel>
-          <CFormSelect
-            name="TipoSangre"
-            value={formData.TipoSangre}
-            onChange={handleChange}
-            options={tipoSangreOptions}
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={4}>
+              <CFormLabel className="fw-bold">Fecha de Nacimiento</CFormLabel>
+              <CFormInput
+                type="date"
+                name="FechaNacimiento"
+                value={formData.FechaNacimiento || ""}
+                onChange={onInputChange}
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={4}>
+              <CFormLabel className="fw-bold">Sexo</CFormLabel>
+              <CFormSelect
+                name="Sexo"
+                value={formData.Sexo || ""}
+                onChange={onInputChange}
+                options={sexoOptions}
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={4}>
+              <CFormLabel className="fw-bold">Tipo de Sangre</CFormLabel>
+              <CFormSelect
+                name="TipoSangre"
+                value={formData.TipoSangre || ""}
+                onChange={onInputChange}
+                options={tipoSangreOptions}
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      {/* Sección: Datos de Contacto */}
-      <h5 className="mb-3 mt-4 text-primary">Datos de Contacto</h5>
-      <CRow className="mb-3">
-        <CCol md={12}>
-          <CFormLabel>Dirección</CFormLabel>
-          <CFormInput
-            type="text"
-            name="Direccion"
-            value={formData.Direccion}
-            onChange={handleChange}
-            placeholder="Dirección completa"
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Estatus Académico</CFormLabel>
+              <CFormSelect
+                name="Estatus"
+                value={formData.Estatus || ""}
+                onChange={onInputChange}
+                options={estatusOptions}
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={3}>
+              <CFormLabel className="fw-bold">Grado</CFormLabel>
+              <CFormInput
+                type="text"
+                name="Grado"
+                value={formData.Grado || ""}
+                onChange={onInputChange}
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={3}>
+              <CFormLabel className="fw-bold">Sección</CFormLabel>
+              <CFormInput
+                type="text"
+                name="Seccion"
+                value={formData.Seccion || ""}
+                onChange={onInputChange}
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
+        </>
+      )}
 
-      <CRow className="mb-3">
-        <CCol md={4}>
-          <CFormLabel>Ciudad</CFormLabel>
-          <CFormInput
-            type="text"
-            name="Ciudad"
-            value={formData.Ciudad}
-            onChange={handleChange}
-            placeholder="Ciudad"
-          />
-        </CCol>
-        <CCol md={4}>
-          <CFormLabel>Estado</CFormLabel>
-          <CFormInput
-            type="text"
-            name="Estado"
-            value={formData.Estado}
-            onChange={handleChange}
-            placeholder="Estado"
-          />
-        </CCol>
-        <CCol md={4}>
-          <CFormLabel>Teléfono</CFormLabel>
-          <CFormInput
-            type="tel"
-            name="Telefono"
-            value={formData.Telefono}
-            onChange={handleChange}
-            placeholder="Teléfono"
-          />
-        </CCol>
-      </CRow>
+      {/* SECCIÓN 1: CONTACTO */}
+      {activeTab === 1 && (
+        <>
+          <h5 className="mb-3 text-primary border-bottom pb-2">Datos de Ubicación y Contacto</h5>
+          <CRow className="mb-3">
+            <CCol md={12}>
+              <CFormLabel className="fw-bold">Dirección de Habitación</CFormLabel>
+              <CFormInput
+                type="text"
+                name="Direccion"
+                value={formData.Direccion || ""}
+                onChange={onInputChange}
+                placeholder="Dirección completa"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Email</CFormLabel>
-          <CFormInput
-            type="email"
-            name="Email"
-            value={formData.Email}
-            onChange={handleChange}
-            placeholder="correo@ejemplo.com"
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={4}>
+              <CFormLabel className="fw-bold">Ciudad</CFormLabel>
+              <CFormInput
+                type="text"
+                name="Ciudad"
+                value={formData.Ciudad || ""}
+                onChange={onInputChange}
+                placeholder="Ciudad"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={4}>
+              <CFormLabel className="fw-bold">Estado</CFormLabel>
+              <CFormInput
+                type="text"
+                name="Estado"
+                value={formData.Estado || ""}
+                onChange={onInputChange}
+                placeholder="Estado"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={4}>
+              <CFormLabel className="fw-bold">Teléfono Principal</CFormLabel>
+              <CFormInput
+                type="tel"
+                name="Telefono"
+                value={formData.Telefono || ""}
+                onChange={onInputChange}
+                placeholder="Ej: 0412-1234567"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Estatus</CFormLabel>
-          <CFormSelect
-            name="Estatus"
-            value={formData.Estatus}
-            onChange={handleChange}
-            options={estatusOptions}
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={8}>
+              <CFormLabel className="fw-bold">Correo Electrónico</CFormLabel>
+              <CFormInput
+                type="email"
+                name="Email"
+                value={formData.Email || ""}
+                onChange={onInputChange}
+                placeholder="correo@ejemplo.com"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
+        </>
+      )}
 
-      {/* Sección: Datos del Padre */}
-      <h5 className="mb-3 mt-4 text-primary">Datos del Padre</h5>
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Nombre del Padre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="PadreNombre"
-            value={formData.PadreNombre}
-            onChange={handleChange}
-            placeholder="Nombre del padre"
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel>Apellido del Padre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="PadreApellido"
-            value={formData.PadreApellido}
-            onChange={handleChange}
-            placeholder="Apellido del padre"
-          />
-        </CCol>
-      </CRow>
+      {/* SECCIÓN 2: PADRE */}
+      {activeTab === 2 && (
+        <>
+          <h5 className="mb-3 text-primary border-bottom pb-2">Información del Padre / Representante</h5>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Nombre del Padre</CFormLabel>
+              <CFormInput
+                type="text"
+                name="PadreNombre"
+                value={formData.PadreNombre || ""}
+                onChange={onInputChange}
+                placeholder="Nombre del padre"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Apellido del Padre</CFormLabel>
+              <CFormInput
+                type="text"
+                name="PadreApellido"
+                value={formData.PadreApellido || ""}
+                onChange={onInputChange}
+                placeholder="Apellido del padre"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Cédula del Padre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="PadreCedula"
-            value={formData.PadreCedula}
-            onChange={handleChange}
-            placeholder="V-XXXXXXXX"
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel>Teléfono del Padre</CFormLabel>
-          <CFormInput
-            type="tel"
-            name="PadreTelefono"
-            value={formData.PadreTelefono}
-            onChange={handleChange}
-            placeholder="Teléfono del padre"
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Cédula del Padre</CFormLabel>
+              <CFormInput
+                type="text"
+                name="PadreCedula"
+                value={formData.PadreCedula || ""}
+                onChange={onInputChange}
+                placeholder="V-XXXXXXXX"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Teléfono del Padre</CFormLabel>
+              <CFormInput
+                type="tel"
+                name="PadreTelefono"
+                value={formData.PadreTelefono || ""}
+                onChange={onInputChange}
+                placeholder="Teléfono de contacto"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Email del Padre</CFormLabel>
-          <CFormInput
-            type="email"
-            name="PadreEmail"
-            value={formData.PadreEmail}
-            onChange={handleChange}
-            placeholder="correo@ejemplo.com"
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel>Ocupación del Padre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="PadreOcupacion"
-            value={formData.PadreOcupacion}
-            onChange={handleChange}
-            placeholder="Ocupación"
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Email del Padre</CFormLabel>
+              <CFormInput
+                type="email"
+                name="PadreEmail"
+                value={formData.PadreEmail || ""}
+                onChange={onInputChange}
+                placeholder="correo@ejemplo.com"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Ocupación</CFormLabel>
+              <CFormInput
+                type="text"
+                name="PadreOcupacion"
+                value={formData.PadreOcupacion || ""}
+                onChange={onInputChange}
+                placeholder="Ocupación o profesión"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
+        </>
+      )}
 
-      {/* Sección: Datos de la Madre */}
-      <h5 className="mb-3 mt-4 text-primary">Datos de la Madre</h5>
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Nombre de la Madre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="MadreNombre"
-            value={formData.MadreNombre}
-            onChange={handleChange}
-            placeholder="Nombre de la madre"
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel>Apellido de la Madre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="MadreApellido"
-            value={formData.MadreApellido}
-            onChange={handleChange}
-            placeholder="Apellido de la madre"
-          />
-        </CCol>
-      </CRow>
+      {/* SECCIÓN 3: MADRE */}
+      {activeTab === 3 && (
+        <>
+          <h5 className="mb-3 text-primary border-bottom pb-2">Información de la Madre / Representante</h5>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Nombre de la Madre</CFormLabel>
+              <CFormInput
+                type="text"
+                name="MadreNombre"
+                value={formData.MadreNombre || ""}
+                onChange={onInputChange}
+                placeholder="Nombre de la madre"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Apellido de la Madre</CFormLabel>
+              <CFormInput
+                type="text"
+                name="MadreApellido"
+                value={formData.MadreApellido || ""}
+                onChange={onInputChange}
+                placeholder="Apellido de la madre"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Cédula de la Madre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="MadreCedula"
-            value={formData.MadreCedula}
-            onChange={handleChange}
-            placeholder="V-XXXXXXXX"
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel>Teléfono de la Madre</CFormLabel>
-          <CFormInput
-            type="tel"
-            name="MadreTelefono"
-            value={formData.MadreTelefono}
-            onChange={handleChange}
-            placeholder="Teléfono de la madre"
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Cédula de la Madre</CFormLabel>
+              <CFormInput
+                type="text"
+                name="MadreCedula"
+                value={formData.MadreCedula || ""}
+                onChange={onInputChange}
+                placeholder="V-XXXXXXXX"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Teléfono de la Madre</CFormLabel>
+              <CFormInput
+                type="tel"
+                name="MadreTelefono"
+                value={formData.MadreTelefono || ""}
+                onChange={onInputChange}
+                placeholder="Teléfono de contacto"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
 
-      <CRow className="mb-3">
-        <CCol md={6}>
-          <CFormLabel>Email de la Madre</CFormLabel>
-          <CFormInput
-            type="email"
-            name="MadreEmail"
-            value={formData.MadreEmail}
-            onChange={handleChange}
-            placeholder="correo@ejemplo.com"
-          />
-        </CCol>
-        <CCol md={6}>
-          <CFormLabel>Ocupación de la Madre</CFormLabel>
-          <CFormInput
-            type="text"
-            name="MadreOcupacion"
-            value={formData.MadreOcupacion}
-            onChange={handleChange}
-            placeholder="Ocupación"
-          />
-        </CCol>
-      </CRow>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Email de la Madre</CFormLabel>
+              <CFormInput
+                type="email"
+                name="MadreEmail"
+                value={formData.MadreEmail || ""}
+                onChange={onInputChange}
+                placeholder="correo@ejemplo.com"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Ocupación</CFormLabel>
+              <CFormInput
+                type="text"
+                name="MadreOcupacion"
+                value={formData.MadreOcupacion || ""}
+                onChange={onInputChange}
+                placeholder="Ocupación o profesión"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
+        </>
+      )}
     </CForm>
   )
 }

@@ -6,37 +6,27 @@ import {
     CCol,
     CRow,
     CContainer,
-    CBadge,
-    CButton,
-    CModal,
-    CModalHeader,
-    CModalTitle,
-    CModalBody,
-    CTable,
-    CTableHead,
-    CTableRow,
-    CTableHeaderCell,
-    CTableBody,
-    CTableDataCell,
     CFormSelect,
     CSpinner,
     CInputGroup,
     CInputGroupText,
-    CFormInput
+    CFormInput,
+    CDropdown,
+    CDropdownToggle,
+    CDropdownMenu,
+    CDropdownItem
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import {
-    cilRoom,
-    cilClock,
-    cilInfo,
-    cilSearch,
-    cilCalendar,
-    cilLocationPin
-} from '@coreui/icons'
+import { cilRoom, cilSearch, cilSchool, cilChevronBottom } from '@coreui/icons'
 import { listClassrooms, updateClassroom, CLASSROOM_TYPES } from 'src/services/classrooms'
 import { listSections, getAvailableYears } from 'src/services/schedules'
 
+// Componentes extraídos
+import ClassroomCard from './components/ClassroomCard'
+import ScheduleModal from './components/ScheduleModal'
+
 const Aulas = () => {
+    // ---------------------- ESTADOS ---------------------- //
     const [classrooms, setClassrooms] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
@@ -46,10 +36,12 @@ const Aulas = () => {
     const [academicYears, setAcademicYears] = useState([])
     const [selectedYear, setSelectedYear] = useState('2025-2026')
 
+    // ---------------------- EFECTOS ---------------------- //
     useEffect(() => {
         loadInitialData()
     }, [])
 
+    // ---------------------- LOGICA DE DATOS ---------------------- //
     const loadInitialData = async () => {
         setLoading(true)
         try {
@@ -110,6 +102,7 @@ const Aulas = () => {
         }
     }
 
+    // ---------------------- FILTRADO ---------------------- //
     const filteredRooms = classrooms.filter(room =>
         room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         room.type.toLowerCase().includes(searchTerm.toLowerCase())
@@ -130,40 +123,56 @@ const Aulas = () => {
         <CContainer fluid>
             <CRow>
                 <CCol>
-                    <CCard className="shadow-sm border-0 mb-4" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-                        <div className="bg-info" style={{ height: '5px' }}></div>
-                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4">
+                    <CCard className="shadow-sm border-0 mb-4 overflow-hidden" style={{ borderRadius: '16px' }}>
+                        <div className="bg-primary" style={{ height: '6px' }}></div>
+                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-white">
                             <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                                 <div>
-                                    <h4 className="mb-1 fw-bold">
-                                        <CIcon icon={cilRoom} className="me-2 text-info" />
+                                    <h4 className="mb-1 fw-bold text-dark d-flex align-items-center">
+                                        <CIcon icon={cilRoom} className="me-2 text-primary" />
                                         Gestión de Aulas y Espacios
                                     </h4>
-                                    <p className="text-body-secondary mb-0 small">
+                                    <p className="text-muted mb-0 small fw-medium">
                                         Visualiza la disponibilidad y características de cada salón
                                     </p>
                                 </div>
-                                <div className="d-flex gap-2 align-items-center">
-                                    <CFormSelect
-                                        size="sm"
-                                        value={selectedYear}
-                                        onChange={(e) => setSelectedYear(e.target.value)}
-                                        className="fw-bold text-info border-info"
-                                    >
-                                        {academicYears.map(y => <option key={y} value={y}>{y}</option>)}
-                                    </CFormSelect>
+
+                                <div className="d-flex align-items-center gap-2 bg-light p-1 px-3 rounded-pill border hover-shadow-sm transition-all" style={{ cursor: 'pointer' }}>
+                                    <CIcon icon={cilSchool} className="text-secondary" />
+                                    <CDropdown variant="nav-item">
+                                        <CDropdownToggle
+                                            caret={false}
+                                            className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center"
+                                        >
+                                            Ciclo {selectedYear}
+                                            <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
+                                        </CDropdownToggle>
+                                        <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in" style={{ minWidth: '180px' }}>
+                                            <div className="px-3 py-2 text-muted small fw-bold text-uppercase ls-1">Seleccionar Periodo</div>
+                                            {academicYears.map(y => (
+                                                <CDropdownItem
+                                                    key={y}
+                                                    onClick={() => setSelectedYear(y)}
+                                                    active={selectedYear === y}
+                                                    className="py-2 px-3 fw-medium dropdown-item-premium"
+                                                >
+                                                    Ciclo {y}
+                                                </CDropdownItem>
+                                            ))}
+                                        </CDropdownMenu>
+                                    </CDropdown>
                                 </div>
                             </div>
                         </CCardHeader>
 
                         <CCardBody className="px-4 pb-4">
-                            <div className="mb-4">
+                            <div className="mb-4 p-3 rounded-3 border bg-light bg-opacity-10">
                                 <CInputGroup style={{ maxWidth: '400px' }}>
-                                    <CInputGroupText className="bg-body-tertiary border-end-0">
-                                        <CIcon icon={cilSearch} className="text-muted" />
+                                    <CInputGroupText className="border-end-0 text-body-secondary bg-transparent">
+                                        <CIcon icon={cilSearch} />
                                     </CInputGroupText>
                                     <CFormInput
-                                        className="bg-body-tertiary border-start-0 ps-0"
+                                        className="border-start-0 ps-0"
                                         placeholder="Buscar aula o tipo..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -173,122 +182,43 @@ const Aulas = () => {
 
                             {loading ? (
                                 <div className="text-center py-5">
-                                    <CSpinner color="info" />
-                                    <div className="mt-2 text-muted">Cargando espacios...</div>
+                                    <CSpinner color="primary" variant="grow" />
+                                    <div className="mt-3 text-muted fw-medium">Cargando espacios...</div>
                                 </div>
                             ) : (
-                                <CRow className="g-4">
-                                    {filteredRooms.map(room => (
-                                        <CCol key={room.id} lg={4} md={6}>
-                                            <CCard className="h-100 shadow-sm border-secondary-subtle aula-card hover-lift">
-                                                <CCardBody className="d-flex flex-column p-4">
-                                                    <div className="d-flex justify-content-between align-items-start mb-3">
-                                                        <div>
-                                                            <h5 className="fw-bold mb-1">{room.name}</h5>
-                                                            <CBadge color={getStatusColor(room.type)} shape="rounded-pill">
-                                                                {room.type}
-                                                            </CBadge>
-                                                        </div>
-                                                        <div className="text-info">
-                                                            <CIcon icon={cilLocationPin} size="xl" />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="mt-2 mb-4">
-                                                        <CFormSelect
-                                                            size="sm"
-                                                            value={room.type}
-                                                            onChange={(e) => handleTypeChange(room.id, e.target.value)}
-                                                            className="text-muted small"
-                                                        >
-                                                            {CLASSROOM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                                                        </CFormSelect>
-                                                    </div>
-
-                                                    <div className="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                                        <div className="text-body-secondary small">
-                                                            <CIcon icon={cilInfo} className="me-1" />
-                                                            Capacidad: {room.capacity} pers.
-                                                        </div>
-                                                        <CButton
-                                                            color="info"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => handleSeeSchedule(room)}
-                                                            className="fw-bold"
-                                                        >
-                                                            <CIcon icon={cilClock} className="me-1" />
-                                                            VER HORARIO
-                                                        </CButton>
-                                                    </div>
-                                                </CCardBody>
-                                            </CCard>
-                                        </CCol>
-                                    ))}
-                                </CRow>
+                                <>
+                                    <div className="mb-3 text-muted small fw-bold text-uppercase ls-1">
+                                        Mostrando {filteredRooms.length} espacios disponibles
+                                    </div>
+                                    <CRow className="g-4">
+                                        {filteredRooms.map(room => (
+                                            <ClassroomCard
+                                                key={room.id}
+                                                room={room}
+                                                onTypeChange={handleTypeChange}
+                                                onSeeSchedule={handleSeeSchedule}
+                                                getStatusColor={getStatusColor}
+                                                classroomTypes={CLASSROOM_TYPES}
+                                            />
+                                        ))}
+                                    </CRow>
+                                </>
                             )}
                         </CCardBody>
                     </CCard>
                 </CCol>
             </CRow>
 
-            {/* Modal de Horarios del Aula */}
-            <CModal size="lg" visible={showSchedule} onClose={() => setShowSchedule(false)}>
-                <CModalHeader className="bg-info text-white">
-                    <CModalTitle>
-                        <CIcon icon={cilCalendar} className="me-2" />
-                        Disponibilidad: {selectedAula?.name} ({selectedYear})
-                    </CModalTitle>
-                </CModalHeader>
-                <CModalBody className="p-4">
-                    {aulaSchedules.length > 0 ? (
-                        <div className="table-responsive">
-                            <CTable hover align="middle" className="border-secondary-subtle shadow-sm">
-                                <CTableHead color="dark">
-                                    <CTableRow>
-                                        <CTableHeaderCell>Día</CTableHeaderCell>
-                                        <CTableHeaderCell>Hora</CTableHeaderCell>
-                                        <CTableHeaderCell>Materia</CTableHeaderCell>
-                                        <CTableHeaderCell>Sección</CTableHeaderCell>
-                                        <CTableHeaderCell>Profesor</CTableHeaderCell>
-                                    </CTableRow>
-                                </CTableHead>
-                                <CTableBody>
-                                    {aulaSchedules.map((item, idx) => (
-                                        <CTableRow key={idx}>
-                                            <CTableDataCell className="fw-bold text-info">{item.dayOfWeek}</CTableDataCell>
-                                            <CTableDataCell>
-                                                <CBadge color="light" className="text-dark border">
-                                                    {item.startTime} - {item.endTime}
-                                                </CBadge>
-                                            </CTableDataCell>
-                                            <CTableDataCell className="fw-semibold">{item.subject}</CTableDataCell>
-                                            <CTableDataCell>{item.sectionName} <small className="text-muted">({item.gradeLevel})</small></CTableDataCell>
-                                            <CTableDataCell>{item.teacherName}</CTableDataCell>
-                                        </CTableRow>
-                                    ))}
-                                </CTableBody>
-                            </CTable>
-                        </div>
-                    ) : (
-                        <div className="text-center py-5">
-                            <CIcon icon={cilClock} size="3xl" className="text-muted opacity-25 mb-3" />
-                            <h5>No hay clases programadas</h5>
-                            <p className="text-muted">Este espacio está totalmente disponible para este año académico.</p>
-                        </div>
-                    )}
-                </CModalBody>
-            </CModal>
+            <ScheduleModal
+                visible={showSchedule}
+                onClose={() => setShowSchedule(false)}
+                aula={selectedAula}
+                selectedYear={selectedYear}
+                schedules={aulaSchedules}
+            />
 
             <style>{`
-                .aula-card {
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
-                    border: 1px solid rgba(0,0,0,0.05);
-                }
-                .hover-lift:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-                }
+                .ls-1 { letter-spacing: 1px; }
             `}</style>
         </CContainer>
     )

@@ -5,60 +5,81 @@ import { cilUser, cilCalendar, cilPhone, cilHome } from "@coreui/icons";
 
 const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }) => {
   const esModoBasico = mode === "basico";
-  
+
   return (
-    <div>
-      <h5 className="mb-4">
-        <CIcon icon={cilUser} className="me-2" />
-        Datos del Estudiante
-      </h5>
-      
+    <div className="animate__animated animate__fadeIn">
+      <div className="p-4 rounded-4 bg-light border border-light mb-4">
+        <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
+          <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
+            <CIcon icon={cilUser} size="sm" />
+          </span>
+          Información del Estudiante
+        </h5>
+      </div>
+
       <CForm>
-        <CRow>
-          <CCol md={6} className="mb-3">
+        <CRow className="g-4">
+          <CCol md={6}>
             <CFormInput
-              label="Nombres *"
+              label={
+                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  Nombres <span className="text-danger">*</span>
+                </span>
+              }
               name="nombres"
               value={formData.nombres}
               onChange={onChange}
               placeholder="María José"
               required
-              className={errores.nombres ? 'is-invalid' : ''}
+              className={`input-premium py-2 ${errores.nombres ? 'is-invalid' : ''}`}
               feedback={errores.nombres}
               invalid={!!errores.nombres}
             />
           </CCol>
-          <CCol md={6} className="mb-3">
+          <CCol md={6}>
             <CFormInput
-              label="Apellidos *"
+              label={
+                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  Apellidos <span className="text-danger">*</span>
+                </span>
+              }
               name="apellidos"
               value={formData.apellidos}
               onChange={onChange}
               placeholder="Rodríguez Pérez"
               required
-              className={errores.apellidos ? 'is-invalid' : ''}
+              className={`input-premium py-2 ${errores.apellidos ? 'is-invalid' : ''}`}
               feedback={errores.apellidos}
               invalid={!!errores.apellidos}
             />
           </CCol>
         </CRow>
 
-        <CRow>
-          <CCol md={esModoBasico ? 6 : 4} className="mb-3">
+        <CRow className="g-4 mt-1">
+          <CCol md={esModoBasico ? 6 : 4}>
             <CFormInput
               type="date"
-              label="Fecha de nacimiento"
+              label={
+                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  Fecha de nacimiento
+                </span>
+              }
               name="fecha_nac"
               value={formData.fecha_nac}
               onChange={onChange}
+              className="input-premium py-2"
               feedbackInvalid="Seleccione una fecha válida"
             />
           </CCol>
-          
+
           {!esModoBasico && (
-            <CCol md={4} className="mb-3">
+            <CCol md={4}>
               <CFormInput
-                label="Edad"
+                label={
+                  <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    Edad Actual
+                  </span>
+                }
                 name="edad"
                 value={formData.edad}
                 onChange={onChange}
@@ -66,19 +87,24 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
                 type="number"
                 min="4"
                 max="30"
+                className="input-premium py-2"
               />
             </CCol>
           )}
-          
-          <CCol md={esModoBasico ? 6 : 4} className="mb-3">
+
+          <CCol md={esModoBasico ? 6 : 4}>
             <CFormInput
-              label={`Teléfono celular ${esModoBasico ? '*' : ''}`}
+              label={
+                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  Teléfono celular <span className="text-danger">{esModoBasico ? '*' : ''}</span>
+                </span>
+              }
               name="Telefono_Celular"
               value={formData.Telefono_Celular}
               onChange={onChange}
               placeholder="0412-1234567"
               required={esModoBasico}
-              className={errores.Telefono_Celular ? 'is-invalid' : ''}
+              className={`input-premium py-2 ${errores.Telefono_Celular ? 'is-invalid' : ''}`}
               feedback={errores.Telefono_Celular}
               invalid={!!errores.Telefono_Celular}
             />
@@ -88,24 +114,33 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
         {/* Campos específicos para modo completo */}
         {!esModoBasico && (
           <>
-            <CRow>
-              <CCol md={8} className="mb-3">
+            <CRow className="g-4 mt-1">
+              <CCol md={8}>
                 <CFormInput
-                  label="Dirección"
+                  label={
+                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      Dirección de Habitación
+                    </span>
+                  }
                   name="direccion_Habitacion"
                   value={formData.direccion_Habitacion}
                   onChange={onChange}
                   placeholder="Av. Principal #123, Urb. Las Acacias"
+                  className="input-premium py-2"
                 />
               </CCol>
-              <CCol md={4} className="mb-3">
+              <CCol md={4}>
                 <CFormSelect
-                  label="Grado *"
+                  label={
+                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      Grado Académico <span className="text-danger">*</span>
+                    </span>
+                  }
                   name="grado"
                   value={formData.grado}
                   onChange={onChange}
                   required
-                  className={errores.grado ? 'is-invalid' : ''}
+                  className={`input-premium py-2 ${errores.grado ? 'is-invalid' : ''}`}
                   feedback={errores.grado}
                   invalid={!!errores.grado}
                 >
@@ -121,52 +156,86 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               </CCol>
             </CRow>
 
-            <CRow>
-              <CCol md={6} className="mb-3">
+            <CRow className="g-4 mt-1">
+              <CCol md={6}>
                 <CFormInput
-                  label="Especialidad"
+                  label={
+                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      Especialidad de Interés
+                    </span>
+                  }
                   name="especialidad"
                   value={formData.especialidad}
                   onChange={onChange}
                   placeholder="Ej: Ballet Clásico, Danza Contemporánea"
+                  className="input-premium py-2"
                 />
               </CCol>
-              <CCol md={6} className="mb-3">
+              <CCol md={6}>
                 <CFormInput
-                  label="Convivencia"
+                  label={
+                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      Régimen de Convivencia
+                    </span>
+                  }
                   name="convivencia"
                   value={formData.convivencia}
                   onChange={onChange}
                   placeholder="Ej: Con padres, con abuelos"
+                  className="input-premium py-2"
                 />
               </CCol>
             </CRow>
 
-            <CRow>
-              <CCol md={6} className="mb-3">
+            <div className="p-4 rounded-4 bg-light border border-light mb-4 mt-5">
+              <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
+                <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
+                  <CIcon icon={cilHome} size="sm" />
+                </span>
+                Información Académica Externa
+              </h5>
+            </div>
+
+            <CRow className="g-4">
+              <CCol md={6}>
                 <CFormInput
-                  label="Escuela/Institución"
+                  label={
+                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      Escuela / Institución Actual
+                    </span>
+                  }
                   name="escuela"
                   value={formData.escuela}
                   onChange={onChange}
                   placeholder="Colegio o institución actual"
+                  className="input-premium py-2"
                 />
               </CCol>
-              <CCol md={3} className="mb-3">
+              <CCol md={3}>
                 <CFormInput
-                  label="Grado escolar"
+                  label={
+                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      Grado Escolar
+                    </span>
+                  }
                   name="Grado_Escuela"
                   value={formData.Grado_Escuela}
                   onChange={onChange}
                   placeholder="Ej: 7mo grado"
+                  className="input-premium py-2"
                 />
               </CCol>
-              <CCol md={3} className="mb-3">
+              <CCol md={3}>
                 <CFormSelect
-                  label="Seguro escolar"
+                  label={
+                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      Posee Seguro Escolar
+                    </span>
+                  }
                   name="Seguro_Escolar"
                   value={formData.Seguro_Escolar}
                   onChange={onChange}
+                  className="input-premium py-2"
                 >
                   <option value="">Seleccione</option>
                   <option value="si">Sí</option>
@@ -176,14 +245,19 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
             </CRow>
 
             {formData.Seguro_Escolar === "si" && (
-              <CRow>
-                <CCol md={12} className="mb-3">
+              <CRow className="mt-2 animate__animated animate__fadeIn">
+                <CCol md={12}>
                   <CFormInput
-                    label="Nombre del seguro"
+                    label={
+                      <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                        Nombre de la Aseguradora
+                      </span>
+                    }
                     name="nombre_Seguro"
                     value={formData.nombre_Seguro}
                     onChange={onChange}
                     placeholder="Nombre de la aseguradora"
+                    className="input-premium py-2"
                   />
                 </CCol>
               </CRow>
@@ -193,15 +267,19 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
 
         {/* Solo para modo básico */}
         {esModoBasico && (
-          <CRow>
-            <CCol md={12} className="mb-3">
+          <CRow className="mt-2">
+            <CCol md={12}>
               <CFormSelect
-                label="Grado de interés *"
+                label={
+                  <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    Grado de Interés <span className="text-danger">*</span>
+                  </span>
+                }
                 name="grado_interes"
                 value={formData.grado_interes}
                 onChange={onChange}
                 required
-                className={errores.grado_interes ? 'is-invalid' : ''}
+                className={`input-premium py-2 ${errores.grado_interes ? 'is-invalid' : ''}`}
                 feedback={errores.grado_interes}
                 invalid={!!errores.grado_interes}
               >
@@ -216,6 +294,9 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
           </CRow>
         )}
       </CForm>
+      <style>{`
+        .ls-1 { letter-spacing: 1px; }
+      `}</style>
     </div>
   );
 };

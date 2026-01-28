@@ -1,4 +1,3 @@
-// data/datosEjemplo.js
 export const horarioUsuario = {
   estudiante: {
     id: 1,

@@ -5,8 +5,8 @@ import { getStyle } from '@coreui/utils'
 
 const ValidacionChart = ({ chartRef }) => {
   return (
-    <CCard className="shadow border-0" style={{ borderRadius: '16px' }}>
-      <CCardHeader className="fw-bold">Actividad de Validación - Últimos 6 meses</CCardHeader>
+    <CCard className="premium-card border-0 h-100">
+      <CCardHeader className="bg-orange-soft border-0 py-3 fw-bold">Actividad de Validación - Últimos 6 meses</CCardHeader>
       <CCardBody>
         <CChartLine
           ref={chartRef}

@@ -1,67 +1,47 @@
- // src/views/Students/PerfilStudents.jsx
-
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import {
-  CCard,
-  CCardBody,
-  CCardHeader,
-  CCardFooter,
   CContainer,
   CRow,
   CCol,
   CButton,
-  CButtonGroup,
-  CBadge,
-  CProgress,
-  CListGroup,
-  CListGroupItem,
-  CAlert,
   CTabs,
   CNav,
   CNavItem,
   CNavLink,
   CTabContent,
   CTabPane,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
   CSpinner,
-  CModal,
-  CModalHeader,
-  CModalBody,
-  CModalTitle,
-  CModalFooter,
+  CAlert,
   CToaster,
   CToast,
   CToastHeader,
-  CToastBody
+  CToastBody,
+  CCard,
+  CCardFooter
 } from "@coreui/react"
 import { useParams, Link, useNavigate } from "react-router-dom"
 import CIcon from "@coreui/icons-react"
-import { 
-  cilArrowLeft, 
-  cilUser, 
+import {
+  cilArrowLeft,
+  cilUser,
   cilCalendar,
-  cilHome,
-  cilPhone,
   cilBadge,
-  cilNotes,
   cilMedicalCross,
-  cilBook,
   cilPencil,
   cilPrint,
   cilTrash,
   cilCloudDownload,
-  cilChartLine,
-  cilClipboard,
-  cilInfo,
-  cilWarning,
-  cilStar,
-  cilEnvelopeClosed
+  cilWarning
 } from "@coreui/icons"
+
+import ProfileSummary from "../profile/components/profile/ProfileSummary"
+import ProfileStatsCards from "../profile/components/profile/ProfileStatsCards"
+import PersonalInfoTab from "../profile/components/profile/PersonalInfoTab"
+import RepresentativeTab from "../profile/components/profile/RepresentativeTab"
+import HealthTab from "../profile/components/profile/HealthTab"
+import EditStudentModal from "../profile/components/profile/editModal"
+
+import { getStudent, updateStudent as updateStudentService } from 'src/services/students'
 
 const PerfilStudents = () => {
   const { id } = useParams()
@@ -69,128 +49,32 @@ const PerfilStudents = () => {
   const [loading, setLoading] = useState(true)
   const [student, setStudent] = useState(null)
   const [activeKey, setActiveKey] = useState(1)
-  const [modalVisible, setModalVisible] = useState(false)
-  const [modalType, setModalType] = useState("")
+  const [editModalVisible, setEditModalVisible] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [toasts, setToasts] = useState([])
 
-  // Datos de ejemplo mejorados
-  const dummyData = [
-    {
-      id: 1,
-      Grado: "1er Grado",
-      Seccion: "D1",
-      NombreEstudiante: "María",
-      ApellidoEstudiante: "González",
-      FechaNacimiento: "2014-02-15",
-      Edad: "10 años",
-      Sexo: "Femenino",
-      TipoSangre: "O+",
-      Direccion: "Av. Sucre, Urbanización El Paraíso, Caracas 1010",
-      Ciudad: "Caracas",
-      Estado: "Distrito Capital",
-      Telefono: "0412-1234567",
-      Email: "maria.gonzalez@email.com",
-      Estatus: "Activo",
-      FechaIngreso: "2023-09-10",
-      RepresentanteNombre: "Ana",
-      RepresentanteApellido: "González",
-      RepresentanteCedula: "V-12345678",
-      RepresentanteTelefono: "0424-1234567",
-      RepresentanteEmail: "ana.gonzalez@email.com",
-      RepresentanteParentesco: "Madre",
-      RepresentanteOcupacion: "Ingeniero",
-      NutricionPeso: "32 kg",
-      NutricionAltura: "1.35 m",
-      NutricionIMC: "17.5 (Normal)",
-      NutricionObs: "Buen estado nutricional",
-      Alergias: "Ninguna",
-      Medicamentos: "Ninguno",
-      Enfermedades: "Ninguna",
-      ObservacionesAcad: "Excelente rendimiento en matemáticas y ciencias. Participa activamente en clase.",
-      Conducta: "Excelente",
-      Asistencia: "95%",
-      PromedioGeneral: "18.5/20",
-      Notas: [
-        { materia: "Matemáticas", nota: "10", observacion: "Excelente" },
-        { materia: "Ciencias", nota: "13", observacion: "Muy Bueno" },
-        { materia: "Lengua", nota: "12", observacion: "Bueno" },
-        { materia: "Historia", nota: "11    ", observacion: "Excelente" }
-      ],
-      HistorialMedico: [
-        { fecha: "2024-01-15", diagnostico: "Control médico anual", tratamiento: "Ninguno", medico: "Dr. Pérez" },
-        { fecha: "2023-11-20", diagnostico: "Gripe común", tratamiento: "Reposo y líquidos", medico: "Dr. López" }
-      ]
-    },
-    {
-      id: 2,
-      Grado: "2do Grado",
-      Seccion: "D2",
-      NombreEstudiante: "Carlos",
-      ApellidoEstudiante: "Pérez",
-      FechaNacimiento: "2013-05-20",
-      Edad: "11 años",
-      Sexo: "Masculino",
-      TipoSangre: "A+",
-      Direccion: "Calle Miranda, El Rosal, Caracas",
-      Ciudad: "Caracas",
-      Estado: "Distrito Capital",
-      Telefono: "0414-7654321",
-      Email: "carlos.perez@email.com",
-      Estatus: "Activo",
-      FechaIngreso: "2023-09-10",
-      RepresentanteNombre: "José",
-      RepresentanteApellido: "Pérez",
-      RepresentanteCedula: "V-98765432",
-      RepresentanteTelefono: "0416-9876543",
-      RepresentanteEmail: "jose.perez@email.com",
-      RepresentanteParentesco: "Padre",
-      RepresentanteOcupacion: "Empresario",
-      NutricionPeso: "35 kg",
-      NutricionAltura: "1.40 m",
-      NutricionIMC: "17.9 (Normal)",
-      NutricionObs: "Estado nutricional óptimo",
-      Alergias: "Polvo",
-      Medicamentos: "Antihistamínico en temporada",
-      Enfermedades: "Ninguna",
-      ObservacionesAcad: "Destacado en deportes, necesita reforzar lectura",
-      Conducta: "Muy Buena",
-      Asistencia: "92%",
-      PromedioGeneral: "16.8/20",
-      Notas: [
-        { materia: "Matemáticas", nota: "17", observacion: "Bueno" },
-        { materia: "Ciencias", nota: "16", observacion: "Regular" },
-        { materia: "Lengua", nota: "15", observacion: "Necesita mejorar" },
-        { materia: "Educación Física", nota: "20", observacion: "Excelente" }
-      ]
-    }
-  ]
-
-  // Simular carga de datos
   useEffect(() => {
-    const found = dummyData.find((s) => s.id === Number(id))
-    
-    // Simular tiempo de carga
-    setTimeout(() => {
-      setStudent(found)
-      setLoading(false)
-    }, 800)
+    fetchStudentData()
   }, [id])
 
-  // Función para mostrar toasts
-  const showToast = (type, title, message) => {
-    setToasts((prev) => [...prev, { 
-      id: Date.now(), 
-      type, 
-      title, 
-      message,
-      delay: 3000 
-    }])
+  const fetchStudentData = async () => {
+    setLoading(true)
+    try {
+      const data = await getStudent(id)
+      setStudent(data)
+    } catch (error) {
+      console.error("Error fetching student:", error)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // Funcionalidad de edición
+  const showToast = (type, title, message) => {
+    setToasts((prev) => [...prev, { id: Date.now(), type, title, message, delay: 3000 }])
+  }
+
   const handleEdit = () => {
-    showToast("info", "Editar", "Funcionalidad de edición activada")
-    // Aquí iría la lógica para editar
+    setEditModalVisible(true)
   }
 
   const handlePrint = () => {
@@ -198,769 +82,158 @@ const PerfilStudents = () => {
     showToast("success", "Imprimir", "Preparando para imprimir...")
   }
 
-  const handleExport = () => {
-    showToast("info", "Exportar", "Generando archivo PDF...")
-    // Lógica de exportación
-  }
-
-  const handleDelete = () => {
-    setModalType("delete")
-    setModalVisible(true)
-  }
-
-  const confirmDelete = () => {
-    showToast("danger", "Eliminado", "Estudiante eliminado del sistema")
-    setTimeout(() => navigate("/students"), 1500)
-  }
-
-  const calcularProgreso = (promedio) => {
-    const valor = parseFloat(promedio) / 20 * 100
-    let color = "success"
-    if (valor < 70) color = "warning"
-    if (valor < 50) color = "danger"
-    return { valor, color }
-  }
-
-  const StatusBadge = ({ status }) => {
-    const colorMap = {
-      "Activo": "success",
-      "Inactivo": "secondary",
-      "Graduado": "info",
-      "Retirado": "danger"
+  const handleSaveStudent = async (updatedData) => {
+    setSaving(true)
+    try {
+      const updated = await updateStudentService(id, updatedData)
+      setStudent(updated)
+      showToast("success", "Guardado", "Datos actualizados correctamente")
+      setEditModalVisible(false)
+    } catch (error) {
+      showToast("danger", "Error", "No se pudieron guardar los datos")
+    } finally {
+      setSaving(false)
     }
-    return <CBadge color={colorMap[status] || "primary"}>{status}</CBadge>
   }
+
+  const progreso = useMemo(() => {
+    if (!student) return { valor: 0, color: "secondary" }
+    const promedio = parseFloat(student.PromedioGeneral)
+    if (promedio >= 15) return { valor: 90, color: "success" }
+    if (promedio >= 10) return { valor: 60, color: "warning" }
+    return { valor: 30, color: "danger" }
+  }, [student])
 
   if (loading) {
     return (
-      <CContainer className="d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
-        <div className="text-center">
-          <CSpinner color="primary" size="lg" />
-          <p className="mt-3">Cargando información del estudiante...</p>
-        </div>
+      <CContainer className="py-5 text-center">
+        <CSpinner color="primary" />
+        <p className="mt-2 text-muted">Cargando perfil del estudiante...</p>
       </CContainer>
     )
   }
 
   if (!student) {
     return (
-      <CContainer className="mt-5">
-        <CAlert color="danger" className="d-flex align-items-center">
-          <CIcon icon={cilWarning} className="flex-shrink-0 me-3" size="xl" />
-          <div>
-            <h4 className="alert-heading">Estudiante no encontrado</h4>
-            <p>No se encontró un estudiante con el ID: {id}</p>
-            <Link to="/students">
-              <CButton color="primary">
-                <CIcon icon={cilArrowLeft} className="me-2" />
-                Volver al listado
-              </CButton>
-            </Link>
-          </div>
-        </CAlert>
+      <CContainer className="py-5">
+        <CAlert color="danger">Estudiante no encontrado</CAlert>
+        <CButton color="primary" onClick={() => navigate("/students")}>Volver a la lista</CButton>
       </CContainer>
     )
   }
 
-  const progreso = calcularProgreso(student.PromedioGeneral || 0)
-
   return (
-    <CContainer fluid className="px-md-5 py-4">
-      {/* Header con navegación y acciones */}
-      <CRow className="mb-4 align-items-center">
+    <CContainer className="py-4 profile-container pb-5">
+      <CRow className="mb-4 align-items-center no-print">
         <CCol xs={12} md={6}>
-          <div className="d-flex align-items-center">
-            <Link to="/students" className="text-decoration-none">
-              <CButton color="light" variant="outline" className="me-3">
-                <CIcon icon={cilArrowLeft} />
-              </CButton>
+          <div className="d-flex align-items-center gap-3">
+            <Link to="/students" className="btn btn-outline-secondary rounded-pill border-2">
+              <CIcon icon={cilArrowLeft} />
             </Link>
             <div>
-              <h1 className="h3 mb-0">Perfil del Estudiante</h1>
+              <h2 className="mb-0 fw-bold">Perfil del Alumno</h2>
               <nav aria-label="breadcrumb">
-                <ol className="breadcrumb mb-0">
-                  <li className="breadcrumb-item"><Link to="/students" className="text-decoration-none">Estudiantes</Link></li>
-                  <li className="breadcrumb-item active">{student.NombreEstudiante} {student.ApellidoEstudiante}</li>
+                <ol className="breadcrumb mb-0 small">
+                  <li className="breadcrumb-item"><Link to="/inicio">Inicio</Link></li>
+                  <li className="breadcrumb-item"><Link to="/students">Estudiantes</Link></li>
+                  <li className="breadcrumb-item active" aria-current="page">{student.NombreEstudiante} {student.ApellidoEstudiante}</li>
                 </ol>
               </nav>
             </div>
           </div>
         </CCol>
-        
-        <CCol xs={12} md={6} className="mt-3 mt-md-0">
-          <div className="d-flex justify-content-md-end gap-2 flex-wrap">
-            <CButtonGroup>
-              <CButton color="primary" onClick={handleEdit}>
-                <CIcon icon={cilPencil} className="me-2" />
-                Editar
-              </CButton>
-              <CButton color="secondary" variant="outline" onClick={handlePrint}>
-                <CIcon icon={cilPrint} className="me-2" />
-                Imprimir
-              </CButton>
-              <CButton color="info" variant="outline" onClick={handleExport}>
-                <CIcon icon={cilCloudDownload} className="me-2" />
-                Exportar
-              </CButton>
-              <CButton color="danger" variant="outline" onClick={handleDelete}>
-                <CIcon icon={cilTrash} className="me-2" />
-                Eliminar
-              </CButton>
-            </CButtonGroup>
+        <CCol xs={12} md={6} className="text-md-end mt-3 mt-md-0">
+          <div className="d-flex justify-content-md-end gap-2">
+            <CButton className="btn-premium" onClick={handleEdit}><CIcon icon={cilPencil} className="me-2" />Editar Perfil</CButton>
+            <CButton color="light" variant="outline" className="border-2" onClick={handlePrint}><CIcon icon={cilPrint} className="me-2" />Imprimir</CButton>
           </div>
         </CCol>
       </CRow>
 
-      {/* Información principal */}
       <CRow className="mb-4">
         <CCol xs={12} lg={4}>
-          <CCard className="h-100 border-0 shadow-sm">
-            <CCardBody className="text-center p-4">
-              <div className="mb-3">
-                <div className="avatar-circle-lg bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
-                  <CIcon icon={cilUser} size="xxl" />
-                </div>
-                <h3 className="mb-1">{student.NombreEstudiante} {student.ApellidoEstudiante}</h3>
-                <p className="text-muted">Matrícula: #{student.id}</p>
-                <StatusBadge status={student.Estatus} />
-              </div>
-              
-              <CListGroup flush className="text-start">
-                <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0">
-                  <span className="d-flex align-items-center">
-                    <CIcon icon={cilCalendar} className="me-2 text-muted" />
-                    Grado
-                  </span>
-                  <strong>{student.Grado} - {student.Seccion}</strong>
-                </CListGroupItem>
-                <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0">
-                  <span className="d-flex align-items-center">
-                    <CIcon icon={cilCalendar} className="me-2 text-muted" />
-                    Fecha Nacimiento
-                  </span>
-                  <strong>{student.FechaNacimiento}</strong>
-                </CListGroupItem>
-                <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0">
-                  <span className="d-flex align-items-center">
-                    <CIcon icon={cilCalendar} className="me-2 text-muted" />
-                    Edad
-                  </span>
-                  <strong>{student.Edad}</strong>
-                </CListGroupItem>
-                <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0">
-                  <span className="d-flex align-items-center">
-                    <CIcon icon={cilMedicalCross} className="me-2 text-muted" />
-                    Tipo de Sangre
-                  </span>
-                  <strong>{student.TipoSangre}</strong>
-                </CListGroupItem>
-              </CListGroup>
-            </CCardBody>
-          </CCard>
+          <ProfileSummary student={student} />
         </CCol>
-
         <CCol xs={12} lg={8}>
-          <CRow>
-            <CCol xs={12} md={6} className="mb-3">
-              <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-primary">
-                <CCardBody>
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h6 className="text-muted mb-1">Rendimiento Académico</h6>
-                      <h4 className="mb-0">{student.PromedioGeneral || "N/A"}</h4>
-                    </div>
-                    <CIcon icon={cilChartLine} className="text-primary" size="lg" />
-                  </div>
-                  <CProgress value={progreso.valor} color={progreso.color} className="mb-2" />
-                  <small className="text-muted">Promedio general de notas</small>
-                </CCardBody>
-              </CCard>
-            </CCol>
-
-            <CCol xs={12} md={6} className="mb-3">
-              <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-success">
-                <CCardBody>
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h6 className="text-muted mb-1">Asistencia</h6>
-                      <h4 className="mb-0">{student.Asistencia || "N/A"}</h4>
-                    </div>
-                    <CIcon icon={cilCalendar} className="text-success" size="lg" />
-                  </div>
-                  <CProgress value={parseInt(student.Asistencia) || 0} color="success" className="mb-2" />
-                  <small className="text-muted">Porcentaje de asistencia</small>
-                </CCardBody>
-              </CCard>
-            </CCol>
-
-            <CCol xs={12} md={6} className="mb-3">
-              <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-info">
-                <CCardBody>
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h6 className="text-muted mb-1">Conducta</h6>
-                      <h4 className="mb-0">{student.Conducta || "N/A"}</h4>
-                    </div>
-                    <CIcon icon={cilStar} className="text-info" size="lg" />
-                  </div>
-                  <CBadge color="info" className="fs-6">{student.Conducta}</CBadge>
-                  <small className="text-muted d-block mt-2">Evaluación de conducta</small>
-                </CCardBody>
-              </CCard>
-            </CCol>
-
-            <CCol xs={12} md={6} className="mb-3">
-              <CCard className="h-100 border-0 shadow-sm border-top border-top-3 border-warning">
-                <CCardBody>
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                      <h6 className="text-muted mb-1">Estado Nutricional</h6>
-                      <h4 className="mb-0">{student.NutricionIMC?.split(" ")[0] || "N/A"}</h4>
-                    </div>
-                    <CIcon icon={cilMedicalCross} className="text-warning" size="lg" />
-                  </div>
-                  <CBadge color="success" className="fs-6">{student.NutricionIMC?.split("(")[1]?.replace(")", "") || "Normal"}</CBadge>
-                  <small className="text-muted d-block mt-2">Índice de Masa Corporal</small>
-                </CCardBody>
-              </CCard>
-            </CCol>
-          </CRow>
+          <ProfileStatsCards
+            student={student}
+            progreso={progreso}
+            showToast={showToast}
+            setActiveKey={setActiveKey}
+            setEditModalVisible={setEditModalVisible}
+          />
         </CCol>
       </CRow>
 
-      {/* Pestañas de información detallada - VERSIÓN CORREGIDA */}
       <CTabs activeTabKey={activeKey} onActiveTabKeyChange={setActiveKey}>
-        <CNav variant="tabs">
+        <CNav variant="pills" className="border-0 gap-3 mb-4 justify-content-center justify-content-md-start">
           <CNavItem>
-            <CNavLink onClick={() => setActiveKey(1)}>
+            <CNavLink
+              onClick={() => setActiveKey(1)}
+              className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 1 ? 'bg-primary text-white shadow-sm' : 'bg-white text-muted shadow-sm hover-lift'}`}
+            >
               <CIcon icon={cilUser} className="me-2" />
-              Información Personal
+              DATOS PERSONALES
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink onClick={() => setActiveKey(2)}>
+            <CNavLink
+              onClick={() => setActiveKey(2)}
+              className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 2 ? 'bg-primary text-white shadow-sm' : 'bg-white text-muted shadow-sm hover-lift'}`}
+            >
               <CIcon icon={cilBadge} className="me-2" />
-              Representante
+              REPRESENTANTES
             </CNavLink>
           </CNavItem>
           <CNavItem>
-            <CNavLink onClick={() => setActiveKey(3)}>
-              <CIcon icon={cilBook} className="me-2" />
-              Académico
-            </CNavLink>
-          </CNavItem>
-          <CNavItem>
-            <CNavLink onClick={() => setActiveKey(4)}>
+            <CNavLink
+              onClick={() => setActiveKey(4)}
+              className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 4 ? 'bg-primary text-white shadow-sm' : 'bg-white text-muted shadow-sm hover-lift'}`}
+            >
               <CIcon icon={cilMedicalCross} className="me-2" />
-              Salud
+              SALUD Y BIENESTAR
             </CNavLink>
           </CNavItem>
         </CNav>
-        
         <CTabContent>
-          {/* Información Personal - Tab 1 */}
-          <CTabPane visible={activeKey === 1}>
-            <div className="mt-4">
-              <CRow>
-                <CCol xs={12} lg={6}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-primary bg-opacity-10 border-0 d-flex align-items-center">
-                      <CIcon icon={cilUser} className="me-2 text-primary" />
-                      <h5 className="mb-0">Datos Personales</h5>
-                    </CCardHeader>
-                    <CCardBody>
-                      <CListGroup className="list-group-flush">
-                        <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                          <span className="text-muted">Nombre Completo</span>
-                          <strong>{student.NombreEstudiante} {student.ApellidoEstudiante}</strong>
-                        </CListGroupItem>
-                        <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                          <span className="text-muted">Fecha de Nacimiento</span>
-                          <strong>{student.FechaNacimiento}</strong>
-                        </CListGroupItem>
-                        <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                          <span className="text-muted">Edad</span>
-                          <strong>{student.Edad}</strong>
-                        </CListGroupItem>
-                        <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                          <span className="text-muted">Sexo</span>
-                          <strong>{student.Sexo}</strong>
-                        </CListGroupItem>
-                        <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                          <span className="text-muted">Tipo de Sangre</span>
-                          <strong>{student.TipoSangre}</strong>
-                        </CListGroupItem>
-                      </CListGroup>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-
-                <CCol xs={12} lg={6}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-info bg-opacity-10 border-0 d-flex align-items-center">
-                      <CIcon icon={cilHome} className="me-2 text-info" />
-                      <h5 className="mb-0">Información de Contacto</h5>
-                    </CCardHeader>
-                    <CCardBody>
-                      <CListGroup className="list-group-flush">
-                        <CListGroupItem className="d-flex align-items-start border-0 px-0 py-2">
-                          <CIcon icon={cilHome} className="me-2 text-muted mt-1" />
-                          <div>
-                            <div className="text-muted">Dirección</div>
-                            <strong>{student.Direccion}</strong>
-                            <div className="small text-muted">{student.Ciudad}, {student.Estado}</div>
-                          </div>
-                        </CListGroupItem>
-                        <CListGroupItem className="d-flex align-items-start border-0 px-0 py-2">
-                          <CIcon icon={cilPhone} className="me-2 text-muted mt-1" />
-                          <div>
-                            <div className="text-muted">Teléfono</div>
-                            <strong>{student.Telefono}</strong>
-                          </div>
-                        </CListGroupItem>
-                        <CListGroupItem className="d-flex align-items-start border-0 px-0 py-2">
-                          <CIcon icon={cilEnvelopeClosed} className="me-2 text-muted mt-1" />
-                          <div>
-                            <div className="text-muted">Correo Electrónico</div>
-                            <strong>{student.Email}</strong>
-                          </div>
-                        </CListGroupItem>
-                      </CListGroup>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-              </CRow>
-            </div>
-          </CTabPane>
-
-          {/* Información del Representante - Tab 2 */}
-          <CTabPane visible={activeKey === 2}>
-            <div className="mt-4">
-              <CCard className="border-0 shadow-sm">
-                <CCardHeader className="bg-warning bg-opacity-10 border-0 d-flex align-items-center">
-                  <CIcon icon={cilBadge} className="me-2 text-warning" />
-                  <h5 className="mb-0">Datos del Representante</h5>
-                </CCardHeader>
-                <CCardBody>
-                  <CRow>
-                    <CCol xs={12} md={6}>
-                      <div className="p-4  rounded mb-4">
-                        <h6 className="text-muted mb-3">Información Básica</h6>
-                        <CRow>
-                          <CCol xs={12} className="mb-3">
-                            <label className="form-label text-muted">Nombre Completo</label>
-                            <div className="fs-5 fw-bold">
-                              {student.RepresentanteNombre} {student.RepresentanteApellido}
-                            </div>
-                          </CCol>
-                          <CCol xs={12} md={6} className="mb-3">
-                            <label className="form-label text-muted">Cédula de Identidad</label>
-                            <div className="fs-5">
-                              <code>{student.RepresentanteCedula}</code>
-                            </div>
-                          </CCol>
-                          <CCol xs={12} md={6} className="mb-3">
-                            <label className="form-label text-muted">Parentesco</label>
-                            <div className="fs-5">
-                              <CBadge color="info">{student.RepresentanteParentesco}</CBadge>
-                            </div>
-                          </CCol>
-                          <CCol xs={12} className="mb-3">
-                            <label className="form-label text-muted">Ocupación</label>
-                            <div className="fs-5">{student.RepresentanteOcupacion}</div>
-                          </CCol>
-                        </CRow>
-                      </div>
-                    </CCol>
-                    
-                    <CCol xs={12} md={6}>
-                      <div className="p-4 rounded">
-                        <h6 className="text-muted mb-3">Contacto</h6>
-                        <CListGroup className="list-group-flush">
-                          <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
-                            <CIcon icon={cilPhone} className="me-3 text-primary" />
-                            <div>
-                              <div className="text-muted">Teléfono</div>
-                              <strong>{student.RepresentanteTelefono}</strong>
-                            </div>
-                          </CListGroupItem>
-                          <CListGroupItem className="d-flex align-items-center border-0 px-0 py-3">
-                            <CIcon icon={cilEnvelopeClosed} className="me-3 text-primary" />
-                            <div>
-                              <div className="text-muted">Correo Electrónico</div>
-                              <strong>{student.RepresentanteEmail}</strong>
-                            </div>
-                          </CListGroupItem>
-                        </CListGroup>
-                        
-                        <div className="mt-4 pt-3 border-top">
-                          <h6 className="text-muted mb-3">Información Adicional</h6>
-                          <CAlert color="info" className="d-flex align-items-center">
-                            <CIcon icon={cilInfo} className="me-2" />
-                            <small>Contacto principal para emergencias y comunicaciones escolares</small>
-                          </CAlert>
-                        </div>
-                      </div>
-                    </CCol>
-                  </CRow>
-                </CCardBody>
-              </CCard>
-            </div>
-          </CTabPane>
-
-          {/* Información Académica - Tab 3 */}
-          <CTabPane visible={activeKey === 3}>
-            <div className="mt-4">
-              <CRow>
-                <CCol xs={12} lg={8}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-success bg-opacity-10 border-0 d-flex justify-content-between align-items-center">
-                      <div className="d-flex align-items-center">
-                        <CIcon icon={cilBook} className="me-2 text-success" />
-                        <h5 className="mb-0">Notas y Rendimiento</h5>
-                      </div>
-                      <CBadge color="success" className="fs-6">Promedio: {student.PromedioGeneral}</CBadge>
-                    </CCardHeader>
-                    <CCardBody>
-                      <CTable responsive hover className="align-middle">
-                        <CTableHead>
-                          <CTableRow>
-                            <CTableHeaderCell>Materia</CTableHeaderCell>
-                            <CTableHeaderCell className="text-center">Nota</CTableHeaderCell>
-                            <CTableHeaderCell>Observación</CTableHeaderCell>
-                            <CTableHeaderCell className="text-center">Progreso</CTableHeaderCell>
-                          </CTableRow>
-                        </CTableHead>
-                        <CTableBody>
-                          {student.Notas?.map((nota, index) => {
-                            const progresoNota = (parseFloat(nota.nota) / 20) * 100
-                            let color = "success"
-                            if (progresoNota < 70) color = "warning"
-                            if (progresoNota < 50) color = "danger"
-                            
-                            return (
-                              <CTableRow key={index}>
-                                <CTableDataCell>
-                                  <strong>{nota.materia}</strong>
-                                </CTableDataCell>
-                                <CTableDataCell className="text-center">
-                                  <span className="badge bg-primary rounded-pill fs-6">{nota.nota}/20</span>
-                                </CTableDataCell>
-                                <CTableDataCell>
-                                  <span className="badge  text-dark">{nota.observacion}</span>
-                                </CTableDataCell>
-                                <CTableDataCell className="text-center">
-                                  <CProgress value={progresoNota} color={color} style={{ height: "8px" }} />
-                                </CTableDataCell>
-                              </CTableRow>
-                            )
-                          })}
-                        </CTableBody>
-                      </CTable>
-                    </CCardBody>
-                    <CCardFooter >
-                      <div className="d-flex justify-content-between align-items-center">
-                        <small className="text-muted">Última actualización: {new Date().toLocaleDateString()}</small>
-                        <CButton color="primary" size="sm">
-                          <CIcon icon={cilPencil} className="me-1" />
-                          Editar Notas
-                        </CButton>
-                      </div>
-                    </CCardFooter>
-                  </CCard>
-                </CCol>
-                
-                <CCol xs={12} lg={4}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-info bg-opacity-10 border-0 d-flex align-items-center">
-                      <CIcon icon={cilClipboard} className="me-2 text-info" />
-                      <h5 className="mb-0">Observaciones Académicas</h5>
-                    </CCardHeader>
-                    <CCardBody>
-                      <div className="p-3  rounded">
-                        <p className="mb-0">{student.ObservacionesAcad}</p>
-                      </div>
-                      
-                      <div className="mt-4">
-                        <h6 className="text-muted mb-3">Estadísticas</h6>
-                        <CListGroup className="list-group-flush">
-                          <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span>Asistencia</span>
-                            <CBadge color="success">{student.Asistencia}</CBadge>
-                          </CListGroupItem>
-                          <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span>Conducta</span>
-                            <CBadge color="info">{student.Conducta}</CBadge>
-                          </CListGroupItem>
-                          <CListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 py-2">
-                            <span>Participación</span>
-                            <CBadge color="warning">Alta</CBadge>
-                          </CListGroupItem>
-                        </CListGroup>
-                      </div>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-              </CRow>
-            </div>
-          </CTabPane>
-
-          {/* Información de Salud - Tab 4 */}
-          <CTabPane visible={activeKey === 4}>
-            <div className="mt-4">
-              <CRow>
-                <CCol xs={12} lg={6}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-danger bg-opacity-10 border-0 d-flex align-items-center">
-                      <CIcon icon={cilMedicalCross} className="me-2 text-danger" />
-                      <h5 className="mb-0">Datos Nutricionales</h5>
-                    </CCardHeader>
-                    <CCardBody>
-                      <CRow className="g-4">
-                        <CCol xs={12} md={6}>
-                          <div className="text-center p-3 border rounded">
-                            <div className="text-muted">Peso</div>
-                            <h3 className="my-2">{student.NutricionPeso}</h3>
-                            <small className="text-muted">Peso actual</small>
-                          </div>
-                        </CCol>
-                        <CCol xs={12} md={6}>
-                          <div className="text-center p-3 border rounded">
-                            <div className="text-muted">Altura</div>
-                            <h3 className="my-2">{student.NutricionAltura}</h3>
-                            <small className="text-muted">Altura actual</small>
-                          </div>
-                        </CCol>
-                        <CCol xs={12}>
-                          <div className="p-3  rounded">
-                            <h6 className="text-muted mb-2">Índice de Masa Corporal (IMC)</h6>
-                            <div className="d-flex align-items-center">
-                              <div className="flex-grow-1 me-3">
-                                <CProgress 
-                                  value={parseFloat(student.NutricionIMC?.split(" ")[0]) * 5 || 0} 
-                                  color="success" 
-                                  className="mb-2"
-                                />
-                              </div>
-                              <div className="fs-4 fw-bold">{student.NutricionIMC}</div>
-                            </div>
-                          </div>
-                        </CCol>
-                        <CCol xs={12}>
-                          <h6 className="text-muted mb-2">Observaciones</h6>
-                          <div className="alert alert-success">
-                            <CIcon icon={cilInfo} className="me-2" />
-                            {student.NutricionObs}
-                          </div>
-                        </CCol>
-                      </CRow>
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-                
-                <CCol xs={12} lg={6}>
-                  <CCard className="mb-4 border-0 shadow-sm">
-                    <CCardHeader className="bg-warning bg-opacity-10 border-0 d-flex align-items-center">
-                      <CIcon icon={cilNotes} className="me-2 text-warning" />
-                      <h5 className="mb-0">Historial Médico</h5>
-                    </CCardHeader>
-                    <CCardBody>
-                      <CListGroup className="list-group-flush">
-                        <CListGroupItem className="border-0 px-0 py-3">
-                          <div className="d-flex">
-                            <div className="flex-shrink-0">
-                              <div className="avatar avatar-sm  rounded">
-                                <CIcon icon={cilMedicalCross} className="text-danger" />
-                              </div>
-                            </div>
-                            <div className="flex-grow-1 ms-3">
-                              <div className="d-flex justify-content-between">
-                                <h6 className="mb-1">Alergias</h6>
-                                <small className="text-muted">Estado</small>
-                              </div>
-                              <p className="mb-0">
-                                {student.Alergias === "Ninguna" ? (
-                                  <span className="badge bg-success">Sin alergias reportadas</span>
-                                ) : (
-                                  <span className="badge bg-danger">{student.Alergias}</span>
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                        </CListGroupItem>
-                        
-                        <CListGroupItem className="border-0 px-0 py-3">
-                          <div className="d-flex">
-                            <div className="flex-shrink-0">
-                              <div className="avatar avatar-sm bg-light rounded">
-                                <CIcon icon={cilMedicalCross} className="text-warning" />
-                              </div>
-                            </div>
-                            <div className="flex-grow-1 ms-3">
-                              <div className="d-flex justify-content-between">
-                                <h6 className="mb-1">Medicamentos</h6>
-                                <small className="text-muted">Consumo actual</small>
-                              </div>
-                              <p className="mb-0">
-                                {student.Medicamentos === "Ninguno" ? (
-                                  <span className="badge bg-success">Sin medicamentos</span>
-                                ) : (
-                                  <span className="badge bg-warning">{student.Medicamentos}</span>
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                        </CListGroupItem>
-                        
-                        <CListGroupItem className="border-0 px-0 py-3">
-                          <div className="d-flex">
-                            <div className="flex-shrink-0">
-                              <div className="avatar avatar-sm  rounded">
-                                <CIcon icon={cilMedicalCross} className="text-info" />
-                              </div>
-                            </div>
-                            <div className="flex-grow-1 ms-3">
-                              <div className="d-flex justify-content-between">
-                                <h6 className="mb-1">Enfermedades</h6>
-                                <small className="text-muted">Condiciones</small>
-                              </div>
-                              <p className="mb-0">
-                                {student.Enfermedades === "Ninguna" ? (
-                                  <span className="badge bg-success">Sin enfermedades reportadas</span>
-                                ) : (
-                                  <span className="badge bg-info">{student.Enfermedades}</span>
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                        </CListGroupItem>
-                      </CListGroup>
-                      
-                      {student.HistorialMedico && student.HistorialMedico.length > 0 && (
-                        <div className="mt-4">
-                          <h6 className="text-muted mb-3">Consultas Recientes</h6>
-                          {student.HistorialMedico.map((consulta, index) => (
-                            <div key={index} className="border-start border-3 border-primary ps-3 mb-3">
-                              <div className="d-flex justify-content-between">
-                                <strong>{consulta.diagnostico}</strong>
-                                <small className="text-muted">{consulta.fecha}</small>
-                              </div>
-                              <p className="mb-1">{consulta.tratamiento}</p>
-                              <small className="text-muted">Médico: {consulta.medico}</small>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CCardBody>
-                  </CCard>
-                </CCol>
-              </CRow>
-            </div>
-          </CTabPane>
+          <CTabPane visible={activeKey === 1}><PersonalInfoTab student={student} /></CTabPane>
+          <CTabPane visible={activeKey === 2}><RepresentativeTab student={student} /></CTabPane>
+          <CTabPane visible={activeKey === 4}><HealthTab student={student} /></CTabPane>
         </CTabContent>
       </CTabs>
 
-      {/* Pie de página con información adicional */}
       <CCard className="mt-4 border-0 shadow-sm">
-        <CCardFooter className=" d-flex justify-content-between align-items-center">
-          <div>
-            <small className="text-muted">
-              Estudiante registrado desde: {student.FechaIngreso} | 
-              Última actualización: {new Date().toLocaleDateString()}
-            </small>
-          </div>
+        <CCardFooter className="d-flex justify-content-between align-items-center bg-light border-0 py-3">
+          <small className="text-muted">Estudiante registrado desde: {student.FechaIngreso} | Última actualización: {new Date().toLocaleDateString()}</small>
           <div className="d-flex gap-2">
-            <CButton color="light" size="sm" variant="outline" onClick={() => window.print()}>
-              <CIcon icon={cilPrint} className="me-1" />
-              Imprimir Perfil
+            <CButton color="light" size="sm" variant="outline" className="border-2 rounded-pill px-3" onClick={handlePrint}>
+              <CIcon icon={cilPrint} className="me-1" />Exportar Perfil
             </CButton>
-            <Link to={`/students/edit/${student.id}`}>
-              <CButton color="primary" size="sm">
-                <CIcon icon={cilPencil} className="me-1" />
-                Editar Información
-              </CButton>
-            </Link>
+            <CButton className="btn-premium border-0 py-2 px-3 shadow-sm" size="sm" onClick={handleEdit}>
+              <CIcon icon={cilPencil} className="me-1" />Editar Información
+            </CButton>
           </div>
         </CCardFooter>
       </CCard>
 
-      {/* Modal de Confirmación de Eliminación */}
-      <CModal visible={modalVisible} onClose={() => setModalVisible(false)}>
-        <CModalHeader>
-          <CModalTitle>
-            <CIcon icon={cilTrash} className="me-2 text-danger" />
-            Confirmar Eliminación
-          </CModalTitle>
-        </CModalHeader>
-        <CModalBody>
-          <div className="text-center py-3">
-            <div className="avatar-circle-lg bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
-              <CIcon icon={cilTrash} size="xl" />
-            </div>
-            <h5>¿Está seguro de eliminar este estudiante?</h5>
-            <p className="text-muted">
-              Se eliminarán todos los datos de <strong>{student.NombreEstudiante} {student.ApellidoEstudiante}</strong> del sistema.
-            </p>
-            <CAlert color="danger">
-              <CIcon icon={cilWarning} className="me-2" />
-              <strong>¡Esta acción no se puede deshacer!</strong>
-            </CAlert>
-          </div>
-        </CModalBody>
-        <CModalFooter>
-          <CButton color="secondary" onClick={() => setModalVisible(false)}>
-            Cancelar
-          </CButton>
-          <CButton color="danger" onClick={confirmDelete}>
-            Sí, eliminar estudiante
-          </CButton>
-        </CModalFooter>
-      </CModal>
+      <EditStudentModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} studentData={student} onSave={handleSaveStudent} loading={saving} />
 
-      {/* Toaster para notificaciones */}
       <CToaster placement="top-end">
         {toasts.map((t) => (
-          <CToast 
-            key={t.id} 
-            autohide={t.delay} 
-            delay={t.delay} 
-            color={t.type} 
-            visible
-            className="border-0 shadow"
-          >
-            <CToastHeader closeButton className={`bg-${t.type} text-white`}>
-              <strong className="me-auto">{t.title}</strong>
-            </CToastHeader>
-            <CToastBody >
-              {t.message}
-            </CToastBody>
+          <CToast key={t.id} autohide delay={t.delay} color={t.type} visible className="border-0 shadow">
+            <CToastHeader closeButton className={`bg-${t.type} text-white`}><strong className="me-auto">{t.title}</strong></CToastHeader>
+            <CToastBody>{t.message}</CToastBody>
           </CToast>
         ))}
       </CToaster>
 
-      {/* Estilos adicionales */}
       <style>{`
-        .avatar-circle-lg {
-          width: 80px;
-          height: 80px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .border-top-3 {
-          border-top-width: 3px !important;
-        }
-        .print-only {
-          display: none;
-        }
-        @media print {
-          .no-print {
-            display: none !important;
-          }
-          .print-only {
-            display: block !important;
-          }
-        }
+        .avatar-circle-lg { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .border-top-3 { border-top-width: 3px !important; }
+        .hover-lift:hover { transform: translateY(-3px); }
+        .cursor-pointer { cursor: pointer; }
+        .transition-all { transition: all 0.2s ease; }
+        @media print { .no-print { display: none !important; } }
       `}</style>
     </CContainer>
   )

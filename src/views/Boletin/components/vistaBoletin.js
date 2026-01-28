@@ -1,4 +1,3 @@
-// VistaBoletin.jsx
 import React from 'react';
 import {
   CCard,
@@ -12,160 +11,190 @@ import {
   CTableBody,
   CTableDataCell,
   CBadge,
-  CListGroup,
-  CListGroupItem,
   CRow,
   CCol
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
-import { cilPrint } from "@coreui/icons";
+import { cilPrint, cilArrowLeft, cilEducation, cilUser, cilCalendar, cilCheckCircle, cilInfo } from "@coreui/icons";
 
 export const VistaBoletin = ({ boletinData, calculos, dispatch }) => {
   if (!boletinData) return null;
 
   return (
-    <CCard className="mt-4 printable-area">
-      <CCardHeader className="bg-primary text-white">
-        <div className="d-flex justify-content-between align-items-center">
-          <div>
-            <h4 className="mb-0">BOLETÍN ACADÉMICO</h4>
-            <small>Escuela de Danza Endanza - Año Académico 2024</small>
+    <div className="animate__animated animate__fadeIn">
+      <div className="d-flex justify-content-between align-items-center mb-4 no-print">
+        <CButton
+          color="secondary"
+          variant="ghost"
+          className="text-dark hover-lift"
+          onClick={() => dispatch({ type: 'OCULTAR_BOLETIN' })}
+        >
+          <CIcon icon={cilArrowLeft} className="me-2" />
+          Volver al listado
+        </CButton>
+        <CButton
+          className="btn-premium d-flex align-items-center shadow-sm"
+          onClick={() => window.print()}
+        >
+          <CIcon icon={cilPrint} className="me-2" />
+          Imprimir Boletín Oficial
+        </CButton>
+      </div>
+
+      <CCard className="mb-4 border-0 shadow-lg printable-area overflow-hidden" style={{ minHeight: '800px' }}>
+        <CCardHeader className="bg-white border-bottom border-secondary border-opacity-25 py-5 px-5">
+          <div className="d-flex justify-content-between align-items-start">
+            <div className="d-flex align-items-center">
+              <div className="bg-orange-soft p-3 rounded-circle me-4 text-primary">
+                <CIcon icon={cilEducation} size="3xl" />
+              </div>
+              <div>
+                <h2 className="mb-1 fw-bold text-dark text-uppercase ls-1">Boletín Oficial</h2>
+                <p className="text-muted mb-0 fw-medium ls-1 text-uppercase small">Escuela Nacional de Danza (ENDANZA)</p>
+                <small className="text-muted">Año Académico 2024 - 2025</small>
+              </div>
+            </div>
+            <div className="text-end">
+              <CBadge color={calculos.getColorEstado(boletinData.promocion)} className="fs-5 px-4 py-2 rounded-pill shadow-sm border mb-2 d-inline-block">
+                {boletinData.promocion.toUpperCase()}
+              </CBadge>
+              <div className="text-muted small fw-bold text-uppercase ls-1">Estado Final</div>
+            </div>
           </div>
-          <div className="d-flex gap-2">
-            <CButton
-              color="light"
-              variant="outline"
-              className="text-primary"
-              onClick={() => dispatch({ type: 'OCULTAR_BOLETIN' })}
-            >
-              ← Volver
-            </CButton>
-            <CButton
-              color="light"
-              className="text-primary"
-              onClick={() => window.print()}
-            >
-              <CIcon icon={cilPrint} /> Imprimir
-            </CButton>
-          </div>
-        </div>
-      </CCardHeader>
-      
-      <CCardBody>
-        <CRow className="mb-4">
-          <CCol md={8}>
-            <h5>INFORMACIÓN DEL ESTUDIANTE</h5>
-            <CListGroup>
-              <CListGroupItem>
-                <strong>Nombre:</strong> {boletinData.estudiante.nombre}
-              </CListGroupItem>
-              <CListGroupItem>
-                <strong>Código:</strong> {boletinData.estudiante.codigo}
-              </CListGroupItem>
-              <CListGroupItem>
-                <strong>Grado:</strong> {boletinData.grado}
-              </CListGroupItem>
-              <CListGroupItem>
-                <strong>Fecha de Emisión:</strong> {boletinData.fecha}
-              </CListGroupItem>
-            </CListGroup>
-          </CCol>
-          <CCol md={4}>
-            <CCard className="border-primary">
-              <CCardBody className="text-center">
-                <h5>RESUMEN ACADÉMICO</h5>
+        </CCardHeader>
+
+        <CCardBody className="p-5">
+          {/* Información del Estudiante */}
+          <div className="bg-light bg-opacity-25 p-4 rounded-4 border border-light mb-5">
+            <h6 className="text-warning fw-bold text-uppercase ls-1 mb-4 d-flex align-items-center border-bottom pb-2">
+              <CIcon icon={cilUser} className="me-2 text-warning" />
+              Datos del Alumno
+            </h6>
+            <CRow className="g-4">
+              <CCol md={6}>
                 <div className="mb-3">
-                  <h1 className={`text-${calculos.getColorNota(boletinData.promedio)}`}>
-                    {boletinData.promedio || "N/A"}
-                  </h1>
-                  <small>Promedio General</small>
+                  <label className="text-secondary small fw-bold text-uppercase ls-1 d-block mb-1">Nombre Completo</label>
+                  <div className="fs-5 fw-bold text-dark">{boletinData.estudiante.nombre}</div>
                 </div>
-                <CBadge 
-                  color={calculos.getColorEstado(boletinData.promocion)}
-                  className="fs-5 py-2 px-3"
-                >
-                  {boletinData.promocion}
-                </CBadge>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        </CRow>
+                <div>
+                  <label className="text-secondary small fw-bold text-uppercase ls-1 d-block mb-1">Nivel Cursado</label>
+                  <div className="fs-5 text-dark">{boletinData.grado}</div>
+                </div>
+              </CCol>
+              <CCol md={6}>
+                <div className="mb-3">
+                  <label className="text-secondary small fw-bold text-uppercase ls-1 d-block mb-1">Expediente Académico</label>
+                  <div className="fs-5 fw-bold text-dark font-monospace">{boletinData.estudiante.codigo}</div>
+                </div>
+                <div>
+                  <label className="text-secondary small fw-bold text-uppercase ls-1 d-block mb-1">Fecha de Emisión</label>
+                  <div className="fs-5 text-dark d-flex align-items-center">
+                    <CIcon icon={cilCalendar} className="me-2 text-muted" size="sm" />
+                    {boletinData.fecha}
+                  </div>
+                </div>
+              </CCol>
+            </CRow>
+          </div>
 
-        <h5 className="mb-3">CALIFICACIONES POR MATERIA</h5>
-        <CTable bordered responsive>
-          <CTableHead>
-            <CTableRow>
-              <CTableHeaderCell>Materia / Disciplina</CTableHeaderCell>
-              <CTableHeaderCell className="text-center">Código</CTableHeaderCell>
-              <CTableHeaderCell className="text-center">Horario</CTableHeaderCell>
-              <CTableHeaderCell className="text-center">1er Trim.</CTableHeaderCell>
-              <CTableHeaderCell className="text-center">2do Trim.</CTableHeaderCell>
-              <CTableHeaderCell className="text-center">3er Trim.</CTableHeaderCell>
-              <CTableHeaderCell className="text-center">Nota Final</CTableHeaderCell>
-              <CTableHeaderCell className="text-center">Estado</CTableHeaderCell>
-            </CTableRow>
-          </CTableHead>
-          <CTableBody>
-            {boletinData.materias.map((materia) => (
-              <CTableRow key={materia.id}>
-                <CTableDataCell>
-                  <strong>{materia.nombre}</strong>
-                </CTableDataCell>
-                <CTableDataCell className="text-center">
-                  {materia.id}
-                </CTableDataCell>
-                <CTableDataCell className="text-center">
-                  <small>{materia.horario}</small>
-                </CTableDataCell>
-                <CTableDataCell className="text-center">
-                  <CBadge color={calculos.getColorNota(materia.notas.t1)}>
-                    {materia.notas.t1 || "--"}
-                  </CBadge>
-                </CTableDataCell>
-                <CTableDataCell className="text-center">
-                  <CBadge color={calculos.getColorNota(materia.notas.t2)}>
-                    {materia.notas.t2 || "--"}
-                  </CBadge>
-                </CTableDataCell>
-                <CTableDataCell className="text-center">
-                  <CBadge color={calculos.getColorNota(materia.notas.t3)}>
-                    {materia.notas.t3 || "--"}
-                  </CBadge>
-                </CTableDataCell>
-                <CTableDataCell className="text-center">
-                  <CBadge 
-                    color={calculos.getColorNota(materia.notas.final)}
-                    className="fs-5 px-3"
-                  >
-                    {materia.notas.final || "--"}
-                  </CBadge>
-                </CTableDataCell>
-                <CTableDataCell className="text-center">
-                  <CBadge color={calculos.getColorEstado(materia.estado)}>
-                    {materia.estado}
-                  </CBadge>
-                </CTableDataCell>
+          <h6 className="text-warning fw-bold text-uppercase ls-1 mb-4 ps-2 border-start border-4 border-warning">
+            Rendimiento Académico Por Asignatura
+          </h6>
+
+          <CTable hover responsive className="mb-5 align-middle">
+            <CTableHead>
+              <CTableRow className="border-bottom border-warning border-2">
+                <CTableHeaderCell className="bg-white py-3 text-secondary text-uppercase small fw-bold ls-1 border-0">Asignatura</CTableHeaderCell>
+                <CTableHeaderCell className="bg-white py-3 text-center text-secondary text-uppercase small fw-bold ls-1 border-0">Código</CTableHeaderCell>
+                <CTableHeaderCell className="bg-white py-3 text-center text-secondary text-uppercase small fw-bold ls-1 border-0">Horario</CTableHeaderCell>
+                <CTableHeaderCell className="bg-white py-3 text-center text-secondary text-uppercase small fw-bold ls-1 border-0">1er Lapso</CTableHeaderCell>
+                <CTableHeaderCell className="bg-white py-3 text-center text-secondary text-uppercase small fw-bold ls-1 border-0">2do Lapso</CTableHeaderCell>
+                <CTableHeaderCell className="bg-white py-3 text-center text-secondary text-uppercase small fw-bold ls-1 border-0">3er Lapso</CTableHeaderCell>
+                <CTableHeaderCell className="bg-orange-soft py-3 text-center text-primary text-uppercase small fw-bold ls-1 border-0 rounded-top">Definitiva</CTableHeaderCell>
               </CTableRow>
-            ))}
-          </CTableBody>
-        </CTable>
+            </CTableHead>
+            <CTableBody>
+              {boletinData.materias.map((materia) => (
+                <CTableRow key={materia.id} className="border-bottom border-light">
+                  <CTableDataCell className="py-3 ps-3">
+                    <strong className="text-dark d-block mb-1">{materia.nombre}</strong>
+                  </CTableDataCell>
+                  <CTableDataCell className="text-center py-3 text-muted small font-monospace">
+                    {materia.id}
+                  </CTableDataCell>
+                  <CTableDataCell className="text-center py-3 text-muted small">
+                    {materia.horario}
+                  </CTableDataCell>
+                  <CTableDataCell className="text-center py-3">
+                    <span className="fw-medium text-secondary">{materia.notas.t1 || "-"}</span>
+                  </CTableDataCell>
+                  <CTableDataCell className="text-center py-3">
+                    <span className="fw-medium text-secondary">{materia.notas.t2 || "-"}</span>
+                  </CTableDataCell>
+                  <CTableDataCell className="text-center py-3">
+                    <span className="fw-medium text-secondary">{materia.notas.t3 || "-"}</span>
+                  </CTableDataCell>
+                  <CTableDataCell className="text-center py-3 bg-orange-soft bg-opacity-25">
+                    <span className={`fs-5 fw-bold ${calculos.getColorNota(materia.notas.final) === 'success' ? 'text-success' : 'text-danger'}`}>
+                      {materia.notas.final || "-"}
+                    </span>
+                  </CTableDataCell>
+                </CTableRow>
+              ))}
+            </CTableBody>
+          </CTable>
 
-        <CRow className="mt-4">
-          <CCol md={8}>
-            <CCard className="border-warning">
-              <CCardHeader className="bg-warning text-dark">
-                <strong>OBSERVACIONES Y RECOMENDACIONES</strong>
-              </CCardHeader>
-              <CCardBody>
-                <p>{boletinData.observaciones}</p>
-                <div className="mt-4">
-                  <small className="text-muted">Este boletín es un documento oficial de la Escuela de Danza Endanza</small>
-                </div>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        </CRow>
-      </CCardBody>
-    </CCard>
+          <div className="d-flex justify-content-end mb-5">
+            <div className="text-end bg-light p-4 rounded-4 border border-light" style={{ minWidth: '300px' }}>
+              <small className="text-uppercase text-secondary fw-bold ls-1 d-block mb-2">Promedio General</small>
+              <div className="display-4 fw-bold text-dark lh-1 mb-2">{boletinData.promedio || "0.0"}</div>
+              <div className="text-muted small">Escala de evaluación 1 - 20 pts</div>
+            </div>
+          </div>
+
+          <CRow>
+            <CCol md={12}>
+              <div className="p-4 rounded-4 border border-warning bg-warning bg-opacity-10">
+                <h6 className="text-dark fw-bold text-uppercase ls-1 mb-3 d-flex align-items-center">
+                  <CIcon icon={cilInfo} className="me-2" />
+                  Observaciones del Consejo Docente
+                </h6>
+                <p className="mb-0 text-dark opacity-75 fw-medium" style={{ lineHeight: '1.6' }}>
+                  {boletinData.observaciones}
+                </p>
+              </div>
+            </CCol>
+          </CRow>
+
+          <div className="mt-5 pt-5 border-top border-secondary border-opacity-10 text-center">
+            <div className="row justify-content-center">
+              <div className="col-md-4">
+                <div className="border-top border-dark border-2 w-75 mx-auto mb-2"></div>
+                <small className="text-uppercase fw-bold ls-1 text-muted d-block">Dirección Académica</small>
+              </div>
+              <div className="col-md-4">
+                <div className="border-top border-dark border-2 w-75 mx-auto mb-2"></div>
+                <small className="text-uppercase fw-bold ls-1 text-muted d-block">Control de Estudios</small>
+              </div>
+            </div>
+            <div className="mt-4">
+              <small className="text-muted fst-italic bg-light px-3 py-1 rounded-pill">
+                Documento válido solo con sello húmedo de la institución. Generado el {new Date().toLocaleDateString()}.
+              </small>
+            </div>
+          </div>
+        </CCardBody>
+      </CCard>
+
+      <style>{`
+        .ls-1 { letter-spacing: 1px; }
+        .hover-lift:hover { transform: translateY(-2px); }
+        @media print {
+            .no-print { display: none !important; }
+            .printable-area { box-shadow: none !important; border: none !important; }
+            .bg-orange-soft { background-color: #fff7ed !important; -webkit-print-color-adjust: exact; }
+        }
+      `}</style>
+    </div>
   );
 };

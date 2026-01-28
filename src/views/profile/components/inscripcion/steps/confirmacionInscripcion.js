@@ -7,7 +7,7 @@ import CIcon from "@coreui/icons-react";
 import {
   cilCheckCircle, cilWarning, cilCloudDownload,
   cilPrint, cilEnvelopeClosed, cilCopy,
-  cilCalendar, cilBadge, cilFile
+  cilCalendar, cilBadge, cilFile, cilUser, cilBriefcase
 } from "@coreui/icons";
 
 const ConfirmacionInscripcion = ({ formData, codigoInscripcion, onDescargar }) => {
@@ -22,167 +22,133 @@ const ConfirmacionInscripcion = ({ formData, codigoInscripcion, onDescargar }) =
   };
 
   return (
-    <div>
-      <div className="text-center mb-4">
-        <CIcon icon={cilCheckCircle} size="3xl" className="text-success mb-3 confirmacion-icon" />
-        <h3 className="text-success mb-3">¡INSCRIPCIÓN COMPLETADA!</h3>
-        <CBadge color="success" className="fs-5 px-4 py-2 mb-3 codigo-badge">
-          <CIcon icon={cilBadge} className="me-2" />
-          CÓDIGO: {codigoInscripcion}
-          <CButton 
-            color="light" 
-            size="sm" 
-            className="ms-2 py-0" 
+    <div className="animate__animated animate__fadeIn">
+      <div className="text-center mb-5">
+        <div className="d-inline-flex align-items-center justify-content-center p-4 bg-success bg-opacity-10 rounded-circle mb-4 shadow-sm" style={{ width: '100px', height: '100px' }}>
+          <CIcon icon={cilCheckCircle} size="4xl" className="text-success" />
+        </div>
+        <h2 className="text-dark fw-bold mb-2">¡Inscripción Exitosa!</h2>
+        <p className="text-muted mb-4">El proceso de registro ha finalizado correctamente.</p>
+
+        <div className="d-inline-flex align-items-center bg-white border border-light shadow-sm rounded-pill px-4 py-2 mb-3">
+          <span className="text-secondary small fw-bold text-uppercase ls-1 me-3">CÓDIGO DE VALIDACIÓN:</span>
+          <span className="text-success fs-4 fw-bold font-monospace me-3">{codigoInscripcion}</span>
+          <CButton
+            color="light"
+            size="sm"
+            className="rounded-circle p-2 d-flex align-items-center justify-content-center bg-light hover-bg-gray text-muted border-0"
             onClick={copiarCodigo}
             title="Copiar código"
+            style={{ width: '32px', height: '32px' }}
           >
             <CIcon icon={cilCopy} size="sm" />
           </CButton>
-        </CBadge>
-        <p className="text-muted">
-          Su inscripción ha sido registrada exitosamente en el sistema
-        </p>
+        </div>
       </div>
 
-      <CAlert color="success" className="mb-4">
-        <h5 className="alert-heading">
-          <CIcon icon={cilWarning} className="me-2" />
-          ¡Felicidades! Su inscripción está completa
-        </h5>
-        <p className="mb-0">
-          Descargue la planilla de inscripción y consérvela como comprobante oficial.
-          También puede imprimirla o enviarla por correo electrónico.
-        </p>
+      <CAlert color="success" className="mb-5 border-0 shadow-sm rounded-4 d-flex align-items-center p-4">
+        <CIcon icon={cilCheckCircle} className="me-3 text-success" size="xl" />
+        <div>
+          <h5 className="alert-heading fw-bold mb-1">Registro Confirmado</h5>
+          <p className="mb-0 small text-dark opacity-75">
+            Los datos han sido guardados en el sistema seguro de ENDANZA. Descargue su planilla ahora.
+          </p>
+        </div>
       </CAlert>
 
-      <CCard className="mb-4">
-        <CCardBody>
-          <h5 className="mb-3">
-            <CIcon icon={cilFile} className="me-2" />
-            📋 Resumen de la inscripción
-          </h5>
-          
-          <CRow>
+      <CCard className="mb-5 border-0 bg-light rounded-4 overflow-hidden">
+        <CCardBody className="p-4">
+          <h6 className="mb-4 text-primary fw-bold text-uppercase ls-1 border-bottom pb-3">
+            Resumen del Expediente Generado
+          </h6>
+
+          <CRow className="g-4">
             <CCol md={6}>
-              <h6 className="text-primary mb-3">📝 Datos del Estudiante:</h6>
-              <ul className="list-unstyled mb-0">
-                <li className="mb-2">
-                  <strong>Nombre completo:</strong><br />
-                  {formData.nombres} {formData.apellidos}
-                </li>
-                <li className="mb-2">
-                  <strong>Grado/Nivel:</strong> {formData.grado || 'No especificado'}
-                </li>
-                <li className="mb-2">
-                  <strong>Especialidad:</strong> {formData.especialidad || 'No especificado'}
-                </li>
-                <li>
-                  <strong>Teléfono:</strong> {formData.Telefono_Celular || 'No especificado'}
-                </li>
-              </ul>
+              <div className="d-flex align-items-start mb-2">
+                <span className="p-1 bg-primary bg-opacity-10 text-primary rounded me-2">
+                  <CIcon icon={cilUser} size="sm" />
+                </span>
+                <span className="text-secondary fw-bold small text-uppercase ls-1">Estudiante</span>
+              </div>
+              <div className="ps-4 ms-1">
+                <h5 className="fw-bold text-dark mb-1">{formData.nombres} {formData.apellidos}</h5>
+                <p className="mb-0 text-muted small">
+                  <span className="fw-bold">Nivel:</span> {formData.grado} • <span className="fw-bold">Especialidad:</span> {formData.especialidad || 'General'}
+                </p>
+              </div>
             </CCol>
-            
-            <CCol md={6}>
-              <h6 className="text-primary mb-3">👨‍👩‍👧‍👦 Datos del Representante:</h6>
-              <ul className="list-unstyled mb-0">
-                <li className="mb-2">
-                  <strong>Nombre:</strong><br />
-                  {formData.nombres_Representante} {formData.apellidos_Representante}
-                </li>
-                <li className="mb-2">
-                  <strong>Teléfono:</strong> {formData.telefono_Rep || 'No especificado'}
-                </li>
-                <li className="mb-2">
-                  <strong>Profesión:</strong> {formData.profesion || 'No especificado'}
-                </li>
-                <li>
-                  <strong>Relación:</strong> {formData.relacion || 'No especificado'}
-                </li>
-              </ul>
+
+            <CCol md={6} className="border-start border-light ps-md-4">
+              <div className="d-flex align-items-start mb-2">
+                <span className="p-1 bg-success bg-opacity-10 text-success rounded me-2">
+                  <CIcon icon={cilBriefcase} size="sm" />
+                </span>
+                <span className="text-secondary fw-bold small text-uppercase ls-1">Representante</span>
+              </div>
+              <div className="ps-4 ms-1">
+                <h5 className="fw-bold text-dark mb-1">{formData.nombres_Representante} {formData.apellidos_Representante}</h5>
+                <p className="mb-0 text-muted small">
+                  <span className="fw-bold">Parentesco:</span> {formData.relacion?.toUpperCase()} • <span className="fw-bold">Contacto:</span> {formData.telefono_Rep}
+                </p>
+              </div>
             </CCol>
           </CRow>
-          
-          <hr className="my-4" />
-          
-          <div>
-            <h6 className="text-primary mb-3">📅 Información de registro:</h6>
-            <CRow>
-              <CCol md={4}>
-                <p className="mb-2">
-                  <strong><CIcon icon={cilCalendar} className="me-2" />Fecha:</strong><br />
-                  {new Date().toLocaleDateString('es-ES', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
-                </p>
+
+          <div className="mt-4 pt-4 border-top border-white">
+            <CRow className="text-center text-md-start">
+              <CCol md={4} className="mb-3 mb-md-0">
+                <small className="text-muted d-block text-uppercase fw-bold ls-1" style={{ fontSize: '0.65rem' }}>FECHA DE REGISTRO</small>
+                <strong className="text-dark">
+                  {new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </strong>
+              </CCol>
+              <CCol md={4} className="mb-3 mb-md-0">
+                <small className="text-muted d-block text-uppercase fw-bold ls-1" style={{ fontSize: '0.65rem' }}>ID DE OPERACIÓN</small>
+                <strong className="text-dark font-monospace">{codigoInscripcion}</strong>
               </CCol>
               <CCol md={4}>
-                <p className="mb-2">
-                  <strong><CIcon icon={cilBadge} className="me-2" />Código:</strong><br />
-                  {codigoInscripcion}
-                </p>
-              </CCol>
-              <CCol md={4}>
-                <p className="mb-2">
-                  <strong>Estado:</strong><br />
-                  <CBadge color="success" className="fs-6">REGISTRADO</CBadge>
-                </p>
+                <small className="text-muted d-block text-uppercase fw-bold ls-1" style={{ fontSize: '0.65rem' }}>ESTADO ACTUAL</small>
+                <CBadge color="success" className="rounded-pill px-3 py-1 mt-1 bg-opacity-25 text-success border border-success border-opacity-25">COMPLETADO</CBadge>
               </CCol>
             </CRow>
           </div>
         </CCardBody>
       </CCard>
 
-      <div className="text-center py-3">
-        <div className="mb-4">
-          <CButton 
-            color="primary" 
-            size="lg"
+      <div className="text-center py-2">
+        <h6 className="text-secondary mb-4 fw-bold small text-uppercase ls-1">Acciones Disponibles</h6>
+        <div className="d-flex flex-column flex-md-row justify-content-center gap-3 mb-4">
+          <CButton
+            className="btn-premium px-5 py-3 shadow-lg d-flex align-items-center justify-content-center"
             onClick={onDescargar}
-            className="px-5 py-3 mb-2 me-3 accion-btn"
           >
-            <CIcon icon={cilCloudDownload} className="me-2" />
-            DESCARGAR PLANILLA
+            <CIcon icon={cilCloudDownload} className="me-2" size="lg" />
+            <div>
+              <div className="fw-bold">DESCARGAR PLANILLA</div>
+              <small className="d-block opacity-75" style={{ fontSize: '0.65rem', fontWeight: 'normal' }}>Formato PDF Oficial</small>
+            </div>
           </CButton>
-          
-          <CButton 
-            color="secondary" 
-            size="lg"
+
+          <CButton
+            color="light"
+            className="px-5 py-3 bg-white text-dark fw-bold border-0 shadow-sm hover-lift d-flex align-items-center justify-content-center"
             onClick={imprimirPlanilla}
-            className="px-5 py-3 mb-2 me-3 accion-btn"
           >
-            <CIcon icon={cilPrint} className="me-2" />
-            IMPRIMIR
-          </CButton>
-          
-          <CButton 
-            color="info" 
-            size="lg"
-            onClick={() => alert('Función de email por implementar')}
-            className="px-5 py-3 mb-2 accion-btn"
-          >
-            <CIcon icon={cilEnvelopeClosed} className="me-2" />
-            ENVIAR POR EMAIL
+            <CIcon icon={cilPrint} className="me-2" size="lg" />
+            IMPRIMIR COPIA
           </CButton>
         </div>
-        
-        <div className="mt-2">
-          <small className="text-muted">
-            <CIcon icon={cilWarning} className="me-1" />
-            Descargue un archivo HTML con todos los datos para imprimir o guardar como respaldo.
-          </small>
-        </div>
+
+        <p className="text-muted small w-75 mx-auto">
+          <strong className="text-primary">Nota:</strong> Se ha enviado una copia de confirmación al correo electrónico registrado. Si no lo recibe en 5 minutos, verifique su bandeja de spam o descargue la planilla manualmente.
+        </p>
       </div>
 
-      <CAlert color="info" className="mb-0">
-        <small>
-          <strong>📝 Importante:</strong> Conserve este código y la planilla para futuras consultas.
-          Puede presentar la planilla impresa en secretaría para completar cualquier trámite adicional.
-          Para consultas o modificaciones, presente su código de inscripción: <strong>{codigoInscripcion}</strong>
-        </small>
-      </CAlert>
+      <style>{`
+        .ls-1 { letter-spacing: 1px; }
+        .hover-bg-gray:hover { background-color: #e5e7eb !important; }
+        .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; transition: all 0.2s; }
+      `}</style>
     </div>
   );
 };

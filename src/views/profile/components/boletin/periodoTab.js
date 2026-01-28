@@ -1,131 +1,150 @@
+import React from 'react'
 import {
   CCard,
   CCardBody,
   CCardHeader,
-  CCardFooter,
   CRow,
   CCol,
   CButton,
-  CAlert,
   CBadge
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
-import { 
-  cilCheckCircle, 
+import {
+  cilCheckCircle,
   cilCloudDownload,
-  cilCalendar,
-  cilEducation,
-  cilUser,
-  cilFile
+  cilChartLine,
+  cilXCircle
 } from "@coreui/icons"
 
-const PeriodoTab = ({ 
-  notas, 
-  periodoNumero,
+const PeriodoTab = ({
+  notas,
   periodoNombre,
-  estadoSecretaria = 'aprobado', // Siempre será 'aprobado' para este componente
+  estadoSecretaria = 'aprobado',
   fechaAprobacion = null,
   aprobadoPor = null,
-  onDescargar
+  onDescargar,
+  periodoNumero
 }) => {
-  // Calcular estadísticas básicas
   const notasValidas = notas.filter(n => n.nota !== null)
-  const promedio = notasValidas.length > 0 
+  const promedio = notasValidas.length > 0
     ? notasValidas.reduce((acc, item) => acc + item.nota, 0) / notasValidas.length
     : 0
-  
-  const notasAprobadas = notasValidas.filter(n => n.nota >= 10).length
-  const porcentajeAprobacion = (notasAprobadas / notasValidas.length) * 100 || 0
 
-  // Determinar estado académico
   const estadoAcademico = promedio >= 10 ? 'APROBADO' : 'REPROBADO'
-  const colorEstado = promedio >= 10 ? 'success' : 'danger'
 
   return (
-    <CCard className="periodo-card">
-      <CCardHeader className="text-center">
-        <h5 className="mb-0">
-          <CIcon icon={cilCalendar} className="me-2" />
-          {periodoNombre}
-        </h5>
-        <div className="mt-2">
-          <CBadge color="success" className="fs-6">
-            <CIcon icon={cilCheckCircle} className="me-1" />
-            PERÍODO HABILITADO
-          </CBadge>
-          {fechaAprobacion && (
-            <div className="mt-1">
-              <small className="text-muted">
-                Aprobado el {fechaAprobacion} por {aprobadoPor}
-              </small>
-            </div>
-          )}
-        </div>
-      </CCardHeader>
+    <div className="animate__animated animate__fadeIn">
+      <CRow className="g-4">
+        <CCol lg={7}>
+          <CCard className="premium-card border-0 h-100 shadow-sm overflow-hidden">
+            <CCardHeader className="bg-white border-bottom border-light py-3 px-4 d-flex justify-content-between align-items-center">
+              <div>
+                <h5 className="mb-0 fw-bold text-dark text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>Informe de Calificaciones</h5>
+                <small className="text-muted">Detalle por asignatura</small>
+              </div>
+              <CBadge className="bg-orange-soft text-primary rounded-pill px-3 py-2 border border-primary border-opacity-10">
+                {periodoNombre}
+              </CBadge>
+            </CCardHeader>
+            <CCardBody className="p-0">
+              <div className="table-responsive">
+                <table className="table table-hover align-middle border-0 mb-0">
+                  <thead className="bg-light">
+                    <tr>
+                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 px-4">Asignatura</th>
+                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 text-center">U.C.</th>
+                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 text-center">Calificación</th>
+                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 text-center">Estatus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notas.map((nota, idx) => (
+                      <tr key={idx} className="border-bottom border-light">
+                        <td className="py-3 px-4">
+                          <div className="fw-bold text-dark mb-1">{nota.materia}</div>
+                          <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>DOCENTE: {nota.docente.toUpperCase()}</small>
+                        </td>
+                        <td className="text-center py-3 text-muted fw-bold">{nota.creditos}</td>
+                        <td className="text-center py-3">
+                          <span className={`fw-bold fs-5 font-monospace ${nota.nota >= 10 ? 'text-success' : 'text-danger'}`}>
+                            {nota.nota !== null ? (nota.nota < 10 ? `0${nota.nota}` : nota.nota) : '--'}
+                          </span>
+                        </td>
+                        <td className="text-center py-3">
+                          {nota.nota !== null ? (
+                            <div className="d-flex justify-content-center">
+                              {nota.nota >= 10 ? (
+                                <CIcon icon={cilCheckCircle} className="text-success" size="lg" />
+                              ) : (
+                                <CIcon icon={cilXCircle} className="text-danger" size="lg" />
+                              )}
+                            </div>
+                          ) : (
+                            <CBadge color="light" className="text-muted border">PENDIENTE</CBadge>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CCardBody>
+          </CCard>
+        </CCol>
 
-      <CCardBody className="text-center">
-        <div className="mb-4">
-          <CIcon icon={cilEducation} size="3xl" className="text-success mb-3" />
-          <h4 className="text-success mb-3">
-            Boletin Disponible para Descarga
-          </h4>
-          <p className="text-muted mb-4">
-            El boletín del {periodoNombre} ha sido aprobado por secretaría y está listo para ser descargado.
-          </p>
-        </div>
-        
-        {/* Botón principal de descarga */}
-        <div className="mb-4 py-3">
-          <CButton 
-            color="primary" 
-            size="lg"
-            onClick={() => onDescargar && onDescargar(periodoNumero)}
-            className="px-5 py-3 shadow"
-          >
-            <CIcon icon={cilCloudDownload} className="me-2" size="lg" />
-            DESCARGAR BOLETÍN COMPLETO (PDF)
-          </CButton>
-          
-          <div className="mt-2">
-            <small className="text-muted">
-              <CIcon icon={cilFile} className="me-1" />
-              Documento oficial en formato PDF
-            </small>
-          </div>
-        </div>
-        
-        {/* Información del boletín */}
-        <div className="border rounded p-3">
-          <h6 className="mb-3">
-            <CIcon icon={cilUser} className="me-1" />
-            Detalles del boletín:
-          </h6>
-          <div className="row text-start">
-            <div className="col-md-6">
-              <ul className="mb-0 small">
-                <li><strong>Período:</strong> {periodoNombre}</li>
-                <li><strong>Fecha de aprobación:</strong> {fechaAprobacion || 'No disponible'}</li>
-                <li><strong>Aprobado por:</strong> {aprobadoPor || 'Secretaría Académica'}</li>
-              </ul>
-            </div>
-            <div className="col-md-6">
-              <ul className="mb-0 small">
-                <li><strong>Total de materias:</strong> {notas.length}</li>
-                <li><strong>Materias evaluadas:</strong> {notasValidas.length}</li>
-                <li><strong>Estado:</strong> <CBadge color={colorEstado}>{estadoAcademico}</CBadge></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </CCardBody>
+        <CCol lg={5}>
+          <CCard className="premium-card border-0 h-100 shadow-sm overflow-hidden">
+            <CCardBody className="p-4 d-flex flex-column text-center">
+              <div className="mb-4">
+                <div className="p-4 bg-orange-soft rounded-circle d-inline-flex mb-3 shadow-sm border border-white border-4">
+                  <CIcon icon={cilChartLine} style={{ color: 'var(--primary-600)' }} size="3xl" />
+                </div>
+                <h6 className="text-muted fw-bold text-uppercase ls-1 mb-2">Índice Académico del Período</h6>
+                <div className="display-3 fw-bold text-dark mb-3 lh-1">
+                  {promedio.toFixed(1)}
+                  <span className="fs-4 text-muted ms-2 fw-normal">/ 20</span>
+                </div>
 
-      <CCardFooter className="text-center">
-        <small className="text-muted">
-          <CIcon icon={cilCheckCircle} className="me-1 text-success" />
-          Este boletín ha sido aprobado y es un documento oficial de la institución. Conserve una copia para sus registros.
-        </small>
-      </CCardFooter>
-    </CCard>
+                <div className={`alert ${promedio >= 10 ? 'alert-success' : 'alert-danger'} border-0 rounded-4 py-2 px-3 d-inline-block shadow-sm`}>
+                  <strong className="text-uppercase ls-1 small">
+                    ESTADO FINAL: {estadoAcademico}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="mt-auto p-4 rounded-4 bg-light border border-light text-start">
+                <h6 className="fw-bold mb-3 small text-uppercase ls-1 text-primary d-flex align-items-center">
+                  <CIcon icon={cilCheckCircle} className="me-2" />
+                  Validación Administrativa
+                </h6>
+
+                <div className="d-flex align-items-center mb-4">
+                  <div className="vr bg-primary opacity-25 me-3" style={{ width: '2px', height: '40px' }}></div>
+                  <div>
+                    <div className="small fw-bold text-dark text-uppercase ls-1">Aprobado por Secretaría</div>
+                    <div className="text-muted small">
+                      {fechaAprobacion || 'Fecha pendiente'} • {aprobadoPor || 'Autoridad competente'}
+                    </div>
+                  </div>
+                </div>
+
+                <CButton
+                  className="btn-premium w-100 py-3 rounded-pill shadow-sm d-flex justify-content-center align-items-center hover-lift"
+                  onClick={() => onDescargar && onDescargar(periodoNumero)}
+                >
+                  <CIcon icon={cilCloudDownload} className="me-2" size="lg" />
+                  DESCARGAR BOLETÍN OFICIAL
+                </CButton>
+              </div>
+            </CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>
+      <style>{`
+        .ls-1 { letter-spacing: 1px; }
+        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(242, 140, 15, 0.2) !important; transition: all 0.3s ease; }
+      `}</style>
+    </div>
   )
 }
 

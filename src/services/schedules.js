@@ -351,6 +351,47 @@ function calculateTotalHours(schedules) {
     return Math.round(totalMinutes / 60)
 }
 
+// ================= VALIDACIÓN DE AULAS =================
+function timeToMinutes(time) {
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+}
+
+export async function checkClassroomAvailability(academicYear, day, start, end, classroom, excludeSectionId = null) {
+    const sections = load();
+    const startMin = timeToMinutes(start);
+    const endMin = timeToMinutes(end);
+
+    for (const section of sections) {
+        if (section.academicYear !== academicYear) continue;
+        if (excludeSectionId && section.id === excludeSectionId) continue; // Si estamos editando una sección existente
+
+        if (section.schedules) {
+            for (const sch of section.schedules) {
+                if (sch.dayOfWeek === day && sch.classroom === classroom) {
+                    const sMin = timeToMinutes(sch.startTime);
+                    const eMin = timeToMinutes(sch.endTime);
+
+                    // Verificación de solapamiento
+                    // Max(start1, start2) < Min(end1, end2) indica solapamiento
+                    if (Math.max(startMin, sMin) < Math.min(endMin, eMin)) {
+                        return {
+                            available: false,
+                            conflict: {
+                                sectionName: section.sectionName,
+                                subject: sch.subject,
+                                startTime: sch.startTime,
+                                endTime: sch.endTime
+                            }
+                        };
+                    }
+                }
+            }
+        }
+    }
+    return { available: true };
+}
+
 export const DAYS_OF_WEEK = [
     { value: 'LUNES', label: 'Lunes' },
     { value: 'MARTES', label: 'Martes' },
