@@ -25,7 +25,6 @@ import {
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import { cilEducation, cilPlus, cilTrash, cilWarning, cilCheckCircle, cilInfo, cilCog } from "@coreui/icons"
-import ErrorModal from "../../../../components/error-modal"
 
 export default function ValidacionGradosEnhanced({ student, tipoInscripcion, onHistoryCompleted, onBack }) {
   const [loading, setLoading] = useState(false)

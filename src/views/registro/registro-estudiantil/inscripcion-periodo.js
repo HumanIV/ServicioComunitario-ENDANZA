@@ -25,7 +25,6 @@ import {
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import { cilSchool, cilCheckCircle, cilWarning, cilInfo } from "@coreui/icons"
-import { helpFetch } from "../../../../api/helpFetch"
 
 export default function InscripcionPeriodo({
   student,

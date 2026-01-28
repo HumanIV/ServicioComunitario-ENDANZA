@@ -22,13 +22,12 @@ import {
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import { cilUser, cilSearch, cilUserPlus, cilPhone, cilHome, cilCalendar, cilCheckCircle } from "@coreui/icons"
-import CedulaInput from "../../../../components/cedula-input"
 
 export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated, onBack }) {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(null)
-  
+
   // Estados para representante
   const [representanteCi, setRepresentanteCi] = useState("")
   const [representanteFound, setRepresentanteFound] = useState(null)
@@ -100,7 +99,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                   <CedulaInput value={representanteCi} onChange={setRepresentanteCi} placeholder="12345678" />
                 </CCol>
                 <CCol md={4} className="d-flex align-items-end">
-                  <CButton color="info" onClick={() => {}} disabled={loading} className="w-100">
+                  <CButton color="info" onClick={() => { }} disabled={loading} className="w-100">
                     {loading ? <CSpinner size="sm" /> : <CIcon icon={cilSearch} />}
                     {loading ? " Buscando..." : " Buscar"}
                   </CButton>
@@ -139,7 +138,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         <CFormInput
                           type="text"
                           value="Juan"
-                          onChange={() => {}}
+                          onChange={() => { }}
                           required
                         />
                       </CCol>
@@ -148,7 +147,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         <CFormInput
                           type="text"
                           value="Pérez"
-                          onChange={() => {}}
+                          onChange={() => { }}
                           required
                         />
                       </CCol>
@@ -164,7 +163,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                           <CFormInput
                             type="tel"
                             value="0414-1234567"
-                            onChange={() => {}}
+                            onChange={() => { }}
                             placeholder="0414-1234567"
                             required
                           />
@@ -179,7 +178,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                           <CFormInput
                             type="tel"
                             value="0212-7654321"
-                            onChange={() => {}}
+                            onChange={() => { }}
                             placeholder="0212-1234567"
                           />
                         </CInputGroup>
@@ -192,7 +191,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         <CFormInput
                           type="email"
                           value="juan.perez@email.com"
-                          onChange={() => {}}
+                          onChange={() => { }}
                         />
                       </CCol>
                       <CCol md={6}>
@@ -204,7 +203,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                           <CFormInput
                             type="date"
                             value="1980-05-15"
-                            onChange={() => {}}
+                            onChange={() => { }}
                           />
                         </CInputGroup>
                       </CCol>
@@ -215,7 +214,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         <CFormLabel>Estado Civil</CFormLabel>
                         <CFormSelect
                           value="casado"
-                          onChange={() => {}}
+                          onChange={() => { }}
                         >
                           <option value="">Seleccionar...</option>
                           <option value="soltero">Soltero(a)</option>
@@ -230,7 +229,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         <CFormInput
                           type="text"
                           value="Ingeniero"
-                          onChange={() => {}}
+                          onChange={() => { }}
                         />
                       </CCol>
                     </CRow>
@@ -241,7 +240,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         <CFormInput
                           type="text"
                           value="Empresa XYZ"
-                          onChange={() => {}}
+                          onChange={() => { }}
                         />
                       </CCol>
                       <CCol md={6}>
@@ -253,7 +252,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                           <CFormInput
                             type="tel"
                             value="0212-1234567"
-                            onChange={() => {}}
+                            onChange={() => { }}
                             placeholder="0212-1234567"
                           />
                         </CInputGroup>
@@ -269,7 +268,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                           </CInputGroupText>
                           <CFormTextarea
                             value="Av. Principal, Edificio Ejemplo, Piso 3, Apartamento 3-A, Caracas"
-                            onChange={() => {}}
+                            onChange={() => { }}
                             rows={2}
                             placeholder="Dirección completa de residencia"
                           />
@@ -278,7 +277,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     </CRow>
 
                     <div className="d-flex justify-content-between">
-                      <CButton color="secondary" onClick={() => {}}>
+                      <CButton color="secondary" onClick={() => { }}>
                         Volver
                       </CButton>
                       <CButton color="success" onClick={() => setStep(2)}>
@@ -308,7 +307,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormLabel>Cédula del Estudiante *</CFormLabel>
                     <CedulaInput
                       value="12345678"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       placeholder="12345678"
                       required
                     />
@@ -318,7 +317,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="text"
                       value="Carlos"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       required
                     />
                   </CCol>
@@ -327,7 +326,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="text"
                       value="Pérez Rodríguez"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       required
                     />
                   </CCol>
@@ -338,7 +337,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormLabel>Sexo *</CFormLabel>
                     <CFormSelect
                       value="M"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       required
                     >
                       <option value="M">Masculino</option>
@@ -350,7 +349,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="date"
                       value="2010-03-15"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       required
                     />
                   </CCol>
@@ -359,7 +358,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="text"
                       value="Caracas, Venezuela"
-                      onChange={() => {}}
+                      onChange={() => { }}
                     />
                   </CCol>
                   <CCol md={3}>
@@ -368,7 +367,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                       type="number"
                       min="0"
                       value="2"
-                      onChange={() => {}}
+                      onChange={() => { }}
                     />
                   </CCol>
                 </CRow>
@@ -379,14 +378,14 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="text"
                       value="María Rodríguez"
-                      onChange={() => {}}
+                      onChange={() => { }}
                     />
                   </CCol>
                   <CCol md={4}>
                     <CFormLabel>Cédula de la Madre</CFormLabel>
                     <CedulaInput
                       value="87654321"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       placeholder="12345678"
                     />
                   </CCol>
@@ -395,7 +394,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="tel"
                       value="0414-7654321"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       placeholder="0414-1234567"
                     />
                   </CCol>
@@ -407,14 +406,14 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="text"
                       value="Juan Pérez"
-                      onChange={() => {}}
+                      onChange={() => { }}
                     />
                   </CCol>
                   <CCol md={4}>
                     <CFormLabel>Cédula del Padre</CFormLabel>
                     <CedulaInput
                       value="12345678"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       placeholder="12345678"
                     />
                   </CCol>
@@ -423,7 +422,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                     <CFormInput
                       type="tel"
                       value="0412-1234567"
-                      onChange={() => {}}
+                      onChange={() => { }}
                       placeholder="0414-1234567"
                     />
                   </CCol>
@@ -438,7 +437,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         name="convivencia"
                         id="livesBoth"
                         checked={true}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         label="Vive con ambos padres"
                       />
                       <CFormCheck
@@ -446,7 +445,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         name="convivencia"
                         id="livesMother"
                         checked={false}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         label="Vive solo con la madre"
                       />
                       <CFormCheck
@@ -454,7 +453,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         name="convivencia"
                         id="livesFather"
                         checked={false}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         label="Vive solo con el padre"
                       />
                       <CFormCheck
@@ -462,7 +461,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                         name="convivencia"
                         id="livesRepresentative"
                         checked={false}
-                        onChange={() => {}}
+                        onChange={() => { }}
                         label="Vive con el representante"
                       />
                     </div>
@@ -473,7 +472,7 @@ export default function CrearAlumnoEnhanced({ tipoInscripcion, onStudentCreated,
                   <CButton color="secondary" onClick={() => setStep(1)}>
                     Volver
                   </CButton>
-                  <CButton color="success" onClick={() => {}}>
+                  <CButton color="success" onClick={() => { }}>
                     <CIcon icon={cilUserPlus} />
                     Crear Estudiante
                   </CButton>

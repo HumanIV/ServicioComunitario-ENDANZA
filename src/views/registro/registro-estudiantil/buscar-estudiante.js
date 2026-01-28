@@ -16,7 +16,6 @@ import {
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import { cilSearch, cilUser, cilPhone, cilHome, cilWarning, cilCheckCircle } from "@coreui/icons"
-import CedulaInput from "../../../../components/cedula-input"
 
 export default function BuscarEstudianteEnhanced({ tipoInscripcion, onStudentFound, onBack }) {
   const [loading, setLoading] = useState(false)
@@ -97,7 +96,7 @@ export default function BuscarEstudianteEnhanced({ tipoInscripcion, onStudentFou
                 <CedulaInput value={studentCi} onChange={setStudentCi} placeholder="12345678" />
               </CCol>
               <CCol md={4} className="d-flex align-items-end">
-                <CButton color="info" size="lg" onClick={() => {}} disabled={loading} className="w-100">
+                <CButton color="info" size="lg" onClick={() => { }} disabled={loading} className="w-100">
                   {loading ? (
                     <>
                       <CSpinner size="sm" className="me-2" />
@@ -188,10 +187,10 @@ export default function BuscarEstudianteEnhanced({ tipoInscripcion, onStudentFou
                 </CAlert>
 
                 <div className="mt-4 d-flex justify-content-between">
-                  <CButton color="secondary" onClick={() => {}}>
+                  <CButton color="secondary" onClick={() => { }}>
                     Volver
                   </CButton>
-                  <CButton color="success" size="lg" onClick={() => {}}>
+                  <CButton color="success" size="lg" onClick={() => { }}>
                     {tipoInscripcion === "reintegro" ? "Continuar con Reintegro" : "Continuar con Inscripción"}
                   </CButton>
                 </div>
