@@ -54,27 +54,27 @@ const PeriodoInscripcionModal = ({
   const status = getEnrollmentStatus()
 
   return (
-    <CModal visible={visible} onClose={onClose} size="lg" backdrop="static" className="animate-fade-in">
+    <CModal visible={visible} onClose={onClose} size="lg" backdrop="static" className="animate-fade-in premium-modal">
       <div className="bg-primary" style={{ height: '8px', borderTopLeftRadius: 'var(--cui-modal-border-radius)', borderTopRightRadius: 'var(--cui-modal-border-radius)' }}></div>
-      <CModalHeader className="bg-white border-0 py-4 px-4">
-        <CModalTitle className="fw-bold d-flex align-items-center text-dark">
+      <CModalHeader className="bg-light-custom border-0 py-4 px-4">
+        <CModalTitle className="fw-bold d-flex align-items-center header-title-custom">
           <div className="bg-orange-soft p-2 rounded-3 me-3">
             <CIcon icon={cilCalendarCheck} className="text-primary" size="xl" />
           </div>
           <div>
-            <div className="h4 mb-0 fw-bold">Periodo de Inscripción</div>
-            <div className="small text-muted fw-normal">Control de apertura y cierre del sistema académico</div>
+            <div className="h4 mb-0 fw-bold header-title-custom">Periodo de Inscripción</div>
+            <div className="small text-muted-custom fw-normal">Control de apertura y cierre del sistema académico</div>
           </div>
         </CModalTitle>
       </CModalHeader>
 
-      <CModalBody className="p-4 bg-white">
+      <CModalBody className="p-4 bg-light-custom">
         <CForm>
-          <div className="p-4 rounded-4 bg-light border border-white shadow-sm mb-4">
-            <div className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
+          <div className="p-4 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-50 shadow-sm mb-4">
+            <div className="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-light-custom border-opacity-10">
               <div>
-                <h5 className="fw-bold text-dark mb-1">Estatus del Proceso</h5>
-                <p className="small text-muted mb-0">Habilitar o deshabilitar inscripciones globales</p>
+                <h5 className="fw-bold header-title-custom mb-1">Estatus del Proceso</h5>
+                <p className="small text-muted-custom mb-0">Habilitar o deshabilitar inscripciones globales</p>
               </div>
               <CFormCheck
                 id="inscripcionesActivas"
@@ -88,8 +88,8 @@ const PeriodoInscripcionModal = ({
 
             <CRow className="g-4">
               <CCol xs={12} md={6}>
-                <div className="p-3 bg-white rounded-3 border border-light">
-                  <CFormLabel className="small fw-bold text-uppercase text-muted ls-1 mb-2">
+                <div className="p-3 bg-light-custom rounded-3 border border-light-custom border-opacity-50">
+                  <CFormLabel className="small fw-bold text-uppercase text-muted-custom ls-1 mb-2">
                     <CIcon icon={cilCalendar} className="me-2 text-primary" />
                     Fecha de Apertura
                   </CFormLabel>
@@ -97,14 +97,14 @@ const PeriodoInscripcionModal = ({
                     type="date"
                     value={periodoInscripcion.fechaInicio}
                     onChange={(e) => setPeriodoInscripcion({ ...periodoInscripcion, fechaInicio: e.target.value })}
-                    className="input-premium border-0 shadow-none bg-light p-2"
+                    className="input-premium border-0 shadow-none bg-transparent p-2 text-contrast"
                     style={{ fontSize: '1.1rem', fontWeight: '600' }}
                   />
                 </div>
               </CCol>
               <CCol xs={12} md={6}>
-                <div className="p-3 bg-white rounded-3 border border-light">
-                  <CFormLabel className="small fw-bold text-uppercase text-muted ls-1 mb-2">
+                <div className="p-3 bg-light-custom rounded-3 border border-light-custom border-opacity-50">
+                  <CFormLabel className="small fw-bold text-uppercase text-muted-custom ls-1 mb-2">
                     <CIcon icon={cilWarning} className="me-2 text-danger" />
                     Fecha de Cierre
                   </CFormLabel>
@@ -112,7 +112,7 @@ const PeriodoInscripcionModal = ({
                     type="date"
                     value={periodoInscripcion.fechaFin}
                     onChange={(e) => setPeriodoInscripcion({ ...periodoInscripcion, fechaFin: e.target.value })}
-                    className="input-premium border-0 shadow-none bg-light p-2"
+                    className="input-premium border-0 shadow-none bg-transparent p-2 text-contrast"
                     style={{ fontSize: '1.1rem', fontWeight: '600' }}
                   />
                 </div>
@@ -132,11 +132,11 @@ const PeriodoInscripcionModal = ({
         </CForm>
       </CModalBody>
 
-      <CModalFooter className="border-0 p-4 pt-0">
-        <CButton color="light" onClick={onClose} className="px-4 fw-bold">
+      <CModalFooter className="border-0 p-4 pt-0 bg-light-custom">
+        <CButton color="light" onClick={onClose} className="px-4 fw-bold text-muted-custom bg-transparent border-0 hover-lift">
           CANCELAR
         </CButton>
-        <CButton onClick={onSave} className="btn-premium px-5 py-2 fw-bold ms-auto">
+        <CButton onClick={onSave} className="btn-premium px-5 py-2 fw-bold ms-auto shadow-sm">
           <CIcon icon={cilSave} className="me-2" />
           GUARDAR AJUSTES
         </CButton>
@@ -157,8 +157,14 @@ const PeriodoInscripcionModal = ({
         }
 
         .input-premium:focus {
-          background-color: white !important;
+          background-color: transparent !important;
+          color: inherit !important;
           box-shadow: 0 0 0 3px rgba(242, 140, 15, 0.2) !important;
+        }
+        
+        /* Date input icon color fix for dark mode */
+        [data-coreui-theme="dark"] .input-premium::-webkit-calendar-picker-indicator {
+            filter: invert(1);
         }
 
         .border-dashed { border-style: dashed !important; }

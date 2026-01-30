@@ -156,12 +156,12 @@ const PerfilEstudiantePrivado = () => {
       <CRow className="mb-5 align-items-center no-print">
         <CCol xs={12} md={6}>
           <div className="d-flex align-items-center gap-3">
-            <Link to="/inicio" className="btn btn-light rounded-circle shadow-sm border p-2 d-flex align-items-center justify-content-center" style={{ width: '45px', height: '45px' }}>
-              <CIcon icon={cilArrowLeft} className="text-dark" />
+            <Link to="/inicio" className="btn btn-outline-secondary rounded-circle shadow-sm border-2 profile-back-btn p-2 d-flex align-items-center justify-content-center" style={{ width: '45px', height: '45px' }}>
+              <CIcon icon={cilArrowLeft} />
             </Link>
             <div>
-              <h2 className="mb-0 fw-bold text-dark text-uppercase ls-1">Expediente Académico</h2>
-              <p className="text-muted small mb-0 text-uppercase ls-1 fw-bold">Gestión Integral del Estudiante</p>
+              <h2 className="mb-0 fw-bold profile-header-title text-uppercase ls-1">Expediente Académico</h2>
+              <p className="footer-text small mb-0 text-uppercase ls-1 fw-bold">Gestión Integral del Estudiante</p>
             </div>
           </div>
         </CCol>
@@ -171,7 +171,7 @@ const PerfilEstudiantePrivado = () => {
               <CIcon icon={cilPencil} className="me-2" />
               EDITAR DATOS
             </CButton>
-            <CButton color="light" variant="outline" className="border-0 shadow-sm rounded-pill px-4 fw-bold hover-orange bg-white text-muted d-flex align-items-center" onClick={handlePrint}>
+            <CButton variant="outline" className="border-2 shadow-sm rounded-pill px-4 fw-bold profile-outline-btn d-flex align-items-center" onClick={handlePrint}>
               <CIcon icon={cilPrint} className="me-2" />
               IMPRIMIR FICHA
             </CButton>
@@ -200,7 +200,7 @@ const PerfilEstudiantePrivado = () => {
             <CNavItem>
               <CNavLink
                 onClick={() => setActiveKey(1)}
-                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 1 ? 'bg-primary text-white shadow-sm' : 'bg-white text-muted shadow-sm hover-lift'}`}
+                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 1 ? 'bg-primary text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
               >
                 <CIcon icon={cilUser} className="me-2" />
                 DATOS PERSONALES
@@ -209,7 +209,7 @@ const PerfilEstudiantePrivado = () => {
             <CNavItem>
               <CNavLink
                 onClick={() => setActiveKey(2)}
-                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 2 ? 'bg-primary text-white shadow-sm' : 'bg-white text-muted shadow-sm hover-lift'}`}
+                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 2 ? 'bg-primary text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
               >
                 <CIcon icon={cilBadge} className="me-2" />
                 REPRESENTANTES
@@ -218,7 +218,7 @@ const PerfilEstudiantePrivado = () => {
             <CNavItem>
               <CNavLink
                 onClick={() => setActiveKey(4)}
-                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 4 ? 'bg-primary text-white shadow-sm' : 'bg-white text-muted shadow-sm hover-lift'}`}
+                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 4 ? 'bg-primary text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
               >
                 <CIcon icon={cilMedicalCross} className="me-2" />
                 SALUD Y BIENESTAR
@@ -240,12 +240,12 @@ const PerfilEstudiantePrivado = () => {
               <CIcon icon={cilCheckCircle} size="lg" className="text-white" />
             </div>
             <div>
-              <div className="text-dark fw-bold small text-uppercase ls-1">Estado del Expediente</div>
-              <small className="text-muted d-block">ID Único: <span className="font-monospace">{student.id}</span> | Sincronizado: {student.FechaActualizacion || "25/01/2026"}</small>
+              <div className="profile-header-title fw-bold small text-uppercase ls-1">Estado del Expediente</div>
+              <small className="footer-text d-block">ID Único: <span className="font-monospace">{student.id}</span> | Sincronizado: {student.FechaActualizacion || "25/01/2026"}</small>
             </div>
           </div>
           <div className="d-flex gap-2">
-            <CButton color="light" size="sm" className="border-0 rounded-pill px-4 text-muted fw-bold shadow-sm bg-white hover-lift" onClick={handlePrint}>
+            <CButton size="sm" className="border-2 rounded-pill px-4 profile-outline-btn fw-bold shadow-sm d-flex align-items-center" onClick={handlePrint} variant="outline">
               <CIcon icon={cilPrint} className="me-2" />
               Descargar PDF
             </CButton>
@@ -272,6 +272,20 @@ const PerfilEstudiantePrivado = () => {
         .hover-orange:hover { color: var(--primary-600) !important; background: var(--primary-50) !important; }
         .cursor-pointer { cursor: pointer; }
         .transition-all { transition: all 0.2s ease; }
+        
+        .profile-header-title { color: var(--neutral-800); }
+        .profile-nav-link { background-color: var(--neutral-100) !important; color: var(--neutral-600) !important; }
+        .profile-back-btn { color: var(--neutral-600); border-color: var(--neutral-200); }
+        .profile-outline-btn { color: var(--neutral-600) !important; border-color: var(--neutral-300) !important; background-color: transparent !important; }
+        .footer-text { color: var(--neutral-500); }
+
+        [data-coreui-theme="dark"] .profile-header-title { color: white; }
+        [data-coreui-theme="dark"] .profile-nav-link { background-color: rgba(255,255,255,0.05) !important; color: rgba(255,255,255,0.6) !important; }
+        [data-coreui-theme="dark"] .profile-back-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); }
+        [data-coreui-theme="dark"] .profile-outline-btn { color: var(--primary-400) !important; border-color: var(--primary-400) !important; background-color: rgba(245, 185, 55, 0.05) !important; }
+        [data-coreui-theme="dark"] .profile-outline-btn:hover { background-color: var(--primary-500) !important; color: white !important; }
+        [data-coreui-theme="dark"] .footer-text { color: rgba(255,255,255,0.4); }
+
         @media print { .no-print { display: none !important; } }
       `}</style>
     </CContainer>

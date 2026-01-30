@@ -7,60 +7,45 @@ import PropTypes from 'prop-types'
 const ClassroomCard = ({ room, onTypeChange, onSeeSchedule, getStatusColor, classroomTypes }) => {
     return (
         <CCol lg={4} md={6}>
-            <CCard className="shadow-sm h-100 hover-lift overflow-hidden border-0" style={{ borderRadius: '16px', transition: 'all 0.3s ease' }}>
-                <div className="position-absolute top-0 start-0 w-100 bg-gradient-primary" style={{ height: '4px', background: '#E07B00' }}></div>
+            <CCard className="shadow-lg h-100 hover-lift overflow-hidden border-0 premium-card" style={{ borderRadius: '16px', transition: 'all 0.3s ease' }}>
+                <div className="position-absolute top-0 start-0 w-100" style={{ height: '4px', background: '#F28C0F' }}></div>
                 <CCardBody className="d-flex flex-column p-4">
-                    <div className="d-flex justify-content-between align-items-start mb-3">
+                    <div className="d-flex justify-content-between align-items-start mb-4">
                         <div className="d-flex align-items-center">
-                            <div className="bg-orange-soft p-2 rounded-3 me-3 text-primary d-flex align-items-center justify-content-center" style={{ width: '48px', height: '48px' }}>
+                            <div className="bg-orange-soft p-2 rounded-3 me-3 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: '48px', height: '48px', border: '1px solid rgba(242, 140, 15, 0.2)' }}>
                                 <CIcon icon={cilLocationPin} size="xl" />
                             </div>
                             <div>
-                                <h5 className="mb-1 fw-bold text-dark">{room.name}</h5>
-                                <CBadge color={getStatusColor(room.type)} shape="rounded-pill" className="px-3 py-1">
+                                <h5 className="mb-1 fw-bold header-title-custom">{room.name}</h5>
+                                <CBadge color={getStatusColor(room.type)} shape="rounded-pill" className="px-3 py-1 bg-opacity-10 text-uppercase small fw-bold" style={{ color: `var(--cui-${getStatusColor(room.type)})`, backgroundColor: `rgba(var(--cui-${getStatusColor(room.type)}-rgb), 0.1)` }}>
                                     {room.type}
                                 </CBadge>
                             </div>
                         </div>
                     </div>
 
-                    <div className="mb-3 p-2 bg-light rounded-3 border">
-                        <label className="text-muted small text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '10px' }}>Tipo de Espacio</label>
+                    <div className="mb-3 p-3 bg-light-custom bg-opacity-10 rounded-4 border border-light-custom shadow-sm">
+                        <label className="text-muted-custom small text-uppercase fw-bold mb-1 d-block ls-1" style={{ fontSize: '9px' }}>Tipo de Espacio</label>
                         <CFormSelect
                             size="sm"
                             value={room.type}
                             onChange={(e) => onTypeChange(room.id, e.target.value)}
-                            className="border-0 fw-semibold bg-transparent"
+                            className="border-0 fw-bold bg-transparent header-title-custom p-0"
                         >
-                            {classroomTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                            {classroomTypes.map(t => <option key={t} value={t} className="bg-dark">{t}</option>)}
                         </CFormSelect>
                     </div>
 
-                    <div className="mb-4 p-3 bg-white border rounded-3 text-center">
+                    <div className="mb-4 p-3 bg-light-custom bg-opacity-10 border border-light-custom rounded-4 text-center shadow-sm">
                         <CIcon icon={cilPeople} className="text-primary mb-1 d-block mx-auto" size="sm" />
-                        <span className="fw-bold text-dark">{room.capacity}</span>
-                        <span className="d-block text-muted" style={{ fontSize: '11px' }}>Personas</span>
+                        <span className="fw-bold header-title-custom fs-5">{room.capacity}</span>
+                        <span className="d-block text-muted-custom text-uppercase fw-bold ls-1" style={{ fontSize: '9px' }}>Personas Máx</span>
                     </div>
 
-                    <div className="mt-auto pt-3 border-top border-light">
+                    <div className="mt-auto pt-3 border-top border-light-custom border-opacity-10">
                         <CButton
                             onClick={() => onSeeSchedule(room)}
-                            className="w-100 d-flex align-items-center justify-content-center fw-bold"
-                            style={{
-                                background: '#E07B00',
-                                border: 'none',
-                                color: 'white'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                e.currentTarget.style.boxShadow = '0 8px 16px rgba(242, 140, 15, 0.4)';
-                                e.currentTarget.style.background = '#F28C0F';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'translateY(0)';
-                                e.currentTarget.style.boxShadow = 'none';
-                                e.currentTarget.style.background = '#E07B00';
-                            }}
+                            className="w-100 d-flex align-items-center justify-content-center fw-bold py-2 btn-premium shadow-sm"
                         >
                             <CIcon icon={cilClock} className="me-2" />
                             VER HORARIO
@@ -70,10 +55,11 @@ const ClassroomCard = ({ room, onTypeChange, onSeeSchedule, getStatusColor, clas
 
                 <style>{`
                     .hover-lift:hover { 
-                        transform: translateY(-4px); 
-                        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important; 
+                        transform: translateY(-6px); 
+                        box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important; 
                     }
-                    .bg-orange-soft { background-color: rgba(242, 140, 15, 0.1); }
+                    .bg-orange-soft { background-color: rgba(242, 140, 15, 0.12); }
+                    .ls-1 { letter-spacing: 1px; }
                 `}</style>
             </CCard>
         </CCol>

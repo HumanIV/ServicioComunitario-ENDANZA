@@ -6,13 +6,15 @@ import {
   CSidebar,
   CSidebarHeader,
   CHeaderToggler,
+  useColorModes,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilMenu } from '@coreui/icons'
 
 import { AppSidebarNav } from './AppSidebarNav'
 
-import logoEndanza from '../assets/images/logo_endanza.png'
+// Usaremos el favicon como logo sin fondo
+const logoEndanza = "/favicon.png"
 
 // sidebar nav config
 import navigation from '../_nav'
@@ -20,11 +22,11 @@ import navigation from '../_nav'
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const { colorMode } = useColorModes('coreui-free-react-admin-template-theme')
 
   return (
     <CSidebar
       className="sidebar-premium border-0"
-      colorScheme="dark"
       position="fixed"
       visible={sidebarShow}
       onVisibleChange={(visible) => {
@@ -33,15 +35,15 @@ const AppSidebar = () => {
     >
       <CSidebarHeader className="border-0 bg-transparent py-0 d-block position-relative">
         <div className="sidebar-logo-container text-center">
-          <div className="sidebar-logo-circle">
-            <img src={logoEndanza} alt="ENDANZA Logo" className="img-fluid" />
+          <div className="sidebar-logo-circle-premium">
+            <img src={logoEndanza} alt="ENDANZA Logo" className="img-fluid" style={{ maxWidth: '85px' }} />
           </div>
-          <div className="sidebar-header-title text-poppins fw-medium">ENDANZA</div>
-          <div className="sidebar-header-subtitle text-arial fw-regular">Escuela Nacional de Danza</div>
+          <div className="sidebar-header-title text-poppins fw-bold mt-2">ENDANZA</div>
+          <div className="sidebar-header-subtitle text-arial fw-medium">Escuela Nacional de Danza</div>
         </div>
         <CCloseButton
           className="d-lg-none position-absolute top-0 end-0 m-2"
-          dark
+          dark={colorMode === 'dark'}
           onClick={() => dispatch({ type: 'set', sidebarShow: false })}
         />
       </CSidebarHeader>

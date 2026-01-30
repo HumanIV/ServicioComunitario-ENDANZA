@@ -5,14 +5,14 @@ import { cilUser, cilHome, cilPhone, cilEnvelopeClosed, cilCalendar, cilHeart, c
 import PropTypes from 'prop-types'
 
 const InfoItem = ({ icon, label, value, subValue }) => (
-    <div className="d-flex align-items-center p-3 rounded-4 hover-light-bg transition-all">
+    <div className="d-flex align-items-center p-3 rounded-4 personal-info-item transition-all">
         <div className="icon-box-sm bg-orange-soft text-primary me-3 shadow-sm">
             <CIcon icon={icon} />
         </div>
         <div>
-            <div className="text-muted text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>{label}</div>
-            <div className="fw-bold text-dark fs-6 mt-1">{value}</div>
-            {subValue && <div className="text-muted small">{subValue}</div>}
+            <div className="personal-info-label text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>{label}</div>
+            <div className="fw-bold personal-info-value fs-6 mt-1">{value}</div>
+            {subValue && <div className="personal-info-label small">{subValue}</div>}
         </div>
     </div>
 )
@@ -27,7 +27,7 @@ const PersonalInfoTab = ({ student }) => {
                             <div className="p-2 bg-primary rounded-circle me-3 shadow-sm">
                                 <CIcon icon={cilUser} size="sm" className="text-white" />
                             </div>
-                            <h5 className="mb-0 fw-bold text-dark text-uppercase ls-1">Ficha de Identidad</h5>
+                            <h5 className="mb-0 fw-bold personal-info-value text-uppercase ls-1">Ficha de Identidad</h5>
                         </CCardHeader>
                         <CCardBody className="p-4">
                             <div className="d-flex flex-column gap-2">
@@ -67,7 +67,7 @@ const PersonalInfoTab = ({ student }) => {
                             <div className="p-2 bg-primary rounded-circle me-3 shadow-sm">
                                 <CIcon icon={cilHome} size="sm" className="text-white" />
                             </div>
-                            <h5 className="mb-0 fw-bold text-dark text-uppercase ls-1">Información de Geolocalización</h5>
+                            <h5 className="mb-0 fw-bold personal-info-value text-uppercase ls-1">Información de Geolocalización</h5>
                         </CCardHeader>
                         <CCardBody className="p-4">
                             <div className="d-flex flex-column gap-2">
@@ -102,10 +102,16 @@ const PersonalInfoTab = ({ student }) => {
                     align-items: center;
                     justify-content: center;
                 }
-                .hover-light-bg:hover {
+                .personal-info-item:hover {
                     background-color: rgba(242, 140, 15, 0.05);
                 }
+                .personal-info-label { color: var(--neutral-500); }
+                .personal-info-value { color: var(--neutral-800); }
                 .transition-all { transition: all 0.2s ease; }
+
+                [data-coreui-theme="dark"] .personal-info-label { color: rgba(255,255,255,0.5); }
+                [data-coreui-theme="dark"] .personal-info-value { color: white; }
+                [data-coreui-theme="dark"] .personal-info-item:hover { background-color: rgba(255,255,255,0.05); }
             `}</style>
         </div>
     )

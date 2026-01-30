@@ -9,7 +9,7 @@ import { cilMedicalCross, cilWarning, cilHeart, cilInfo } from "@coreui/icons";
 const DatosSalud = ({ formData, onChange, errores = {} }) => {
   return (
     <div className="animate__animated animate__fadeIn">
-      <div className="p-4 rounded-4 bg-light border border-light mb-4">
+      <div className="p-4 rounded-4 step-section-bg step-section-border mb-4 text-start">
         <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
           <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
             <CIcon icon={cilMedicalCross} size="sm" />
@@ -18,23 +18,17 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
         </h5>
       </div>
 
-      <CAlert color="info" className="mb-4 border-0 shadow-sm rounded-4 d-flex align-items-center">
-        <CIcon icon={cilInfo} className="me-3 text-info" size="xl" />
-        <div>
-          <strong className="d-block text-info mb-1">Confidencialidad Garantizada</strong>
-          <small className="text-muted">La información suministrada será utilizada exclusivamente por el personal autorizado para garantizar la seguridad física del estudiante.</small>
-        </div>
-      </CAlert>
+
 
       <CForm>
         <CRow className="g-4">
           <CCol md={12}>
-            <h6 className="text-secondary fw-bold text-uppercase small ls-1 border-bottom pb-2 mb-3">Antropometría Básica</h6>
+            <h6 className="fw-bold step-label text-uppercase small ls-1 border-bottom pb-2 mb-3">Antropometría Básica</h6>
           </CCol>
           <CCol md={3}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Peso (kg)
                 </span>
               }
@@ -51,7 +45,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={3}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Estatura (cm)
                 </span>
               }
@@ -68,7 +62,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={3}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Tipo de Sangre
                 </span>
               }
@@ -82,7 +76,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={3}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Uso de Lentes Correctivos
                 </span>
               }
@@ -99,7 +93,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           </CCol>
         </CRow>
 
-        <div className="p-4 rounded-4 bg-light border border-light mb-4 mt-5">
+        <div className="p-4 rounded-4 step-section-bg step-section-border mb-4 mt-5 text-start">
           <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
             <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
               <CIcon icon={cilHeart} size="sm" />
@@ -112,7 +106,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   ¿Presenta Alergias?
                 </span>
               }
@@ -130,7 +124,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   ¿Intolerancias Alimenticias?
                 </span>
               }
@@ -151,7 +145,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
             <CCol md={12}>
               <CFormTextarea
                 label={
-                  <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                     Descripción de Alergias <span className="text-danger">*</span>
                   </span>
                 }
@@ -174,7 +168,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
             <CCol md={12}>
               <CFormTextarea
                 label={
-                  <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                     Descripción de Intolerancias <span className="text-danger">*</span>
                   </span>
                 }
@@ -194,7 +188,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   ¿Toma Medicación Regular?
                 </span>
               }
@@ -211,7 +205,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   ¿Ha tenidos Intervenciones Quirúrgicas?
                 </span>
               }
@@ -232,7 +226,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
             <CCol md={12}>
               <CFormTextarea
                 label={
-                  <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                     Detalle de Medicación / Tratamiento
                   </span>
                 }
@@ -252,7 +246,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
             <CCol md={12}>
               <CFormTextarea
                 label={
-                  <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                     Historial Quirúrgico
                   </span>
                 }
@@ -271,7 +265,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={12} className="mb-4">
             <CFormTextarea
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Antecedentes Familiares Relevantes
                 </span>
               }
@@ -289,7 +283,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Aptitud para Actividad Física Intensa
                 </span>
               }
@@ -308,7 +302,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Médico Tratante / Cabecera
                 </span>
               }
@@ -325,7 +319,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
           <CCol md={12}>
             <CFormTextarea
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Otras Observaciones Médicas
                 </span>
               }
@@ -341,6 +335,16 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
       </CForm>
       <style>{`
         .ls-1 { letter-spacing: 1px; }
+        .step-section-bg { background-color: var(--neutral-50); }
+        .step-label { color: var(--neutral-600); }
+
+        [data-coreui-theme="dark"] .step-section-bg { background-color: rgba(255,255,255,0.02); }
+        [data-coreui-theme="dark"] .step-label { color: rgba(255,255,255,0.7); }
+        .step-section-border { border: 1px solid var(--neutral-200) !important; }
+        [data-coreui-theme="dark"] .step-section-border { border: 1px solid rgba(255,255,255,0.05) !important; }
+
+        /* Forzar alineación de inputs mediante altura mínima de etiquetas */
+        span.step-label { min-height: 2.2rem; display: block; }
       `}</style>
     </div>
   );

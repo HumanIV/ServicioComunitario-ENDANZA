@@ -103,72 +103,72 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
     };
 
     return (
-        <CModal size="lg" visible={visible} onClose={onClose} backdrop="static" className="animate-fade-in">
-            <CModalHeader className="border-0 bg-light-subtle pb-0">
-                <CModalTitle className="fw-bold">
-                    <CIcon icon={cilUser} className="me-2 text-primary" />
+        <CModal size="lg" visible={visible} onClose={onClose} backdrop="static" className="animate-fade-in premium-modal">
+            <CModalHeader className="border-0 bg-primary text-white pb-3">
+                <CModalTitle className="fw-bold d-flex align-items-center">
+                    <CIcon icon={cilUser} className="me-2 text-white-50" />
                     {initial ? 'Editar Usuario' : 'Nuevo Registro de Acceso'}
                 </CModalTitle>
             </CModalHeader>
             <CForm onSubmit={handleSubmit}>
-                <CModalBody className="p-4">
+                <CModalBody className="p-4 bg-light-custom bg-opacity-10">
                     <CRow className="g-4">
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">Nombre</label>
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Nombre</label>
                             <CFormInput
                                 placeholder="Ej: Juan"
                                 value={first_name}
                                 onChange={(e) => setFirstName(e.target.value)}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                                 invalid={!!errors.first_name}
                             />
                         </CCol>
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">Apellido</label>
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Apellido</label>
                             <CFormInput
                                 placeholder="Ej: Pérez"
                                 value={last_name}
                                 onChange={(e) => setLastName(e.target.value)}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                                 invalid={!!errors.last_name}
                             />
                         </CCol>
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">Cédula (V-)</label>
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Cédula (V-)</label>
                             <CFormInput
                                 placeholder="V-12345678"
                                 value={dni}
                                 onChange={handleDniChange}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                                 invalid={!!errors.dni}
                             />
                         </CCol>
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">Teléfono</label>
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Teléfono</label>
                             <CFormInput
                                 placeholder="04XX-XXXXXXX"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                             />
                         </CCol>
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">Email</label>
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Email</label>
                             <CFormInput
                                 type="email"
                                 placeholder="usuario@correo.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                                 invalid={!!errors.email}
                             />
                         </CCol>
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">Rol en el Sistema</label>
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Rol en el Sistema</label>
                             <CFormSelect
                                 value={role}
                                 onChange={(e) => setRole(e.target.value)}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                             >
                                 <option value="superadmin">Superadmin</option>
                                 <option value="admin">Administrador</option>
@@ -177,11 +177,11 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
                             </CFormSelect>
                         </CCol>
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">Estado de la cuenta</label>
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Estado de la cuenta</label>
                             <CFormSelect
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                             >
                                 <option value="active">Activo</option>
                                 <option value="inactive">Inactivo</option>
@@ -189,7 +189,7 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
                             </CFormSelect>
                         </CCol>
                         <CCol md={6}>
-                            <label className="form-label small fw-bold text-uppercase text-muted">
+                            <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">
                                 {initial ? 'Nueva Contraseña (opcional)' : 'Contraseña de Acceso'}
                             </label>
                             <CFormInput
@@ -197,15 +197,15 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
                                 placeholder="Mínimo 4 caracteres"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="input-premium"
+                                className="input-premium bg-light-custom border-light-custom text-contrast"
                                 invalid={!!errors.password}
                                 required={!initial}
                             />
                         </CCol>
                     </CRow>
                 </CModalBody>
-                <CModalFooter className="border-0 p-4 pt-0">
-                    <CButton color="light" onClick={onClose} className="px-4 fw-bold">
+                <CModalFooter className="border-0 p-4 pt-0 bg-light-custom bg-opacity-10">
+                    <CButton color="light" onClick={onClose} className="px-4 fw-bold text-muted-custom bg-transparent border-0 hover-lift">
                         CANCELAR
                     </CButton>
                     <CButton

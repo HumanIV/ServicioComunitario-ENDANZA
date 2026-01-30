@@ -16,19 +16,19 @@ const ScheduleFilters = ({
     extraAction
 }) => {
     return (
-        <div className="mb-4 p-3 rounded-3 border bg-body-tertiary">
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-3">
-                <div className="text-body-secondary fw-semibold small">
-                    Total Secciones: <span className="fs-6">{activeFilters.totalResults}</span>
+        <div className="mb-4 p-4 rounded-4 border border-light-custom bg-light-custom bg-opacity-10 shadow-sm">
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-4">
+                <div className="text-muted-custom fw-bold small text-uppercase ls-1">
+                    Total Secciones: <span className="fs-5 header-title-custom ms-1">{activeFilters.totalResults}</span>
                 </div>
 
                 <div style={{ maxWidth: '400px', width: '100%' }}>
-                    <CInputGroup>
-                        <CInputGroupText className="border-end-0 text-body-secondary bg-transparent">
+                    <CInputGroup className="shadow-sm rounded-3 overflow-hidden border border-light-custom">
+                        <CInputGroupText className="border-0 text-muted-custom bg-light-custom">
                             <CIcon icon={cilSearch} />
                         </CInputGroupText>
                         <CFormInput
-                            className="border-start-0 ps-0"
+                            className="border-0 ps-0 bg-light-custom header-title-custom"
                             placeholder="Buscar por nombre de sección o grado..."
                             value={searchTerm}
                             onChange={(e) => onSearch(e.target.value)}
@@ -40,6 +40,7 @@ const ScheduleFilters = ({
             <div className="row g-3 align-items-center">
                 <div className="col-md-6">
                     <CFormSelect
+                        className="bg-light-custom border-light-custom header-title-custom shadow-sm"
                         value={gradeLevel}
                         onChange={(e) => onFilterChange('gradeLevel', e.target.value)}
                     >
@@ -57,9 +58,9 @@ const ScheduleFilters = ({
 
             {(gradeLevel || searchTerm) && (
                 <div className="mt-3 d-flex justify-content-between align-items-center">
-                    <div className="small text-muted">
+                    <div className="small text-muted-custom">
                         Filtros activos:
-                        {gradeLevel && <CBadge color="info" className="ms-2">{gradeLevel}</CBadge>}
+                        {gradeLevel && <CBadge color="primary" className="ms-2 bg-opacity-10 text-primary border border-primary border-opacity-10">{gradeLevel}</CBadge>}
                     </div>
                     <CButton
                         size="sm"

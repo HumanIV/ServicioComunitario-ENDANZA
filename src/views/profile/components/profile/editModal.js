@@ -110,9 +110,9 @@ const editModal = ({
       backdrop="static"
       className="premium-modal"
     >
-      <CModalHeader className="bg-orange-soft border-0 py-3">
-        <CModalTitle className="fw-bold text-dark d-flex align-items-center">
-          <div className="p-2 bg-primary rounded-circle me-3 shadow-sm">
+      <CModalHeader className="modal-header-bg border-0 py-3">
+        <CModalTitle className="fw-bold modal-header-title d-flex align-items-center">
+          <div className="p-2 modal-header-icon-bg rounded-circle me-3 shadow-sm">
             <CIcon icon={cilUser} className="text-white" size="sm" />
           </div>
           Edición de Expediente Estudiantil
@@ -137,15 +137,15 @@ const editModal = ({
               </CAlert>
             )}
 
-            <div className="mb-4 p-4 rounded-4 bg-light border border-light d-flex justify-content-between align-items-center">
+            <div className="mb-4 p-4 rounded-4 modal-info-box modal-border d-flex justify-content-between align-items-center">
               <div>
-                <small className="text-muted text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>Editando Perfil de:</small>
-                <h4 className="mb-0 fw-bold text-dark">
+                <small className="modal-info-label text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>Editando Perfil de:</small>
+                <h4 className="mb-0 fw-bold modal-header-title">
                   {studentData?.NombreEstudiante} {studentData?.ApellidoEstudiante}
                 </h4>
               </div>
               <div className="text-end">
-                <CBadge className="bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 px-3 py-2 rounded-pill shadow-sm fw-bold">
+                <CBadge className="modal-badge text-primary border border-primary border-opacity-10 px-3 py-2 rounded-pill shadow-sm fw-bold">
                   MATRÍCULA #{studentData?.id}
                 </CBadge>
               </div>
@@ -161,7 +161,7 @@ const editModal = ({
                       active={activeTab === tab.key}
                       className={`rounded-pill border-0 px-4 py-2 fw-bold transition-all cursor-pointer ${activeTab === tab.key
                         ? 'bg-primary text-white shadow-sm'
-                        : 'bg-light text-muted hover-orange'
+                        : 'modal-nav-inactive-bg modal-nav-inactive-text hover-orange'
                         }`}
                     >
                       <CIcon icon={tab.icon} className="me-2" />
@@ -187,9 +187,8 @@ const editModal = ({
 
       <CModalFooter className="border-0 p-4 pt-0">
         <CButton
-          color="light"
           onClick={onClose}
-          className="rounded-pill px-4 py-2 border-2 fw-bold text-muted hover-orange shadow-sm me-2"
+          className="rounded-pill px-4 py-2 border-2 fw-bold modal-cancel-btn hover-orange shadow-sm me-2"
           disabled={loading}
         >
           <CIcon icon={cilX} className="me-2" />
@@ -222,6 +221,42 @@ const editModal = ({
         }
         .cursor-pointer { cursor: pointer; }
         .transition-all { transition: all 0.2s ease; }
+        
+        .modal-header-title { color: var(--neutral-800); }
+        .modal-info-box { background-color: var(--neutral-100); }
+        .modal-info-label { color: var(--neutral-500); }
+        .modal-border { border: 1px solid var(--neutral-200) !important; }
+        .modal-nav-inactive-bg { background-color: var(--neutral-100); }
+        .modal-nav-inactive-text { color: var(--neutral-500); }
+        .modal-cancel-btn { color: var(--neutral-600); border-color: var(--neutral-200); background-color: transparent; }
+        
+        .modal-header-bg { background-color: var(--primary-50); }
+        .modal-header-icon-bg { background-color: var(--primary-500); }
+        .modal-badge { background-color: var(--primary-50); }
+
+        /* Estilos Globales para el Modal Premium en Dark Mode */
+        [data-coreui-theme="dark"] .premium-modal .modal-content { 
+            background-color: #1e293b !important; 
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        [data-coreui-theme="dark"] .premium-modal .modal-body { background-color: #1e293b !important; }
+        [data-coreui-theme="dark"] .premium-modal .modal-header { border-bottom: 1px solid rgba(255,255,255,0.05) !important; }
+        [data-coreui-theme="dark"] .premium-modal .modal-footer { border-top: 1px solid rgba(255,255,255,0.05) !important; }
+
+        [data-coreui-theme="dark"] .modal-header-bg { background-color: rgba(0,0,0,0.2) !important; }
+        [data-coreui-theme="dark"] .modal-header-icon-bg { background-color: var(--primary-600) !important; }
+        [data-coreui-theme="dark"] .modal-badge { background-color: rgba(255,255,255,0.05) !important; }
+        [data-coreui-theme="dark"] .modal-header-title { color: white; }
+        [data-coreui-theme="dark"] .modal-info-box { background-color: rgba(255,255,255,0.02); }
+        [data-coreui-theme="dark"] .modal-info-label { color: rgba(255,255,255,0.4); }
+        [data-coreui-theme="dark"] .modal-border { border: 1px solid rgba(255,255,255,0.05) !important; }
+        [data-coreui-theme="dark"] .modal-nav-inactive-bg { background-color: rgba(255,255,255,0.05); }
+        [data-coreui-theme="dark"] .modal-nav-inactive-text { color: rgba(255,255,255,0.4); }
+        [data-coreui-theme="dark"] .modal-cancel-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); }
+        
+        /* Forzar visibilidad de etiquetas de formulario en modo oscuro */
+        [data-coreui-theme="dark"] .premium-modal label { color: rgba(255,255,255,0.7) !important; }
+        [data-coreui-theme="dark"] .premium-modal .form-section-border { color: var(--primary-400) !important; }
       `}</style>
     </CModal>
   )

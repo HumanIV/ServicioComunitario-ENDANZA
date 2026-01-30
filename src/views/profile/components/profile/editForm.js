@@ -41,7 +41,7 @@ const editForm = ({ formData, onInputChange, activeTab }) => {
       {/* SECCIÓN 0: DATOS PERSONALES */}
       {activeTab === 0 && (
         <>
-          <h5 className="mb-3 text-primary border-bottom pb-2">Información de Identidad</h5>
+          <h5 className="mb-3 text-primary form-section-border pb-2">Información de Identidad</h5>
           <CRow className="mb-3">
             <CCol md={6}>
               <CFormLabel className="fw-bold">Nombre</CFormLabel>
@@ -138,7 +138,7 @@ const editForm = ({ formData, onInputChange, activeTab }) => {
       {/* SECCIÓN 1: CONTACTO */}
       {activeTab === 1 && (
         <>
-          <h5 className="mb-3 text-primary border-bottom pb-2">Datos de Ubicación y Contacto</h5>
+          <h5 className="mb-3 text-primary form-section-border pb-2">Datos de Ubicación y Contacto</h5>
           <CRow className="mb-3">
             <CCol md={12}>
               <CFormLabel className="fw-bold">Dirección de Habitación</CFormLabel>
@@ -208,7 +208,7 @@ const editForm = ({ formData, onInputChange, activeTab }) => {
       {/* SECCIÓN 2: PADRE */}
       {activeTab === 2 && (
         <>
-          <h5 className="mb-3 text-primary border-bottom pb-2">Información del Padre / Representante</h5>
+          <h5 className="mb-3 text-primary form-section-border pb-2">Información del Padre / Representante</h5>
           <CRow className="mb-3">
             <CCol md={6}>
               <CFormLabel className="fw-bold">Nombre del Padre</CFormLabel>
@@ -289,7 +289,7 @@ const editForm = ({ formData, onInputChange, activeTab }) => {
       {/* SECCIÓN 3: MADRE */}
       {activeTab === 3 && (
         <>
-          <h5 className="mb-3 text-primary border-bottom pb-2">Información de la Madre / Representante</h5>
+          <h5 className="mb-3 text-primary form-section-border pb-2">Información de la Madre / Representante</h5>
           <CRow className="mb-3">
             <CCol md={6}>
               <CFormLabel className="fw-bold">Nombre de la Madre</CFormLabel>
@@ -366,6 +366,10 @@ const editForm = ({ formData, onInputChange, activeTab }) => {
           </CRow>
         </>
       )}
+      <style>{`
+        .form-section-border { border-bottom: 2px solid var(--neutral-100) !important; }
+        [data-coreui-theme="dark"] .form-section-border { border-bottom-color: rgba(255,255,255,0.05) !important; }
+      `}</style>
     </CForm>
   )
 }

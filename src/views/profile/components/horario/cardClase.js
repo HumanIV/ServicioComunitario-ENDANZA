@@ -24,11 +24,11 @@ const CardClase = ({ clase, colorDia, indice }) => {
             <CCardBody className="p-4">
               <div className="d-flex justify-content-between align-items-start mb-3">
                 <div>
-                  <h5 className="mb-1 fw-bold text-dark d-flex align-items-center">
+                  <h5 className="mb-1 fw-bold class-card-title d-flex align-items-center">
                     <CIcon icon={cilBook} className="me-2 text-primary" />
                     {clase.materia}
                   </h5>
-                  <div className="text-muted small d-flex align-items-center">
+                  <div className="class-card-subtitle small d-flex align-items-center">
                     <CIcon icon={cilClock} className="me-1" size="sm" />
                     Sesión de {clase.hora.split(' - ').length > 1 ? '1.5' : '1'} hora / Danza Académica
                   </div>
@@ -41,24 +41,24 @@ const CardClase = ({ clase, colorDia, indice }) => {
 
               <div className="row g-3">
                 <CCol md={6}>
-                  <div className="d-flex align-items-center p-2 rounded-3 bg-light">
-                    <div className="p-2 bg-white rounded-circle me-3 shadow-sm">
+                  <div className="d-flex align-items-center p-2 rounded-3 class-card-info-box">
+                    <div className="p-2 class-card-inner-icon rounded-circle me-3 shadow-sm">
                       <CIcon icon={cilUser} className="text-primary" />
                     </div>
                     <div>
-                      <div className="text-muted small text-uppercase fw-bold ls-1" style={{ fontSize: '0.6rem' }}>Profesor</div>
-                      <div className="fw-bold text-dark">{clase.profesor}</div>
+                      <div className="class-card-subtitle small text-uppercase fw-bold ls-1" style={{ fontSize: '0.6rem' }}>Profesor</div>
+                      <div className="fw-bold class-card-title">{clase.profesor}</div>
                     </div>
                   </div>
                 </CCol>
                 <CCol md={6}>
-                  <div className="d-flex align-items-center p-2 rounded-3 bg-light">
-                    <div className="p-2 bg-white rounded-circle me-3 shadow-sm">
+                  <div className="d-flex align-items-center p-2 rounded-3 class-card-info-box">
+                    <div className="p-2 class-card-inner-icon rounded-circle me-3 shadow-sm">
                       <CIcon icon={cilLocationPin} className="text-primary" />
                     </div>
                     <div>
-                      <div className="text-muted small text-uppercase fw-bold ls-1" style={{ fontSize: '0.6rem' }}>Ubicación</div>
-                      <div className="fw-bold text-dark">{clase.aula}</div>
+                      <div className="class-card-subtitle small text-uppercase fw-bold ls-1" style={{ fontSize: '0.6rem' }}>Ubicación</div>
+                      <div className="fw-bold class-card-title">{clase.aula}</div>
                     </div>
                   </div>
                 </CCol>
@@ -76,6 +76,16 @@ const CardClase = ({ clase, colorDia, indice }) => {
             }
             .ls-1 { letter-spacing: 1px; }
             .timeline-item:last-child .timeline-content { border-left-color: transparent !important; }
+
+            .class-card-title { color: var(--neutral-800); }
+            .class-card-subtitle { color: var(--neutral-500); }
+            .class-card-info-box { background-color: var(--neutral-50); }
+            .class-card-inner-icon { background-color: white; }
+
+            [data-coreui-theme="dark"] .class-card-title { color: white; }
+            [data-coreui-theme="dark"] .class-card-subtitle { color: rgba(255,255,255,0.5); }
+            [data-coreui-theme="dark"] .class-card-info-box { background-color: rgba(255,255,255,0.02); }
+            [data-coreui-theme="dark"] .class-card-inner-icon { background-color: rgba(255,255,255,0.05); }
           `}
       </style>
     </div>

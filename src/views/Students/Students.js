@@ -7,11 +7,12 @@ import {
   CToaster,
   CButton,
   CRow,
-  CCol
+  CCol,
+  CCard,
+  CCardBody
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import {
-  cilUser,
   cilPrint,
   cilCloudDownload,
   cilPlus,
@@ -138,6 +139,7 @@ const Students = () => {
 
   return (
     <CContainer fluid className="py-4 profile-container pb-5">
+      {/* Encabezado de Página */}
       <CRow className="mb-4 align-items-center no-print">
         <CCol xs={12} md={6}>
           <div className="d-flex align-items-center gap-3">
@@ -145,17 +147,17 @@ const Students = () => {
               <CIcon icon={cilPeople} size="xl" className="text-white" />
             </div>
             <div>
-              <h2 className="mb-0 fw-bold text-dark">Gestión de Estudiantes</h2>
-              <p className="text-muted small mb-0 text-uppercase ls-1">Centro de Administración Académica</p>
+              <h2 className="mb-0 fw-bold header-title-custom">Gestión de Estudiantes</h2>
+              <p className="text-muted-custom small mb-0 text-uppercase ls-1">Centro de Administración Académica</p>
             </div>
           </div>
         </CCol>
         <CCol xs={12} md={6} className="text-md-end mt-3 mt-md-0">
           <div className="d-flex justify-content-md-end gap-2">
-            <CButton color="light" variant="outline" className="border-2 rounded-pill px-3 fw-bold text-muted hover-orange" onClick={() => window.print()}>
+            <CButton color="light" variant="outline" className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" onClick={() => window.print()}>
               <CIcon icon={cilPrint} className="me-2 text-primary" />Imprimir
             </CButton>
-            <CButton color="light" variant="outline" className="border-2 rounded-pill px-3 fw-bold text-muted hover-orange" onClick={() => showToast("info", "Exportar", "Generando reporte...")}>
+            <CButton color="light" variant="outline" className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" onClick={() => showToast("info", "Exportar", "Generando reporte...")}>
               <CIcon icon={cilCloudDownload} className="me-2 text-primary" />Exportar
             </CButton>
             <Link to="/inscripcion">
@@ -167,6 +169,7 @@ const Students = () => {
         </CCol>
       </CRow>
 
+      {/* Tarjetas de Estadísticas */}
       <StudentStats
         total={students.length}
         actives={students.filter(s => s.Estatus === 'Activo').length}
@@ -174,34 +177,40 @@ const Students = () => {
         selected={selectedStudents.length}
       />
 
-      <StudentFilters
-        searchText={searchText} setSearchText={setSearchText}
-        filterGrade={filterGrade} setFilterGrade={setFilterGrade}
-        filterSection={filterSection} setFilterSection={setFilterSection}
-        clearFilters={clearFilters}
-        showAdvancedFilters={showAdvancedFilters} setShowAdvancedFilters={setShowAdvancedFilters}
-        setLoading={setLoading}
-        selectedCount={selectedStudents.length}
-        onOpenDeleteMultiple={() => openModal('delete-multiple')}
-      />
-
-      <StudentTable
-        loading={loading}
-        paginatedStudents={paginatedStudents}
-        selectedStudents={selectedStudents}
-        handleSelectAll={handleSelectAll}
-        handleSelectStudent={handleSelectStudent}
-        handleSort={handleSort}
-        sortConfig={sortConfig}
-        openModal={openModal}
-        totalPages={totalPages}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        startIndex={startIndex}
-        itemsPerPage={itemsPerPage}
-        totalFiltered={filteredStudents.length}
-        totalStudents={students.length}
-      />
+      {/* Tarjeta Unificada: Filtros + Tabla */}
+      <CCard className="premium-card border-0 mb-4 shadow-sm overflow-hidden unified-dashboard-card">
+        <div className="card-filters-area p-4 border-bottom">
+          <StudentFilters
+            searchText={searchText} setSearchText={setSearchText}
+            filterGrade={filterGrade} setFilterGrade={setFilterGrade}
+            filterSection={filterSection} setFilterSection={setFilterSection}
+            clearFilters={clearFilters}
+            showAdvancedFilters={showAdvancedFilters} setShowAdvancedFilters={setShowAdvancedFilters}
+            setLoading={setLoading}
+            selectedCount={selectedStudents.length}
+            onOpenDeleteMultiple={() => openModal('delete-multiple')}
+          />
+        </div>
+        <CCardBody className="p-0">
+          <StudentTable
+            loading={loading}
+            paginatedStudents={paginatedStudents}
+            selectedStudents={selectedStudents}
+            handleSelectAll={handleSelectAll}
+            handleSelectStudent={handleSelectStudent}
+            handleSort={handleSort}
+            sortConfig={sortConfig}
+            openModal={openModal}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            startIndex={startIndex}
+            itemsPerPage={itemsPerPage}
+            totalFiltered={filteredStudents.length}
+            totalStudents={students.length}
+          />
+        </CCardBody>
+      </CCard>
 
       <StudentModals
         visible={modalVisible}
@@ -225,12 +234,6 @@ const Students = () => {
       </CToaster>
 
       <style>{`
-        .ls-1 { letter-spacing: 1px; }
-        .hover-orange:hover {
-            border-color: var(--primary-400) !important;
-            color: var(--primary-600) !important;
-            background: var(--primary-50) !important;
-        }
         @media print { .no-print { display: none !important; } }
       `}</style>
     </CContainer>

@@ -71,11 +71,11 @@ const HorarioUsuario = () => {
   if (loading) {
     return (
       <CContainer className="py-5 text-center">
-        <div className="p-5 bg-orange-soft rounded-circle d-inline-flex mb-4">
+        <div className="p-5 loading-spinner-bg rounded-circle d-inline-flex mb-4">
           <CSpinner color="primary" variant="grow" size="xl" />
         </div>
-        <h3 className="fw-bold text-dark mb-2">Cargando Cronograma Académico</h3>
-        <p className="text-muted small text-uppercase ls-1">Sincronizando con el sistema central</p>
+        <h3 className="fw-bold loading-text mb-2">Cargando Cronograma Académico</h3>
+        <p className="loading-subtext small text-uppercase ls-1">Sincronizando con el sistema central</p>
       </CContainer>
     )
   }
@@ -134,7 +134,7 @@ const HorarioUsuario = () => {
       />
 
       <div className="text-center py-5 mt-4 border-top">
-        <small className="text-muted opacity-50 text-uppercase ls-1">
+        <small className="loading-subtext opacity-50 text-uppercase ls-1">
           <CIcon icon={cilCalendar} className="me-2" />
           Escuela de Danza Endanza • Gestión de Horarios 2024-2025
         </small>
@@ -159,7 +159,14 @@ const HorarioUsuario = () => {
       <style>
         {`
           .ls-1 { letter-spacing: 1.5px; }
-          .bg-orange-soft { background-color: rgba(242, 140, 15, 0.1); }
+          .loading-spinner-bg { background-color: rgba(242, 140, 15, 0.1); }
+          .loading-text { color: var(--neutral-800); }
+          .loading-subtext { color: var(--neutral-500); }
+
+          [data-coreui-theme="dark"] .loading-spinner-bg { background-color: rgba(255,255,255,0.05); }
+          [data-coreui-theme="dark"] .loading-text { color: white; }
+          [data-coreui-theme="dark"] .loading-subtext { color: rgba(255,255,255,0.4); }
+
           @media print {
             .no-print { display: none !important; }
             body { background: white !important; }

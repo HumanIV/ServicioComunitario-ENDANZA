@@ -38,8 +38,8 @@ const AppHeaderDropdown = () => {
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0 pe-0 d-flex align-items-center gap-2 border-0" caret={false}>
         <div className="d-none d-md-block text-end me-2">
-          <div className="fw-bold text-dark small leading-tight mb-0">{userData.name}</div>
-          <div className="text-muted" style={{ fontSize: '0.65rem' }}>{userData.role}</div>
+          <div className="fw-bold header-user-name small leading-tight mb-0">{userData.name}</div>
+          <div className="header-user-role" style={{ fontSize: '0.65rem' }}>{userData.role}</div>
         </div>
         <div className="avatar-wrapper position-relative">
           <CAvatar src={avatar8} size="md" className="border border-2 border-white shadow-sm" />
@@ -47,13 +47,13 @@ const AppHeaderDropdown = () => {
         </div>
       </CDropdownToggle>
 
-      <CDropdownMenu className="pt-0 shadow-lg border-0 rounded-4 mt-2 overflow-hidden animate-fade-in" placement="bottom-end" style={{ minWidth: '220px' }}>
-        <CDropdownHeader className="bg-light border-bottom p-3 mb-2">
+      <CDropdownMenu className="pt-0 shadow-lg border-0 rounded-4 mt-2 overflow-hidden animate-fade-in premium-dropdown-menu" placement="bottom-end" style={{ minWidth: '220px' }}>
+        <CDropdownHeader className="dropdown-header-premium border-bottom p-3 mb-2">
           <div className="d-flex align-items-center">
             <CAvatar src={avatar8} size="md" className="me-3" />
             <div>
-              <div className="fw-bold text-dark">{userData.name}</div>
-              <div className="text-muted small" style={{ fontSize: '0.7rem' }}>{userData.email}</div>
+              <div className="fw-bold dropdown-user-name">{userData.name}</div>
+              <div className="dropdown-user-email small" style={{ fontSize: '0.7rem' }}>{userData.email}</div>
             </div>
           </div>
         </CDropdownHeader>
@@ -88,6 +88,19 @@ const AppHeaderDropdown = () => {
       </CDropdownMenu>
 
       <style>{`
+        .header-user-name { color: var(--neutral-800); }
+        .header-user-role { color: var(--neutral-500); }
+        .dropdown-user-name { color: var(--neutral-800); }
+        .dropdown-user-email { color: var(--neutral-500); }
+        .dropdown-header-premium { background-color: var(--neutral-100); }
+
+        [data-coreui-theme="dark"] .header-user-name { color: white; }
+        [data-coreui-theme="dark"] .header-user-role { color: rgba(255,255,255,0.5); }
+        [data-coreui-theme="dark"] .dropdown-user-name { color: white; }
+        [data-coreui-theme="dark"] .dropdown-user-email { color: rgba(255,255,255,0.5); }
+        [data-coreui-theme="dark"] .dropdown-header-premium { background-color: rgba(0,0,0,0.2) !important; }
+        [data-coreui-theme="dark"] .premium-dropdown-menu { background-color: #1e293b !important; border: 1px solid rgba(255,255,255,0.05) !important; }
+
         .avatar-wrapper {
           cursor: pointer;
           transition: transform 0.2s ease;

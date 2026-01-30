@@ -26,12 +26,11 @@ import {
     updateSection,
     deleteSection,
     getAvailableYears,
-    addAcademicYear,
     GRADE_LEVELS
 } from 'src/services/schedules'
 
 // Componentes comunes
-import ConfirmationModal from 'src/components/ConfirmationModal'
+import SystemMessageModal from 'src/components/SystemMessageModal'
 import Pagination from 'src/components/Pagination'
 
 // Componentes extraídos
@@ -127,74 +126,26 @@ const Horarios = () => {
         setDeleteModal({ visible: false, sectionId: null, sectionName: '' })
     }
 
-    // Validación de Septiembre para nuevos años
-    const checkCanCreateYear = () => {
-        const now = new Date()
-        const currentMonth = now.getMonth() // 0-11
-        const currentCalendarYear = now.getFullYear()
 
-        if (currentMonth !== 8) { // 8 es Septiembre
-            return {
-                allowed: false,
-                reason: 'Apertura de ciclos solo en Septiembre.'
-            }
-        }
-
-        const lastCreated = localStorage.getItem('last_academic_year_creation_calendar_year')
-        if (lastCreated === currentCalendarYear.toString()) {
-            return {
-                allowed: false,
-                reason: 'El ciclo para este periodo ya fue aperturado.'
-            }
-        }
-        return { allowed: true }
-    }
-
-    const handleCreateNextYear = async () => {
-        const validation = checkCanCreateYear()
-        if (!validation.allowed) {
-            alert(validation.reason)
-            return
-        }
-
-        const [start, end] = currentAcademicYear.split('-').map(Number);
-        const nextYear = `${start + 1}-${end + 1}`;
-
-        if (window.confirm(`¿Desea aperturar el nuevo Ciclo Académico ${nextYear}?`)) {
-            try {
-                await addAcademicYear(nextYear)
-                localStorage.setItem('last_academic_year_creation_calendar_year', new Date().getFullYear().toString())
-                const years = await getAvailableYears()
-                setAvailableYears(years);
-                setCurrentAcademicYear(nextYear)
-            } catch (e) { alert('Error: ' + e.message) }
-        }
-    }
-
-    const handleYearChange = (e) => {
-        const val = e.target.value;
-        if (val === 'new_year_action') handleCreateNextYear();
-        else setCurrentAcademicYear(val);
-    }
 
     return (
         <CContainer fluid>
             <CRow>
                 <CCol>
-                    <CCard className="shadow-sm border-0 mb-4 overflow-hidden" style={{ borderRadius: '16px' }}>
+                    <CCard className="shadow-sm border-0 mb-4 overflow-hidden premium-card" style={{ borderRadius: '16px' }}>
                         <div className="bg-primary" style={{ height: '6px' }}></div>
-                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-white">
+                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-light-custom">
                             <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                                 <div>
-                                    <h4 className="mb-1 fw-bold text-dark d-flex align-items-center">
+                                    <h4 className="mb-1 fw-bold header-title-custom d-flex align-items-center">
                                         <CIcon icon={cilCalendar} className="me-2 text-primary" />
                                         Gestión de Horarios
                                     </h4>
-                                    <p className="text-muted mb-0 small fw-medium">Administración de Secciones y Cargas Horarias</p>
+                                    <p className="text-muted-custom mb-0 small fw-medium">Administración de Secciones y Cargas Horarias</p>
                                 </div>
 
-                                <div className="d-flex align-items-center gap-2 bg-light p-1 px-3 rounded-pill border hover-shadow-sm transition-all" style={{ cursor: 'pointer' }}>
-                                    <CIcon icon={cilSchool} className="text-secondary" />
+                                <div className="d-flex align-items-center gap-2 bg-light-custom p-1 px-3 rounded-pill border hover-shadow-sm transition-all shadow-sm" style={{ cursor: 'pointer' }}>
+                                    <CIcon icon={cilSchool} className="text-secondary opacity-75" />
                                     <CDropdown variant="nav-item">
                                         <CDropdownToggle
                                             caret={false}
@@ -204,7 +155,7 @@ const Horarios = () => {
                                             <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
                                         </CDropdownToggle>
                                         <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll" style={{ minWidth: '180px' }}>
-                                            <div className="px-3 py-2 text-muted small fw-bold text-uppercase ls-1">Seleccionar Periodo</div>
+                                            <div className="px-3 py-2 text-muted-custom small fw-bold text-uppercase ls-1">Seleccionar Periodo</div>
                                             {availableYears.map(year => (
                                                 <CDropdownItem
                                                     key={year}
@@ -215,13 +166,7 @@ const Horarios = () => {
                                                     Ciclo {year}
                                                 </CDropdownItem>
                                             ))}
-                                            <CDropdownDivider className="mx-2" />
-                                            <CDropdownItem
-                                                onClick={handleCreateNextYear}
-                                                className="py-2 px-3 fw-bold text-success dropdown-item-premium"
-                                            >
-                                                + Nuevo Año Escolar
-                                            </CDropdownItem>
+
                                         </CDropdownMenu>
                                     </CDropdown>
                                 </div>
@@ -257,7 +202,7 @@ const Horarios = () => {
 
                                     {currentPageData.length > 0 ? (
                                         <>
-                                            <div className="mb-3 text-muted small fw-bold text-uppercase ls-1">
+                                            <div className="mb-3 text-muted-custom small fw-bold text-uppercase ls-1">
                                                 Mostrando horarios del Ciclo {currentAcademicYear}
                                             </div>
                                             <CRow className="g-4">
@@ -278,11 +223,11 @@ const Horarios = () => {
                                             )}
                                         </>
                                     ) : (
-                                        <div className="text-center py-5 border border-dashed rounded-4 bg-light text-muted mt-4">
+                                        <div className="text-center py-5 border border-dashed rounded-4 bg-light-custom bg-opacity-10 text-muted-custom mt-4">
                                             <CIcon icon={cilCalendar} size="4xl" className="mb-3 text-secondary opacity-25" />
-                                            <h5>No existen secciones para el ciclo {currentAcademicYear}</h5>
+                                            <h5 className="header-title-custom">No existen secciones para el ciclo {currentAcademicYear}</h5>
                                             <p className="mb-4">Comienza creando una nueva sección para este período escolar.</p>
-                                            <CButton color="primary" variant="outline" onClick={() => { setEditing(null); setShowForm(true) }}>
+                                            <CButton className="btn-premium" variant="outline" onClick={() => { setEditing(null); setShowForm(true) }}>
                                                 <CIcon icon={cilPlus} className="me-2" />
                                                 Crear Primera Sección
                                             </CButton>
@@ -307,14 +252,15 @@ const Horarios = () => {
                 onClose={() => { setShowInfo(false); setSelectedSection(null) }}
                 section={selectedSection}
             />
-            <ConfirmationModal
+            <SystemMessageModal
                 visible={deleteModal.visible}
                 onClose={() => setDeleteModal({ visible: false, sectionId: null, sectionName: '' })}
                 onConfirm={confirmDelete}
+                variant="confirm"
+                type="error"
                 title="Eliminar Sección"
                 message={`¿Estás seguro de eliminar "${deleteModal.sectionName}"? Esta acción no se puede deshacer.`}
                 confirmText="Sí, Eliminar"
-                type="danger"
             />
             <style>{`
                 .btn-premium {

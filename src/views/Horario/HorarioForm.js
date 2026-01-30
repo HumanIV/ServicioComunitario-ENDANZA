@@ -261,53 +261,53 @@ const HorarioForm = ({ visible, onClose, onSave, initial = null, academicYear })
 
     return (
         <>
-            <CModal size="xl" visible={visible} onClose={onClose} backdrop="static">
-                <CModalHeader className="bg-primary text-white border-0">
-                    <CModalTitle className="fw-bold d-flex align-items-center">
+            <CModal size="xl" visible={visible} onClose={onClose} backdrop="static" className="premium-modal">
+                <CModalHeader className="bg-primary text-white border-0 py-3">
+                    <CModalTitle className="fw-bold d-flex align-items-center ls-1 small">
                         <CIcon icon={cilSchool} className="me-2" />
                         {initial ? 'EDITAR SECCIÓN' : 'NUEVA SECCIÓN ACADÉMICA'}
                     </CModalTitle>
                 </CModalHeader>
                 <CForm onSubmit={handleSubmit}>
-                    <CModalBody className="p-4 bg-light bg-opacity-10" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
+                    <CModalBody className="p-4 bg-light-custom bg-opacity-10" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
 
                         {/* SECCIÓN 1: DATOS GENERALES */}
-                        <CCard className="border-0 shadow-sm mb-4">
+                        <CCard className="border-0 shadow-lg mb-4 premium-card">
                             <CCardBody className="p-4">
-                                <h6 className="mb-3 text-primary fw-bold text-uppercase small ls-1 border-bottom pb-2">
+                                <h6 className="mb-4 text-primary fw-bold text-uppercase small ls-1 border-bottom border-light-custom border-opacity-10 pb-3">
                                     Datos Generales
                                 </h6>
                                 <CRow className="g-4">
                                     <CCol md={5}>
                                         <CFormInput
-                                            label="Nombre de la Sección"
+                                            label={<span className="text-muted-custom small fw-bold text-uppercase ls-1">Nombre de la Sección</span>}
                                             placeholder="Ej: 1er Grado A"
                                             value={sectionName}
                                             onChange={(e) => setSectionName(e.target.value)}
                                             required
-                                            className="bg-light border-0 fw-semibold"
+                                            className="bg-light-custom border-light-custom header-title-custom fw-bold shadow-sm py-2"
                                         />
                                     </CCol>
                                     <CCol md={4}>
                                         <CFormSelect
-                                            label="Nivel Académico"
+                                            label={<span className="text-muted-custom small fw-bold text-uppercase ls-1">Nivel Académico</span>}
                                             value={gradeLevel}
                                             onChange={(e) => setGradeLevel(e.target.value)}
                                             required
-                                            className="bg-light border-0 fw-semibold"
+                                            className="bg-light-custom border-light-custom header-title-custom fw-bold shadow-sm py-2"
                                         >
                                             {GRADE_LEVELS.map(grade => (
-                                                <option key={grade.value} value={grade.value}>{grade.label}</option>
+                                                <option key={grade.value} value={grade.value} className="bg-dark">{grade.label}</option>
                                             ))}
                                         </CFormSelect>
                                     </CCol>
                                     <CCol md={3}>
                                         <CFormInput
-                                            label="Letra (Opcional)"
+                                            label={<span className="text-muted-custom small fw-bold text-uppercase ls-1">Letra (Opcional)</span>}
                                             placeholder="A"
                                             value={section}
                                             onChange={(e) => setSection(e.target.value)}
-                                            className="bg-light border-0 text-center fw-bold"
+                                            className="bg-light-custom border-light-custom header-title-custom text-center fw-bold shadow-sm py-2"
                                         />
                                     </CCol>
                                 </CRow>
@@ -315,74 +315,72 @@ const HorarioForm = ({ visible, onClose, onSave, initial = null, academicYear })
                         </CCard>
 
                         {/* SECCIÓN 2: GESTOR DE HORARIOS */}
-                        <CCard className="border-0 shadow-sm mb-4 overflow-hidden">
-                            <div className="bg-orange-soft px-4 py-2 border-bottom border-warning border-opacity-10">
+                        <CCard className="border-0 shadow-lg mb-4 overflow-hidden premium-card">
+                            <div className="bg-orange-soft px-4 py-3 border-bottom border-warning border-opacity-10">
                                 <h6 className="mb-0 text-primary fw-bold text-uppercase small ls-1 d-flex align-items-center">
                                     <CIcon icon={cilClock} className="me-2" />
                                     Gestor de Clases
                                 </h6>
                             </div>
-                            <CCardBody className="p-4 bg-white">
-                                <div className="p-3 bg-light rounded-3 mb-4 border border-light-subtle">
+                            <CCardBody className="p-4 bg-light-custom bg-opacity-10">
+                                <div className="p-4 bg-light-custom bg-opacity-25 rounded-4 mb-4 border border-light-custom shadow-sm">
                                     <CRow className="g-3 align-items-end">
                                         <CCol md={3}>
                                             <CFormSelect
-                                                label="Asignatura"
+                                                label={<span className="text-muted-custom small fw-bold text-uppercase" style={{ fontSize: '10px' }}>Asignatura</span>}
                                                 value={newSchedule.subject}
                                                 onChange={(e) => setNewSchedule({ ...newSchedule, subject: e.target.value })}
-                                                className="fw-semibold"
+                                                className="bg-light-custom border-light-custom header-title-custom fw-bold py-2"
                                             >
-                                                {SUBJECTS.map(subject => <option key={subject.value} value={subject.value}>{subject.label}</option>)}
+                                                {SUBJECTS.map(subject => <option key={subject.value} value={subject.value} className="bg-dark">{subject.label}</option>)}
                                             </CFormSelect>
                                         </CCol>
                                         <CCol md={3}>
                                             <CFormSelect
-                                                label="Día"
+                                                label={<span className="text-muted-custom small fw-bold text-uppercase" style={{ fontSize: '10px' }}>Día</span>}
                                                 value={newSchedule.dayOfWeek}
                                                 onChange={(e) => setNewSchedule({ ...newSchedule, dayOfWeek: e.target.value })}
-                                                className="fw-semibold"
+                                                className="bg-light-custom border-light-custom header-title-custom fw-bold py-2"
                                             >
-                                                {DAYS_OF_WEEK.map(day => <option key={day.value} value={day.value}>{day.label}</option>)}
+                                                {DAYS_OF_WEEK.map(day => <option key={day.value} value={day.value} className="bg-dark">{day.label}</option>)}
                                             </CFormSelect>
                                         </CCol>
                                         <CCol md={2}>
                                             <CFormInput
-                                                label="Inicio"
+                                                label={<span className="text-muted-custom small fw-bold text-uppercase" style={{ fontSize: '10px' }}>Inicio</span>}
                                                 type="time"
                                                 value={newSchedule.startTime}
                                                 onChange={(e) => setNewSchedule({ ...newSchedule, startTime: e.target.value })}
+                                                className="bg-light-custom border-light-custom header-title-custom fw-bold py-2"
                                             />
                                         </CCol>
                                         <CCol md={2}>
                                             <CFormInput
-                                                label="Fin"
+                                                label={<span className="text-muted-custom small fw-bold text-uppercase" style={{ fontSize: '10px' }}>Fin</span>}
                                                 type="time"
                                                 value={newSchedule.endTime}
                                                 onChange={(e) => setNewSchedule({ ...newSchedule, endTime: e.target.value })}
+                                                className="bg-light-custom border-light-custom header-title-custom fw-bold py-2"
                                             />
                                         </CCol>
                                         <CCol md={2}>
                                             <CButton
                                                 onClick={handleAddSchedule}
-                                                className="w-100 fw-bold btn-agregar-custom"
-                                                style={{
-                                                    background: 'linear-gradient(135deg, #F28C0F 0%, #E07B00 100%)',
-                                                    border: 'none',
-                                                    color: 'white'
-                                                }}
+                                                className="w-100 fw-bold py-2 btn-premium shadow-sm mt-3"
                                             >
-                                                <CIcon icon={cilPlus} /> AGREGAR
+                                                <CIcon icon={cilPlus} className="me-2" /> AGREGAR
                                             </CButton>
                                         </CCol>
 
-                                        <CCol md={12} className="mt-3">
+                                        <CCol md={12} className="mt-3 pt-3 border-top border-light-custom border-opacity-10">
                                             <CRow className="g-3">
                                                 <CCol md={6}>
                                                     <CFormInput
                                                         placeholder="Nombre del Profesor"
                                                         value={newSchedule.teacherName}
                                                         onChange={(e) => setNewSchedule({ ...newSchedule, teacherName: e.target.value })}
-                                                        prefix={<CIcon icon={cilUser} />}
+                                                        autoComplete="off"
+                                                        className="bg-light-custom border-light-custom header-title-custom fw-medium py-2 shadow-sm"
                                                     />
                                                 </CCol>
                                                 <CCol md={3}>
@@ -390,14 +388,16 @@ const HorarioForm = ({ visible, onClose, onSave, initial = null, academicYear })
                                                         placeholder="ID (Opcional)"
                                                         value={newSchedule.teacherId}
                                                         onChange={(e) => setNewSchedule({ ...newSchedule, teacherId: e.target.value })}
+                                                        className="bg-light-custom border-light-custom header-title-custom fw-medium py-2 shadow-sm"
                                                     />
                                                 </CCol>
                                                 <CCol md={3}>
                                                     <CFormSelect
                                                         value={newSchedule.classroom}
                                                         onChange={(e) => setNewSchedule({ ...newSchedule, classroom: e.target.value })}
+                                                        className="bg-light-custom border-light-custom header-title-custom fw-bold py-2 shadow-sm"
                                                     >
-                                                        {CLASSROOMS.map(room => <option key={room.value} value={room.value}>{room.label}</option>)}
+                                                        {CLASSROOMS.map(room => <option key={room.value} value={room.value} className="bg-dark">{room.label}</option>)}
                                                     </CFormSelect>
                                                 </CCol>
                                             </CRow>
@@ -406,34 +406,36 @@ const HorarioForm = ({ visible, onClose, onSave, initial = null, academicYear })
                                 </div>
 
                                 {schedules.length > 0 ? (
-                                    <div className="table-responsive rounded-3 border">
-                                        <CTable hover align="middle" className="mb-0">
-                                            <CTableHead className="bg-light">
+                                    <div className="table-responsive rounded-4 border border-light-custom overflow-hidden shadow-sm">
+                                        <CTable hover align="middle" className="mb-0 bg-transparent">
+                                            <CTableHead className="bg-light-custom bg-opacity-25 border-bottom border-light-custom border-opacity-10">
                                                 <CTableRow>
-                                                    <CTableHeaderCell className="text-secondary small text-uppercase">Día</CTableHeaderCell>
-                                                    <CTableHeaderCell className="text-secondary small text-uppercase text-center">Horario</CTableHeaderCell>
-                                                    <CTableHeaderCell className="text-secondary small text-uppercase">Materia</CTableHeaderCell>
-                                                    <CTableHeaderCell className="text-secondary small text-uppercase">Profesor</CTableHeaderCell>
-                                                    <CTableHeaderCell className="text-secondary small text-uppercase">Aula</CTableHeaderCell>
-                                                    <CTableHeaderCell className="text-end"></CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-muted-custom small text-uppercase fw-bold ps-4">Día</CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-muted-custom small text-uppercase fw-bold text-center">Horario</CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-muted-custom small text-uppercase fw-bold">Materia</CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-muted-custom small text-uppercase fw-bold">Profesor</CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-muted-custom small text-uppercase fw-bold">Aula</CTableHeaderCell>
+                                                    <CTableHeaderCell className="text-end pe-4"></CTableHeaderCell>
                                                 </CTableRow>
                                             </CTableHead>
                                             <CTableBody>
                                                 {schedules.map(schedule => (
-                                                    <CTableRow key={schedule.id}>
-                                                        <CTableDataCell className="fw-bold text-primary">{schedule.dayOfWeek}</CTableDataCell>
-                                                        <CTableDataCell className="text-center font-monospace small bg-light">
-                                                            {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+                                                    <CTableRow key={schedule.id} className="border-0">
+                                                        <CTableDataCell className="fw-bold text-primary ps-4 border-0">{schedule.dayOfWeek}</CTableDataCell>
+                                                        <CTableDataCell className="text-center font-monospace border-0">
+                                                            <div className="bg-light-custom bg-opacity-25 rounded-3 px-2 py-1 header-title-custom d-inline-block small shadow-sm border border-light-custom border-opacity-10">
+                                                                {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+                                                            </div>
                                                         </CTableDataCell>
-                                                        <CTableDataCell className="fw-semibold">{schedule.subject}</CTableDataCell>
-                                                        <CTableDataCell className="small text-muted">{schedule.teacherName}</CTableDataCell>
-                                                        <CTableDataCell>
-                                                            <CBadge color="info" shape="rounded-pill" className="fw-normal bg-opacity-25 text-info border border-info border-opacity-25">
+                                                        <CTableDataCell className="fw-bold header-title-custom border-0">{schedule.subject}</CTableDataCell>
+                                                        <CTableDataCell className="small text-muted-custom fw-medium border-0">{schedule.teacherName}</CTableDataCell>
+                                                        <CTableDataCell className="border-0">
+                                                            <CBadge color="primary" className="fw-bold bg-opacity-10 text-primary border border-primary border-opacity-10 px-3 py-2 text-uppercase" style={{ fontSize: '0.65rem' }}>
                                                                 {schedule.classroom}
                                                             </CBadge>
                                                         </CTableDataCell>
-                                                        <CTableDataCell className="text-end">
-                                                            <CButton size="sm" color="white" className="text-danger hover-bg-danger-light" onClick={() => handleRemoveSchedule(schedule.id)}>
+                                                        <CTableDataCell className="text-end pe-4 border-0">
+                                                            <CButton size="sm" color="transparent" className="text-danger hover-lift shadow-sm bg-light-custom bg-opacity-10 border-light-custom" onClick={() => handleRemoveSchedule(schedule.id)}>
                                                                 <CIcon icon={cilTrash} />
                                                             </CButton>
                                                         </CTableDataCell>
@@ -443,44 +445,40 @@ const HorarioForm = ({ visible, onClose, onSave, initial = null, academicYear })
                                         </CTable>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-5 bg-light rounded-3 border border-dashed text-muted">
+                                    <div className="text-center py-5 bg-light-custom bg-opacity-10 rounded-4 border border-dashed text-muted-custom shadow-sm border-light-custom">
                                         <CIcon icon={cilCalendar} size="3xl" className="mb-3 opacity-25" />
-                                        <p className="mb-0">No hay horarios asignados aún.</p>
+                                        <p className="mb-0 fw-medium">No hay horarios asignados aún.</p>
                                     </div>
                                 )}
                             </CCardBody>
                         </CCard>
 
-                        <div className="d-flex justify-content-end text-muted small">
-                            <span className="me-3">Total Clases: <strong>{schedules.length}</strong></span>
-                            <span>Carga Horaria: <strong>{calculateTotalHours()} hrs/semana</strong></span>
+                        <div className="d-flex justify-content-end text-muted-custom fw-bold small ls-1 text-uppercase">
+                            <span className="me-4 d-flex align-items-center"><div className="bg-primary rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div> Total Clases: <strong className="ms-1 header-title-custom">{schedules.length}</strong></span>
+                            <span className="d-flex align-items-center"><div className="bg-success rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div> Carga Horaria: <strong className="ms-1 header-title-custom">{calculateTotalHours()} hrs/sem</strong></span>
                         </div>
                     </CModalBody>
-                    <CModalFooter className="bg-white border-top">
+                    <CModalFooter className="bg-light-custom bg-opacity-10 border-top border-light-custom border-opacity-10">
                         <CButton
                             onClick={onClose}
-                            className="fw-bold px-4 btn-cancelar-custom"
-                            style={{
-                                backgroundColor: 'transparent',
-                                border: '2px solid #6c757d',
-                                color: '#6c757d'
-                            }}
+                            className="fw-bold px-4 py-2 border-0 bg-transparent text-muted-custom hover-lift"
                         >
                             CANCELAR
                         </CButton>
                         <CButton
                             type="submit"
-                            className="px-4 fw-bold btn-guardar-custom"
+                            className={`px-4 py-2 fw-bold shadow-lg transition-all ${schedules.length === 0 ? 'opacity-50 grayscale' : 'hover-lift'}`}
                             disabled={schedules.length === 0}
                             style={{
                                 background: schedules.length === 0
-                                    ? 'linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%)'
+                                    ? '#4b5563'
                                     : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                                 border: 'none',
                                 color: 'white',
-                                opacity: schedules.length === 0 ? 0.6 : 1
+                                borderRadius: '12px'
                             }}
                         >
+                            <CIcon icon={cilPlus} className="me-2" />
                             {initial ? 'GUARDAR CAMBIOS' : 'CREAR SECCIÓN'}
                         </CButton>
                     </CModalFooter>
@@ -492,57 +490,38 @@ const HorarioForm = ({ visible, onClose, onSave, initial = null, academicYear })
                 visible={errorModal.visible}
                 onClose={() => setErrorModal({ ...errorModal, visible: false })}
                 alignment="center"
+                className="premium-modal"
             >
-                <div className="border-top border-4 border-danger rounded-top">
-                    <CModalHeader className="border-0 pb-0">
-                        <CModalTitle className="text-danger fw-bold d-flex align-items-center">
+                <div className="border-top border-4 border-danger rounded-top premium-card">
+                    <CModalHeader className="border-0 pb-0 bg-transparent">
+                        <CModalTitle className="text-danger fw-bold d-flex align-items-center ls-1 small">
                             <CIcon icon={cilWarning} className="me-2" />
-                            Conflicto de Horario
+                            CONFLICTO DE HORARIO
                         </CModalTitle>
                     </CModalHeader>
-                    <CModalBody className="p-4 pt-2">
-                        <div className="fs-6 text-secondary mt-3">
+                    <CModalBody className="p-4 bg-transparent">
+                        <div className="header-title-custom">
                             {errorModal.message}
                         </div>
                     </CModalBody>
-                    <CModalFooter className="border-0 pt-0">
-                        <CButton color="light" className="text-dark fw-bold" onClick={() => setErrorModal({ ...errorModal, visible: false })}>
-                            Entendido
+                    <CModalFooter className="border-0 pt-0 bg-transparent">
+                        <CButton className="btn-premium px-4" onClick={() => setErrorModal({ ...errorModal, visible: false })}>
+                            ENTENDIDO
                         </CButton>
                     </CModalFooter>
                 </div>
             </CModal>
 
             <style>{`
-                .hover-bg-danger-light:hover { background-color: #fee2e2 !important; }
-                .bg-orange-soft { background-color: rgba(242, 140, 15, 0.1); }
+                .bg-orange-soft { background-color: rgba(242, 140, 15, 0.12); }
                 .ls-1 { letter-spacing: 1px; }
-                
-                /* Estilos personalizados para botones del formulario */
-                .btn-cancelar-custom:hover {
-                    background-color: #6c757d !important;
-                    border-color: #6c757d !important;
-                    color: white !important;
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                }
-                
-                .btn-guardar-custom:hover:not(:disabled) {
+                .transition-all { transition: all 0.3s ease; }
+                .grayscale { filter: grayscale(1); }
+                .hover-lift:hover { 
                     transform: translateY(-2px);
-                    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4) !important;
-                    filter: brightness(1.1);
+                    box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
                 }
-                
-                .btn-guardar-custom:disabled {
-                    cursor: not-allowed;
-                }
-                
-                /* Estilos para botón agregar */
-                .btn-agregar-custom:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 8px 16px rgba(242, 140, 15, 0.4) !important;
-                    filter: brightness(1.1);
-                }
+                .last-border-0:last-child { border-bottom: 0 !important; }
             `}</style>
         </>
     )

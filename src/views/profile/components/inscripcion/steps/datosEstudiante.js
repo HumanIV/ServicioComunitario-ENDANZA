@@ -8,7 +8,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
 
   return (
     <div className="animate__animated animate__fadeIn">
-      <div className="p-4 rounded-4 bg-light border border-light mb-4">
+      <div className="p-4 rounded-4 step-section-bg step-section-border mb-4 text-start">
         <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
           <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
             <CIcon icon={cilUser} size="sm" />
@@ -22,7 +22,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Nombres <span className="text-danger">*</span>
                 </span>
               }
@@ -39,7 +39,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Apellidos <span className="text-danger">*</span>
                 </span>
               }
@@ -60,7 +60,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
             <CFormInput
               type="date"
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Fecha de nacimiento
                 </span>
               }
@@ -76,7 +76,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
             <CCol md={4}>
               <CFormInput
                 label={
-                  <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                  <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                     Edad Actual
                   </span>
                 }
@@ -95,7 +95,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
           <CCol md={esModoBasico ? 6 : 4}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Teléfono celular <span className="text-danger">{esModoBasico ? '*' : ''}</span>
                 </span>
               }
@@ -118,7 +118,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               <CCol md={8}>
                 <CFormInput
                   label={
-                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                       Dirección de Habitación
                     </span>
                   }
@@ -132,7 +132,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               <CCol md={4}>
                 <CFormSelect
                   label={
-                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                       Grado Académico <span className="text-danger">*</span>
                     </span>
                   }
@@ -160,7 +160,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               <CCol md={6}>
                 <CFormInput
                   label={
-                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                       Especialidad de Interés
                     </span>
                   }
@@ -174,7 +174,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               <CCol md={6}>
                 <CFormInput
                   label={
-                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                       Régimen de Convivencia
                     </span>
                   }
@@ -187,7 +187,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               </CCol>
             </CRow>
 
-            <div className="p-4 rounded-4 bg-light border border-light mb-4 mt-5">
+            <div className="p-4 rounded-4 step-section-bg step-section-border mb-4 mt-5 text-start">
               <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
                 <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
                   <CIcon icon={cilHome} size="sm" />
@@ -200,7 +200,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               <CCol md={6}>
                 <CFormInput
                   label={
-                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                       Escuela / Institución Actual
                     </span>
                   }
@@ -214,7 +214,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               <CCol md={3}>
                 <CFormInput
                   label={
-                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                       Grado Escolar
                     </span>
                   }
@@ -228,7 +228,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
               <CCol md={3}>
                 <CFormSelect
                   label={
-                    <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                    <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                       Posee Seguro Escolar
                     </span>
                   }
@@ -249,7 +249,7 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
                 <CCol md={12}>
                   <CFormInput
                     label={
-                      <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                      <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                         Nombre de la Aseguradora
                       </span>
                     }
@@ -296,6 +296,16 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
       </CForm>
       <style>{`
         .ls-1 { letter-spacing: 1px; }
+        .step-section-bg { background-color: var(--neutral-50); }
+        .step-label { color: var(--neutral-600); }
+
+        [data-coreui-theme="dark"] .step-section-bg { background-color: rgba(255,255,255,0.02); }
+        [data-coreui-theme="dark"] .step-label { color: rgba(255,255,255,0.7); }
+        .step-section-border { border: 1px solid var(--neutral-200) !important; }
+        [data-coreui-theme="dark"] .step-section-border { border: 1px solid rgba(255,255,255,0.05) !important; }
+        
+        /* Forzar alineación de inputs mediante altura mínima de etiquetas */
+        span.step-label { min-height: 2.2rem; display: block; }
       `}</style>
     </div>
   );

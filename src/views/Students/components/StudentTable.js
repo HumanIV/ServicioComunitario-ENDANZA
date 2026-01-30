@@ -1,7 +1,5 @@
 import React from 'react'
 import {
-    CCard,
-    CCardBody,
     CTable,
     CTableHead,
     CTableRow,
@@ -44,22 +42,25 @@ const StudentTable = ({
     const SortIcon = ({ columnKey }) => {
         if (sortConfig.key !== columnKey) return null
         return (
-            <span className="ms-1">{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
+            <span className="ms-1 text-primary">{sortConfig.direction === 'ascending' ? '↑' : '↓'}</span>
         )
     }
 
     const StatusBadge = ({ status }) => {
-        const color = status === 'Activo' ? 'success' : 'secondary'
+        const isActivo = status === 'Activo'
         return (
-            <CBadge color={color} className="px-3 py-2 rounded-pill shadow-sm bg-opacity-10 text-success border border-success border-opacity-10">
-                {status.toUpperCase()}
+            <CBadge className={`px-3 py-2 rounded-pill shadow-sm border ${isActivo
+                ? 'bg-success bg-opacity-10 text-success border-success border-opacity-10'
+                : 'bg-secondary bg-opacity-10 text-secondary border-secondary border-opacity-10'
+                }`}>
+                {status?.toUpperCase()}
             </CBadge>
         )
     }
 
     return (
-        <CCard className="premium-card border-0 overflow-hidden shadow-sm">
-            <CCardBody className="p-0">
+        <div className="student-table-subcontainer">
+            <div className="table-responsive">
                 {loading ? (
                     <div className="text-center py-5">
                         <CSpinner color="primary" variant="grow" />
@@ -67,132 +68,131 @@ const StudentTable = ({
                     </div>
                 ) : (
                     <>
-                        <div className="table-responsive">
-                            <CTable align="middle" className="mb-0 custom-table">
-                                <CTableHead className="bg-light bg-opacity-50">
-                                    <CTableRow>
-                                        <CTableHeaderCell className="ps-4" width="50">
-                                            <CFormCheck
-                                                className="custom-check"
-                                                checked={paginatedStudents.length > 0 && selectedStudents.length === paginatedStudents.length}
-                                                onChange={handleSelectAll}
-                                            />
-                                        </CTableHeaderCell>
-                                        <CTableHeaderCell
-                                            onClick={() => handleSort('id')}
-                                            className="py-3 text-muted small fw-bold text-uppercase ls-1 cursor-pointer"
-                                        >
-                                            ID <SortIcon columnKey="id" />
-                                        </CTableHeaderCell>
-                                        <CTableHeaderCell
-                                            onClick={() => handleSort('NombreEstudiante')}
-                                            className="py-3 text-muted small fw-bold text-uppercase ls-1 cursor-pointer"
-                                        >
-                                            Estudiante <SortIcon columnKey="NombreEstudiante" />
-                                        </CTableHeaderCell>
-                                        <CTableHeaderCell className="py-3 text-muted small fw-bold text-uppercase ls-1">Grado / Sección</CTableHeaderCell>
-                                        <CTableHeaderCell className="py-3 text-muted small fw-bold text-uppercase ls-1">Representante</CTableHeaderCell>
-                                        <CTableHeaderCell className="py-3 text-muted small fw-bold text-uppercase ls-1">Cédula</CTableHeaderCell>
-                                        <CTableHeaderCell className="py-3 text-muted small fw-bold text-uppercase ls-1">Estatus</CTableHeaderCell>
-                                        <CTableHeaderCell className="py-3 text-muted small fw-bold text-uppercase ls-1 text-end pe-4">Acciones</CTableHeaderCell>
-                                    </CTableRow>
-                                </CTableHead>
+                        <CTable align="middle" className="mb-0 custom-premium-table border-0" hover responsive>
+                            <CTableHead className="table-header-custom border-bottom">
+                                <CTableRow>
+                                    <CTableHeaderCell className="ps-4 py-3" width="50">
+                                        <CFormCheck
+                                            className="custom-check"
+                                            checked={paginatedStudents.length > 0 && selectedStudents.length === paginatedStudents.length}
+                                            onChange={handleSelectAll}
+                                        />
+                                    </CTableHeaderCell>
+                                    <CTableHeaderCell
+                                        onClick={() => handleSort('id')}
+                                        className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 cursor-pointer"
+                                    >
+                                        ID <SortIcon columnKey="id" />
+                                    </CTableHeaderCell>
+                                    <CTableHeaderCell
+                                        onClick={() => handleSort('NombreEstudiante')}
+                                        className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 cursor-pointer"
+                                    >
+                                        Estudiante <SortIcon columnKey="NombreEstudiante" />
+                                    </CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Grado / Sección</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Representante</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Cédula</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Estatus</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 text-end pe-4">Acciones</CTableHeaderCell>
+                                </CTableRow>
+                            </CTableHead>
 
-                                <CTableBody>
-                                    {paginatedStudents.length === 0 ? (
-                                        <CTableRow>
-                                            <CTableDataCell colSpan={8} className="text-center py-5">
-                                                <div className="py-4">
-                                                    <CIcon icon={cilSearch} size="3xl" className="text-muted opacity-25 mb-3" />
-                                                    <h5 className="text-muted fw-bold">No se encontraron resultados</h5>
-                                                    <p className="text-muted small">Prueba ajustando los términos de búsqueda o filtros</p>
+                            <CTableBody className="border-0">
+                                {paginatedStudents.length === 0 ? (
+                                    <CTableRow>
+                                        <CTableDataCell colSpan={8} className="text-center py-5">
+                                            <div className="py-4">
+                                                <CIcon icon={cilSearch} size="3xl" className="text-muted opacity-25 mb-3" />
+                                                <h5 className="text-muted-custom fw-bold">No se encontraron resultados</h5>
+                                                <p className="text-muted-custom small">Prueba ajustando los términos de búsqueda o filtros</p>
+                                            </div>
+                                        </CTableDataCell>
+                                    </CTableRow>
+                                ) : (
+                                    paginatedStudents.map((item) => (
+                                        <CTableRow key={item.id} className="hover-row transition-all border-0">
+                                            <CTableDataCell className="ps-4 border-bottom-light">
+                                                <CFormCheck
+                                                    className="custom-check"
+                                                    checked={selectedStudents.includes(item.id)}
+                                                    onChange={() => handleSelectStudent(item.id)}
+                                                />
+                                            </CTableDataCell>
+                                            <CTableDataCell className="border-bottom-light">
+                                                <div className="fw-bold header-title-custom">#{item.id}</div>
+                                                <div className="text-muted-custom" style={{ fontSize: '0.65rem' }}>MATRÍCULA</div>
+                                            </CTableDataCell>
+                                            <CTableDataCell className="border-bottom-light">
+                                                <div className="d-flex align-items-center">
+                                                    <div className="avatar-circle me-3 bg-orange-soft text-primary fw-bold shadow-sm">
+                                                        {item.NombreEstudiante.charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <div className="fw-bold header-title-custom">{item.NombreEstudiante} {item.ApellidoEstudiante}</div>
+                                                        <div className="text-muted-custom small" style={{ fontSize: '0.75rem' }}>{item.Email}</div>
+                                                    </div>
                                                 </div>
                                             </CTableDataCell>
+                                            <CTableDataCell className="border-bottom-light">
+                                                <div className="fw-bold header-title-custom">{item.Grado}</div>
+                                                <CBadge className="bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 rounded-pill px-2 small">
+                                                    {item.Seccion}
+                                                </CBadge>
+                                            </CTableDataCell>
+                                            <CTableDataCell className="border-bottom-light">
+                                                <div className="header-title-custom fw-medium">{item.RepresentanteNombre} {item.RepresentanteApellido}</div>
+                                                <div className="text-muted-custom small">{item.Telefono}</div>
+                                            </CTableDataCell>
+                                            <CTableDataCell className="border-bottom-light">
+                                                <div className="header-title-custom fw-bold text-nowrap">
+                                                    <span className="text-primary me-1">{item.RepresentanteCedula.split('-')[0]}-</span>
+                                                    {item.RepresentanteCedula.split('-')[1]}
+                                                </div>
+                                            </CTableDataCell>
+                                            <CTableDataCell className="border-bottom-light">
+                                                <StatusBadge status={item.Estatus} />
+                                            </CTableDataCell>
+                                            <CTableDataCell className="text-end pe-4 border-bottom-light">
+                                                <CButtonGroup className="shadow-sm rounded-pill overflow-hidden border border-light table-action-group">
+                                                    <CButton
+                                                        color="light"
+                                                        size="sm"
+                                                        onClick={() => openModal("view", item)}
+                                                        className="px-3 border-0 transition-all hover-primary action-btn-custom bg-transparent"
+                                                        title="Ver perfil completo"
+                                                    >
+                                                        <CIcon icon={cilInfo} className="text-primary" />
+                                                    </CButton>
+                                                    <CButton
+                                                        color="light"
+                                                        size="sm"
+                                                        onClick={() => openModal("edit", item)}
+                                                        className="px-3 border-0 transition-all hover-warning action-btn-custom bg-transparent"
+                                                        title="Editar datos"
+                                                    >
+                                                        <CIcon icon={cilPencil} className="text-primary" />
+                                                    </CButton>
+                                                    <CButton
+                                                        color="light"
+                                                        size="sm"
+                                                        onClick={() => openModal("delete", item)}
+                                                        className="px-3 border-0 transition-all hover-danger action-btn-custom bg-transparent"
+                                                        title="Eliminar registro"
+                                                    >
+                                                        <CIcon icon={cilTrash} className="text-primary" />
+                                                    </CButton>
+                                                </CButtonGroup>
+                                            </CTableDataCell>
                                         </CTableRow>
-                                    ) : (
-                                        paginatedStudents.map((item) => (
-                                            <CTableRow key={item.id} className="hover-row transition-all">
-                                                <CTableDataCell className="ps-4">
-                                                    <CFormCheck
-                                                        className="custom-check"
-                                                        checked={selectedStudents.includes(item.id)}
-                                                        onChange={() => handleSelectStudent(item.id)}
-                                                    />
-                                                </CTableDataCell>
-                                                <CTableDataCell>
-                                                    <div className="fw-bold text-dark">#{item.id}</div>
-                                                    <div className="text-muted" style={{ fontSize: '0.7rem' }}>MATRÍCULA</div>
-                                                </CTableDataCell>
-                                                <CTableDataCell>
-                                                    <div className="d-flex align-items-center">
-                                                        <div className="avatar-circle me-3 bg-orange-soft text-primary fw-bold">
-                                                            {item.NombreEstudiante.charAt(0)}
-                                                        </div>
-                                                        <div>
-                                                            <div className="fw-bold text-dark">{item.NombreEstudiante} {item.ApellidoEstudiante}</div>
-                                                            <div className="text-muted small">{item.Email}</div>
-                                                        </div>
-                                                    </div>
-                                                </CTableDataCell>
-                                                <CTableDataCell>
-                                                    <div className="fw-bold text-dark">{item.Grado}</div>
-                                                    <CBadge className="bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 rounded-pill px-2">
-                                                        {item.Seccion}
-                                                    </CBadge>
-                                                </CTableDataCell>
-                                                <CTableDataCell>
-                                                    <div className="text-dark fw-medium">{item.RepresentanteNombre} {item.RepresentanteApellido}</div>
-                                                    <div className="text-muted small">{item.Telefono}</div>
-                                                </CTableDataCell>
-                                                <CTableDataCell>
-                                                    <code className="bg-orange-soft text-primary px-2 py-1 rounded small fw-bold">
-                                                        {item.RepresentanteCedula}
-                                                    </code>
-                                                </CTableDataCell>
-                                                <CTableDataCell>
-                                                    <StatusBadge status={item.Estatus} />
-                                                </CTableDataCell>
-                                                <CTableDataCell className="text-end pe-4">
-                                                    <CButtonGroup className="shadow-sm rounded-pill overflow-hidden border border-light">
-                                                        <CButton
-                                                            color="light"
-                                                            size="sm"
-                                                            onClick={() => openModal("view", item)}
-                                                            className="px-3 border-0 transition-all hover-primary"
-                                                            title="Ver perfil completo"
-                                                        >
-                                                            <CIcon icon={cilInfo} />
-                                                        </CButton>
-                                                        <CButton
-                                                            color="light"
-                                                            size="sm"
-                                                            onClick={() => openModal("edit", item)}
-                                                            className="px-3 border-0 transition-all hover-warning"
-                                                            title="Editar datos"
-                                                        >
-                                                            <CIcon icon={cilPencil} />
-                                                        </CButton>
-                                                        <CButton
-                                                            color="light"
-                                                            size="sm"
-                                                            onClick={() => openModal("delete", item)}
-                                                            className="px-3 border-0 transition-all hover-danger"
-                                                            title="Eliminar registro"
-                                                        >
-                                                            <CIcon icon={cilTrash} />
-                                                        </CButton>
-                                                    </CButtonGroup>
-                                                </CTableDataCell>
-                                            </CTableRow>
-                                        ))
-                                    )}
-                                </CTableBody>
-                            </CTable>
-                        </div>
+                                    ))
+                                )}
+                            </CTableBody>
+                        </CTable>
 
-                        <div className="d-flex justify-content-between align-items-center p-4 bg-light bg-opacity-25 border-top">
-                            <div className="text-muted small fw-medium">
-                                Mostrando <span className="text-primary fw-bold">{startIndex + 1} - {Math.min(startIndex + itemsPerPage, totalFiltered)}</span> de <span className="text-dark fw-bold">{totalFiltered}</span> estudiantes
+                        <div className="d-flex justify-content-between align-items-center p-4 table-pagination-container border-top">
+                            <div className="text-muted-custom small fw-medium">
+                                Mostrando <span className="text-primary fw-bold">{startIndex + 1} - {Math.min(startIndex + itemsPerPage, totalFiltered)}</span> de <span className="header-title-custom fw-bold">{totalFiltered}</span> estudiantes
                             </div>
                             {totalPages > 1 && (
                                 <CPagination size="sm" className="mb-0 custom-pagination">
@@ -227,9 +227,9 @@ const StudentTable = ({
                         </div>
                     </>
                 )}
-            </CCardBody>
+            </div>
 
-            <CCardFooter className="bg-orange-soft border-0 p-4 no-print">
+            <CCardFooter className="stats-footer-custom border-0 p-4 no-print rounded-bottom-4">
                 <CRow className="align-items-center">
                     <CCol xs={12} md={6} className="mb-3 mb-md-0">
                         <div className="d-flex align-items-center">
@@ -237,57 +237,24 @@ const StudentTable = ({
                                 <CProgress
                                     value={(totalFiltered / totalStudents) * 100}
                                     style={{ height: '6px' }}
-                                    className="bg-white"
+                                    className="progress-bg-custom"
                                     color="primary"
                                 />
                             </div>
-                            <small className="text-muted text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>
-                                Filtro: {totalFiltered}/{totalStudents}
+                            <small className="text-muted-custom text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>
+                                FILTRO: {totalFiltered}/{totalStudents}
                             </small>
                         </div>
                     </CCol>
-                    <CCol xs={12} md={6} className="text-md-end">
-                        <small className="text-muted text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>
-                            <CIcon icon={cilUser} className="me-1" /> Última sincronización: {new Date().toLocaleDateString()}
-                        </small>
+                    <CCol xs={12} md={6} className="text-md-end text-muted-custom">
+                        <CIcon icon={cilUser} className="me-2 text-primary" />
+                        <span className="small fw-bold text-uppercase ls-1">SINCRO: {new Date().toLocaleDateString()}</span>
                     </CCol>
                 </CRow>
             </CCardFooter>
 
-            <style>{`
-                .custom-table thead th { border-bottom: none; }
-                .custom-table tbody td { border-bottom: 1px solid rgba(0,0,0,0.03); padding: 1rem 0.5rem; }
-                .hover-row:hover { background-color: rgba(242, 140, 15, 0.02) !important; }
-                .avatar-circle {
-                    width: 38px;
-                    height: 38px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 0.9rem;
-                }
-                .cursor-pointer { cursor: pointer; }
-                .ls-1 { letter-spacing: 1px; }
-                .transition-all { transition: all 0.2s ease; }
-                
-                .hover-primary:hover { background: var(--primary-500) !important; color: white !important; }
-                .hover-warning:hover { background: var(--warning) !important; color: white !important; }
-                .hover-danger:hover { background: var(--danger) !important; color: white !important; }
-                
-                .custom-check:checked { background-color: var(--primary-500); border-color: var(--primary-500); }
-                
-                .custom-pagination .page-item.active .page-link {
-                    background-color: var(--primary-500);
-                    border-color: var(--primary-500);
-                }
-                .custom-pagination .page-link {
-                    color: var(--primary-600);
-                    border-radius: 8px;
-                    margin: 0 2px;
-                }
-            `}</style>
-        </CCard>
+
+        </div>
     )
 }
 

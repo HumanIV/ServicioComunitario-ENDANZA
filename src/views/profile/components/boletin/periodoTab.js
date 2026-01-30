@@ -37,32 +37,32 @@ const PeriodoTab = ({
       <CRow className="g-4">
         <CCol lg={7}>
           <CCard className="premium-card border-0 h-100 shadow-sm overflow-hidden">
-            <CCardHeader className="bg-white border-bottom border-light py-3 px-4 d-flex justify-content-between align-items-center">
+            <CCardHeader className="periodo-tab-header border-bottom border-0 py-3 px-4 d-flex justify-content-between align-items-center">
               <div>
-                <h5 className="mb-0 fw-bold text-dark text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>Informe de Calificaciones</h5>
-                <small className="text-muted">Detalle por asignatura</small>
+                <h5 className="mb-0 fw-bold periodo-tab-title text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>Informe de Calificaciones</h5>
+                <small className="periodo-tab-subtitle">Detalle por asignatura</small>
               </div>
               <CBadge className="bg-orange-soft text-primary rounded-pill px-3 py-2 border border-primary border-opacity-10">
                 {periodoNombre}
               </CBadge>
             </CCardHeader>
-            <CCardBody className="p-0">
+            <CCardBody className="p-0 periodo-tab-card-body">
               <div className="table-responsive">
-                <table className="table table-hover align-middle border-0 mb-0">
-                  <thead className="bg-light">
+                <table className="table table-hover align-middle border-0 mb-0 periodo-table-custom">
+                  <thead className="periodo-tab-thead">
                     <tr>
-                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 px-4">Asignatura</th>
-                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 text-center">U.C.</th>
-                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 text-center">Calificación</th>
-                      <th className="border-0 small fw-bold text-secondary text-uppercase ls-1 py-3 text-center">Estatus</th>
+                      <th className="border-0 small fw-bold periodo-tab-subtitle text-uppercase ls-1 py-3 px-4">Asignatura</th>
+                      <th className="border-0 small fw-bold periodo-tab-subtitle text-uppercase ls-1 py-3 text-center">U.C.</th>
+                      <th className="border-0 small fw-bold periodo-tab-subtitle text-uppercase ls-1 py-3 text-center">Calificación</th>
+                      <th className="border-0 small fw-bold periodo-tab-subtitle text-uppercase ls-1 py-3 text-center">Estatus</th>
                     </tr>
                   </thead>
                   <tbody>
                     {notas.map((nota, idx) => (
-                      <tr key={idx} className="border-bottom border-light">
+                      <tr key={idx} className="periodo-tab-border">
                         <td className="py-3 px-4">
-                          <div className="fw-bold text-dark mb-1">{nota.materia}</div>
-                          <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>DOCENTE: {nota.docente.toUpperCase()}</small>
+                          <div className="fw-bold periodo-tab-title mb-1">{nota.materia}</div>
+                          <small className="periodo-tab-subtitle d-block" style={{ fontSize: '0.75rem' }}>DOCENTE: {nota.docente.toUpperCase()}</small>
                         </td>
                         <td className="text-center py-3 text-muted fw-bold">{nota.creditos}</td>
                         <td className="text-center py-3">
@@ -96,13 +96,13 @@ const PeriodoTab = ({
           <CCard className="premium-card border-0 h-100 shadow-sm overflow-hidden">
             <CCardBody className="p-4 d-flex flex-column text-center">
               <div className="mb-4">
-                <div className="p-4 bg-orange-soft rounded-circle d-inline-flex mb-3 shadow-sm border border-white border-4">
+                <div className="p-4 bg-orange-soft rounded-circle d-inline-flex mb-3 shadow-sm border-4 periodo-tab-icon-border">
                   <CIcon icon={cilChartLine} style={{ color: 'var(--primary-600)' }} size="3xl" />
                 </div>
-                <h6 className="text-muted fw-bold text-uppercase ls-1 mb-2">Índice Académico del Período</h6>
-                <div className="display-3 fw-bold text-dark mb-3 lh-1">
+                <h6 className="periodo-tab-subtitle fw-bold text-uppercase ls-1 mb-2">Índice Académico del Período</h6>
+                <div className="display-3 fw-bold periodo-tab-title mb-3 lh-1">
                   {promedio.toFixed(1)}
-                  <span className="fs-4 text-muted ms-2 fw-normal">/ 20</span>
+                  <span className="fs-4 periodo-tab-subtitle ms-2 fw-normal">/ 20</span>
                 </div>
 
                 <div className={`alert ${promedio >= 10 ? 'alert-success' : 'alert-danger'} border-0 rounded-4 py-2 px-3 d-inline-block shadow-sm`}>
@@ -112,7 +112,7 @@ const PeriodoTab = ({
                 </div>
               </div>
 
-              <div className="mt-auto p-4 rounded-4 bg-light border border-light text-start">
+              <div className="mt-auto p-4 rounded-4 periodo-tab-validation-bg border-0 text-start">
                 <h6 className="fw-bold mb-3 small text-uppercase ls-1 text-primary d-flex align-items-center">
                   <CIcon icon={cilCheckCircle} className="me-2" />
                   Validación Administrativa
@@ -121,8 +121,8 @@ const PeriodoTab = ({
                 <div className="d-flex align-items-center mb-4">
                   <div className="vr bg-primary opacity-25 me-3" style={{ width: '2px', height: '40px' }}></div>
                   <div>
-                    <div className="small fw-bold text-dark text-uppercase ls-1">Aprobado por Secretaría</div>
-                    <div className="text-muted small">
+                    <div className="small fw-bold periodo-tab-title text-uppercase ls-1">Aprobado por Secretaría</div>
+                    <div className="periodo-tab-subtitle small">
                       {fechaAprobacion || 'Fecha pendiente'} • {aprobadoPor || 'Autoridad competente'}
                     </div>
                   </div>
@@ -140,10 +140,7 @@ const PeriodoTab = ({
           </CCard>
         </CCol>
       </CRow>
-      <style>{`
-        .ls-1 { letter-spacing: 1px; }
-        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(242, 140, 15, 0.2) !important; transition: all 0.3s ease; }
-      `}</style>
+
     </div>
   )
 }

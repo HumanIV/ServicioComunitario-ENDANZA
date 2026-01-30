@@ -142,7 +142,7 @@ const HorarioDocente = () => {
         return (
             <CContainer className="py-5 text-center">
                 <CSpinner color="primary" variant="grow" />
-                <div className="mt-3 text-muted fw-medium">Cargando horarios de docentes...</div>
+                <div className="mt-3 text-muted-custom fw-medium">Cargando horarios de docentes...</div>
             </CContainer>
         )
     }
@@ -153,16 +153,16 @@ const HorarioDocente = () => {
         <CContainer fluid className="pb-5">
             <CRow>
                 <CCol>
-                    <CCard className="shadow-sm border-0 mb-4" style={{ borderRadius: '16px' }}>
+                    <CCard className="shadow-lg border-0 mb-4 premium-card" style={{ borderRadius: '16px' }}>
                         <div className="bg-primary" style={{ height: '6px', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}></div>
-                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-white" style={{ borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
+                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-light-custom" style={{ borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
                             <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                                 <div>
-                                    <h4 className="mb-1 fw-bold text-dark d-flex align-items-center">
+                                    <h4 className="mb-1 fw-bold header-title-custom d-flex align-items-center">
                                         <CIcon icon={cilCalendar} className="me-2 text-primary" />
                                         Cronograma de Clases - Docente
                                     </h4>
-                                    <p className="text-muted mb-0 small fw-medium">
+                                    <p className="text-muted-custom mb-0 small fw-medium">
                                         Visualización de carga horaria y asignaciones por profesor
                                     </p>
                                 </div>
@@ -179,13 +179,13 @@ const HorarioDocente = () => {
                                     </CButton>
 
                                     {/* Selector de Año */}
-                                    <div className="bg-light p-1 px-3 rounded-pill border shadow-sm">
+                                    <div className="bg-light-custom p-1 px-3 rounded-pill border border-light-custom shadow-sm">
                                         <CDropdown>
                                             <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center" style={{ whiteSpace: 'nowrap' }}>
                                                 Ciclo {selectedYear}
                                                 <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
                                             </CDropdownToggle>
-                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in">
+                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll">
                                                 {academicYears.map(y => (
                                                     <CDropdownItem key={y} onClick={() => setSelectedYear(y)} active={selectedYear === y} className="py-2 px-3 dropdown-item-premium">
                                                         Ciclo {y}
@@ -195,14 +195,14 @@ const HorarioDocente = () => {
                                         </CDropdown>
                                     </div>
 
-                                    <div className="bg-light p-1 px-3 rounded-pill border ms-1 shadow-sm">
+                                    <div className="bg-light-custom p-1 px-3 rounded-pill border border-light-custom ms-1 shadow-sm">
                                         <CDropdown>
                                             <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center" style={{ whiteSpace: 'nowrap' }}>
                                                 <CIcon icon={cilUser} className="me-2 opacity-50" />
                                                 {selectedTeacher || 'Seleccionar Docente'}
                                                 <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
                                             </CDropdownToggle>
-                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                                                 {teachersList.map(t => (
                                                     <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
                                                         {t}
@@ -218,19 +218,19 @@ const HorarioDocente = () => {
                         <CCardBody className="px-4 pb-4">
                             {selectedTeacher ? (
                                 <>
-                                    <div className="d-flex justify-content-between align-items-center mb-4 p-3 bg-light bg-opacity-10 rounded-3 border border-dashed">
+                                    <div className="d-flex justify-content-between align-items-center mb-4 p-3 bg-light-custom bg-opacity-10 rounded-4 border border-dashed border-light-custom shadow-sm">
                                         <div className="d-flex align-items-center">
-                                            <div className="bg-orange-soft p-3 rounded-circle me-3 text-primary">
+                                            <div className="bg-orange-soft p-3 rounded-circle me-3 text-primary shadow-sm">
                                                 <CIcon icon={cilUser} size="xl" />
                                             </div>
                                             <div>
-                                                <h5 className="mb-0 fw-bold">{selectedTeacher}</h5>
-                                                <span className="text-muted small fw-bold text-uppercase">Docente de la Institución</span>
+                                                <h5 className="mb-0 fw-bold header-title-custom">{selectedTeacher}</h5>
+                                                <span className="text-muted-custom small fw-bold text-uppercase ls-1">Docente de la Institución</span>
                                             </div>
                                         </div>
                                         <div className="text-end">
-                                            <div className="text-muted small fw-bold text-uppercase mb-1">Carga Semanal</div>
-                                            <CBadge color="primary" className="px-3 py-2 rounded-pill fs-6 shadow-sm">
+                                            <div className="text-muted-custom small fw-bold text-uppercase mb-1 ls-1">Carga Semanal</div>
+                                            <CBadge color="primary" className="px-3 py-2 rounded-pill fs-6 shadow-sm fw-bold">
                                                 {totalClases} Bloques de Clase
                                             </CBadge>
                                         </div>
@@ -259,20 +259,20 @@ const HorarioDocente = () => {
 
                                         {totalClases === 0 && (
                                             <CCol xs={12}>
-                                                <div className="text-center py-5 border border-dashed rounded-4 bg-light text-muted">
+                                                <div className="text-center py-5 border border-dashed border-light-custom rounded-4 bg-light-custom bg-opacity-10 text-muted-custom shadow-sm">
                                                     <CIcon icon={cilCalendar} size="4xl" className="mb-3 opacity-25" />
-                                                    <h5>Sin clases asignadas</h5>
-                                                    <p className="mb-0">El docente {selectedTeacher} no tiene bloques horarios creados para el ciclo {selectedYear}.</p>
+                                                    <h5 className="header-title-custom">Sin clases asignadas</h5>
+                                                    <p className="mb-0 fw-medium">El docente {selectedTeacher} no tiene bloques horarios creados para el ciclo {selectedYear}.</p>
                                                 </div>
                                             </CCol>
                                         )}
                                     </CRow>
                                 </>
                             ) : (
-                                <div className="text-center py-5 border border-dashed rounded-4 bg-light text-muted">
+                                <div className="text-center py-5 border border-dashed border-light-custom rounded-4 bg-light-custom bg-opacity-10 text-muted-custom shadow-sm">
                                     <CIcon icon={cilUser} size="4xl" className="mb-3 opacity-25" />
-                                    <h5>Seleccione un Docente</h5>
-                                    <p className="mb-0">Utilice el selector superior para visualizar el cronograma de un profesor específico.</p>
+                                    <h5 className="header-title-custom">Seleccione un Docente</h5>
+                                    <p className="mb-0 fw-medium">Utilice el selector superior para visualizar el cronograma de un profesor específico.</p>
                                 </div>
                             )}
                         </CCardBody>

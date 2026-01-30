@@ -168,17 +168,17 @@ const InscripcionCompletaForm = ({ onVolver }) => {
                   <CIcon icon={step === 4 ? cilCheckCircle : cilFile} size="xl" className="text-white" />
                 </div>
                 <div>
-                  <h4 className="mb-0 fw-bold text-dark text-uppercase ls-1">
+                  <h4 className="mb-0 fw-bold inscripcion-header-title text-uppercase ls-1">
                     {step === 4 ? 'CONFIRMACIÓN EXITOSA' : 'REGISTRO DE ASPIRANTE'}
                   </h4>
-                  <p className="mb-0 text-muted small fw-bold text-uppercase ls-1">
+                  <p className="mb-0 inscripcion-header-subtitle small fw-bold text-uppercase ls-1">
                     {step === 4 ? 'Proceso finalizado correctamente' : 'CICLO ACADÉMICO 2024-2025'}
                   </p>
                 </div>
               </div>
             </CCol>
             <CCol md={4} className="text-end">
-              <CBadge className="rounded-pill px-4 py-2 bg-white text-primary fw-bold shadow-sm border border-light">
+              <CBadge className="rounded-pill px-4 py-2 inscripcion-id-badge fw-bold shadow-sm border border-light">
                 PASO {step} / 4
               </CBadge>
             </CCol>
@@ -189,10 +189,10 @@ const InscripcionCompletaForm = ({ onVolver }) => {
           {/* Barra de progreso Premium */}
           <div className="mb-5">
             <div className="d-flex justify-content-between mb-2">
-              <small className="text-muted fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>AVANCE DEL FORMULARIO</small>
+              <small className="inscripcion-header-subtitle fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>AVANCE DEL FORMULARIO</small>
               <small className="text-primary fw-bold">{progressPercentage.toFixed(0)}%</small>
             </div>
-            <CProgress className="rounded-pill bg-light" height={8}>
+            <CProgress className="rounded-pill bg-progress-track" height={8}>
               <CProgressBar
                 value={progressPercentage}
                 className="rounded-pill"
@@ -203,11 +203,11 @@ const InscripcionCompletaForm = ({ onVolver }) => {
 
           {/* Navegación por Tabs tipo Pills */}
           {step !== 4 && (
-            <CNav variant="pills" className="mb-5 bg-light p-2 rounded-pill d-inline-flex w-100 justify-content-between">
+            <CNav variant="pills" className="mb-5 bg-nav-pill p-2 rounded-pill d-inline-flex w-100 justify-content-between">
               <CNavItem className="flex-fill text-center">
                 <CNavLink
                   active={step === 1}
-                  className={`rounded-pill fw-bold py-2 ${step === 1 ? 'bg-white shadow-sm text-primary' : 'text-muted'}`}
+                  className={`rounded-pill fw-bold py-2 ${step === 1 ? 'nav-pill-active shadow-sm' : 'nav-pill-inactive'}`}
                   disabled
                 >
                   <CIcon icon={cilUser} className="me-2" />
@@ -217,7 +217,7 @@ const InscripcionCompletaForm = ({ onVolver }) => {
               <CNavItem className="flex-fill text-center">
                 <CNavLink
                   active={step === 2}
-                  className={`rounded-pill fw-bold py-2 ${step === 2 ? 'bg-white shadow-sm text-primary' : 'text-muted'}`}
+                  className={`rounded-pill fw-bold py-2 ${step === 2 ? 'nav-pill-active shadow-sm' : 'nav-pill-inactive'}`}
                   disabled
                 >
                   <CIcon icon={cilBriefcase} className="me-2" />
@@ -227,7 +227,7 @@ const InscripcionCompletaForm = ({ onVolver }) => {
               <CNavItem className="flex-fill text-center">
                 <CNavLink
                   active={step === 3}
-                  className={`rounded-pill fw-bold py-2 ${step === 3 ? 'bg-white shadow-sm text-primary' : 'text-muted'}`}
+                  className={`rounded-pill fw-bold py-2 ${step === 3 ? 'nav-pill-active shadow-sm' : 'nav-pill-inactive'}`}
                   disabled
                 >
                   <CIcon icon={cilMedicalCross} className="me-2" />
@@ -260,21 +260,19 @@ const InscripcionCompletaForm = ({ onVolver }) => {
             </CTabContent>
           </div>
 
-          <div className="d-flex justify-content-between align-items-center pt-4 border-top border-light">
+          <div className="d-flex justify-content-between align-items-center pt-4 border-top border-light-custom">
             <div>
               {step > 1 && step < 4 ? (
                 <CButton
-                  color="light"
                   onClick={handlePrevStep}
-                  className="rounded-pill px-4 border-2 fw-bold text-muted hover-orange"
+                  className="rounded-pill px-4 border-2 fw-bold inscripcion-back-btn hover-orange"
                 >
                   <CIcon icon={cilArrowLeft} className="me-2" /> ATRÁS
                 </CButton>
               ) : step === 1 ? (
                 <CButton
-                  color="light"
                   onClick={onVolver}
-                  className="rounded-pill px-4 border-2 fw-bold text-dark hover-danger"
+                  className="rounded-pill px-4 border-2 fw-bold inscripcion-cancel-btn hover-danger transition-all"
                 >
                   CANCELAR PROCESO
                 </CButton>
@@ -310,8 +308,8 @@ const InscripcionCompletaForm = ({ onVolver }) => {
           </div>
         </CCardBody>
 
-        <CCardFooter className="text-center bg-light border-0 py-3">
-          <small className="text-muted fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>
+        <CCardFooter className="text-center inscripcion-footer border-0 py-3">
+          <small className="inscripcion-footer-text fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>
             {step === 4
               ? `REGISTRO OFICIAL ID: ${codigoInscripcion} • ${new Date().toLocaleDateString('es-ES')}`
               : 'TODOS LOS CAMPOS MARCADOS CON (*) SON OBLIGATORIOS'}
@@ -331,6 +329,40 @@ const InscripcionCompletaForm = ({ onVolver }) => {
             background: #fff5f5 !important;
             border-color: var(--danger) !important;
         }
+
+        .inscripcion-header-title { color: var(--neutral-800); }
+        .inscripcion-header-subtitle { color: var(--neutral-500); }
+        .inscripcion-id-badge { background-color: white; color: var(--primary-600); }
+        .bg-progress-track { background-color: var(--neutral-100); }
+        .bg-nav-pill { background-color: var(--neutral-100); }
+        .nav-pill-active { background-color: white; color: var(--primary-600); }
+        .nav-pill-inactive { color: var(--neutral-500); }
+        .border-top-light-custom { border-top: 1px solid var(--neutral-100); }
+        .text-muted-custom { color: var(--neutral-500); }
+        .text-dark-custom { color: var(--neutral-800); }
+
+        [data-coreui-theme="dark"] .inscripcion-header-title { color: white; }
+        [data-coreui-theme="dark"] .inscripcion-header-subtitle { color: rgba(255,255,255,0.5); }
+        [data-coreui-theme="dark"] .inscripcion-id-badge { background-color: rgba(255,255,255,0.05); color: var(--primary-400); }
+        [data-coreui-theme="dark"] .bg-progress-track { background-color: rgba(255,255,255,0.05); }
+        [data-coreui-theme="dark"] .bg-nav-pill { background-color: rgba(0,0,0,0.2); }
+        [data-coreui-theme="dark"] .nav-pill-active { background-color: rgba(255,255,255,0.1); color: white; }
+        [data-coreui-theme="dark"] .nav-pill-inactive { color: rgba(255,255,255,0.4); }
+        [data-coreui-theme="dark"] .border-top-light-custom { border-top: 1px solid rgba(255,255,255,0.05); }
+        [data-coreui-theme="dark"] .text-muted-custom { color: rgba(255,255,255,0.4); }
+        [data-coreui-theme="dark"] .text-dark-custom { color: white; }
+
+        .transition-all { transition: all 0.2s ease; }
+        .inscripcion-footer { background-color: var(--neutral-50); }
+        .inscripcion-footer-text { color: var(--neutral-500); }
+        .inscripcion-cancel-btn { color: var(--neutral-800); border-color: var(--neutral-200); background-color: transparent; }
+
+        [data-coreui-theme="dark"] .inscripcion-footer { background-color: rgba(0,0,0,0.2) !important; }
+        [data-coreui-theme="dark"] .inscripcion-footer-text { color: rgba(255,255,255,0.4); }
+        [data-coreui-theme="dark"] .inscripcion-cancel-btn { color: white; border-color: rgba(255,255,255,0.1); }
+        
+        .inscripcion-back-btn { color: var(--neutral-600); border-color: var(--neutral-200); background-color: white; }
+        [data-coreui-theme="dark"] .inscripcion-back-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); background-color: rgba(255,255,255,0.05); }
       `}</style>
     </CContainer>
   );

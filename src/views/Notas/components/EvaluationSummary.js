@@ -12,8 +12,8 @@ const SummaryCard = ({ label, value, icon, colorClass, iconColor }) => (
                     {icon}
                 </div>
                 <div>
-                    <h6 className="text-muted mb-1 small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>{label}</h6>
-                    <h2 className="mb-0 fw-bold text-dark">{value}</h2>
+                    <h6 className="text-muted-custom mb-1 small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>{label}</h6>
+                    <h2 className="mb-0 fw-bold header-title-custom">{value}</h2>
                 </div>
             </div>
         </CCardBody>
@@ -74,10 +74,6 @@ const EvaluationSummary = ({ subject, notas, calculatePromedio }) => {
                     iconColor="var(--danger)"
                 />
             </CCol>
-            <style>{`
-                .hover-lift-xs:hover { transform: translateY(-3px); }
-                .ls-1 { letter-spacing: 1px; }
-            `}</style>
         </CRow>
     )
 }

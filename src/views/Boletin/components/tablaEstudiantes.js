@@ -23,27 +23,27 @@ export const TablaEstudiantes = ({
 }) => {
   return (
     <div className="table-responsive">
-      <CTable hover align="middle" className="mb-0 border-white">
-        <CTableHead className="bg-light">
-          <CTableRow>
-            <CTableHeaderCell width="50" className="text-center py-3">
+      <CTable hover align="middle" className="mb-0 border-0 bg-transparent">
+        <CTableHead className="bg-light-custom bg-opacity-10 border-0">
+          <CTableRow className="border-0">
+            <CTableHeaderCell width="50" className="text-center py-3 border-0">
               <input
                 type="checkbox"
-                className="form-check-input cursor-pointer"
+                className="form-check-input cursor-pointer shadow-sm"
                 checked={estudiantesSeleccionados.size === estudiantes.length && estudiantes.length > 0}
                 onChange={(e) => onToggleSeleccion('todos')}
                 style={{ borderColor: '#F28C0F' }}
               />
             </CTableHeaderCell>
-            <CTableHeaderCell className="text-uppercase text-secondary small fw-bold ls-1 py-3 border-0">Estudiante</CTableHeaderCell>
-            <CTableHeaderCell className="text-center text-uppercase text-secondary small fw-bold ls-1 py-3 border-0">Código</CTableHeaderCell>
-            <CTableHeaderCell className="text-center text-uppercase text-secondary small fw-bold ls-1 py-3 border-0">Edad</CTableHeaderCell>
-            <CTableHeaderCell className="text-center text-uppercase text-secondary small fw-bold ls-1 py-3 border-0">Promedio</CTableHeaderCell>
-            <CTableHeaderCell className="text-center text-uppercase text-secondary small fw-bold ls-1 py-3 border-0">Estado</CTableHeaderCell>
-            <CTableHeaderCell className="text-center text-uppercase text-secondary small fw-bold ls-1 py-3 border-0">Acciones</CTableHeaderCell>
+            <CTableHeaderCell className="text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Estudiante</CTableHeaderCell>
+            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Código</CTableHeaderCell>
+            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Edad</CTableHeaderCell>
+            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Promedio</CTableHeaderCell>
+            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Estado</CTableHeaderCell>
+            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Acciones</CTableHeaderCell>
           </CTableRow>
         </CTableHead>
-        <CTableBody>
+        <CTableBody className="border-0">
           {estudiantes.map((estudiante) => {
             const promedio = promediosCache[estudiante.id];
             const estado = calculos.determinarPromocion(promedio);
@@ -52,37 +52,37 @@ export const TablaEstudiantes = ({
             return (
               <CTableRow
                 key={estudiante.id}
-                className={estaSeleccionado ? 'bg-orange-soft' : ''}
+                className={`border-0 ${estaSeleccionado ? 'bg-orange-soft' : ''}`}
                 style={{ transition: 'background-color 0.2s' }}
               >
-                <CTableDataCell className="text-center border-bottom border-light">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10">
                   <input
                     type="checkbox"
-                    className="form-check-input cursor-pointer"
+                    className="form-check-input cursor-pointer shadow-sm"
                     checked={estaSeleccionado}
                     onChange={() => onToggleSeleccion(estudiante.id)}
                     style={{ borderColor: '#F28C0F' }}
                   />
                 </CTableDataCell>
 
-                <CTableDataCell className="border-bottom border-light">
+                <CTableDataCell className="border-0 border-bottom border-light-custom border-opacity-10">
                   <div className="py-1">
-                    <strong className="text-dark d-block">{estudiante.nombre}</strong>
-                    <small className="text-muted">Expediente Regular</small>
+                    <strong className="header-title-custom d-block">{estudiante.nombre}</strong>
+                    <small className="text-muted-custom">Expediente Regular</small>
                   </div>
                 </CTableDataCell>
 
-                <CTableDataCell className="text-center border-bottom border-light">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10">
                   <CBadge color="dark" className="rounded-pill px-3 bg-dark bg-opacity-75 font-monospace">
                     {estudiante.codigo}
                   </CBadge>
                 </CTableDataCell>
 
-                <CTableDataCell className="text-center border-bottom border-light text-muted fw-bold">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10 text-muted-custom fw-bold">
                   {estudiante.edad} años
                 </CTableDataCell>
 
-                <CTableDataCell className="text-center border-bottom border-light">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10">
                   {promedio ? (
                     <span
                       className={`fw-bold fs-6 ${parseFloat(promedio) >= 10 ? 'text-success' : 'text-danger'}`}
@@ -90,34 +90,34 @@ export const TablaEstudiantes = ({
                       {promedio}
                     </span>
                   ) : (
-                    <small className="text-muted fst-italic">Sin notas</small>
+                    <small className="text-muted-custom fst-italic">Sin notas</small>
                   )}
                 </CTableDataCell>
 
-                <CTableDataCell className="text-center border-bottom border-light">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10">
                   <CBadge
-                    className="rounded-pill px-3 text-uppercase small py-2 border"
+                    className="rounded-pill px-3 text-uppercase small py-2 border fw-bold"
                     style={{
-                      backgroundColor: calculos.getColorEstado(estado) === 'success' ? '#ECFDF5' : calculos.getColorEstado(estado) === 'danger' ? '#FEF2F2' : '#EFF6FF',
-                      color: calculos.getColorEstado(estado) === 'success' ? '#059669' : calculos.getColorEstado(estado) === 'danger' ? '#DC2626' : '#2563EB',
-                      borderColor: calculos.getColorEstado(estado) === 'success' ? '#A7F3D0' : calculos.getColorEstado(estado) === 'danger' ? '#FECACA' : '#BFDBFE'
+                      backgroundColor: calculos.getColorEstado(estado) === 'success' ? 'rgba(16, 185, 129, 0.1)' : calculos.getColorEstado(estado) === 'danger' ? 'rgba(195, 86, 4, 0.1)' : 'rgba(105, 165, 195, 0.1)',
+                      color: calculos.getColorEstado(estado) === 'success' ? '#10b981' : calculos.getColorEstado(estado) === 'danger' ? '#C35604' : '#69A5C3',
+                      borderColor: 'transparent'
                     }}
                   >
                     {estado || "Pendiente"}
                   </CBadge>
                 </CTableDataCell>
 
-                <CTableDataCell className="text-center border-bottom border-light">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10">
                   <div className="d-flex justify-content-center gap-2">
                     <CButton
-                      className="btn-sm d-flex align-items-center bg-info bg-opacity-10 text-info border-0 fw-bold px-3 hover-lift"
+                      className="btn-sm d-flex align-items-center bg-info bg-opacity-10 text-info border-0 fw-bold px-3 hover-lift shadow-sm"
                       onClick={() => onVerBoletin(estudiante)}
                       title="Ver boletín detallado"
                     >
                       <CIcon icon={cilMagnifyingGlass} className="me-1" size="sm" /> Ver
                     </CButton>
                     <CButton
-                      className="btn-sm d-flex align-items-center bg-success bg-opacity-10 text-success border-0 fw-bold px-3 hover-lift"
+                      className="btn-sm d-flex align-items-center bg-success bg-opacity-10 text-success border-0 fw-bold px-3 hover-lift shadow-sm"
                       onClick={() => onAgregarBoletin(estudiante)}
                       title="Agregar para generar boletín"
                     >
@@ -132,9 +132,10 @@ export const TablaEstudiantes = ({
       </CTable>
       <style>{`
         .ls-1 { letter-spacing: 1px; }
-        .bg-orange-soft { background-color: rgba(242, 140, 15, 0.08) !important; }
         .hover-lift:hover { transform: translateY(-2px); opacity: 0.8; }
         .cursor-pointer { cursor: pointer; }
+        [data-coreui-theme="dark"] .table { color: white !important; }
+        [data-coreui-theme="dark"] .form-check-input { background-color: rgba(255,255,255,0.05); }
       `}</style>
     </div>
   );

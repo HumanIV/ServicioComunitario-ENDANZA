@@ -12,17 +12,17 @@ const ProfileStatsCards = ({ student, progreso, showToast, setActiveKey, setEdit
                     <CCardBody className="p-4">
                         <div className="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 className="text-muted mb-2 small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>Índice Académico</h6>
-                                <h2 className="mb-0 fw-bold display-6 text-dark">{student.PromedioGeneral || "0.0"}</h2>
+                                <h6 className="stat-label mb-2 small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>Índice Académico</h6>
+                                <h2 className="mb-0 fw-bold display-6 stat-value">{student.PromedioGeneral || "0.0"}</h2>
                             </div>
                             <div className="p-3 bg-orange-soft rounded-4 text-primary shadow-sm">
                                 <CIcon icon={cilChartLine} size="xl" />
                             </div>
                         </div>
                         <div className="d-flex align-items-center mb-2">
-                            <small className="text-muted small fw-bold text-uppercase ls-1 me-2" style={{ fontSize: '0.6rem' }}>PROGRESO DEL PERIODO</small>
+                            <small className="stat-label small fw-bold text-uppercase ls-1 me-2" style={{ fontSize: '0.6rem' }}>PROGRESO DEL PERIODO</small>
                             <div className="flex-grow-1"></div>
-                            <small className="text-dark fw-bold">{progreso.valor}%</small>
+                            <small className="stat-value fw-bold">{progreso.valor}%</small>
                         </div>
                         <CProgress className="mb-3 rounded-pill bg-orange-soft" height={6}>
                             <CProgressBar
@@ -40,8 +40,8 @@ const ProfileStatsCards = ({ student, progreso, showToast, setActiveKey, setEdit
                     <CCardBody className="p-4">
                         <div className="d-flex justify-content-between align-items-start mb-3">
                             <div>
-                                <h6 className="text-muted mb-2 small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>Evaluación Conductual</h6>
-                                <h2 className="mb-0 fw-bold display-6 text-dark">{student.Conducta || "N/A"}</h2>
+                                <h6 className="stat-label mb-2 small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>Evaluación Conductual</h6>
+                                <h2 className="mb-0 fw-bold display-6 stat-value">{student.Conducta || "N/A"}</h2>
                             </div>
                             <div className="p-3 bg-info bg-opacity-10 rounded-4 text-info shadow-sm">
                                 <CIcon icon={cilStar} size="xl" />
@@ -50,20 +50,20 @@ const ProfileStatsCards = ({ student, progreso, showToast, setActiveKey, setEdit
                         <CBadge color="info" className="rounded-pill px-3 py-2 bg-opacity-10 text-info border border-info border-opacity-25 shadow-sm mb-2">
                             ESTATUS: {student.Conducta?.toUpperCase() || "PENDIENTE"}
                         </CBadge>
-                        <small className="text-muted d-block mt-2 opacity-75">Resumen disciplinario del ciclo actual.</small>
+                        <small className="stat-label d-block mt-2 opacity-75">Resumen disciplinario del ciclo actual.</small>
                     </CCardBody>
                 </CCard>
             </CCol>
 
             <CCol xs={12}>
-                <CCard className="premium-card border-0 shadow-sm overflow-hidden bg-primary bg-opacity-5 border border-primary border-opacity-10">
+                <CCard className="premium-card border-0 shadow-sm overflow-hidden bg-primary-soft border border-primary border-opacity-10">
                     <CCardBody className="p-4 position-relative">
                         <div className="d-flex justify-content-between align-items-center mb-4">
                             <div>
                                 <h6 className="text-primary mb-1 small fw-bold text-uppercase ls-1" style={{ fontSize: '0.7rem' }}>Gestión de Expediente</h6>
-                                <h4 className="mb-0 fw-bold text-dark">Acciones Rápidas</h4>
+                                <h4 className="mb-0 fw-bold stat-value">Acciones Rápidas</h4>
                             </div>
-                            <div className="p-2 bg-white rounded-circle shadow-sm text-primary">
+                            <div className="p-2 btn-icon-round rounded-circle shadow-sm text-primary">
                                 <CIcon icon={cilPencil} size="lg" />
                             </div>
                         </div>
@@ -79,7 +79,7 @@ const ProfileStatsCards = ({ student, progreso, showToast, setActiveKey, setEdit
                                     }}
                                 >
                                     <div className="d-flex align-items-center">
-                                        <div className="p-2 bg-white bg-opacity-25 rounded-circle me-3">
+                                        <div className="p-2 stat-card-inner-icon rounded-circle me-3">
                                             <CIcon icon={cilUser} size="lg" />
                                         </div>
                                         <div className="text-start">
@@ -93,8 +93,7 @@ const ProfileStatsCards = ({ student, progreso, showToast, setActiveKey, setEdit
 
                             <CCol md={6}>
                                 <CButton
-                                    color="light"
-                                    className="w-100 py-3 d-flex align-items-center justify-content-between px-4 bg-white border-0 shadow-sm hover-orange hover-lift transition-all"
+                                    className="w-100 py-3 d-flex align-items-center justify-content-between px-4 sub-btn-premium border-0 shadow-sm hover-orange hover-lift transition-all"
                                     onClick={() => {
                                         showToast("info", "Modo Edición", "Abriendo contactos de emergencia...")
                                         setActiveKey(2)
@@ -106,11 +105,11 @@ const ProfileStatsCards = ({ student, progreso, showToast, setActiveKey, setEdit
                                             <CIcon icon={cilBadge} size="lg" />
                                         </div>
                                         <div className="text-start">
-                                            <div className="fw-bold text-dark small text-uppercase ls-1">Representantes</div>
-                                            <small className="text-muted" style={{ fontSize: '0.7rem' }}>Editar contactos</small>
+                                            <div className="fw-bold sub-btn-text small text-uppercase ls-1">Representantes</div>
+                                            <small className="sub-btn-subtext" style={{ fontSize: '0.7rem' }}>Editar contactos</small>
                                         </div>
                                     </div>
-                                    <CIcon icon={cilArrowRight} className="text-muted" />
+                                    <CIcon icon={cilArrowRight} className="sub-btn-icon" />
                                 </CButton>
                             </CCol>
                         </CRow>
@@ -120,8 +119,28 @@ const ProfileStatsCards = ({ student, progreso, showToast, setActiveKey, setEdit
             <style>{`
                 .ls-1 { letter-spacing: 1px; }
                 .hover-lift:hover { transform: translateY(-3px); }
-                .hover-orange:hover .text-muted { color: var(--primary-600) !important; }
+                .hover-orange:hover .sub-btn-icon { color: var(--primary-600) !important; }
                 .transition-all { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+                
+                .stat-label { color: var(--neutral-500); }
+                .stat-value { color: var(--neutral-800); }
+                .bg-primary-soft { background-color: rgba(0, 123, 255, 0.05); }
+                .btn-icon-round { background-color: var(--neutral-100); }
+                .stat-card-inner-icon { background-color: rgba(255, 255, 255, 0.25); }
+                .sub-btn-premium { background-color: var(--neutral-100); }
+                .sub-btn-text { color: var(--neutral-800); }
+                .sub-btn-subtext { color: var(--neutral-500); }
+                .sub-btn-icon { color: var(--neutral-400); }
+
+                [data-coreui-theme="dark"] .stat-label { color: rgba(255,255,255,0.5); }
+                [data-coreui-theme="dark"] .stat-value { color: white; }
+                [data-coreui-theme="dark"] .bg-primary-soft { background-color: rgba(255,255,255,0.02); }
+                [data-coreui-theme="dark"] .btn-icon-round { background-color: rgba(255,255,255,0.1); }
+                [data-coreui-theme="dark"] .stat-card-inner-icon { background-color: rgba(0, 0, 0, 0.2); }
+                [data-coreui-theme="dark"] .sub-btn-premium { background-color: rgba(255,255,255,0.05); }
+                [data-coreui-theme="dark"] .sub-btn-text { color: white; }
+                [data-coreui-theme="dark"] .sub-btn-subtext { color: rgba(255,255,255,0.4); }
+                [data-coreui-theme="dark"] .sub-btn-icon { color: rgba(255,255,255,0.3); }
             `}</style>
         </CRow>
     )

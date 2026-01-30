@@ -170,13 +170,13 @@ const BoletinView = () => {
                   <CIcon icon={cilFolderOpen} size="xl" className="text-white" />
                 </div>
                 <div>
-                  <h3 className="mb-0 fw-bold ls-1 text-dark text-uppercase">Expediente Académico</h3>
-                  <p className="mb-0 text-muted small text-uppercase ls-1 fw-bold">Consulta de Boletines • Período 2024</p>
+                  <h3 className="mb-0 fw-bold ls-1 boletin-header-title text-uppercase">Expediente Académico</h3>
+                  <p className="mb-0 boletin-header-subtitle small text-uppercase ls-1 fw-bold">Consulta de Boletines • Período 2024</p>
                 </div>
               </div>
             </CCol>
             <CCol md={4} className="text-md-end mt-3 mt-md-0">
-              <CBadge className="bg-white text-primary border border-primary border-opacity-10 px-4 py-2 rounded-pill fs-6 shadow-sm">
+              <CBadge className="boletin-id-badge border border-primary border-opacity-10 px-4 py-2 rounded-pill fs-6 shadow-sm">
                 ID ESTUDIANTE: <span className="font-monospace">{estudiante.codigo}</span>
               </CBadge>
             </CCol>
@@ -186,7 +186,7 @@ const BoletinView = () => {
         <CCardBody className="p-4 p-md-5">
           <CRow className="mb-5 g-4">
             <CCol md={8}>
-              <div className="p-4 rounded-4 bg-light h-100 border border-light">
+              <div className="p-4 rounded-4 boletin-info-card h-100 boletin-border">
                 <div className="d-flex align-items-center mb-4">
                   <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
                     <CIcon icon={cilEducation} size="sm" />
@@ -196,20 +196,20 @@ const BoletinView = () => {
 
                 <CRow className="g-4">
                   <CCol sm={6}>
-                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Estudiante Registrado</label>
-                    <div className="fw-bold fs-5 text-dark">{estudiante.nombre}</div>
+                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Estudiante Registrado</label>
+                    <div className="fw-bold fs-5 boletin-info-value">{estudiante.nombre}</div>
                   </CCol>
                   <CCol sm={6}>
-                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Nivel Académico</label>
-                    <div className="fw-bold fs-5 text-primary">{estudiante.grado} <span className="text-muted fw-normal ms-1">– Secc {estudiante.seccion}</span></div>
+                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Nivel Académico</label>
+                    <div className="fw-bold fs-5 text-primary">{estudiante.grado} <span className="boletin-info-subtext fw-normal ms-1">– Secc {estudiante.seccion}</span></div>
                   </CCol>
                   <CCol sm={6}>
-                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Documento de Identidad</label>
-                    <div className="fw-bold fs-5 text-dark font-monospace">{estudiante.dni}</div>
+                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Documento de Identidad</label>
+                    <div className="fw-bold fs-5 boletin-info-value font-monospace">{estudiante.dni}</div>
                   </CCol>
                   <CCol sm={6}>
-                    <label className="form-label small text-secondary fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Representante Legal</label>
-                    <div className="fw-bold fs-5 text-dark">{estudiante.representante}</div>
+                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Representante Legal</label>
+                    <div className="fw-bold fs-5 boletin-info-value">{estudiante.representante}</div>
                   </CCol>
                 </CRow>
               </div>
@@ -217,15 +217,15 @@ const BoletinView = () => {
             <CCol md={4}>
               <div className="p-4 rounded-4 bg-orange-soft h-100 border border-primary border-opacity-10">
                 <div className="d-flex align-items-center mb-4">
-                  <span className="p-2 bg-white text-primary rounded-circle me-3 shadow-sm">
+                  <span className="p-2 bg-avatar-frame text-primary rounded-circle me-3 shadow-sm">
                     <CIcon icon={cilFolderOpen} size="sm" />
                   </span>
                   <h6 className="text-primary mb-0 fw-bold text-uppercase ls-1">Disponibilidad</h6>
                 </div>
                 <div className="d-flex flex-column gap-3">
                   {Object.entries(periodosEstado).map(([periodo, data]) => (
-                    <div key={periodo} className="d-flex justify-content-between align-items-center p-3 rounded-3 bg-white shadow-sm border border-light">
-                      <span className="fw-bold small text-dark">Período Académico {periodo}</span>
+                    <div key={periodo} className="d-flex justify-content-between align-items-center p-3 rounded-3 boletin-period-row shadow-sm boletin-border">
+                      <span className="fw-bold small boletin-info-value">Período Académico {periodo}</span>
                       {data.estadoSecretaria === 'aprobado' ? (
                         <div className="d-flex align-items-center text-success small fw-bold">
                           <div className="bg-success rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div>
@@ -246,7 +246,7 @@ const BoletinView = () => {
 
           {!noHayPeriodosDisponibles ? (
             <div className="px-md-2">
-              <CNav variant="pills" className="bg-light p-2 rounded-pill mb-4 d-inline-flex gap-2">
+              <CNav variant="pills" className="boletin-nav-bg p-2 rounded-pill mb-4 d-inline-flex gap-2">
                 {Object.keys(boletinData.periodos).map(periodoKey => {
                   const periodo = parseInt(periodoKey)
                   const estado = periodosEstado[periodo]?.estadoSecretaria
@@ -255,11 +255,11 @@ const BoletinView = () => {
                   return (
                     <CNavItem key={periodo}>
                       <CNavLink
-                        className={`rounded-pill px-4 fw-bold py-2 transition-all ${activeKey === periodo ? 'bg-white shadow-sm text-primary' : 'text-muted hover-bg-gray'}`}
+                        className={`rounded-pill px-4 fw-bold py-2 transition-all ${activeKey === periodo ? 'boletin-nav-active shadow-sm' : 'boletin-nav-inactive hover-bg-gray'}`}
                         style={{ cursor: 'pointer' }}
                         onClick={() => setActiveKey(periodo)}
                       >
-                        {periodo}° Llapso
+                        {periodo}° Lapso
                       </CNavLink>
                     </CNavItem>
                   )
@@ -291,11 +291,11 @@ const BoletinView = () => {
             </div>
           ) : (
             <div className="text-center py-5">
-              <div className="p-4 bg-orange-soft rounded-circle d-inline-flex mb-4 border border-white border-4 shadow-sm">
+              <div className="p-4 bg-orange-soft rounded-circle d-inline-flex mb-4 boletin-empty-icon-border shadow-sm">
                 <CIcon icon={cilBan} size="4xl" className="text-primary" />
               </div>
-              <h3 className="fw-bold mb-3 text-dark">Información No Disponible</h3>
-              <p className="text-muted mx-auto mb-4" style={{ maxWidth: '500px' }}>
+              <h3 className="fw-bold mb-3 boletin-info-value">Información No Disponible</h3>
+              <p className="boletin-info-label mx-auto mb-4" style={{ maxWidth: '500px' }}>
                 Los boletines académicos correspondientes al período actual aún se encuentran en proceso de validación administrativa.
               </p>
               <CButton className="btn-premium px-5 py-3 rounded-pill shadow-sm hover-lift">
@@ -306,8 +306,8 @@ const BoletinView = () => {
           )}
         </CCardBody>
 
-        <CCardFooter className="bg-light border-0 py-4 text-center">
-          <small className="text-muted fw-bold text-uppercase ls-1 opacity-75" style={{ fontSize: '0.7rem' }}>
+        <CCardFooter className="boletin-footer border-0 py-4 text-center">
+          <small className="boletin-info-label fw-bold text-uppercase ls-1 opacity-75" style={{ fontSize: '0.7rem' }}>
             <CIcon icon={cilLockLocked} className="me-2" size="sm" />
             Documento Oficial Validado por la Coordinación Académica | ENDANZA {new Date().getFullYear()}
           </small>
@@ -326,10 +326,7 @@ const BoletinView = () => {
       </CToaster>
 
       <style>{`
-        .ls-1 { letter-spacing: 1px; }
-        .hover-bg-gray:hover { background-color: rgba(0,0,0,0.05); }
-        .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(242, 140, 15, 0.2) !important; transition: all 0.3s ease; }
-        .transition-all { transition: all 0.2s ease; }
+        @media print { .no-print { display: none !important; } }
       `}</style>
     </CContainer>
   )

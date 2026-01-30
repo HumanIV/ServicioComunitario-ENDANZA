@@ -5,14 +5,14 @@ import { cilUser, cilSchool, cilCalendar, cilDrop } from '@coreui/icons'
 import PropTypes from 'prop-types'
 
 const SummaryItem = ({ icon, label, value }) => (
-    <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light last-no-border">
+    <div className="d-flex justify-content-between align-items-center mb-3 pb-3 summary-border last-no-border">
         <div className="d-flex align-items-center">
-            <div className="p-2 bg-light rounded-circle me-3 text-muted">
+            <div className="p-2 summary-icon-box rounded-circle me-3">
                 <CIcon icon={icon} size="sm" />
             </div>
-            <span className="text-secondary small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>{label}</span>
+            <span className="summary-label small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>{label}</span>
         </div>
-        <div className="fw-bold text-dark">{value}</div>
+        <div className="fw-bold summary-value">{value}</div>
     </div>
 )
 
@@ -43,18 +43,18 @@ const ProfileSummary = ({ student }) => {
 
     return (
         <CCard className="h-100 premium-card border-0 shadow-sm overflow-hidden animate__animated animate__fadeIn">
-            <div className="position-absolute top-0 start-0 w-100 bg-orange-soft" style={{ height: '120px' }}></div>
+            <div className="position-absolute top-0 start-0 w-100 summary-header-bg" style={{ height: '120px' }}></div>
             <CCardBody className="text-center p-0 position-relative">
                 <div className="pt-5 px-4 pb-4">
-                    <div className="avatar-circle-xl bg-white p-1 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm position-relative">
-                        <div className="w-100 h-100 bg-orange-soft rounded-circle d-flex align-items-center justify-content-center text-primary fs-1 fw-bold border border-white border-5">
+                    <div className="avatar-circle-xl bg-avatar-frame p-1 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm position-relative">
+                        <div className="w-100 h-100 bg-orange-soft rounded-circle d-flex align-items-center justify-content-center text-primary fs-1 fw-bold summary-avatar-border">
                             {(student.NombreEstudiante || student.name || "?").charAt(0)}{(student.ApellidoEstudiante || student.lastName || "?").charAt(0)}
                         </div>
-                        <div className="position-absolute bottom-0 end-0 p-2 bg-success border border-white border-2 rounded-circle shadow-sm"></div>
+                        <div className="position-absolute bottom-0 end-0 p-2 bg-success summary-status-border rounded-circle shadow-sm"></div>
                     </div>
 
-                    <h4 className="mb-1 fw-bold text-dark">{student.NombreEstudiante || student.name || "N/A"} {student.ApellidoEstudiante || student.lastName || ""}</h4>
-                    <p className="text-muted small mb-3 text-uppercase ls-1">Expediente Académico #{student.id}</p>
+                    <h4 className="mb-1 fw-bold summary-title">{student.NombreEstudiante || student.name || "N/A"} {student.ApellidoEstudiante || student.lastName || ""}</h4>
+                    <p className="summary-subtitle small mb-3 text-uppercase ls-1">Expediente Académico #{student.id}</p>
                     <StatusBadge status={student.Estatus || student.status} />
                 </div>
 
@@ -67,15 +67,30 @@ const ProfileSummary = ({ student }) => {
             </CCardBody>
             <style>{`
                 .ls-1 { letter-spacing: 1px; }
-                .avatar-circle-xl {
-                    width: 120px;
-                    height: 120px;
-                }
-                .last-no-border:last-child {
-                    border-bottom: 0 !important;
-                    margin-bottom: 0 !important;
-                    padding-bottom: 0 !important;
-                }
+                .avatar-circle-xl { width: 120px; height: 120px; }
+                .last-no-border:last-child { border-bottom: 0 !important; margin-bottom: 0 !important; padding-bottom: 0 !important; }
+                
+                .summary-header-bg { background-color: rgba(242, 140, 15, 0.1); }
+                .bg-avatar-frame { background-color: white; }
+                .summary-title { color: var(--neutral-800); }
+                .summary-subtitle { color: var(--neutral-500); }
+                .summary-icon-box { background-color: var(--neutral-100); color: var(--neutral-500); }
+                .summary-label { color: var(--neutral-500); }
+                .summary-value { color: var(--neutral-800); }
+                .summary-border { border-bottom: 1px solid rgba(0,0,0,0.05); }
+                .summary-avatar-border { border: 5px solid white; }
+                .summary-status-border { border: 2px solid white; }
+
+                [data-coreui-theme="dark"] .summary-header-bg { background-color: rgba(242, 140, 15, 0.05); }
+                [data-coreui-theme="dark"] .bg-avatar-frame { background-color: #1e293b; }
+                [data-coreui-theme="dark"] .summary-title { color: white; }
+                [data-coreui-theme="dark"] .summary-subtitle { color: rgba(255,255,255,0.5); }
+                [data-coreui-theme="dark"] .summary-icon-box { background-color: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); }
+                [data-coreui-theme="dark"] .summary-label { color: rgba(255,255,255,0.5); }
+                [data-coreui-theme="dark"] .summary-value { color: white; }
+                [data-coreui-theme="dark"] .summary-border { border-bottom: 1px solid rgba(255,255,255,0.05); }
+                [data-coreui-theme="dark"] .summary-avatar-border { border-color: #1e293b; }
+                [data-coreui-theme="dark"] .summary-status-border { border-color: #1e293b; }
             `}</style>
         </CCard>
     )

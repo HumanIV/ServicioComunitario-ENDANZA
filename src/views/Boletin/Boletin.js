@@ -277,8 +277,8 @@ const SistemaBoletinesDanza = () => {
                   <CIcon icon={cilArrowLeft} />
                 </CButton>
                 <div>
-                  <h3 className="mb-0 fw-bold text-dark">{gradoSeleccionado.grado}</h3>
-                  <small className="text-muted fw-bold ls-1 text-uppercase" style={{ fontSize: '0.7rem' }}>Gestión de Boletines</small>
+                  <h3 className="mb-0 fw-bold header-title-custom">{gradoSeleccionado.grado}</h3>
+                  <small className="text-muted-custom fw-bold ls-1 text-uppercase" style={{ fontSize: '0.7rem' }}>Gestión de Boletines</small>
                 </div>
               </div>
 
@@ -315,11 +315,11 @@ const SistemaBoletinesDanza = () => {
             {/* =========== FIN RESUMEN =========== */}
 
             <CCard className="premium-card border-0 shadow-sm overflow-hidden mb-5">
-              <div className="px-4 py-3 border-bottom bg-light d-flex justify-content-between align-items-center">
-                <h6 className="mb-0 fw-bold text-uppercase ls-1 text-dark small">
+              <div className="px-4 py-3 border-bottom bg-light-custom d-flex justify-content-between align-items-center border-opacity-10">
+                <h6 className="mb-0 fw-bold text-uppercase ls-1 header-title-custom small">
                   Listado de Estudiantes Inscritos
                 </h6>
-                <div className="text-muted small fw-bold">
+                <div className="text-muted-custom small fw-bold">
                   Total: {estudiantesUnicos.length}
                 </div>
               </div>
@@ -356,10 +356,10 @@ const SistemaBoletinesDanza = () => {
           <div className="d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-orange-soft mb-3 text-primary">
             <CIcon icon={cilEducation} size="xl" />
           </div>
-          <h2 className="text-dark fw-bold mb-1 ls-1">
+          <h2 className="header-title-custom fw-bold mb-1 ls-1">
             Sistema de Boletines
           </h2>
-          <p className="text-muted small text-uppercase ls-1 fw-bold">
+          <p className="text-muted-custom small text-uppercase ls-1 fw-bold">
             Ciclo Académico 2024 - 2025
           </p>
         </header>

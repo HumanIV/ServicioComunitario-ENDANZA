@@ -108,8 +108,8 @@ const SistemaEvaluacionDanza = () => {
                         <CIcon icon={cilNotes} size="xl" className="text-white" />
                     </div>
                     <div>
-                        <h2 className="mb-0 fw-bold text-dark text-uppercase ls-1">Centro de Calificaciones</h2>
-                        <p className="text-muted small mb-0 text-uppercase ls-1">Gestión académica de la Escuela Nacional de Danza</p>
+                        <h2 className="mb-0 fw-bold header-title-custom text-uppercase ls-1">Centro de Calificaciones</h2>
+                        <p className="text-muted-custom small mb-0 text-uppercase ls-1">Gestión académica de la Escuela Nacional de Danza</p>
                     </div>
                 </div>
             </header>
@@ -129,24 +129,26 @@ const SistemaEvaluacionDanza = () => {
 
             {gradoSeleccionado && materiaSeleccionada && (
                 <>
-                    <EvaluationTable
-                        grade={gradoSeleccionado}
-                        subject={materiaSeleccionada}
-                        onBack={() => setMateriaSeleccionada(null)}
-                        onClear={limpiarNotasMateria}
-                        onPrepareSend={prepararEnvio}
-                        notas={notas}
-                        onNotaChange={manejarNotaChange}
-                        calculatePromedio={calcularPromedio}
-                        determinarEstado={determinarEstado}
-                        getColorNota={getColorNota}
-                        getColorEstado={getColorEstado}
-                    />
                     <EvaluationSummary
                         subject={materiaSeleccionada}
                         notas={notas}
                         calculatePromedio={calcularPromedio}
                     />
+                    <div className="mt-4">
+                        <EvaluationTable
+                            grade={gradoSeleccionado}
+                            subject={materiaSeleccionada}
+                            onBack={() => setMateriaSeleccionada(null)}
+                            onClear={limpiarNotasMateria}
+                            onPrepareSend={prepararEnvio}
+                            notas={notas}
+                            onNotaChange={manejarNotaChange}
+                            calculatePromedio={calcularPromedio}
+                            determinarEstado={determinarEstado}
+                            getColorNota={getColorNota}
+                            getColorEstado={getColorEstado}
+                        />
+                    </div>
                 </>
             )}
 

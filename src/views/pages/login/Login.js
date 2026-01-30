@@ -14,7 +14,9 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser, cilInput } from '@coreui/icons'
-import logoEndanza from '../../../assets/images/logo_endanza.png'
+
+// Usaremos el mismo favicon que el sidebar
+const logoEndanza = "/favicon.png"
 
 const Login = () => {
   const navigate = useNavigate()
@@ -39,45 +41,45 @@ const Login = () => {
         <CRow className="min-vh-100 align-items-center justify-content-center">
           <CCol md={8} lg={6} xl={4}>
             <div className="login-brand text-center mb-4">
-              <div className="sidebar-logo-circle mx-auto mb-2" style={{ width: '90px', height: '90px', padding: '2px' }}>
-                <img src={logoEndanza} alt="Logo ENDANZA" className="img-fluid" />
+              <div className="sidebar-logo-circle-premium mx-auto mb-3">
+                <img src={logoEndanza} alt="ENDANZA Logo" className="img-fluid" style={{ maxWidth: '85px' }} />
               </div>
               <h1 className="text-white h3 fw-medium mb-1">ENDANZA</h1>
               <p className="text-white-50 fw-regular small mb-0">Escuela Nacional de Danza</p>
             </div>
 
             <CCard className="premium-card border-0 overflow-hidden shadow-lg">
-              <CCardBody className="p-4">
+              <CCardBody className="p-4 bg-light-custom">
                 <CForm onSubmit={handleLogin}>
                   <div className="mb-3">
-                    <h2 className="fw-bold text-dark h5 mb-1">Bienvenido</h2>
-                    <p className="text-muted small mb-0">Ingresa tus datos para acceder.</p>
+                    <h2 className="fw-bold header-title-custom h5 mb-1">Bienvenido</h2>
+                    <p className="text-muted-custom small mb-0">Ingresa tus datos para acceder.</p>
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label small fw-bold text-uppercase text-muted mb-1">Usuario</label>
+                    <label className="form-label small fw-bold text-uppercase text-muted-custom mb-1 ls-1">Usuario</label>
                     <CInputGroup>
-                      <CInputGroupText className="bg-white border-end-0 py-1">
+                      <CInputGroupText className="bg-light-custom bg-opacity-25 border-end-0 py-1 border-light-custom">
                         <CIcon icon={cilUser} style={{ color: 'var(--primary-500)' }} />
                       </CInputGroupText>
                       <CFormInput
                         placeholder="ejemplo@usuario"
-                        className="input-premium border-start-0 py-1"
+                        className="input-premium border-start-0 py-1 bg-light-custom border-light-custom"
                         required
                       />
                     </CInputGroup>
                   </div>
 
                   <div className="mb-3">
-                    <label className="form-label small fw-bold text-uppercase text-muted mb-1">Contraseña</label>
+                    <label className="form-label small fw-bold text-uppercase text-muted-custom mb-1 ls-1">Contraseña</label>
                     <CInputGroup>
-                      <CInputGroupText className="bg-white border-end-0 py-1">
+                      <CInputGroupText className="bg-light-custom bg-opacity-25 border-end-0 py-1 border-light-custom">
                         <CIcon icon={cilLockLocked} style={{ color: 'var(--primary-500)' }} />
                       </CInputGroupText>
                       <CFormInput
                         type="password"
                         placeholder="••••••••"
-                        className="input-premium border-start-0 py-1"
+                        className="input-premium border-start-0 py-1 bg-light-custom border-light-custom"
                         required
                       />
                     </CInputGroup>
@@ -97,7 +99,7 @@ const Login = () => {
                   </CButton>
 
                   <div className="text-center mt-3">
-                    <CButton color="link" className="p-0 text-decoration-none x-small text-muted">
+                    <CButton color="link" className="p-0 text-decoration-none x-small text-muted-custom hover-orange">
                       ¿Olvidaste tu contraseña?
                     </CButton>
                   </div>

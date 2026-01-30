@@ -19,15 +19,15 @@ const InformacionAdicional = ({ profesores }) => {
             <div className="p-2 bg-orange-soft rounded-circle me-3">
               <CIcon icon={cilUser} className="text-primary" />
             </div>
-            <h6 className="mb-0 fw-bold text-dark text-uppercase ls-1 small">Staff de Profesores</h6>
+            <h6 className="mb-0 fw-bold header-title-custom text-uppercase ls-1 small">Staff de Profesores</h6>
           </CCardHeader>
           <CCardBody className="px-4 pb-4">
             <div className="d-flex flex-column gap-2 mt-2">
               {profesores.map((prof, idx) => (
-                <div key={idx} className="p-3 bg-light rounded-4 border border-primary border-opacity-5 transition-all hover-lift-xs">
+                <div key={idx} className="p-3 bg-light-custom rounded-4 border border-primary border-opacity-5 transition-all hover-lift-xs">
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
-                      <div className="fw-bold text-dark">{prof.nombre}</div>
+                      <div className="fw-bold header-title-custom">{prof.nombre}</div>
                       <div className="small text-primary text-uppercase fw-bold ls-1" style={{ fontSize: '0.65rem' }}>{prof.materia}</div>
                     </div>
                     <div className="p-2 bg-primary bg-opacity-10 text-primary rounded-pill small fw-bold" style={{ fontSize: '0.6rem' }}>TITULAR</div>
@@ -45,14 +45,14 @@ const InformacionAdicional = ({ profesores }) => {
             <div className="p-2 bg-primary bg-opacity-10 rounded-circle me-3">
               <CIcon icon={cilInfo} className="text-primary" />
             </div>
-            <h6 className="mb-0 fw-bold text-dark text-uppercase ls-1 small">Normativa Disciplinar</h6>
+            <h6 className="mb-0 fw-bold header-title-custom text-uppercase ls-1 small">Normativa Disciplinar</h6>
           </CCardHeader>
           <CCardBody className="px-4 pb-4">
-            <CAlert color="info" className="bg-orange-soft border-0 d-flex align-items-start rounded-4 p-4 mt-2">
+            <CAlert color="info" className="bg-orange-soft border-0 d-flex align-items-start rounded-4 p-4 mt-2 mb-0">
               <CIcon icon={cilCheckCircle} className="me-3 mt-1 flex-shrink-0 text-primary" size="xl" />
               <div>
                 <strong className="text-primary fs-5 d-block mb-3">Protocolos Obligatorios:</strong>
-                <ul className="mb-0 mt-2 d-flex flex-column gap-2 text-dark fw-medium" style={{ fontSize: '0.9rem' }}>
+                <ul className="mb-0 mt-2 d-flex flex-column gap-2 header-title-custom fw-medium" style={{ fontSize: '0.9rem' }}>
                   <li>Puntualidad: Llegar 10 minutos antes de cada sesión.</li>
                   <li>Uniforme institucional completo de danza.</li>
                   <li>Uso obligatorio de hidratación personal.</li>
@@ -64,12 +64,6 @@ const InformacionAdicional = ({ profesores }) => {
           </CCardBody>
         </CCard>
       </CCol>
-      <style>
-        {`
-            .hover-lift-xs:hover { transform: translateX(5px); background: white !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-            .ls-1 { letter-spacing: 1.2px; }
-          `}
-      </style>
     </CRow>
   )
 }

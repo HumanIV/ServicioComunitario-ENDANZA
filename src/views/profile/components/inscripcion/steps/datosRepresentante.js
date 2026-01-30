@@ -6,7 +6,7 @@ import { cilBriefcase, cilPhone, cilBuilding, cilAddressBook } from "@coreui/ico
 const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
   return (
     <div className="animate__animated animate__fadeIn">
-      <div className="p-4 rounded-4 bg-light border border-light mb-4">
+      <div className="p-4 rounded-4 step-section-bg step-section-border mb-4 text-start">
         <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
           <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
             <CIcon icon={cilBriefcase} size="sm" />
@@ -20,7 +20,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Nombres del Representante <span className="text-danger">*</span>
                 </span>
               }
@@ -37,7 +37,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Apellidos del Representante
                 </span>
               }
@@ -54,7 +54,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={4}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Teléfono Móvil <span className="text-danger">*</span>
                 </span>
               }
@@ -71,7 +71,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={4}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Teléfono de Habitación
                 </span>
               }
@@ -85,7 +85,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={4}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Parentesco con el Alumno <span className="text-danger">*</span>
                 </span>
               }
@@ -107,7 +107,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           </CCol>
         </CRow>
 
-        <div className="p-4 rounded-4 bg-light border border-light mb-4 mt-5">
+        <div className="p-4 rounded-4 step-section-bg border border-light mb-4 mt-5 text-start">
           <h5 className="mb-0 text-primary d-flex align-items-center fw-bold text-uppercase ls-1" style={{ fontSize: '0.9rem' }}>
             <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
               <CIcon icon={cilBuilding} size="sm" />
@@ -120,7 +120,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Profesión u Ocupación
                 </span>
               }
@@ -134,7 +134,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Empresa / Lugar de Trabajo
                 </span>
               }
@@ -151,7 +151,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={12}>
             <CFormTextarea
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Dirección Detallada del Trabajo
                 </span>
               }
@@ -169,7 +169,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormInput
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Correo Electrónico Personal
                 </span>
               }
@@ -185,7 +185,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={6}>
             <CFormSelect
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Nivel de Instrucción
                 </span>
               }
@@ -208,7 +208,7 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
           <CCol md={12}>
             <CFormTextarea
               label={
-                <span className="fw-bold text-secondary text-uppercase ls-1 small mb-1">
+                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Notas u Observaciones Adicionales
                 </span>
               }
@@ -224,6 +224,16 @@ const DatosRepresentante = ({ formData, onChange, errores = {} }) => {
       </CForm>
       <style>{`
         .ls-1 { letter-spacing: 1px; }
+        .step-section-bg { background-color: var(--neutral-50); }
+        .step-label { color: var(--neutral-600); }
+
+        [data-coreui-theme="dark"] .step-section-bg { background-color: rgba(255,255,255,0.02); }
+        [data-coreui-theme="dark"] .step-label { color: rgba(255,255,255,0.7); }
+        .step-section-border { border: 1px solid var(--neutral-200) !important; }
+        [data-coreui-theme="dark"] .step-section-border { border: 1px solid rgba(255,255,255,0.05) !important; }
+        
+        /* Forzar alineación de inputs mediante altura mínima de etiquetas */
+        span.step-label { min-height: 2.2rem; display: block; }
       `}</style>
     </div>
   );

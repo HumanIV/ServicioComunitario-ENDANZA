@@ -62,41 +62,41 @@ export const ResumenSeccion = ({
     <div className="mb-4">
       <div className="p-3 bg-orange-soft text-primary border-0 rounded-top d-flex align-items-center">
         <CIcon icon={cilChartPie} className="me-2" />
-        <h6 className="mb-0 fw-bold">Resumen de Sección</h6>
+        <h6 className="mb-0 fw-bold header-title-custom">Resumen de Sección</h6>
       </div>
-      <CCard className="border-0 shadow-sm rounded-bottom rounded-0 overflow-hidden">
-        <CCardBody className="p-4 bg-light bg-opacity-50">
+      <CCard className="border-0 shadow-lg rounded-bottom rounded-0 overflow-hidden bg-transparent">
+        <CCardBody className="p-4 bg-light-custom bg-opacity-10">
           {usarDatosQuemados ? (
-            <div className="text-center text-muted py-3">
+            <div className="text-center text-muted-custom py-3">
               No hay datos suficientes para generar el resumen
             </div>
           ) : (
             <CRow className="g-3">
               <CCol md={3}>
-                <div className="bg-white p-3 rounded-3 border border-warning h-100 text-center shadow-sm">
-                  <div className="text-muted small fw-bold text-uppercase ls-1 mb-2">Total Estudiantes</div>
+                <div className="bg-white-custom p-3 rounded-3 border border-warning h-100 text-center shadow-sm">
+                  <div className="text-muted-custom small fw-bold text-uppercase ls-1 mb-2">Total Estudiantes</div>
                   <h2 className="text-warning mb-0 fw-bold">{stats.total}</h2>
                 </div>
               </CCol>
               <CCol md={3}>
-                <div className="bg-white p-3 rounded-3 border border-success h-100 text-center shadow-sm">
-                  <div className="text-muted small fw-bold text-uppercase ls-1 mb-2">Aprobados</div>
+                <div className="bg-white-custom p-3 rounded-3 border border-success h-100 text-center shadow-sm">
+                  <div className="text-muted-custom small fw-bold text-uppercase ls-1 mb-2">Aprobados</div>
                   <h2 className="text-success mb-0 fw-bold">{stats.aprobados}</h2>
                 </div>
               </CCol>
               <CCol md={3}>
-                <div className="bg-white p-3 rounded-3 border border-secondary h-100 text-center shadow-sm">
-                  <div className="text-muted small fw-bold text-uppercase ls-1 mb-2">Pendientes</div>
+                <div className="bg-white-custom p-3 rounded-3 border border-secondary h-100 text-center shadow-sm">
+                  <div className="text-muted-custom small fw-bold text-uppercase ls-1 mb-2">Pendientes</div>
                   <h2 className="text-secondary mb-0 fw-bold">{stats.pendientes}</h2>
                 </div>
               </CCol>
               <CCol md={3}>
-                <div className="bg-white p-3 rounded-3 border border-primary h-100 text-center shadow-sm position-relative overflow-hidden">
-                  <div className="text-muted small fw-bold text-uppercase ls-1 mb-2">Seleccionados</div>
+                <div className="bg-white-custom p-3 rounded-3 border border-primary h-100 text-center shadow-sm position-relative overflow-hidden">
+                  <div className="text-muted-custom small fw-bold text-uppercase ls-1 mb-2">Seleccionados</div>
                   <h2 className="text-primary mb-0 fw-bold position-relative z-1">{stats.seleccionados}</h2>
 
                   {/* Barra de progreso sutil de fondo */}
-                  <div className="position-absolute bottom-0 start-0 w-100 bg-light" style={{ height: '6px' }}>
+                  <div className="position-absolute bottom-0 start-0 w-100 bg-light-custom bg-opacity-50" style={{ height: '6px' }}>
                     <div
                       className="bg-primary h-100 transition-width"
                       style={{ width: `${(stats.seleccionados / stats.total) * 100}%` }}

@@ -53,6 +53,15 @@ const AppHeader = () => {
           <CIcon icon={cilMenu} size="lg" />
         </CHeaderToggler>
         <CHeaderNav className="ms-auto d-flex align-items-center">
+          <CNavItem>
+            <CNavLink
+              style={{ cursor: 'pointer' }}
+              onClick={() => setColorMode(colorMode === 'light' ? 'dark' : 'light')}
+              title={`Activar modo ${colorMode === 'light' ? 'oscuro' : 'claro'}`}
+            >
+              <CIcon icon={colorMode === 'light' ? cilMoon : cilSun} size="lg" />
+            </CNavLink>
+          </CNavItem>
           <AppHeaderDropdown />
         </CHeaderNav>
       </CContainer>

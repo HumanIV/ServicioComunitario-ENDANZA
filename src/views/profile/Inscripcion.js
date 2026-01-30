@@ -28,32 +28,32 @@ const InscripcionPrincipal = () => {
           }}>
             <CIcon icon={cilEducation} size="3xl" className="text-white" />
           </div>
-          <h1 className="fw-bold mb-1 ls-1" style={{ color: 'var(--neutral-900)' }}>SISTEMA DE INSCRIPCIONES</h1>
-          <h5 className="text-muted fw-normal">Escuela Nacional de Danza (Período 2024-2025)</h5>
+          <h1 className="fw-bold mb-1 ls-1 inscripcion-header-title">SISTEMA DE INSCRIPCIONES</h1>
+          <h5 className="inscripcion-header-subtitle fw-normal">Escuela Nacional de Danza (Período 2024-2025)</h5>
         </CCardHeader>
 
         <CCardBody className="p-4 p-md-5">
           <div className="row justify-content-center">
             <CCol lg={12}>
               <div className="text-center mb-5">
-                <p className="text-muted lead mb-5">
+                <p className="inscripcion-header-subtitle lead mb-5">
                   Bienvenido al portal de ingreso. A través de este sistema podrá registrar de forma oficial
                   a los nuevos talentos de nuestra institución.
                 </p>
 
                 <div className="d-grid gap-3 d-sm-flex justify-content-center mb-5">
-                  <div className="px-4 py-3 bg-light rounded-4 border-2 border border-info border-opacity-10 d-flex align-items-center">
+                  <div className="px-4 py-3 inscripcion-info-pill rounded-4 border-2 border border-info border-opacity-10 d-flex align-items-center">
                     <CIcon icon={cilInfo} className="text-info me-3" size="lg" />
                     <div className="text-start">
-                      <div className="fw-bold small">Proceso Digital</div>
-                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>100% en línea</div>
+                      <div className="fw-bold small inscripcion-pill-text">Proceso Digital</div>
+                      <div className="inscripcion-pill-subtext" style={{ fontSize: '0.75rem' }}>100% en línea</div>
                     </div>
                   </div>
-                  <div className="px-4 py-3 bg-light rounded-4 border-2 border border-success border-opacity-10 d-flex align-items-center">
+                  <div className="px-4 py-3 inscripcion-info-pill rounded-4 border-2 border border-success border-opacity-10 d-flex align-items-center">
                     <CIcon icon={cilCheckCircle} className="text-success me-3" size="lg" />
                     <div className="text-start">
-                      <div className="fw-bold small">Validación</div>
-                      <div className="text-muted" style={{ fontSize: '0.75rem' }}>Inmediata</div>
+                      <div className="fw-bold small inscripcion-pill-text">Validación</div>
+                      <div className="inscripcion-pill-subtext" style={{ fontSize: '0.75rem' }}>Inmediata</div>
                     </div>
                   </div>
                 </div>
@@ -76,11 +76,11 @@ const InscripcionPrincipal = () => {
               </div>
 
               <div className="mt-5 p-4 bg-orange-soft rounded-4 border border-primary border-opacity-10">
-                <h6 className="fw-bold mb-3 d-flex align-items-center">
+                <h6 className="fw-bold mb-3 d-flex align-items-center-custom">
                   <CIcon icon={cilInfo} className="me-2 text-primary" />
-                  Requisitos Previos
+                  <span className="text-primary">Requisitos Previos</span>
                 </h6>
-                <ul className="text-start list-unstyled small text-muted mb-0">
+                <ul className="text-start list-unstyled small inscripcion-pill-subtext mb-0">
                   <li className="mb-2 d-flex align-items-center"><CIcon icon={cilCheckCircle} className="text-success me-2" size="sm" /> Cédula de identidad del representante y acta de nacimiento del alumno.</li>
                   <li className="mb-2 d-flex align-items-center"><CIcon icon={cilCheckCircle} className="text-success me-2" size="sm" /> Datos de salud (alergias, tipo de sangre, peso y altura actual).</li>
                   <li className="d-flex align-items-center"><CIcon icon={cilCheckCircle} className="text-success me-2" size="sm" /> Información de contacto de emergencia y datos de vivienda.</li>
@@ -90,12 +90,26 @@ const InscripcionPrincipal = () => {
           </div>
 
           <div className="text-center mt-5 pt-4 border-top">
-            <small className="text-muted opacity-50">
+            <small className="inscripcion-pill-subtext opacity-50">
               SECRETARÍA ACADÉMICA ENDANZA &copy; {new Date().getFullYear()}
             </small>
           </div>
         </CCardBody>
       </CCard>
+      <style>{`
+        .inscripcion-header-title { color: var(--neutral-900); }
+        .inscripcion-header-subtitle { color: var(--neutral-600); }
+        .inscripcion-info-pill { background-color: var(--neutral-50); }
+        .inscripcion-pill-text { color: var(--neutral-800); }
+        .inscripcion-pill-subtext { color: var(--neutral-500); }
+        .align-items-center-custom { display: flex; align-items: center; }
+
+        [data-coreui-theme="dark"] .inscripcion-header-title { color: white; }
+        [data-coreui-theme="dark"] .inscripcion-header-subtitle { color: rgba(255,255,255,0.6); }
+        [data-coreui-theme="dark"] .inscripcion-info-pill { background-color: rgba(255,255,255,0.05); }
+        [data-coreui-theme="dark"] .inscripcion-pill-text { color: white; }
+        [data-coreui-theme="dark"] .inscripcion-pill-subtext { color: rgba(255,255,255,0.4); }
+      `}</style>
     </CContainer>
   );
 };

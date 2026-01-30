@@ -40,22 +40,22 @@ const EvaluationTable = ({
                 <div className="d-flex align-items-center">
                     <CButton
                         color="light"
-                        className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center"
+                        className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent"
                         onClick={onBack}
                     >
                         <CIcon icon={cilArrowLeft} className="me-2" />
                         Retroceder
                     </CButton>
                     <div>
-                        <h3 className="mb-0 fw-bold text-dark">{subject.nombre}</h3>
-                        <p className="text-muted small mb-0 text-uppercase ls-1">Carga de calificaciones trimestrales</p>
+                        <h3 className="mb-0 fw-bold header-title-custom">{subject.nombre}</h3>
+                        <p className="text-muted-custom small mb-0 text-uppercase ls-1">Carga de calificaciones trimestrales</p>
                     </div>
                 </div>
                 <div className="d-flex gap-2">
                     <CButton
                         color="light"
                         variant="outline"
-                        className="rounded-pill px-4 py-2 border-2 fw-bold text-muted hover-orange shadow-sm"
+                        className="rounded-pill px-4 py-2 border-2 fw-bold text-muted-custom hover-orange shadow-sm"
                         onClick={onClear}
                     >
                         <CIcon icon={cilTrash} className="me-2 text-danger" /> Limpiar Todo
@@ -78,16 +78,16 @@ const EvaluationTable = ({
                     <CRow className="align-items-center position-relative" style={{ zIndex: 1 }}>
                         <CCol md={8}>
                             <div className="d-flex align-items-center">
-                                <div className="p-3 bg-white rounded-circle me-3 shadow-sm border border-primary border-opacity-10">
+                                <div className="p-3 grade-card-icon-wrapper rounded-circle me-3 shadow-sm">
                                     <CIcon icon={cilUser} size="xl" className="text-primary" />
                                 </div>
                                 <div>
-                                    <h5 className="mb-0 fw-bold text-dark text-uppercase ls-1">{grade.grado} • {subject.nombre}</h5>
+                                    <h5 className="mb-0 fw-bold header-title-custom text-uppercase ls-1">{grade.grado} • {subject.nombre}</h5>
                                     <div className="d-flex gap-3 mt-1">
-                                        <small className="text-muted d-flex align-items-center">
+                                        <small className="text-muted-custom d-flex align-items-center">
                                             <CIcon icon={cilClock} className="me-1" /> {subject.horario}
                                         </small>
-                                        <small className="text-muted d-flex align-items-center">
+                                        <small className="text-muted-custom d-flex align-items-center">
                                             <CIcon icon={cilCheckCircle} className="me-1" /> Código: {subject.id}
                                         </small>
                                     </div>
@@ -95,7 +95,7 @@ const EvaluationTable = ({
                             </div>
                         </CCol>
                         <CCol md={4} className="text-md-end mt-3 mt-md-0">
-                            <CBadge className="bg-white text-primary border border-primary border-opacity-10 px-4 py-2 rounded-pill fs-6 shadow-sm fw-bold">
+                            <CBadge className="bg-light-custom text-primary border border-primary border-opacity-10 px-4 py-2 rounded-pill fs-6 shadow-sm fw-bold">
                                 {subject.estudiantes.length} BAILARINES
                             </CBadge>
                         </CCol>
@@ -103,15 +103,15 @@ const EvaluationTable = ({
                 </CCardHeader>
                 <CCardBody className="p-0">
                     <div className="table-responsive">
-                        <CTable align="middle" className="mb-0 custom-evaluation-table">
-                            <CTableHead className="bg-light bg-opacity-50">
+                        <CTable align="middle" className="mb-0 custom-premium-table">
+                            <CTableHead className="bg-light-custom bg-opacity-50">
                                 <CTableRow>
-                                    <CTableHeaderCell className="ps-4 py-3 text-muted small fw-bold text-uppercase ls-1" width="25%">Estudiante</CTableHeaderCell>
-                                    <CTableHeaderCell className="py-3 text-center text-muted small fw-bold text-uppercase ls-1" width="10%">Reg.</CTableHeaderCell>
+                                    <CTableHeaderCell className="ps-4 py-3 text-muted-custom small fw-bold text-uppercase ls-1" width="25%">Estudiante</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1" width="10%">Reg.</CTableHeaderCell>
                                     {[1, 2, 3, 4].map(num => (
-                                        <CTableHeaderCell key={num} className="py-3 text-center text-muted small fw-bold text-uppercase ls-1" width="10%">CORTE {num}</CTableHeaderCell>
+                                        <CTableHeaderCell key={num} className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1" width="10%">CORTE {num}</CTableHeaderCell>
                                     ))}
-                                    <CTableHeaderCell className="py-3 text-center text-muted small fw-bold text-uppercase ls-1 pe-4" width="15%">PROMEDIO FINAL</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1 pe-4" width="15%">PROMEDIO FINAL</CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
@@ -122,26 +122,26 @@ const EvaluationTable = ({
 
                                     return (
                                         <CTableRow key={estudiante.id} className="hover-row transition-all">
-                                            <CTableDataCell className="ps-4 py-3">
+                                            <CTableDataCell className="ps-4 py-3 border-bottom-light">
                                                 <div className="d-flex align-items-center">
                                                     <div className="avatar-circle me-3 bg-orange-soft text-primary fw-bold shadow-sm">
                                                         {estudiante.nombre.charAt(0)}
                                                     </div>
                                                     <div>
-                                                        <div className="fw-bold text-dark">{estudiante.nombre}</div>
-                                                        <div className="text-muted" style={{ fontSize: '0.7rem' }}>Expediente: {estudiante.codigo}</div>
+                                                        <div className="fw-bold header-title-custom">{estudiante.nombre}</div>
+                                                        <div className="text-muted-custom" style={{ fontSize: '0.7rem' }}>Expediente: {estudiante.codigo}</div>
                                                     </div>
                                                 </div>
                                             </CTableDataCell>
 
-                                            <CTableDataCell className="text-center">
-                                                <CBadge className="bg-light text-muted border border-light rounded-pill px-2">
+                                            <CTableDataCell className="text-center border-bottom-light">
+                                                <CBadge className="bg-light-custom text-muted-custom border border-light-custom rounded-pill px-2">
                                                     {estudiante.codigo}
                                                 </CBadge>
                                             </CTableDataCell>
 
                                             {[1, 2, 3, 4].map(num => (
-                                                <CTableDataCell key={num} className="text-center">
+                                                <CTableDataCell key={num} className="text-center border-bottom-light">
                                                     <CFormInput
                                                         type="number"
                                                         min="0"
@@ -149,17 +149,13 @@ const EvaluationTable = ({
                                                         step="0.1"
                                                         value={notasEst[`n${num}`] || ""}
                                                         onChange={(e) => onNotaChange(estudiante.id, num, e.target.value)}
-                                                        className={`text-center fw-bold evaluation-input rounded-3 shadow-sm ${notasEst[`n${num}`] ? 'bg-white' : 'bg-light bg-opacity-50 border-dashed'}`}
-                                                        style={{
-                                                            color: `var(--cui-${getColorNota(notasEst[`n${num}`])})`,
-                                                            borderColor: notasEst[`n${num}`] ? `var(--cui-${getColorNota(notasEst[`n${num}`])})` : '#eee'
-                                                        }}
+                                                        className={`text-center fw-bold evaluation-input rounded-3 shadow-sm ${notasEst[`n${num}`] ? 'bg-white' : 'bg-light-custom bg-opacity-50 border-dashed'}`}
                                                     />
-                                                    <div className="text-muted mt-1" style={{ fontSize: '0.6rem' }}>C{num}</div>
+                                                    <div className="text-muted-custom mt-1" style={{ fontSize: '0.6rem' }}>C{num}</div>
                                                 </CTableDataCell>
                                             ))}
 
-                                            <CTableDataCell className="text-center pe-4">
+                                            <CTableDataCell className="text-center pe-4 border-bottom-light">
                                                 {promedio ? (
                                                     <div className="d-flex flex-column align-items-center">
                                                         <div className={`average-circle mb-1 bg-${getColorEstado(estado)} shadow-sm`}>
@@ -177,7 +173,7 @@ const EvaluationTable = ({
                                                         </CBadge>
                                                     </div>
                                                 ) : (
-                                                    <div className="text-muted opacity-50 small fw-bold ls-1">--</div>
+                                                    <div className="text-muted-custom opacity-50 small fw-bold ls-1">--</div>
                                                 )}
                                             </CTableDataCell>
                                         </CTableRow>
@@ -187,25 +183,25 @@ const EvaluationTable = ({
                         </CTable>
                     </div>
                 </CCardBody>
-                <CCardFooter className="bg-light bg-opacity-50 border-0 p-4 no-print">
+                <CCardFooter className="bg-light-custom bg-opacity-50 border-0 p-4 no-print rounded-bottom-4">
                     <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center text-muted">
-                            <div className="p-2 bg-white rounded-circle me-3 shadow-sm">
+                        <div className="d-flex align-items-center text-muted-custom">
+                            <div className="p-2 bg-light-custom rounded-circle me-3 shadow-sm border border-light">
                                 <CIcon icon={cilWarning} className="text-warning" />
                             </div>
                             <small className="fw-medium">
-                                <strong className="text-dark">IMPORTANTE:</strong> Ingrese valores entre <strong>0 y 20</strong> siguiendo la escala institucional.
+                                <strong className="header-title-custom">IMPORTANTE:</strong> Ingrese valores entre <strong>0 y 20</strong> siguiendo la escala institucional.
                             </small>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             <CProgress
                                 value={(subject.estudiantes.filter(est => calculatePromedio(est.id)).length / subject.estudiantes.length) * 100}
                                 color="success"
-                                className="progress-thin me-3 d-none d-lg-flex"
+                                className="progress-bg-custom progress-thin me-3 d-none d-lg-flex"
                                 style={{ width: '100px', height: '6px' }}
                             />
                             <CButton
-                                className="btn-premium rounded-pill px-5 py-2"
+                                className="btn-premium rounded-pill px-5 py-2 shadow-sm"
                                 onClick={onPrepareSend}
                             >
                                 <CIcon icon={cilSend} className="me-2" /> ENVIAR NOTAS
@@ -215,8 +211,6 @@ const EvaluationTable = ({
                 </CCardFooter>
             </CCard>
             <style>{`
-                .ls-1 { letter-spacing: 1px; }
-                .hover-row:hover { background-color: rgba(242, 140, 15, 0.02) !important; }
                 .avatar-circle {
                     width: 38px;
                     height: 38px;
@@ -225,14 +219,6 @@ const EvaluationTable = ({
                     align-items: center;
                     justify-content: center;
                     font-size: 0.9rem;
-                }
-                .evaluation-input {
-                    padding: 0.5rem 0;
-                    border-width: 2px;
-                    transition: all 0.2s;
-                }
-                .evaluation-input:focus {
-                    box-shadow: 0 0 0 0.25rem rgba(242, 140, 15, 0.25);
                 }
                 .average-circle {
                     width: 44px;
@@ -246,12 +232,6 @@ const EvaluationTable = ({
                     font-size: 1rem;
                 }
                 .border-dashed { border-style: dashed !important; }
-                .hover-orange:hover {
-                    border-color: var(--primary-400) !important;
-                    color: var(--primary-600) !important;
-                    background: var(--primary-50) !important;
-                }
-                .custom-evaluation-table thead th { border: none !important; }
             `}</style>
         </div>
     )
