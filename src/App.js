@@ -1,7 +1,10 @@
-import React, { Suspense, useEffect } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+// src/App.js - VERSIÓN MÍNIMA FUNCIONAL
+import React, { Suspense } from 'react'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
+import ProtectedRoute from './components/protectRoute'
+import PublicRoute from './components/publicRoute'
 
 import './scss/style.scss'
 import './styles/global.css'
@@ -13,14 +16,11 @@ const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 // Pages
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 
-// Componente de ruta protegida
-const ProtectedRoute = React.lazy(() => import('./components/protectRoute'))
-
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
 
-  useEffect(() => {
+  React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
     const theme = urlParams.get('theme') && urlParams.get('theme').match(/^[A-Za-z0-9\s]+/)[0]
     if (theme) {
@@ -32,7 +32,7 @@ const App = () => {
     }
 
     setColorMode(storedTheme)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <HashRouter>
@@ -44,18 +44,31 @@ const App = () => {
         }
       >
         <Routes>
-          <Route exact path="/login" name="Login Page" element={<Login />} />
+          {/* Solo login y layout básico */}
+          <Route path="/login" element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          } />
           
-          {/* Rutas protegidas - Solo accesibles con autenticación */}
-          <Route 
-            path="*" 
-            name="Home" 
-            element={
-              <ProtectedRoute>
-                <DefaultLayout />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/" element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          } />
+          
+          <Route path="/*" element={
+            <ProtectedRoute>
+              <DefaultLayout />
+            </ProtectedRoute>
+          } />
+          
+          <Route path="*" element={
+            <div className="container py-5 text-center">
+              <h1 className="display-1">404</h1>
+              <p className="lead">Página no encontrada</p>
+            </div>
+          } />
         </Routes>
       </Suspense>
     </HashRouter>

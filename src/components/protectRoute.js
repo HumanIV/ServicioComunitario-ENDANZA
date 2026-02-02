@@ -1,33 +1,35 @@
-import React, { useState, useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
-import { CSpinner } from '@coreui/react'
+// src/components/ProtectedRoute.js - VERSIÓN MEJORADA
+import React from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
+import { CSpinner, CAlert } from '@coreui/react'
 
-const ProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null)
+const ProtectedRoute = ({ 
+  children, 
+  allowedRoles = []
+}) => {
+  const location = useLocation()
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('accessToken')
-      const user = localStorage.getItem('user')
-      
-      if (!token || !user) {
-        return false
-      }
+  // Estado de carga
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [userRole, setUserRole] = React.useState('')
 
+  React.useEffect(() => {
+    // Simular carga de datos del usuario
+    const loadUserData = () => {
       try {
-        const userData = JSON.parse(user)
-        // Verificar que el usuario tenga datos básicos
-        return !!(userData && userData.id)
+        const user = JSON.parse(localStorage.getItem('user') || '{}')
+        setUserRole(user.rol || '')
       } catch (error) {
-        console.error('Error verificando autenticación:', error)
-        return false
+        console.error('Error loading user data:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
-    
-    setIsAuthenticated(checkAuth())
+
+    loadUserData()
   }, [])
 
-  if (isAuthenticated === null) {
+  if (isLoading) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-100">
         <CSpinner color="primary" variant="grow" />
@@ -35,14 +37,35 @@ const ProtectedRoute = ({ children }) => {
     )
   }
 
+  // Verificar autenticación
+  const isAuthenticated = !!localStorage.getItem('accessToken')
+  
   if (!isAuthenticated) {
-    // Guardar la ruta actual para redirigir después del login
-    const currentPath = window.location.pathname + window.location.search
-    if (currentPath !== '/login') {
-      localStorage.setItem('redirectAfterLogin', currentPath)
-    }
-    
+    localStorage.setItem('redirectAfterLogin', location.pathname)
     return <Navigate to="/login" replace />
+  }
+
+  // Verificar permisos si se especifican roles
+  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+    return (
+      <div className="container py-5">
+        <CAlert color="danger">
+          <h4>Acceso Denegado</h4>
+          <p>No tienes permisos para acceder a esta sección.</p>
+          <p><strong>Ruta:</strong> {location.pathname}</p>
+          <p><strong>Tu rol:</strong> {userRole || 'No definido'}</p>
+          <p><strong>Roles requeridos:</strong> {allowedRoles.join(', ')}</p>
+          <div className="mt-3">
+            <button 
+              className="btn btn-primary"
+              onClick={() => window.history.back()}
+            >
+              Volver
+            </button>
+          </div>
+        </CAlert>
+      </div>
+    )
   }
 
   return children

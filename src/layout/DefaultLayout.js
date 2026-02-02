@@ -12,9 +12,9 @@ const DefaultLayout = () => {
     isLoading, 
     error, 
     refreshUserData,
-    isAdmin,
+    isSuperadministrador,
+    isAdministrador,
     isDocente,
-    isEstudiante,
     isRepresentante
   } = useUserRole()
   
@@ -25,11 +25,7 @@ const DefaultLayout = () => {
     if (userRole) {
       console.log('🎯 DefaultLayout - Filtrando navegación para rol:', userRole)
       const filteredNav = getFilteredNav(userRole)
-      console.log('📋 DefaultLayout - Navegación filtrada recibida:')
-      console.log('- Total elementos:', filteredNav.length)
-      filteredNav.forEach((item, i) => {
-        console.log(`  ${i}. ${item.name} ${item._children ? `(${item._children.length} hijos)` : ''}`)
-      })
+      console.log('📋 DefaultLayout - Navegación filtrada:', filteredNav)
       setFilteredNavigation(filteredNav)
     }
   }, [userRole])
@@ -71,29 +67,27 @@ const DefaultLayout = () => {
     )
   }
 
-  console.log('📤 DefaultLayout - Enviando navegación a AppSidebar:', filteredNavigation)
-console.log('📍 Referencia de filteredNavigation:', filteredNavigation === navigation) // si importas navigation
-
   return (
     <div>
       {/* Pasa la navegación filtrada al AppSidebar */}
       <AppSidebar navigation={filteredNavigation} />
-      
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader 
           onRoleRefresh={refreshUserData} 
           userData={userData}
         />
         <div className="body flex-grow-1">
+          {/* Pasa información del usuario al AppContent */}
           <AppContent 
             userRole={userRole}
             userId={userData?.id}
-            isAdmin={isAdmin}
+            isSuperadministrador={isSuperadministrador}
+            isAdministrador={isAdministrador}
             isDocente={isDocente}
-            isEstudiante={isEstudiante}
             isRepresentante={isRepresentante}
           />
           
+          {/* Indicador de modo desarrollo (opcional) */}
           {process.env.NODE_ENV === 'development' && (
             <div className="position-fixed bottom-0 end-0 m-3">
               <div className="badge bg-info">

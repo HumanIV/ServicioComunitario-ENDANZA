@@ -11,7 +11,7 @@ const useUserRole = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Mapeo de Id_rol a nombres legibles (usando TUS nombres)
+  // Mapeo de Id_rol a nombres legibles
   const roleMap = {
     1: 'admin',           // "Administrador"
     2: 'docente',         // "Docente"
@@ -19,12 +19,34 @@ const useUserRole = () => {
     4: 'representante'    // "Representante"
   }
 
+  // Función para validar datos del usuario
+  const validateUserData = useCallback((userData) => {
+    const requiredFields = ['id', 'Id_rol']
+    
+    for (const field of requiredFields) {
+      if (!userData[field]) {
+        console.warn(`⚠️ Campo requerido faltante: ${field}`)
+        return false
+      }
+    }
+    
+    // Validar que Id_rol sea válido
+    if (!roleMap[userData.Id_rol]) {
+      console.warn(`⚠️ Id_rol inválido: ${userData.Id_rol}`)
+      return false
+    }
+    
+    return true
+  }, [])
+
   // Función para obtener datos del usuario desde el backend
   const fetchUserFromBackend = useCallback(async () => {
     try {
       const token = localStorage.getItem('accessToken')
       if (!token) {
-        throw new Error('No hay token de autenticación')
+        setError('No hay token de autenticación')
+        setIsLoading(false)
+        return null
       }
 
       console.log('🔍 useUserRole - Obteniendo datos del usuario desde backend...')
@@ -37,8 +59,19 @@ const useUserRole = () => {
 
       console.log('✅ useUserRole - Respuesta del backend:', response)
 
-      if (!response.ok || !response.user) {
-        throw new Error('Respuesta inválida del servidor')
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Token expirado o inválido
+          localStorage.removeItem('accessToken')
+          localStorage.removeItem('user')
+          setError('Sesión expirada. Por favor, inicia sesión nuevamente.')
+          return null
+        }
+        throw new Error(`Error del servidor: ${response.status}`)
+      }
+
+      if (!response.user) {
+        throw new Error('Respuesta inválida del servidor: datos de usuario no encontrados')
       }
 
       // Convertir Id_rol a nombre de rol
@@ -60,6 +93,11 @@ const useUserRole = () => {
         esRepresentante: roleName === 'representante'
       }
 
+      // Validar datos antes de retornar
+      if (!validateUserData(completeUserData)) {
+        throw new Error('Datos de usuario inválidos')
+      }
+
       console.log('👤 useUserRole - Datos procesados:', {
         id: completeUserData.id,
         rol: completeUserData.rol,
@@ -73,9 +111,17 @@ const useUserRole = () => {
       return completeUserData
     } catch (err) {
       console.error('❌ useUserRole - Error obteniendo datos desde backend:', err)
-      throw err
+      
+      // Manejo específico de errores de red
+      if (err.name === 'TypeError' && err.message.includes('Failed to fetch')) {
+        setError('Error de conexión. Verifica tu conexión a internet.')
+      } else {
+        setError(err.message || 'Error al obtener datos del usuario')
+      }
+      
+      return null
     }
-  }, [])
+  }, [validateUserData])
 
   // Función para obtener datos del usuario (localStorage o backend)
   const getUserData = useCallback(async (forceRefresh = false) => {
@@ -87,7 +133,13 @@ const useUserRole = () => {
           try {
             const parsedUser = JSON.parse(cachedUser)
             console.log('📦 useUserRole - Usando datos cacheados de localStorage')
-            return parsedUser
+            
+            // Validar datos cacheados
+            if (validateUserData(parsedUser)) {
+              return parsedUser
+            } else {
+              console.warn('⚠️ useUserRole - Datos cacheados inválidos, obteniendo de backend')
+            }
           } catch (e) {
             console.warn('⚠️ useUserRole - Error al parsear cache, obteniendo de backend')
           }
@@ -101,7 +153,7 @@ const useUserRole = () => {
       console.error('❌ useUserRole - Error en getUserData:', err)
       throw err
     }
-  }, [fetchUserFromBackend])
+  }, [fetchUserFromBackend, validateUserData])
 
   // Función para refrescar datos del usuario
   const refreshUserData = useCallback(async () => {
@@ -111,9 +163,11 @@ const useUserRole = () => {
       
       const freshUserData = await getUserData(true)
       
-      setUserData(freshUserData)
-      setUserRole(freshUserData.rol)
-      setUserId(freshUserData.id)
+      if (freshUserData) {
+        setUserData(freshUserData)
+        setUserRole(freshUserData.rol)
+        setUserId(freshUserData.id)
+      }
       
       return freshUserData
     } catch (err) {
@@ -124,17 +178,52 @@ const useUserRole = () => {
     }
   }, [getUserData])
 
+  // Función para limpiar datos del usuario (logout)
+  const clearUserData = useCallback(() => {
+    localStorage.removeItem('user')
+    localStorage.removeItem('accessToken')
+    setUserRole(null)
+    setUserId(null)
+    setUserData(null)
+    setError(null)
+  }, [])
+
+  // Verificar si tiene un rol específico
+  const hasRole = useCallback((role) => {
+    if (!userRole) return false
+    
+    // JERARQUÍA CORREGIDA: Cada rol solo puede acceder a su propio contenido
+    const rolesHierarchy = {
+      'admin': ['admin'],
+      'docente': ['docente'],
+      'estudiante': [],
+      'representante': ['representante']
+    }
+    
+    return rolesHierarchy[userRole]?.includes(role) || false
+  }, [userRole])
+
+  // Verificar si tiene al menos uno de varios roles
+  const hasAnyRole = useCallback((roles = []) => {
+    if (!userRole) return false
+    return roles.includes(userRole)
+  }, [userRole])
+
   // Efecto inicial para cargar datos del usuario
   useEffect(() => {
+    let isMounted = true
+
     const loadUserData = async () => {
       try {
-        setIsLoading(true)
-        setError(null)
+        if (isMounted) {
+          setIsLoading(true)
+          setError(null)
+        }
         
         // Obtener datos del usuario
         const userData = await getUserData()
         
-        if (userData) {
+        if (isMounted && userData) {
           setUserData(userData)
           setUserRole(userData.rol)
           setUserId(userData.id)
@@ -146,39 +235,23 @@ const useUserRole = () => {
           })
         }
       } catch (err) {
-        console.error('❌ useUserRole - Error cargando datos iniciales:', err)
-        setError(err.message || 'Error al cargar datos del usuario')
+        if (isMounted) {
+          console.error('❌ useUserRole - Error cargando datos iniciales:', err)
+          setError(err.message || 'Error al cargar datos del usuario')
+        }
       } finally {
-        setIsLoading(false)
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     loadUserData()
+
+    return () => {
+      isMounted = false
+    }
   }, [getUserData])
-
-
-// Verificar si tiene un rol específico
-const hasRole = useCallback((role) => {
-  if (!userRole) return false
-  
-  // NUEVA JERARQUÍA: Estudiante no tiene acceso
-  const rolesHierarchy = {
-    'admin': ['admin', 'docente', 'representante'], // Admin ve todo excepto estudiante
-    'docente': ['docente'], // Docente solo ve su contenido
-    'estudiante': [], // ESTUDIANTE NO TIENE ACCESO
-    'representante': ['representante'] // Representante solo ve su contenido
-  }
-  
-  return rolesHierarchy[userRole]?.includes(role) || false
-}, [userRole])
-
-
-
-  // Verificar si tiene al menos uno de varios roles
-  const hasAnyRole = useCallback((roles = []) => {
-    if (!userRole) return false
-    return roles.includes(userRole)
-  }, [userRole])
 
   return {
     // Datos del usuario
@@ -193,6 +266,7 @@ const hasRole = useCallback((role) => {
     // Funciones
     getUserData,
     refreshUserData,
+    clearUserData,
     hasRole,
     hasAnyRole,
     
@@ -205,7 +279,12 @@ const hasRole = useCallback((role) => {
     // Verificación de permisos jerárquicos
     canManageUsers: hasAnyRole(['admin']),
     canManageContent: hasAnyRole(['admin', 'docente']),
-    canViewSensitiveData: hasAnyRole(['admin'])
+    canViewSensitiveData: hasAnyRole(['admin']),
+    
+    // Nuevas utilidades
+    isAuthenticated: !!userRole && !!userId,
+    roleId: userData?.Id_rol || null,
+    roleName: userData?.tipo_rol || null
   }
 }
 
