@@ -22,16 +22,87 @@ import avatar8 from './../../assets/images/avatars/8.jpg'
 const AppHeaderDropdown = () => {
   const navigate = useNavigate()
 
-  // Simulación de usuario logueado
-  const userData = {
-    name: 'Arianna Amaya',
-    email: 'arianna.amaya@endanza.edu',
-    role: 'Personal Docente'
+  // Obtener datos del usuario desde localStorage
+  const getUserData = () => {
+    try {
+      const userStr = localStorage.getItem('user')
+      if (userStr) {
+        const user = JSON.parse(userStr)
+        return {
+          name: user.nombre || user.name || 'Usuario',
+          email: user.email || 'usuario@email.com',
+          role: user.rol || user.role || 'Usuario',
+          avatar: user.avatar || avatar8
+        }
+      }
+    } catch (error) {
+      console.error('Error al obtener datos del usuario:', error)
+    }
+    
+    // Datos por defecto si no hay usuario en localStorage
+    return {
+      name: 'Arianna Amaya',
+      email: 'arianna.amaya@endanza.edu',
+      role: 'Personal Docente',
+      avatar: avatar8
+    }
   }
 
+  const userData = getUserData()
+
   const handleLogout = () => {
-    // Aquí iría la lógica de logout
-    navigate('/login')
+    // 1. Mostrar confirmación (opcional)
+    const confirmLogout = window.confirm('¿Estás seguro de que deseas cerrar sesión?')
+    if (!confirmLogout) return
+
+    // 2. Limpiar localStorage (eliminar todos los datos de autenticación)
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    
+    // 3. También limpiar sessionStorage si lo estás usando
+    sessionStorage.clear()
+    
+    // 4. Opcional: Limpiar cookies relacionadas con autenticación
+    document.cookie.split(";").forEach(function(c) {
+      document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/")
+    })
+    
+    // 5. Redirigir a login con parámetro de logout exitoso
+    navigate('/login?logout=success')
+    
+    // 6. Opcional: Forzar recarga completa para limpiar estado de la app
+    // window.location.reload()
+    
+    console.log('✅ Sesión cerrada exitosamente')
+  }
+
+  // Función para manejar clic en "Mi Perfil"
+  const handleProfileClick = () => {
+    // Verificar si el usuario está autenticado
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      // Si no hay token, redirigir al login
+      navigate('/login?session=expired')
+      return
+    }
+    
+    // Si está autenticado, redirigir al perfil
+    navigate('/profile')
+  }
+
+  // Función para manejar clic en "Configuración"
+  const handleSettingsClick = () => {
+    // Verificar si el usuario está autenticado
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      // Si no hay token, redirigir al login
+      navigate('/login?session=expired')
+      return
+    }
+    
+    // Si está autenticado, redirigir a configuración
+    navigate('/settings')
   }
 
   return (
@@ -42,7 +113,7 @@ const AppHeaderDropdown = () => {
           <div className="header-user-role" style={{ fontSize: '0.65rem' }}>{userData.role}</div>
         </div>
         <div className="avatar-wrapper position-relative">
-          <CAvatar src={avatar8} size="md" className="border border-2 border-white shadow-sm" />
+          <CAvatar src={userData.avatar} size="md" className="border border-2 border-white shadow-sm" />
           <div className="status-indicator bg-success position-absolute"></div>
         </div>
       </CDropdownToggle>
@@ -50,7 +121,7 @@ const AppHeaderDropdown = () => {
       <CDropdownMenu className="pt-0 shadow-lg border-0 rounded-4 mt-2 overflow-hidden animate-fade-in premium-dropdown-menu" placement="bottom-end" style={{ minWidth: '220px' }}>
         <CDropdownHeader className="dropdown-header-premium border-bottom p-3 mb-2">
           <div className="d-flex align-items-center">
-            <CAvatar src={avatar8} size="md" className="me-3" />
+            <CAvatar src={userData.avatar} size="md" className="me-3" />
             <div>
               <div className="fw-bold dropdown-user-name">{userData.name}</div>
               <div className="dropdown-user-email small" style={{ fontSize: '0.7rem' }}>{userData.email}</div>
@@ -60,7 +131,7 @@ const AppHeaderDropdown = () => {
 
         <CDropdownItem
           className="dropdown-item-premium py-2 px-3"
-          onClick={() => navigate('/profile')}
+          onClick={handleProfileClick}
           style={{ cursor: 'pointer' }}
         >
           <CIcon icon={cilUser} className="me-2 text-primary" />
@@ -69,7 +140,8 @@ const AppHeaderDropdown = () => {
 
         <CDropdownItem
           className="dropdown-item-premium py-2 px-3"
-          href="#"
+          onClick={handleSettingsClick}
+          style={{ cursor: 'pointer' }}
         >
           <CIcon icon={cilSettings} className="me-2 text-muted" />
           Configuración Cuenta
@@ -122,6 +194,12 @@ const AppHeaderDropdown = () => {
           border-radius: 8px !important;
           margin: 4px 8px !important;
           width: auto !important;
+        }
+        .dropdown-item-premium:hover {
+          background-color: rgba(0, 0, 0, 0.05) !important;
+        }
+        [data-coreui-theme="dark"] .dropdown-item-premium:hover {
+          background-color: rgba(255, 255, 255, 0.05) !important;
         }
       `}</style>
     </CDropdown>

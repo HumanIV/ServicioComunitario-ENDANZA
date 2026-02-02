@@ -8,6 +8,21 @@ import 'simplebar-react/dist/simplebar.min.css'
 import { CBadge, CNavLink, CSidebarNav } from '@coreui/react'
 
 export const AppSidebarNav = ({ items }) => {
+  // Agrega logs para depurar
+  console.log('🎯 AppSidebarNav - Items recibidos:', items)
+  console.log('🔢 Cantidad de items:', items?.length || 0)
+  
+  if (!items || items.length === 0) {
+    console.log('⚠️ AppSidebarNav - No hay items para mostrar')
+    return (
+      <CSidebarNav>
+        <div className="text-center p-4 text-muted">
+          <small>No hay módulos disponibles para tu rol</small>
+        </div>
+      </CSidebarNav>
+    )
+  }
+
   const navLink = (name, icon, badge, indent = false) => {
     return (
       <>
@@ -31,6 +46,9 @@ export const AppSidebarNav = ({ items }) => {
   const navItem = (item, index, indent = false) => {
     const { component, name, badge, icon, ...rest } = item
     const Component = component
+    
+    console.log(`📌 Renderizando item: ${name}`, item)
+    
     return (
       <Component as="div" key={index}>
         {rest.to || rest.href ? (
@@ -51,6 +69,9 @@ export const AppSidebarNav = ({ items }) => {
   const navGroup = (item, index) => {
     const { component, name, icon, items, to, ...rest } = item
     const Component = component
+    
+    console.log(`📦 Renderizando grupo: ${name}`, item)
+    
     return (
       <Component compact as="div" key={index} toggler={navLink(name, icon)} {...rest}>
         {items?.map((item, index) =>
@@ -62,8 +83,10 @@ export const AppSidebarNav = ({ items }) => {
 
   return (
     <CSidebarNav as={SimpleBar}>
-      {items &&
-        items.map((item, index) => (item.items ? navGroup(item, index) : navItem(item, index)))}
+      {items.map((item, index) => {
+        console.log(`📋 Procesando item ${index}:`, item.name, item.component?.displayName)
+        return item.items ? navGroup(item, index) : navItem(item, index)
+      })}
     </CSidebarNav>
   )
 }

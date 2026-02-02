@@ -16,13 +16,17 @@ import { AppSidebarNav } from './AppSidebarNav'
 // Usaremos el favicon como logo sin fondo
 const logoEndanza = "/favicon.png"
 
-// sidebar nav config
-import navigation from '../_nav'
+// QUITA ESTA LÍNEA - Ya no necesitas importar navigation aquí
+// import navigation from '../_nav'
 
-const AppSidebar = () => {
+const AppSidebar = ({ navigation = [] }) => { // RECIBE navigation COMO PROP, con valor por defecto array vacío
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const { colorMode } = useColorModes('coreui-free-react-admin-template-theme')
+  
+  // Agrega un log para depurar
+  console.log('🔄 AppSidebar - Navegación recibida:', navigation)
+  console.log('📊 Total de items en navegación:', navigation?.length)
 
   return (
     <CSidebar
@@ -48,10 +52,10 @@ const AppSidebar = () => {
         />
       </CSidebarHeader>
 
-      <AppSidebarNav items={navigation} />
+      {/* USA LA PROP navigation EN LUGAR DE LA IMPORTACIÓN DIRECTA */}
+      <AppSidebarNav items={navigation || []} />
     </CSidebar>
   )
 }
 
 export default React.memo(AppSidebar)
-

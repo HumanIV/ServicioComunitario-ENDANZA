@@ -1,12 +1,10 @@
 import React, { Suspense, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-
 import { CSpinner, useColorModes } from '@coreui/react'
+
 import './scss/style.scss'
 import './styles/global.css'
-
-// We use those styles to show code examples, you should remove them in your application.
 import './scss/examples.scss'
 
 // Containers
@@ -15,6 +13,8 @@ const DefaultLayout = React.lazy(() => import('./layout/DefaultLayout'))
 // Pages
 const Login = React.lazy(() => import('./views/pages/login/Login'))
 
+// Componente de ruta protegida
+const ProtectedRoute = React.lazy(() => import('./components/protectRoute'))
 
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
@@ -45,7 +45,17 @@ const App = () => {
       >
         <Routes>
           <Route exact path="/login" name="Login Page" element={<Login />} />
-          <Route path="*" name="Home" element={<DefaultLayout />} />
+          
+          {/* Rutas protegidas - Solo accesibles con autenticación */}
+          <Route 
+            path="*" 
+            name="Home" 
+            element={
+              <ProtectedRoute>
+                <DefaultLayout />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </Suspense>
     </HashRouter>
