@@ -38,8 +38,29 @@ const _nav = [
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     roles: ['admin']
   },
-  
 
+  // COMPETENCIAS (Solo admin)
+  {
+    component: CNavItem,
+    name: 'COMPETENCIAS',
+    to: '/competencias',
+    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+    roles: ['admin']
+  },
+
+  {
+    component: CNavItem,
+    name: 'PREINSCRIPCIÓN',
+    to: '/preinscripcion',
+    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    roles: ['admin']
+  },
+
+  {
+    component: CNavTitle,
+    name: 'MÓDULOS',
+    roles: ['admin', 'docente', 'representante']
+  },
 
   // GESTIÓN ACADÉMICA (Solo para Representantes)
   {
