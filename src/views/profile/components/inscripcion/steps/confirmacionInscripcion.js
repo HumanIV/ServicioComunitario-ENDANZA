@@ -142,27 +142,6 @@ const ConfirmacionInscripcion = ({ formData, codigoInscripcion, onDescargar }) =
           <strong className="text-primary">Nota:</strong> Se ha enviado una copia de confirmación al correo electrónico registrado. Si no lo recibe en 5 minutos, verifique su bandeja de spam o descargue la planilla manualmente.
         </p>
       </div>
-
-      <style>{`
-        .ls-1 { letter-spacing: 1px; }
-        .hover-bg-gray:hover { background-color: #e5e7eb !important; }
-        .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; transition: all 0.2s; }
-        
-        .confirm-title { color: var(--neutral-800); }
-        .confirm-subtitle { color: var(--neutral-600); }
-        .confirm-code-box { background-color: white; }
-        .confirm-summary-card { background-color: var(--neutral-100); }
-        .confirm-copy-btn { background-color: var(--neutral-100); color: var(--neutral-500); }
-        .confirm-print-btn { background-color: white; color: var(--neutral-800); }
-
-        [data-coreui-theme="dark"] .confirm-title { color: white; }
-        [data-coreui-theme="dark"] .confirm-subtitle { color: rgba(255,255,255,0.5); }
-        [data-coreui-theme="dark"] .confirm-code-box { background-color: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important; }
-        [data-coreui-theme="dark"] .confirm-summary-card { background-color: #1e293b; }
-        [data-coreui-theme="dark"] .confirm-copy-btn { background-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
-        [data-coreui-theme="dark"] .confirm-print-btn { background-color: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1) !important; }
-        [data-coreui-theme="dark"] .hover-bg-gray:hover { background-color: rgba(255,255,255,0.1) !important; }
-      `}</style>
     </div>
   );
 };

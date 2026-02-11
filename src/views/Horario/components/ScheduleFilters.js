@@ -16,19 +16,19 @@ const ScheduleFilters = ({
     extraAction
 }) => {
     return (
-        <div className="mb-4 p-4 rounded-4 border border-light-custom bg-light-custom bg-opacity-10 shadow-sm">
+        <div className="mb-4 p-4 rounded-4 border border-light-custom bg-light-custom bg-opacity-10 shadow-sm z-high">
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mb-4">
-                <div className="text-muted-custom fw-bold small text-uppercase ls-1">
+                <div className="text-muted-custom fw-bold small text-uppercase ls-1 text-center text-md-start">
                     Total Secciones: <span className="fs-5 header-title-custom ms-1">{activeFilters.totalResults}</span>
                 </div>
 
                 <div style={{ maxWidth: '400px', width: '100%' }}>
-                    <CInputGroup className="shadow-sm rounded-3 overflow-hidden border border-light-custom">
-                        <CInputGroupText className="border-0 text-muted-custom bg-light-custom">
+                    <CInputGroup className="shadow-sm rounded-3 overflow-hidden border border-light-custom bg-glass-premium">
+                        <CInputGroupText className="border-0 text-muted-custom bg-transparent">
                             <CIcon icon={cilSearch} />
                         </CInputGroupText>
                         <CFormInput
-                            className="border-0 ps-0 bg-light-custom header-title-custom"
+                            className="border-0 ps-0 bg-transparent header-title-custom"
                             placeholder="Buscar por nombre de sección o grado..."
                             value={searchTerm}
                             onChange={(e) => onSearch(e.target.value)}
@@ -38,9 +38,9 @@ const ScheduleFilters = ({
             </div>
 
             <div className="row g-3 align-items-center">
-                <div className="col-md-6">
+                <div className="col-12 col-md-6">
                     <CFormSelect
-                        className="bg-light-custom border-light-custom header-title-custom shadow-sm"
+                        className="bg-glass-premium border-light-custom header-title-custom shadow-sm"
                         value={gradeLevel}
                         onChange={(e) => onFilterChange('gradeLevel', e.target.value)}
                     >
@@ -51,8 +51,10 @@ const ScheduleFilters = ({
                     </CFormSelect>
                 </div>
                 {/* Replaced Academic Year Dropdown handling with flexible extra action area */}
-                <div className="col-md-6 d-flex justify-content-md-end">
-                    {extraAction}
+                <div className="col-12 col-md-6 d-flex justify-content-center justify-content-md-end">
+                    <div className="w-100 w-md-auto d-flex justify-content-center">
+                        {extraAction}
+                    </div>
                 </div>
             </div>
 

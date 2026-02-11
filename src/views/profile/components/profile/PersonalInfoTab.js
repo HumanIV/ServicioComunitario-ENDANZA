@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 
 const InfoItem = ({ icon, label, value, subValue }) => (
     <div className="d-flex align-items-center p-3 rounded-4 personal-info-item transition-all">
-        <div className="icon-box-sm bg-orange-soft text-primary me-3 shadow-sm">
+        <div className="icon-box-sm bg-orange-soft text-warning me-3 shadow-sm">
             <CIcon icon={icon} />
         </div>
         <div>
@@ -24,7 +24,7 @@ const PersonalInfoTab = ({ student }) => {
                 <CCol xs={12} lg={6}>
                     <CCard className="premium-card border-0 h-100 shadow-sm">
                         <CCardHeader className="bg-orange-soft border-0 d-flex align-items-center py-4 px-4">
-                            <div className="p-2 bg-primary rounded-circle me-3 shadow-sm">
+                            <div className="p-2 bg-warning rounded-circle me-3 shadow-sm">
                                 <CIcon icon={cilUser} size="sm" className="text-white" />
                             </div>
                             <h5 className="mb-0 fw-bold personal-info-value text-uppercase ls-1">Ficha de Identidad</h5>
@@ -64,7 +64,7 @@ const PersonalInfoTab = ({ student }) => {
                 <CCol xs={12} lg={6}>
                     <CCard className="premium-card border-0 h-100 shadow-sm">
                         <CCardHeader className="bg-orange-soft border-0 d-flex align-items-center py-4 px-4">
-                            <div className="p-2 bg-primary rounded-circle me-3 shadow-sm">
+                            <div className="p-2 bg-warning rounded-circle me-3 shadow-sm">
                                 <CIcon icon={cilHome} size="sm" className="text-white" />
                             </div>
                             <h5 className="mb-0 fw-bold personal-info-value text-uppercase ls-1">Información de Geolocalización</h5>

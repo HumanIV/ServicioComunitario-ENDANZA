@@ -1,7 +1,6 @@
 import {
   CCard,
   CCardBody,
-  CCardHeader,
   CCardFooter,
   CContainer,
   CNav,
@@ -12,7 +11,6 @@ import {
   CButton,
   CRow,
   CCol,
-  CAlert,
   CBadge,
   CToaster,
   CToast,
@@ -26,9 +24,10 @@ import {
   useCallback
 } from "react"
 import PeriodoTab from "./components/boletin/periodoTab"
+import AcademicHeader from "./components/common/AcademicHeader"
+import StudentInfoCard from "./components/common/StudentInfoCard"
 import {
   cilLockLocked,
-  cilEducation,
   cilBan,
   cilCloudDownload,
   cilFolderOpen
@@ -162,78 +161,43 @@ const BoletinView = () => {
   return (
     <CContainer className="py-4 animate__animated animate__fadeIn">
       <CCard className="premium-card border-0 overflow-hidden shadow-lg pb-4">
-        <CCardHeader className="bg-orange-soft border-0 py-4 px-4 px-md-5">
-          <CRow className="align-items-center">
-            <CCol md={8}>
-              <div className="d-flex align-items-center">
-                <div className="p-3 bg-primary rounded-circle me-3 shadow-sm d-none d-md-block">
-                  <CIcon icon={cilFolderOpen} size="xl" className="text-white" />
-                </div>
-                <div>
-                  <h3 className="mb-0 fw-bold ls-1 boletin-header-title text-uppercase">Expediente Académico</h3>
-                  <p className="mb-0 boletin-header-subtitle small text-uppercase ls-1 fw-bold">Consulta de Boletines • Período 2024</p>
-                </div>
-              </div>
-            </CCol>
-            <CCol md={4} className="text-md-end mt-3 mt-md-0">
-              <CBadge className="boletin-id-badge border border-primary border-opacity-10 px-4 py-2 rounded-pill fs-6 shadow-sm">
-                ID ESTUDIANTE: <span className="font-monospace">{estudiante.codigo}</span>
-              </CBadge>
-            </CCol>
-          </CRow>
-        </CCardHeader>
 
-        <CCardBody className="p-4 p-md-5">
-          <CRow className="mb-5 g-4">
-            <CCol md={8}>
-              <div className="p-4 rounded-4 boletin-info-card h-100 boletin-border">
-                <div className="d-flex align-items-center mb-4">
-                  <span className="p-2 bg-primary bg-opacity-10 text-primary rounded-circle me-3">
-                    <CIcon icon={cilEducation} size="sm" />
-                  </span>
-                  <h6 className="text-primary mb-0 fw-bold text-uppercase ls-1">Información Institucional</h6>
-                </div>
+        <AcademicHeader
+          title="Expediente Académico"
+          subtitle="Consulta de Boletines"
+          studentCode={estudiante.codigo}
+          icon={cilFolderOpen}
+          colorClass="warning"
+        />
 
-                <CRow className="g-4">
-                  <CCol sm={6}>
-                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Estudiante Registrado</label>
-                    <div className="fw-bold fs-5 boletin-info-value">{estudiante.nombre}</div>
-                  </CCol>
-                  <CCol sm={6}>
-                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Nivel Académico</label>
-                    <div className="fw-bold fs-5 text-primary">{estudiante.grado} <span className="boletin-info-subtext fw-normal ms-1">– Secc {estudiante.seccion}</span></div>
-                  </CCol>
-                  <CCol sm={6}>
-                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Documento de Identidad</label>
-                    <div className="fw-bold fs-5 boletin-info-value font-monospace">{estudiante.dni}</div>
-                  </CCol>
-                  <CCol sm={6}>
-                    <label className="form-label small boletin-info-label fw-bold text-uppercase mb-1 ls-1" style={{ fontSize: '0.65rem' }}>Representante Legal</label>
-                    <div className="fw-bold fs-5 boletin-info-value">{estudiante.representante}</div>
-                  </CCol>
-                </CRow>
-              </div>
+        <CCardBody className="p-3 p-md-5">
+          <CRow className="mb-4 mb-md-5 g-3 g-md-4">
+            <CCol md={8}>
+              <StudentInfoCard
+                student={estudiante}
+                colorClass="warning"
+              />
             </CCol>
             <CCol md={4}>
-              <div className="p-4 rounded-4 bg-orange-soft h-100 border border-primary border-opacity-10">
-                <div className="d-flex align-items-center mb-4">
-                  <span className="p-2 bg-avatar-frame text-primary rounded-circle me-3 shadow-sm">
+              <div className="p-3 p-md-4 rounded-4 bg-orange-soft h-100 border border-warning border-opacity-10 shadow-sm availability-card">
+                <div className="d-flex align-items-center mb-3 mb-md-4">
+                  <span className="p-2 bg-warning text-white rounded-circle me-3 shadow-sm flex-shrink-0">
                     <CIcon icon={cilFolderOpen} size="sm" />
                   </span>
-                  <h6 className="text-primary mb-0 fw-bold text-uppercase ls-1">Disponibilidad</h6>
+                  <h6 className="text-warning mb-0 label-micro fw-bold text-uppercase ls-1">Disponibilidad</h6>
                 </div>
-                <div className="d-flex flex-column gap-3">
+                <div className="d-flex flex-column gap-2 gap-md-3">
                   {Object.entries(periodosEstado).map(([periodo, data]) => (
-                    <div key={periodo} className="d-flex justify-content-between align-items-center p-3 rounded-3 boletin-period-row shadow-sm boletin-border">
-                      <span className="fw-bold small boletin-info-value">Período Académico {periodo}</span>
+                    <div key={periodo} className="d-flex justify-content-between align-items-center p-2 p-md-3 rounded-3 bg-availability-item shadow-sm border border-availability-item transition-all">
+                      <span className="fw-bold small availability-text">Lapso {periodo}</span>
                       {data.estadoSecretaria === 'aprobado' ? (
-                        <div className="d-flex align-items-center text-success small fw-bold">
-                          <div className="bg-success rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div>
+                        <div className="d-flex align-items-center text-success small fw-bold" style={{ fontSize: '0.65rem' }}>
+                          <div className="bg-success rounded-circle me-1 me-md-2" style={{ width: '6px', height: '6px' }}></div>
                           ACCESIBLE
                         </div>
                       ) : (
-                        <div className="d-flex align-items-center text-muted small fw-bold opacity-50">
-                          <div className="bg-secondary rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div>
+                        <div className="d-flex align-items-center text-muted-custom small fw-bold opacity-50" style={{ fontSize: '0.65rem' }}>
+                          <div className="bg-secondary rounded-circle me-1 me-md-2" style={{ width: '6px', height: '6px' }}></div>
                           BLOQUEADO
                         </div>
                       )}
@@ -245,18 +209,18 @@ const BoletinView = () => {
           </CRow>
 
           {!noHayPeriodosDisponibles ? (
-            <div className="px-md-2">
-              <CNav variant="pills" className="boletin-nav-bg p-2 rounded-pill mb-4 d-inline-flex gap-2">
+            <div className="px-md-2 overflow-hidden w-100">
+              <CNav variant="pills" className="bg-nav-pills p-2 rounded-pill mb-4 d-flex flex-nowrap overflow-auto gap-2 w-100 w-md-auto shadow-sm">
                 {Object.keys(boletinData.periodos).map(periodoKey => {
                   const periodo = parseInt(periodoKey)
                   const estado = periodosEstado[periodo]?.estadoSecretaria
                   if (estado !== 'aprobado') return null
 
                   return (
-                    <CNavItem key={periodo}>
+                    <CNavItem key={periodo} className="flex-shrink-0">
                       <CNavLink
-                        className={`rounded-pill px-4 fw-bold py-2 transition-all ${activeKey === periodo ? 'boletin-nav-active shadow-sm' : 'boletin-nav-inactive hover-bg-gray'}`}
-                        style={{ cursor: 'pointer' }}
+                        className={`rounded-pill px-4 fw-bold py-2 transition-all ${activeKey === periodo ? 'bg-warning text-white shadow-sm' : 'nav-pill-link hover-bg-orange-soft'}`}
+                        style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
                         onClick={() => setActiveKey(periodo)}
                       >
                         {periodo}° Lapso
@@ -292,13 +256,13 @@ const BoletinView = () => {
           ) : (
             <div className="text-center py-5">
               <div className="p-4 bg-orange-soft rounded-circle d-inline-flex mb-4 boletin-empty-icon-border shadow-sm">
-                <CIcon icon={cilBan} size="4xl" className="text-primary" />
+                <CIcon icon={cilBan} size="4xl" className="text-warning" />
               </div>
-              <h3 className="fw-bold mb-3 boletin-info-value">Información No Disponible</h3>
-              <p className="boletin-info-label mx-auto mb-4" style={{ maxWidth: '500px' }}>
+              <h3 className="fw-bold mb-3 empty-title">Información No Disponible</h3>
+              <p className="empty-subtitle mx-auto mb-4" style={{ maxWidth: '500px' }}>
                 Los boletines académicos correspondientes al período actual aún se encuentran en proceso de validación administrativa.
               </p>
-              <CButton className="btn-premium px-5 py-3 rounded-pill shadow-sm hover-lift">
+              <CButton className="btn-premium px-5 py-3 rounded-pill shadow-sm hover-lift bg-warning text-white border-0">
                 <CIcon icon={cilCloudDownload} className="me-2" />
                 SOLICITAR NOTIFICACIÓN
               </CButton>
@@ -306,8 +270,8 @@ const BoletinView = () => {
           )}
         </CCardBody>
 
-        <CCardFooter className="boletin-footer border-0 py-4 text-center">
-          <small className="boletin-info-label fw-bold text-uppercase ls-1 opacity-75" style={{ fontSize: '0.7rem' }}>
+        <CCardFooter className="boletin-footer border-0 py-4 text-center bg-transparent">
+          <small className="footer-text fw-bold text-uppercase ls-1 opacity-75" style={{ fontSize: '0.7rem' }}>
             <CIcon icon={cilLockLocked} className="me-2" size="sm" />
             Documento Oficial Validado por la Coordinación Académica | ENDANZA {new Date().getFullYear()}
           </small>
@@ -326,6 +290,32 @@ const BoletinView = () => {
       </CToaster>
 
       <style>{`
+        .ls-1 { letter-spacing: 1px; }
+        .label-micro { font-size: 0.75rem; }
+        .transition-all { transition: all 0.2s ease; }
+        .bg-nav-pills { background-color: var(--neutral-100); }
+        .nav-pill-link { color: var(--neutral-600); }
+        .nav-pill-link:hover { background-color: rgba(242, 140, 15, 0.05); color: #F28C0F; }
+        
+        .bg-availability-item { background-color: white; }
+        .border-availability-item { border-color: var(--neutral-100) !important; }
+        .availability-text { color: var(--neutral-800); }
+        .empty-title { color: var(--neutral-800); }
+        .empty-subtitle { color: var(--neutral-500); }
+        .footer-text { color: var(--neutral-500); }
+
+        [data-coreui-theme="dark"] .availability-card { background-color: rgba(242, 140, 15, 0.05); border-color: rgba(242, 140, 15, 0.1) !important; }
+        [data-coreui-theme="dark"] .bg-availability-item { background-color: rgba(255, 255, 255, 0.05); }
+        [data-coreui-theme="dark"] .border-availability-item { border-color: rgba(255, 255, 255, 0.05) !important; }
+        [data-coreui-theme="dark"] .availability-text { color: white; }
+        [data-coreui-theme="dark"] .bg-nav-pills { background-color: rgba(255, 255, 255, 0.05); }
+        [data-coreui-theme="dark"] .nav-pill-link { color: rgba(255, 255, 255, 0.6); }
+        [data-coreui-theme="dark"] .nav-pill-link:hover { background-color: rgba(242, 140, 15, 0.1); color: #F28C0F; }
+        [data-coreui-theme="dark"] .empty-title { color: white; }
+        [data-coreui-theme="dark"] .empty-subtitle { color: rgba(255, 255, 255, 0.5); }
+        [data-coreui-theme="dark"] .boletin-empty-icon-border { border: 1px solid rgba(255, 255, 255, 0.05); }
+        [data-coreui-theme="dark"] .footer-text { color: rgba(255, 255, 255, 0.4); }
+
         @media print { .no-print { display: none !important; } }
       `}</style>
     </CContainer>

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { listUsers } from '../../users/Users.service'
+import { listStudents } from '../../../services/students'
+import { listSections } from '../../../services/schedules'
 
 export const useSuperRootData = () => {
   // Estados para los modales
   const [visiblePeriodoInscripcion, setVisiblePeriodoInscripcion] = useState(false)
-  const [visibleValidacionNotas, setVisibleValidacionNotas] = useState(false)
-  const [visibleControlBoletines, setVisibleControlBoletines] = useState(false)
+  const [visibleSubidaNotas, setVisibleSubidaNotas] = useState(false)
 
   // Estados para configuración
   const [periodoInscripcion, setPeriodoInscripcion] = useState({
@@ -14,90 +15,83 @@ export const useSuperRootData = () => {
     activo: true
   })
 
-  const [notasPendientes, setNotasPendientes] = useState([
-    { id: 1, profesor: 'Ana Martínez', curso: 'Ballet I', estudiantes: 15, fecha: '2024-01-10', estado: 'pendiente' },
-    { id: 2, profesor: 'Carlos Ruiz', curso: 'Jazz Avanzado', estudiantes: 12, fecha: '2024-01-11', estado: 'pendiente' },
-    { id: 3, profesor: 'Lucía Gómez', curso: 'Contemporáneo', estudiantes: 18, fecha: '2024-01-09', estado: 'aprobado' },
-  ])
-
-  const [boletines, setBoletines] = useState([
-    { id: 1, periodo: 'Q1-2024', curso: 'Ballet I', disponible: true, descargas: 45 },
-    { id: 2, periodo: 'Q1-2024', curso: 'Jazz Avanzado', disponible: false, descargas: 0 },
-    { id: 3, periodo: 'Q1-2024', curso: 'Contemporáneo', disponible: true, descargas: 32 },
-  ])
+  const [periodoSubidaNotas, setPeriodoSubidaNotas] = useState({
+    fechaInicio: '2026-05-01',
+    fechaFin: '2026-05-30',
+    activo: false
+  })
 
   const [usuarios, setUsuarios] = useState([])
+  const [repsCount, setRepsCount] = useState(0)
+  const [students, setStudents] = useState([])
+  const [sections, setSections] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  // Cargar usuarios reales desde el servicio
+  // Cargar datos
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
+      setLoading(true)
       try {
-        const data = await listUsers()
-        // Mapeamos el formato del servicio al formato que espera el dashboard
-        const mappedUsers = data.map(u => ({
-          id: u.id,
-          nombre: `${u.first_name} ${u.last_name}`,
-          rol: u.role,
-          email: u.email,
-          activo: u.status === 'active'
-        }))
+        const [usersData, studentsData, sectionsData] = await Promise.all([
+          listUsers(),
+          listStudents(),
+          listSections()
+        ])
+
+        // Mapeamos usuarios (Excluyendo representantes)
+        const mappedUsers = usersData
+          .filter(u => u.role !== 'representante')
+          .map(u => ({
+            id: u.id,
+            nombre: `${u.first_name} ${u.last_name}`,
+            rol: u.role,
+            email: u.email,
+            activo: u.status === 'active'
+          }))
+
         setUsuarios(mappedUsers)
+        setRepsCount(usersData.filter(u => u.role === 'representante').length)
+        setStudents(studentsData)
+        setSections(sectionsData)
       } catch (error) {
-        console.error("Error fetching users for dashboard:", error)
+        console.error("Error fetching data for dashboard:", error)
+      } finally {
+        setLoading(false)
       }
     }
-    fetchUsers()
+    fetchData()
   }, [])
 
   // Funciones de manejo
-  const aprobarNotas = (id) => {
-    setNotasPendientes(notasPendientes.map(nota =>
-      nota.id === id ? { ...nota, estado: 'aprobado' } : nota
-    ))
-  }
-
-  const rechazarNotas = (id) => {
-    setNotasPendientes(notasPendientes.map(nota =>
-      nota.id === id ? { ...nota, estado: 'rechazado' } : nota
-    ))
-  }
-
-  const toggleBoletinDisponible = (id) => {
-    setBoletines(boletines.map(boletin =>
-      boletin.id === id ? { ...boletin, disponible: !boletin.disponible } : boletin
-    ))
-  }
-
-  const guardarPeriodoInscripcion = () => {
-    // Aquí iría la lógica para guardar en el backend
-    console.log('Periodo guardado:', periodoInscripcion)
+  const guardarPeriodoInscripcion = (data) => {
+    setPeriodoInscripcion(data)
     setVisiblePeriodoInscripcion(false)
+  }
+
+  const guardarPeriodoSubidaNotas = (data) => {
+    setPeriodoSubidaNotas(data)
+    setVisibleSubidaNotas(false)
   }
 
   return {
     // Estados
     periodoInscripcion,
-    setPeriodoInscripcion,
-    notasPendientes,
-    setNotasPendientes,
-    boletines,
-    setBoletines,
+    periodoSubidaNotas,
     usuarios,
-    setUsuarios,
+    repsCount,
+    students,
+    sections,
+    loading,
 
     // Estados modales
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
-    visibleValidacionNotas,
-    setVisibleValidacionNotas,
-    visibleControlBoletines,
-    setVisibleControlBoletines,
+    visibleSubidaNotas,
+    setVisibleSubidaNotas,
 
     // Funciones
-    aprobarNotas,
-    rechazarNotas,
-    toggleBoletinDisponible,
-    guardarPeriodoInscripcion
+    guardarPeriodoInscripcion,
+    guardarPeriodoSubidaNotas
   }
 }
 

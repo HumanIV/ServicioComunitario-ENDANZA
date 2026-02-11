@@ -1,80 +1,68 @@
 import React from 'react'
-import { CCard, CCardHeader, CCardBody, CRow, CCol, CBadge } from "@coreui/react"
+import { CCard, CCardBody, CRow, CCol, CBadge } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
-import { cilCalendar, cilUser, cilInfo } from "@coreui/icons"
+import { cilCalendar, cilInfo } from "@coreui/icons"
+import AcademicHeader from '../common/AcademicHeader'
 
 const EncabezadoEstudiante = ({ estudiante, estadisticas }) => {
   return (
     <CCard className="premium-card border-0 overflow-hidden mb-5">
-      <CCardHeader className="bg-orange-soft border-0 py-4 px-4">
-        <CRow className="align-items-center">
-          <CCol md={8}>
-            <div className="d-flex align-items-center">
-              <div className="p-3 bg-primary rounded-3 me-3">
-                <CIcon icon={cilCalendar} size="xl" className="text-white" />
-              </div>
-              <div>
-                <h3 className="mb-0 fw-bold header-title text-uppercase ls-1">Mi Horario Académico</h3>
-                <p className="mb-0 header-subtitle small text-uppercase">Escuela de Danza Endanza • {estudiante.anoAcademico}</p>
-              </div>
-            </div>
-          </CCol>
-          <CCol md={4} className="text-md-end mt-3 mt-md-0">
-            <CBadge className="header-badge border border-primary border-opacity-10 px-3 py-2 rounded-pill fs-6 shadow-sm">
-              ID Estudiante: {estudiante.codigo}
-            </CBadge>
-          </CCol>
-        </CRow>
-      </CCardHeader>
+      <AcademicHeader
+        title="Mi Horario Académico"
+        subtitle={`Escuela de Danza Endanza • ${estudiante.anoAcademico}`}
+        studentCode={estudiante.codigo}
+        icon={cilCalendar}
+        colorClass="warning"
+      />
 
-      <CCardBody className="p-4">
-        <CRow className="g-4 align-items-center">
+      <CCardBody className="p-3 p-md-4">
+        <CRow className="g-3 g-md-4 align-items-stretch">
           <CCol lg={7}>
-            <div className="p-4 rounded-4 info-box border border-primary border-opacity-10">
-              <div className="d-flex align-items-center mb-4">
-                <div className="avatar avatar-lg bg-orange-soft text-primary rounded-circle me-3 fw-bold fs-4">
+            <div className="p-3 p-md-4 rounded-4 info-box border border-warning border-opacity-10 h-100">
+              <div className="d-flex align-items-center mb-3 mb-md-4">
+                <div className="avatar avatar-lg bg-orange-soft text-warning rounded-circle me-3 fw-bold fs-4 flex-shrink-0 shadow-sm" style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   {estudiante.nombre.charAt(0)}
                 </div>
                 <div>
-                  <h4 className="mb-0 fw-bold header-title">{estudiante.nombre}</h4>
-                  <CBadge className="bg-success bg-opacity-10 text-success rounded-pill px-2 small">ESTADO: ACTIVO</CBadge>
+                  <h4 className="mb-0 fw-bold header-title fs-5 fs-md-4">{estudiante.nombre}</h4>
+                  <CBadge className="bg-success-soft text-success rounded-pill px-2 small mt-1">ESTADO: ACTIVO</CBadge>
                 </div>
               </div>
 
-              <CRow className="g-3">
-                <CCol sm={6}>
-                  <label className="header-label small text-uppercase ls-1 fw-bold mb-1">Grado y Sección</label>
-                  <div className="fw-bold fs-5 text-primary">{estudiante.grado} <span className="header-label fw-normal">Secc {estudiante.seccion}</span></div>
+              <CRow className="g-2 g-md-3">
+                <CCol xs={12} sm={6}>
+                  <label className="header-label label-micro mb-1 d-block">Grado y Sección</label>
+                  <div className="fw-bold fs-6 fs-sm-5 text-warning">{estudiante.grado} <span className="header-label fw-normal small">Secc {estudiante.seccion}</span></div>
                 </CCol>
-                <CCol sm={6}>
-                  <label className="header-label small text-uppercase ls-1 fw-bold mb-1">Año Académico</label>
-                  <div className="fw-bold fs-5 header-title">{estudiante.anoAcademico}</div>
+                <CCol xs={12} sm={6}>
+                  <label className="header-label label-micro mb-1 d-block">Año Académico</label>
+                  <div className="fw-bold fs-6 fs-sm-5 header-title">{estudiante.anoAcademico}</div>
                 </CCol>
-                <CCol sm={12}>
-                  <label className="header-label small text-uppercase ls-1 fw-bold mb-1">Representante Legal</label>
-                  <div className="fw-bold fs-5 header-title">{estudiante.representante}</div>
+                <CCol xs={12}>
+                  <label className="header-label label-micro mb-1 d-block">Representante Legal</label>
+                  <div className="fw-bold fs-6 fs-sm-5 header-title">{estudiante.representante}</div>
                 </CCol>
               </CRow>
             </div>
           </CCol>
 
           <CCol lg={5}>
-            <div className="p-4 rounded-4 bg-orange-soft h-100">
-              <h6 className="text-primary small fw-bold text-uppercase ls-1 mb-4">
+            <div className="p-3 p-md-4 rounded-4 bg-orange-soft h-100 shadow-sm border border-warning border-opacity-10">
+              <h6 className="text-warning label-micro mb-3 mb-md-4 d-flex align-items-center">
                 <CIcon icon={cilInfo} className="me-2" />
                 Resumen de Carga Académica
               </h6>
-              <CRow className="g-3">
-                <CCol sm={6}>
-                  <div className="p-3 bg-stat-box rounded-4 text-center shadow-sm border border-primary border-opacity-10 h-100 d-flex flex-column justify-content-center">
-                    <div className="display-5 fw-bold text-primary mb-1">{estadisticas.totalClasesSemana}</div>
-                    <div className="text-muted small text-uppercase fw-bold ls-1">Clases / Sem</div>
+              <CRow className="g-2 g-md-3">
+                <CCol xs={6}>
+                  <div className="p-2 p-md-3 bg-stat-box rounded-4 text-center shadow-sm border border-warning border-opacity-10 h-100 d-flex flex-column justify-content-center">
+                    <div className="fw-bold text-warning mb-0 fs-3 fs-md-2">{estadisticas.totalClasesSemana}</div>
+                    <div className="text-muted-custom label-micro mt-1" style={{ fontSize: '0.6rem' }}>Clases / Sem</div>
                   </div>
                 </CCol>
-                <CCol sm={6}>
-                  <div className="p-3 bg-stat-box rounded-4 text-center shadow-sm border border-primary border-opacity-10 h-100 d-flex flex-column justify-content-center">
-                    <div className="display-5 fw-bold text-primary mb-1">{estadisticas.totalHorasSemana}</div>
-                    <div className="text-muted small text-uppercase fw-bold ls-1">Horas Totales</div>
+                <CCol xs={6}>
+                  <div className="p-2 p-md-3 bg-stat-box rounded-4 text-center shadow-sm border border-warning border-opacity-10 h-100 d-flex flex-column justify-content-center">
+                    <div className="fw-bold text-warning mb-0 fs-3 fs-md-2">{estadisticas.totalHorasSemana}</div>
+                    <div className="text-muted-custom label-micro mt-1" style={{ fontSize: '0.6rem' }}>Horas Sem</div>
                   </div>
                 </CCol>
               </CRow>
@@ -84,18 +72,16 @@ const EncabezadoEstudiante = ({ estudiante, estadisticas }) => {
       </CCardBody>
       <style>{`
         .header-title { color: var(--neutral-800); }
-        .header-subtitle { color: var(--neutral-500); }
-        .header-badge { background-color: white; color: var(--primary-600); }
-        .info-box { background-color: var(--neutral-50); }
         .header-label { color: var(--neutral-500); }
+        .info-box { background-color: var(--neutral-50); }
         .bg-stat-box { background-color: white; }
+        .bg-success-soft { background-color: rgba(16, 185, 129, 0.1); }
 
-        [data-coreui-theme="dark"] .header-title { color: white; }
-        [data-coreui-theme="dark"] .header-subtitle { color: rgba(255,255,255,0.5); }
-        [data-coreui-theme="dark"] .header-badge { background-color: rgba(255,255,255,0.05); color: var(--primary-400); }
-        [data-coreui-theme="dark"] .info-box { background-color: rgba(255,255,255,0.02); }
+        [data-coreui-theme="dark"] .header-title { color: rgba(255,255,255,0.9); }
         [data-coreui-theme="dark"] .header-label { color: rgba(255,255,255,0.4); }
+        [data-coreui-theme="dark"] .info-box { background-color: rgba(255,255,255,0.02); }
         [data-coreui-theme="dark"] .bg-stat-box { background-color: rgba(255,255,255,0.05); }
+        [data-coreui-theme="dark"] .bg-success-soft { background-color: rgba(16, 185, 129, 0.15); }
       `}</style>
     </CCard>
   )

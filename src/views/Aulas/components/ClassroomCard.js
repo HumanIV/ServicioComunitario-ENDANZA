@@ -9,7 +9,7 @@ const ClassroomCard = ({ room, onTypeChange, onSeeSchedule, getStatusColor, clas
         <CCol lg={4} md={6}>
             <CCard className="shadow-lg h-100 hover-lift overflow-hidden border-0 premium-card" style={{ borderRadius: '16px', transition: 'all 0.3s ease' }}>
                 <div className="position-absolute top-0 start-0 w-100" style={{ height: '4px', background: '#F28C0F' }}></div>
-                <CCardBody className="d-flex flex-column p-4">
+                <CCardBody className="d-flex flex-column p-3 p-md-4">
                     <div className="d-flex justify-content-between align-items-start mb-4">
                         <div className="d-flex align-items-center">
                             <div className="bg-orange-soft p-2 rounded-3 me-3 text-primary d-flex align-items-center justify-content-center shadow-sm" style={{ width: '48px', height: '48px', border: '1px solid rgba(242, 140, 15, 0.2)' }}>

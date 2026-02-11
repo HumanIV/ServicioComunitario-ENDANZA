@@ -32,10 +32,10 @@ const ControlesVista = ({ modoVista, setModoVista, onDescargarPDF, onImprimir })
           Descargar Horario (PDF)
         </CButton>
         <CButton
-          className="border-2 rounded-pill px-4 py-2 fw-bold controls-outline-btn hover-orange transition-all"
+          className="border-2 rounded-pill px-4 py-2 fw-bold controls-outline-btn hover-orange transition-all d-flex align-items-center"
           onClick={onImprimir}
         >
-          <CIcon icon={cilPrint} className="me-2 text-primary" />
+          <CIcon icon={cilPrint} className="me-2 text-warning" />
           Imprimir
         </CButton>
       </div>
@@ -43,18 +43,21 @@ const ControlesVista = ({ modoVista, setModoVista, onDescargarPDF, onImprimir })
       <style>
         {`
             .hover-orange:hover {
-                border-color: var(--primary-400) !important;
-                color: var(--primary-600) !important;
-                background: var(--primary-50) !important;
+                border-color: #F28C0F !important;
+                color: #F28C0F !important;
+                background: rgba(242, 140, 15, 0.05) !important;
             }
             .transition-all { transition: all 0.2s ease; }
-            .controls-bg { background-color: var(--neutral-100); }
+            .controls-bg { background-color: rgba(0, 0, 0, 0.03); }
             .controls-text { color: var(--neutral-500); }
-            .controls-outline-btn { color: var(--neutral-600); border-color: var(--neutral-200); background-color: transparent; }
+            .controls-outline-btn { color: var(--neutral-600); border-color: rgba(0, 0, 0, 0.08); background-color: transparent; }
 
             [data-coreui-theme="dark"] .controls-bg { background-color: rgba(255,255,255,0.05); }
             [data-coreui-theme="dark"] .controls-text { color: rgba(255,255,255,0.4); }
             [data-coreui-theme="dark"] .controls-outline-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); }
+            [data-coreui-theme="dark"] .hover-orange:hover {
+                background: rgba(242, 140, 15, 0.1) !important;
+            }
           `}
       </style>
     </div>

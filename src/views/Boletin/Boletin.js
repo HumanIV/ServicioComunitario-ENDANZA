@@ -266,26 +266,27 @@ const SistemaBoletinesDanza = () => {
       case 'estudiantes':
         return (
           <div className="animate__animated animate__fadeIn">
-            <div className="d-flex align-items-center justify-content-between mb-5">
-              <div className="d-flex align-items-center">
+            <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 mb-md-5">
+              <div className="d-flex align-items-center justify-content-center justify-content-md-start">
                 <CButton
                   color="light"
-                  className="me-3 rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm"
-                  style={{ width: '45px', height: '45px' }}
+                  className="me-3 rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm flex-shrink-0"
+                  style={{ width: '40px', height: '40px' }}
                   onClick={() => dispatch({ type: 'VOLVER_A_GRADOS' })}
                 >
                   <CIcon icon={cilArrowLeft} />
                 </CButton>
                 <div>
-                  <h3 className="mb-0 fw-bold header-title-custom">{gradoSeleccionado.grado}</h3>
-                  <small className="text-muted-custom fw-bold ls-1 text-uppercase" style={{ fontSize: '0.7rem' }}>Gestión de Boletines</small>
+                  <h3 className="mb-0 fw-bold header-title-custom fs-4 fs-md-3">{gradoSeleccionado.grado}</h3>
+                  <small className="text-muted-custom fw-bold ls-1 text-uppercase" style={{ fontSize: '0.65rem' }}>Gestión de Boletines</small>
                 </div>
               </div>
 
-              <div className="d-flex gap-2">
+              <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
                 <CButton
                   color="light"
-                  className="text-primary fw-bold"
+                  className="text-primary fw-bold w-100 w-sm-auto shadow-sm"
+                  style={{ fontSize: '0.85rem' }}
                   onClick={() => handleToggleSeleccion('todos')}
                 >
                   {estudiantesSeleccionados.size === estudiantesUnicos.length
@@ -294,12 +295,13 @@ const SistemaBoletinesDanza = () => {
                 </CButton>
 
                 <CButton
-                  className={`btn-premium px-4 d-flex align-items-center ${estudiantesSeleccionados.size === 0 ? 'opacity-50' : ''}`}
+                  className={`btn-premium px-4 d-flex align-items-center justify-content-center w-100 w-sm-auto shadow-sm ${estudiantesSeleccionados.size === 0 ? 'opacity-50' : ''}`}
+                  style={{ fontSize: '0.85rem' }}
                   onClick={() => dispatch({ type: 'MOSTRAR_MODAL' })}
                   disabled={estudiantesSeleccionados.size === 0}
                 >
                   <CIcon icon={cilFile} className="me-2" />
-                  GENERAR {estudiantesSeleccionados.size > 0 ? `(${estudiantesSeleccionados.size})` : ''} BOLETINES
+                  GENERAR {estudiantesSeleccionados.size > 0 ? `(${estudiantesSeleccionados.size})` : ''}
                 </CButton>
               </div>
             </div>
@@ -380,24 +382,7 @@ const SistemaBoletinesDanza = () => {
 
       <ToastContainer toasts={toasts} dispatch={dispatch} />
 
-      <style>
-        {`
-          @media print {
-            .printable-area {
-              margin: 0;
-              border: none;
-              box-shadow: none;
-            }
-            .no-print {
-              display: none !important;
-            }
-            .btn {
-              display: none !important;
-            }
-          }
-          .ls-1 { letter-spacing: 1px; }
-        `}
-      </style>
+
     </CContainer>
   );
 };

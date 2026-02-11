@@ -125,19 +125,19 @@ const Aulas = () => {
                 <CCol>
                     <CCard className="shadow-sm border-0 mb-4 overflow-hidden premium-card" style={{ borderRadius: '16px' }}>
                         <div className="bg-primary" style={{ height: '6px' }}></div>
-                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-light-custom">
-                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                                <div>
-                                    <h4 className="mb-1 fw-bold header-title-custom d-flex align-items-center">
+                        <CCardHeader className="border-bottom-0 pt-3 pt-md-4 pb-3 px-3 px-md-4 bg-light-custom">
+                            <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+                                <div className="text-center text-lg-start">
+                                    <h4 className="mb-1 fw-bold header-title-custom d-flex align-items-center justify-content-center justify-content-lg-start fs-5 fs-md-4">
                                         <CIcon icon={cilRoom} className="me-2 text-primary" />
-                                        Gestión de Aulas y Espacios
+                                        Gestión de Aulas
                                     </h4>
-                                    <p className="text-muted-custom mb-0 small fw-medium">
+                                    <p className="text-muted-custom mb-0 small fw-medium d-none d-sm-block">
                                         Visualiza la disponibilidad y características de cada salón
                                     </p>
                                 </div>
 
-                                <div className="d-flex align-items-center gap-2 bg-light-custom p-1 px-3 rounded-pill border hover-shadow-sm transition-all shadow-sm" style={{ cursor: 'pointer' }}>
+                                <div className="d-flex align-items-center justify-content-center gap-2 bg-light-custom p-1 px-3 rounded-pill border hover-shadow-sm transition-all shadow-sm w-100 w-lg-auto" style={{ cursor: 'pointer' }}>
                                     <CIcon icon={cilSchool} className="text-secondary opacity-75" />
                                     <CDropdown variant="nav-item">
                                         <CDropdownToggle
@@ -165,14 +165,14 @@ const Aulas = () => {
                             </div>
                         </CCardHeader>
 
-                        <CCardBody className="px-4 pb-4">
-                            <div className="mb-4 p-4 rounded-4 border border-light-custom bg-light-custom bg-opacity-10 shadow-sm">
-                                <CInputGroup style={{ maxWidth: '400px' }} className="shadow-sm rounded-3 overflow-hidden border border-light-custom">
+                        <CCardBody className="px-3 px-md-4 pb-4">
+                            <div className="mb-4 p-3 p-md-4 rounded-4 border border-light-custom bg-light-custom bg-opacity-10 shadow-sm">
+                                <CInputGroup style={{ maxWidth: '400px' }} className="shadow-sm rounded-3 overflow-hidden border border-light-custom w-100">
                                     <CInputGroupText className="border-0 text-muted-custom bg-light-custom">
                                         <CIcon icon={cilSearch} />
                                     </CInputGroupText>
                                     <CFormInput
-                                        className="border-0 ps-0 bg-light-custom header-title-custom"
+                                        className="border-0 ps-0 bg-light-custom header-title-custom shadow-none"
                                         placeholder="Buscar aula o tipo..."
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}

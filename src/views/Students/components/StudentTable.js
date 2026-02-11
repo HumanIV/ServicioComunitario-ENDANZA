@@ -80,7 +80,7 @@ const StudentTable = ({
                                     </CTableHeaderCell>
                                     <CTableHeaderCell
                                         onClick={() => handleSort('id')}
-                                        className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 cursor-pointer"
+                                        className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 cursor-pointer d-mobile-none"
                                     >
                                         ID <SortIcon columnKey="id" />
                                     </CTableHeaderCell>
@@ -90,9 +90,9 @@ const StudentTable = ({
                                     >
                                         Estudiante <SortIcon columnKey="NombreEstudiante" />
                                     </CTableHeaderCell>
-                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Grado / Sección</CTableHeaderCell>
-                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Representante</CTableHeaderCell>
-                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Cédula</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 d-mobile-none">Grado / Sección</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 d-mobile-none">Representante</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 d-mobile-none">Cédula</CTableHeaderCell>
                                     <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1">Estatus</CTableHeaderCell>
                                     <CTableHeaderCell className="py-3 text-muted-custom small fw-bold text-uppercase ls-1 text-end pe-4">Acciones</CTableHeaderCell>
                                 </CTableRow>
@@ -119,32 +119,32 @@ const StudentTable = ({
                                                     onChange={() => handleSelectStudent(item.id)}
                                                 />
                                             </CTableDataCell>
-                                            <CTableDataCell className="border-bottom-light">
+                                            <CTableDataCell className="border-bottom-light d-mobile-none">
                                                 <div className="fw-bold header-title-custom">#{item.id}</div>
                                                 <div className="text-muted-custom" style={{ fontSize: '0.65rem' }}>MATRÍCULA</div>
                                             </CTableDataCell>
                                             <CTableDataCell className="border-bottom-light">
                                                 <div className="d-flex align-items-center">
-                                                    <div className="avatar-circle me-3 bg-orange-soft text-primary fw-bold shadow-sm">
+                                                    <div className="avatar-circle me-2 me-md-3 bg-orange-soft text-primary fw-bold shadow-sm flex-shrink-0" style={{ width: '35px', height: '35px', minWidth: '35px' }}>
                                                         {item.NombreEstudiante.charAt(0)}
                                                     </div>
-                                                    <div>
-                                                        <div className="fw-bold header-title-custom">{item.NombreEstudiante} {item.ApellidoEstudiante}</div>
-                                                        <div className="text-muted-custom small" style={{ fontSize: '0.75rem' }}>{item.Email}</div>
+                                                    <div className="overflow-hidden">
+                                                        <div className="fw-bold header-title-custom text-truncate" style={{ maxWidth: '140px' }}>{item.NombreEstudiante} {item.ApellidoEstudiante}</div>
+                                                        <div className="text-muted-custom small d-mobile-none" style={{ fontSize: '0.75rem' }}>{item.Email}</div>
                                                     </div>
                                                 </div>
                                             </CTableDataCell>
-                                            <CTableDataCell className="border-bottom-light">
+                                            <CTableDataCell className="border-bottom-light d-mobile-none">
                                                 <div className="fw-bold header-title-custom">{item.Grado}</div>
                                                 <CBadge className="bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 rounded-pill px-2 small">
                                                     {item.Seccion}
                                                 </CBadge>
                                             </CTableDataCell>
-                                            <CTableDataCell className="border-bottom-light">
+                                            <CTableDataCell className="border-bottom-light d-mobile-none">
                                                 <div className="header-title-custom fw-medium">{item.RepresentanteNombre} {item.RepresentanteApellido}</div>
                                                 <div className="text-muted-custom small">{item.Telefono}</div>
                                             </CTableDataCell>
-                                            <CTableDataCell className="border-bottom-light">
+                                            <CTableDataCell className="border-bottom-light d-mobile-none">
                                                 <div className="header-title-custom fw-bold text-nowrap">
                                                     <span className="text-primary me-1">{item.RepresentanteCedula.split('-')[0]}-</span>
                                                     {item.RepresentanteCedula.split('-')[1]}
@@ -159,7 +159,7 @@ const StudentTable = ({
                                                         color="light"
                                                         size="sm"
                                                         onClick={() => openModal("view", item)}
-                                                        className="px-3 border-0 transition-all hover-primary action-btn-custom bg-transparent"
+                                                        className="px-2 px-md-3 border-0 transition-all hover-primary action-btn-custom bg-transparent"
                                                         title="Ver perfil completo"
                                                     >
                                                         <CIcon icon={cilInfo} className="text-primary" />
@@ -168,7 +168,7 @@ const StudentTable = ({
                                                         color="light"
                                                         size="sm"
                                                         onClick={() => openModal("edit", item)}
-                                                        className="px-3 border-0 transition-all hover-warning action-btn-custom bg-transparent"
+                                                        className="px-2 px-md-3 border-0 transition-all hover-warning action-btn-custom bg-transparent"
                                                         title="Editar datos"
                                                     >
                                                         <CIcon icon={cilPencil} className="text-primary" />
@@ -177,7 +177,7 @@ const StudentTable = ({
                                                         color="light"
                                                         size="sm"
                                                         onClick={() => openModal("delete", item)}
-                                                        className="px-3 border-0 transition-all hover-danger action-btn-custom bg-transparent"
+                                                        className="px-2 px-md-3 border-0 transition-all hover-danger action-btn-custom bg-transparent d-mobile-none"
                                                         title="Eliminar registro"
                                                     >
                                                         <CIcon icon={cilTrash} className="text-primary" />

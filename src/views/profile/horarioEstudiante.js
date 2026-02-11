@@ -156,24 +156,7 @@ const HorarioUsuario = () => {
         ))}
       </CToaster>
 
-      <style>
-        {`
-          .ls-1 { letter-spacing: 1.5px; }
-          .loading-spinner-bg { background-color: rgba(242, 140, 15, 0.1); }
-          .loading-text { color: var(--neutral-800); }
-          .loading-subtext { color: var(--neutral-500); }
 
-          [data-coreui-theme="dark"] .loading-spinner-bg { background-color: rgba(255,255,255,0.05); }
-          [data-coreui-theme="dark"] .loading-text { color: white; }
-          [data-coreui-theme="dark"] .loading-subtext { color: rgba(255,255,255,0.4); }
-
-          @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-            .premium-card { border: 1px solid #eee !important; box-shadow: none !important; }
-          }
-        `}
-      </style>
     </CContainer>
   )
 }

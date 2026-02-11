@@ -23,7 +23,8 @@ import {
   cilX,
   cilPhone,
   cilPeople,
-  cilContact
+  cilContact,
+  cilBadge
 } from "@coreui/icons"
 import StudentForm from "./editForm"
 
@@ -50,6 +51,16 @@ const editModal = ({
   // Manejar cambios en el formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target
+
+    // Soporte para actualizaciones múltiples (herencia de datos)
+    if (name === 'multiple') {
+      setFormData(prev => ({
+        ...prev,
+        ...value
+      }))
+      return
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -100,6 +111,7 @@ const editModal = ({
     { key: 1, title: "Contacto", icon: cilPhone },
     { key: 2, title: "Padre", icon: cilPeople },
     { key: 3, title: "Madre", icon: cilContact },
+    { key: 4, title: "Representante", icon: cilBadge },
   ]
 
   return (

@@ -1,81 +1,84 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CRow, CCol, CCard, CCardHeader, CCardBody, CContainer } from '@coreui/react'
+import {
+  CRow,
+  CCol,
+  CCard,
+  CCardHeader,
+  CCardBody,
+  CContainer,
+  CSpinner,
+  CBadge,
+  CDropdown,
+  CDropdownToggle,
+  CDropdownMenu,
+  CDropdownItem,
+  CButton
+} from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSpeedometer, cilPlus, cilSchool } from '@coreui/icons'
-import { getStyle } from '@coreui/utils'
-import { CButton } from '@coreui/react'
+import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilAddressBook, cilExternalLink, cilChevronBottom } from '@coreui/icons'
 
 // Componentes
 import StatsWidgets from './components/widgets/statsWidgets'
-import ValidacionChart from './components/charts/validacionChart'
-import BoletinesChart from './components/charts/boletinesChart'
+import TeacherSectionsList from './components/TeacherSectionsList'
 import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal'
-import ValidacionNotasModal from './components/modals/validacionNotasModal'
-import ControlBoletinesModal from './components/modals/controlBoletinesModal'
-import SystemMessageModal from '../../components/SystemMessageModal' // Import nuevo
+import SubidaNotasModal from './components/modals/subidaNotasModal'
+import SystemMessageModal from '../../components/SystemMessageModal'
+
+// Hook y servicios
+import useSuperRootData from './hooks/userSuperRootData'
 import { addAcademicYear, getAvailableYears } from '../../services/schedules'
 
-// Hook de datos
-import useSuperRootData from './hooks/userSuperRootData'
-
 export const SuperRootDashboard = () => {
-  const chartRef = useRef(null)
   const navigate = useNavigate()
+  const [currentYear, setCurrentYear] = useState('')
+  const [availableYears, setAvailableYears] = useState([])
 
   const {
-    // Estados
     periodoInscripcion,
-    setPeriodoInscripcion,
-    notasPendientes,
-    setNotasPendientes,
-    boletines,
-    setBoletines,
+    periodoSubidaNotas,
     usuarios,
-    setUsuarios,
-
-    // Estados modales
+    repsCount,
+    students,
+    sections,
+    loading,
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
-    visibleValidacionNotas,
-    setVisibleValidacionNotas,
-    visibleControlBoletines,
-    setVisibleControlBoletines,
-    visibleGestionAccesos,
-    setVisibleGestionAccesos,
-
-    // Funciones
-    aprobarNotas,
-    rechazarNotas,
-    toggleBoletinDisponible,
-    toggleUsuarioActivo,
-    guardarPeriodoInscripcion
+    visibleSubidaNotas,
+    setVisibleSubidaNotas,
+    guardarPeriodoInscripcion,
+    guardarPeriodoSubidaNotas
   } = useSuperRootData()
 
-  const [currentYear, setCurrentYear] = useState('')
-
-  // Estado para el modal de sistema
   const [messageModal, setMessageModal] = useState({
     visible: false,
     title: '',
     message: '',
-    variant: 'alert', // 'alert' | 'confirm'
-    type: 'info', // 'success' | 'warning' | 'error' | 'info'
+    variant: 'alert',
+    type: 'info',
     onConfirm: null
   })
 
   useEffect(() => {
-    getAvailableYears().then(years => {
-      if (years.length > 0) setCurrentYear(years[0])
-    })
+    fetchYears()
   }, [])
+
+  const fetchYears = async () => {
+    try {
+      const years = await getAvailableYears()
+      setAvailableYears(years)
+      if (years.length > 0 && !currentYear) setCurrentYear(years[0])
+    } catch (error) {
+      console.error("Error fetching years:", error)
+    }
+  }
 
   const checkCanCreateYear = () => {
     const now = new Date()
-    const currentMonth = now.getMonth() // 0-11
+    const currentMonth = now.getMonth()
     const currentCalendarYear = now.getFullYear()
 
-    if (currentMonth !== 8) { // 8 es Septiembre
+    if (currentMonth !== 8) {
       return {
         allowed: false,
         reason: 'La apertura de nuevos ciclos académicos solo está permitida durante el mes de Septiembre.'
@@ -92,25 +95,8 @@ export const SuperRootDashboard = () => {
     return { allowed: true }
   }
 
-  const closeMessageModal = () => {
-    setMessageModal(prev => ({ ...prev, visible: false }))
-  }
-
-  const showSystemMessage = (title, message, type = 'info', variant = 'alert', onConfirm = null) => {
-    setMessageModal({
-      visible: true,
-      title,
-      message,
-      type,
-      variant,
-      onConfirm
-    })
-  }
-
   const confirmCreateYear = async () => {
-    // Cerrar modal de confirmación antes de procesar
     closeMessageModal()
-
     if (!currentYear) return
 
     const [start, end] = currentYear.split('-').map(Number);
@@ -119,16 +105,11 @@ export const SuperRootDashboard = () => {
     try {
       await addAcademicYear(nextYear)
       localStorage.setItem('last_academic_year_creation_calendar_year', new Date().getFullYear().toString())
+      await fetchYears()
 
-      // Actualizar lista
-      const years = await getAvailableYears()
-      if (years.length > 0) setCurrentYear(years[0])
-
-      // Mostrar éxito
       setTimeout(() => {
-        showSystemMessage('¡Éxito!', 'Nuevo ciclo escolar creado exitosamente.', 'success')
+        showSystemMessage('¡Éxito!', `Ciclo ${nextYear} creado y aperturado correctamente.`, 'success')
       }, 300)
-
     } catch (e) {
       setTimeout(() => {
         showSystemMessage('Error', 'No se pudo crear el ciclo: ' + e.message, 'error')
@@ -139,7 +120,7 @@ export const SuperRootDashboard = () => {
   const handleCreateNextYear = () => {
     const validation = checkCanCreateYear()
     if (!validation.allowed) {
-      showSystemMessage('Acción No Permitida', validation.reason, 'warning')
+      showSystemMessage('Apertura Bloqueada', validation.reason, 'warning')
       return
     }
 
@@ -157,109 +138,161 @@ export const SuperRootDashboard = () => {
     )
   }
 
-  useEffect(() => {
-    const chart = chartRef.current
-    if (!chart) return
-    chart.options.plugins.legend.labels.color = getStyle('--cui-body-color')
-    chart.update()
-  }, [])
+  const closeMessageModal = () => {
+    setMessageModal(prev => ({ ...prev, visible: false }))
+  }
+
+  const showSystemMessage = (title, message, type = 'info', variant = 'alert', onConfirm = null) => {
+    setMessageModal({
+      visible: true,
+      title,
+      message,
+      type,
+      variant,
+      onConfirm
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100 bg-light-custom">
+        <CSpinner color="primary" variant="grow" />
+      </div>
+    )
+  }
 
   return (
-    <CContainer fluid>
-      <CRow>
-        <CCol>
-          {/* HEADER PREMIUM CON DISEÑO CONSISTENTE */}
-          <CCard className="premium-card border-0 mb-4 overflow-hidden" style={{ borderRadius: '20px' }}>
-            <div className="bg-primary" style={{ height: '6px' }}></div>
-            <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-transparent">
-              <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                <div>
-                  <h4 className="mb-1 fw-bold dashboard-header-title d-flex align-items-center">
-                    <CIcon icon={cilSpeedometer} className="me-2 text-primary" />
-                    Panel de Control SuperRoot
-                  </h4>
-                  <p className="dashboard-header-subtitle mb-0 small fw-medium">
-                    Administración total del sistema ENDANZA
-                  </p>
-                </div>
-                <div className="d-flex align-items-center gap-3">
-                  <div className="d-flex align-items-center bg-light-custom px-3 py-2 rounded-pill border border-light-custom text-muted-custom small fw-bold">
-                    <CIcon icon={cilSchool} className="me-2 text-primary" />
-                    Ciclo Actual: {currentYear || '...'}
-                  </div>
-                  <CButton
-                    onClick={handleCreateNextYear}
-                    className="btn-premium px-3 py-2 d-flex align-items-center text-white"
-                    title="Aperturar Nuevo Ciclo"
-                  >
-                    <CIcon icon={cilPlus} className="me-2" />
-                    Nuevo Ciclo
-                  </CButton>
+    <CContainer fluid className="px-0 pb-5 overflow-hidden">
+      {/* HEADER REFINADO */}
+      <div className="mb-4 mb-md-5 mt-4 px-3 px-md-4">
+        <CRow className="align-items-center g-3">
+          <CCol xs={12} lg={7}>
+            <div className="d-flex align-items-center">
+              <div className="bg-primary rounded-4 me-3 d-flex align-items-center justify-content-center shadow-orange flex-shrink-0" style={{ width: '56px', height: '56px' }}>
+                <CIcon icon={cilSpeedometer} className="text-white" size="xl" />
+              </div>
+              <div className="overflow-hidden">
+                <h2 className="fw-black mb-0 header-title-custom ls-tight display-6 fs-3 fs-md-2">Consola SuperRoot</h2>
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                  <span className="text-muted-custom fw-medium small">Gestión Administrativa de</span>
+                  <span className="text-primary fw-bold px-2 py-0 rounded bg-orange-soft small">ENDANZA</span>
                 </div>
               </div>
-            </CCardHeader>
+            </div>
+          </CCol>
+          <CCol xs={12} lg={5} className="d-flex justify-content-lg-end align-items-center gap-2 flex-wrap flex-md-nowrap">
+            <CDropdown className="cycle-dropdown">
+              <CDropdownToggle
+                className="bg-glass-premium border border-light-custom border-opacity-10 fw-bold text-primary-header small d-flex align-items-center px-3 py-2 rounded-pill hover-lift shadow-none"
+              >
+                <CIcon icon={cilSchool} className="me-2 text-primary" />
+                <span>CICLO {currentYear}</span>
+                <CIcon icon={cilChevronBottom} className="ms-2 opacity-50" size="sm" />
+              </CDropdownToggle>
+              <CDropdownMenu className="cycle-dropdown-menu">
+                {availableYears.map(year => (
+                  <CDropdownItem
+                    key={year}
+                    onClick={() => setCurrentYear(year)}
+                    className={`cycle-dropdown-item ${currentYear === year ? 'active' : ''}`}
+                  >
+                    Período {year}
+                  </CDropdownItem>
+                ))}
+              </CDropdownMenu>
+            </CDropdown>
 
-            <style>{`
-              .dashboard-header-title { color: var(--neutral-800); }
-              .dashboard-header-subtitle { color: var(--neutral-500); }
-              
-              [data-coreui-theme="dark"] .dashboard-header-title { color: white; }
-              [data-coreui-theme="dark"] .dashboard-header-subtitle { color: rgba(255,255,255,0.5); }
-            `}</style>
+            <CButton
+              color="primary"
+              className="rounded-pill px-4 py-2 fw-bold text-white shadow-sm d-flex align-items-center btn-premium"
+              onClick={handleCreateNextYear}
+              style={{ height: '42px' }}
+            >
+              <CIcon icon={cilPlus} className="me-2" size="sm" />
+              <span className="text-nowrap">NUEVA GESTIÓN</span>
+            </CButton>
+          </CCol>
+        </CRow>
+      </div>
 
-            <CCardBody className="px-4 pb-4">
-              {/* Widgets Superiores */}
-              <StatsWidgets
-                notasPendientes={notasPendientes}
-                boletines={boletines}
-                periodoInscripcion={periodoInscripcion}
-                usuarios={usuarios}
-                onOpenValidacionNotas={() => setVisibleValidacionNotas(true)}
-                onOpenControlBoletines={() => setVisibleControlBoletines(true)}
-                onOpenPeriodoInscripcion={() => setVisiblePeriodoInscripcion(true)}
-                onOpenGestionAccesos={() => navigate('/users')}
-              />
+      <div className="px-3 px-md-4">
+        {/* WIDGETS DE ESTADÍSTICAS */}
+        <StatsWidgets
+          students={students}
+          repsCount={repsCount}
+          periodoInscripcion={periodoInscripcion}
+          periodoSubidaNotas={periodoSubidaNotas}
+          onOpenPeriodoInscripcion={() => setVisiblePeriodoInscripcion(true)}
+          onOpenSubidaNotas={() => setVisibleSubidaNotas(true)}
+        />
 
-              {/* Gráficos */}
-              <CRow className="gy-4 mt-2">
-                <CCol xs={12} md={6}>
-                  <ValidacionChart chartRef={chartRef} />
-                </CCol>
-                <CCol xs={12} md={6}>
-                  <BoletinesChart boletines={boletines} />
-                </CCol>
-              </CRow>
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
+        <CRow className="gy-4">
+          <CCol xs={12} lg={8}>
+            <TeacherSectionsList sections={sections} />
+          </CCol>
 
-      {/* Modales */}
+          <CCol xs={12} lg={4}>
+            {/* PANEL DE USUARIOS REFINADO */}
+            <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
+              <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <h5 className="fw-bold header-title-custom d-flex align-items-center mb-0">
+                    <CIcon icon={cilUser} className="me-2 text-primary" />
+                    Accesos
+                  </h5>
+                  <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1">
+                    {usuarios.length} TOTAL
+                  </CBadge>
+                </div>
+              </CCardHeader>
+              <CCardBody className="px-4 py-4">
+                <div className="d-flex flex-column gap-2 mb-4">
+                  {usuarios.slice(0, 5).map(u => (
+                    <div key={u.id} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
+                      <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" style={{ width: '40px', height: '40px' }}>
+                        {u.nombre[0]}
+                      </div>
+                      <div className="flex-grow-1 overflow-hidden">
+                        <div className="fw-bold header-title-custom text-truncate small">{u.nombre}</div>
+                        <div className="text-muted-custom text-truncate" style={{ fontSize: '0.7rem' }}>{u.rol.toUpperCase()}</div>
+                      </div>
+                      {u.activo ? (
+                        <span className="badge-dot bg-success"></span>
+                      ) : (
+                        <span className="badge-dot bg-danger"></span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <CButton
+                  className="w-100 rounded-pill fw-bold py-3 btn-orange-outline d-flex align-items-center justify-content-center"
+                  onClick={() => navigate('/users')}
+                >
+                  GESTIONAR TODOS LOS USUARIOS
+                  <CIcon icon={cilExternalLink} className="ms-2" size="sm" />
+                </CButton>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+      </div>
+
+      {/* MODALES */}
       <PeriodoInscripcionModal
         visible={visiblePeriodoInscripcion}
         onClose={() => setVisiblePeriodoInscripcion(false)}
         periodoInscripcion={periodoInscripcion}
-        setPeriodoInscripcion={setPeriodoInscripcion}
         onSave={guardarPeriodoInscripcion}
       />
 
-      <ValidacionNotasModal
-        visible={visibleValidacionNotas}
-        onClose={() => setVisibleValidacionNotas(false)}
-        notasPendientes={notasPendientes}
-        onAprobar={aprobarNotas}
-        onRechazar={rechazarNotas}
+      <SubidaNotasModal
+        visible={visibleSubidaNotas}
+        onClose={() => setVisibleSubidaNotas(false)}
+        periodoSubida={periodoSubidaNotas}
+        onSave={guardarPeriodoSubidaNotas}
       />
 
-      <ControlBoletinesModal
-        visible={visibleControlBoletines}
-        onClose={() => setVisibleControlBoletines(false)}
-        boletines={boletines}
-        onToggleDisponible={toggleBoletinDisponible}
-        onHabilitarTodos={() => setBoletines(boletines.map(b => ({ ...b, disponible: true })))}
-      />
-
-      {/* Nuevo Modal de Mensajes del Sistema */}
       <SystemMessageModal
         visible={messageModal.visible}
         onClose={closeMessageModal}
@@ -269,7 +302,7 @@ export const SuperRootDashboard = () => {
         title={messageModal.title}
         message={messageModal.message}
       />
-    </CContainer>
+    </CContainer >
   )
 }
 

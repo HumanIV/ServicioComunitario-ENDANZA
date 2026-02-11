@@ -15,7 +15,8 @@ import {
   cilTask,
   cilSpreadsheet,
   cilCalendar,
-  cilEducation
+  cilEducation,
+  cilList
 } from '@coreui/icons'
 import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
@@ -28,7 +29,7 @@ const _nav = [
     icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
     roles: ['representante']
   },
-  
+
   // DASHBOARD (Solo para admin)
   {
     component: CNavItem,
@@ -37,43 +38,60 @@ const _nav = [
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     roles: ['admin']
   },
-  
+
+  // COMPETENCIAS (Solo admin)
+  {
+    component: CNavItem,
+    name: 'COMPETENCIAS',
+    to: '/competencias',
+    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+    roles: ['admin']
+  },
+
+  {
+    component: CNavItem,
+    name: 'PREINSCRIPCIÓN',
+    to: '/preinscripcion',
+    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    roles: ['admin']
+  },
+
   {
     component: CNavTitle,
     name: 'MÓDULOS',
     roles: ['admin', 'docente', 'representante']
   },
 
-  // PERFIL ESTUDIANTE (Solo para Representantes)
+  // GESTIÓN ACADÉMICA (Solo para Representantes)
   {
     component: CNavGroup,
-    name: 'Perfil Estudiante',
-    to: '/profile',
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    name: 'Académico',
+    to: '/inicio-notas',
+    icon: <CIcon icon={cilEducation} customClassName="nav-icon" />,
     roles: ['representante'],
     items: [
       {
         component: CNavItem,
-        name: 'Mi Perfil',
-        to: '/profile',
+        name: 'Notas',
+        to: '/inicio-notas',
         roles: ['representante']
       },
       {
         component: CNavItem,
-        name: 'Mi Boletín',
-        to: '/boletin-estudiante',
+        name: 'Boletines',
+        to: '/inicio-boletines',
         roles: ['representante']
       },
       {
         component: CNavItem,
-        name: 'Mis Inscripciones',
+        name: 'Horarios',
+        to: '/inicio-horarios',
+        roles: ['representante']
+      },
+      {
+        component: CNavItem,
+        name: 'Inscripciones',
         to: '/inscripcion',
-        roles: ['representante']
-      },
-      {
-        component: CNavItem,
-        name: 'Mi Horario',
-        to: '/horario-estudiante',
         roles: ['representante']
       }
     ],
@@ -100,6 +118,15 @@ const _nav = [
         roles: ['admin']
       }
     ],
+  },
+
+  // REPRESENTANTES (Solo admin)
+  {
+    component: CNavItem,
+    name: 'REPRESENTANTES',
+    to: '/representantes',
+    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
+    roles: ['admin']
   },
 
   // INSCRIPCIONES (Solo admin)
@@ -273,38 +300,38 @@ const _nav = [
 // Función para filtrar navegación según rol
 export const getFilteredNav = (userRole) => {
   console.log('🔍 getFilteredNav - Rol recibido:', userRole)
-  
+
   const roleHierarchy = {
     'admin': ['admin'],
     'docente': ['docente'],
     'estudiante': [],
     'representante': ['representante']
   }
-  
+
   const allowedRoles = roleHierarchy[userRole] || []
   console.log('✅ Roles permitidos para', userRole, ':', allowedRoles)
-  
+
   if (allowedRoles.length === 0) {
     console.log('🚫 El rol', userRole, 'no tiene acceso al sistema')
     return []
   }
-  
+
   const filteredNav = _nav.filter(item => {
     if (item.component && (item.component.displayName === 'CNavTitle')) {
       const hasVisibleItemsAfterTitle = _nav.some(navItem => {
         if (!navItem.roles || navItem.roles.length === 0) return false
         return navItem.roles.some(role => allowedRoles.includes(role)) &&
-               navItem !== item
+          navItem !== item
       })
       return hasVisibleItemsAfterTitle
     }
-    
+
     if (!item.roles || item.roles.length === 0) {
       return false
     }
-    
+
     const hasAccess = item.roles.some(itemRole => allowedRoles.includes(itemRole))
-    
+
     if (item.component && item.component.displayName === 'CNavGroup') {
       if (item.items) {
         const filteredItems = item.items.filter(child => {
@@ -315,7 +342,7 @@ export const getFilteredNav = (userRole) => {
       }
       return hasAccess
     }
-    
+
     return hasAccess
   }).map(item => {
     if (item.items) {
@@ -329,7 +356,7 @@ export const getFilteredNav = (userRole) => {
     }
     return item
   })
-  
+
   console.log('📋 Navegación filtrada final:', filteredNav.map(item => item.name))
   return filteredNav
 }

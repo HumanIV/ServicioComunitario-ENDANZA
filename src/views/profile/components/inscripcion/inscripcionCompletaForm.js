@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   CCard, CCardBody, CCardHeader, CCardFooter,
   CContainer, CButton, CRow, CCol,
@@ -20,7 +20,7 @@ import { generarCodigoInscripcion, validarFormularioCompleto } from "./utils/val
 import { generarPlanillaHTML } from "./utils/pdfGenerator";
 import "./styles/inscripcion.css";
 
-const InscripcionCompletaForm = ({ onVolver }) => {
+const InscripcionCompletaForm = ({ onVolver, student }) => {
   const [step, setStep] = useState(1);
   const [inscripcionEnviada, setInscripcionEnviada] = useState(false);
   const [codigoInscripcion, setCodigoInscripcion] = useState("");
@@ -28,12 +28,12 @@ const InscripcionCompletaForm = ({ onVolver }) => {
 
   const [formData, setFormData] = useState({
     // Datos del estudiante
-    nombres: "",
-    apellidos: "",
+    nombres: student?.name || "",
+    apellidos: student?.lastName || "",
     fecha_nac: "",
     direccion_Habitacion: "",
     Telefono_Celular: "",
-    grado: "",
+    grado: student?.gradeLevel || "",
     especialidad: "",
     convivencia: "",
     escuela: "",
@@ -41,14 +41,34 @@ const InscripcionCompletaForm = ({ onVolver }) => {
     Seguro_Escolar: "",
     nombre_Seguro: "",
 
-    // Datos del representante
+    // Datos de los Padres
+    nombre_Madre: "",
+    apellido_Madre: "",
+    cedula_Madre: "",
+    ocupacion_Madre: "",
+    trabajo_Madre: "",
+    direccion_Trabajo_Madre: "",
+    telefono_Madre: "",
+    nombre_Padre: "",
+    apellido_Padre: "",
+    cedula_Padre: "",
+    ocupacion_Padre: "",
+    trabajo_Padre: "",
+    direccion_Trabajo_Padre: "",
+    telefono_Padre: "",
+
+    // Elección del representante
+    quien_es_representante: "Madre", // Madre, Padre, Otro
+    parentesco_Otro: "",
+
+    // Datos del representante (Solo si no es Madre o Padre)
     nombres_Representante: "",
     apellidos_Representante: "",
     telefono_Rep: "",
     telefonofijo_Rep: "",
-    profesion: "",
-    trabajo: "",
-    direccion_Trabajo: "",
+    profesion_Rep: "",
+    trabajo_Rep: "",
+    direccion_Trabajo_Rep: "",
 
     // Datos de salud
     peso: "",
@@ -69,9 +89,43 @@ const InscripcionCompletaForm = ({ onVolver }) => {
     antecedentesFamiliares: ""
   });
 
+  useEffect(() => {
+    if (student) {
+      setFormData(prev => ({
+        ...prev,
+        nombres: student.name || "",
+        apellidos: student.lastName || "",
+        grado: student.gradeLevel || ""
+      }));
+    }
+  }, [student]);
+
+  const calculateAge = (birthDate) => {
+    if (!birthDate) return "";
+    const today = new Date();
+    const birth = new Date(birthDate);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age > 0 ? age : "";
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    // Si cambia la fecha de nacimiento, calcular la edad automáticamente
+    if (name === "fecha_nac") {
+      const calculatedAge = calculateAge(value);
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        edad: calculatedAge
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
 
     // Limpiar error del campo al editar
     if (errores[name]) {
@@ -317,53 +371,6 @@ const InscripcionCompletaForm = ({ onVolver }) => {
         </CCardFooter>
       </CCard>
 
-      <style>{`
-        .ls-1 { letter-spacing: 1px; }
-        .hover-orange:hover {
-            color: var(--primary-600) !important;
-            background: var(--primary-50) !important;
-            border-color: var(--primary-200) !important;
-        }
-        .hover-danger:hover {
-            color: var(--danger) !important;
-            background: #fff5f5 !important;
-            border-color: var(--danger) !important;
-        }
-
-        .inscripcion-header-title { color: var(--neutral-800); }
-        .inscripcion-header-subtitle { color: var(--neutral-500); }
-        .inscripcion-id-badge { background-color: white; color: var(--primary-600); }
-        .bg-progress-track { background-color: var(--neutral-100); }
-        .bg-nav-pill { background-color: var(--neutral-100); }
-        .nav-pill-active { background-color: white; color: var(--primary-600); }
-        .nav-pill-inactive { color: var(--neutral-500); }
-        .border-top-light-custom { border-top: 1px solid var(--neutral-100); }
-        .text-muted-custom { color: var(--neutral-500); }
-        .text-dark-custom { color: var(--neutral-800); }
-
-        [data-coreui-theme="dark"] .inscripcion-header-title { color: white; }
-        [data-coreui-theme="dark"] .inscripcion-header-subtitle { color: rgba(255,255,255,0.5); }
-        [data-coreui-theme="dark"] .inscripcion-id-badge { background-color: rgba(255,255,255,0.05); color: var(--primary-400); }
-        [data-coreui-theme="dark"] .bg-progress-track { background-color: rgba(255,255,255,0.05); }
-        [data-coreui-theme="dark"] .bg-nav-pill { background-color: rgba(0,0,0,0.2); }
-        [data-coreui-theme="dark"] .nav-pill-active { background-color: rgba(255,255,255,0.1); color: white; }
-        [data-coreui-theme="dark"] .nav-pill-inactive { color: rgba(255,255,255,0.4); }
-        [data-coreui-theme="dark"] .border-top-light-custom { border-top: 1px solid rgba(255,255,255,0.05); }
-        [data-coreui-theme="dark"] .text-muted-custom { color: rgba(255,255,255,0.4); }
-        [data-coreui-theme="dark"] .text-dark-custom { color: white; }
-
-        .transition-all { transition: all 0.2s ease; }
-        .inscripcion-footer { background-color: var(--neutral-50); }
-        .inscripcion-footer-text { color: var(--neutral-500); }
-        .inscripcion-cancel-btn { color: var(--neutral-800); border-color: var(--neutral-200); background-color: transparent; }
-
-        [data-coreui-theme="dark"] .inscripcion-footer { background-color: rgba(0,0,0,0.2) !important; }
-        [data-coreui-theme="dark"] .inscripcion-footer-text { color: rgba(255,255,255,0.4); }
-        [data-coreui-theme="dark"] .inscripcion-cancel-btn { color: white; border-color: rgba(255,255,255,0.1); }
-        
-        .inscripcion-back-btn { color: var(--neutral-600); border-color: var(--neutral-200); background-color: white; }
-        [data-coreui-theme="dark"] .inscripcion-back-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); background-color: rgba(255,255,255,0.05); }
-      `}</style>
     </CContainer>
   );
 };

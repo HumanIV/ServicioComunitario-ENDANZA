@@ -17,6 +17,9 @@ const profile = React.lazy(() => import('./views/profile/Profile'))
 //Inicio
 
 const Inicio = React.lazy(() => import('./views/Inicio/Inicio'))
+const InicioNotas = React.lazy(() => import('./views/Inicio/InicioNotas'))
+const InicioBoletines = React.lazy(() => import('./views/Inicio/InicioBoletines'))
+const InicioHorarios = React.lazy(() => import('./views/Inicio/InicioHorarios'))
 
 //Students
 const Students = React.lazy(() => import('./views/Students/Students'))
@@ -35,6 +38,7 @@ const Notas = React.lazy(() => import('./views/Notas/Notas'))
 //Boletin
 const Boletin = React.lazy(() => import('./views/Boletin/Boletin'))
 const boletinEstudiante = React.lazy(() => import('./views/profile/boletinEstudiante'))
+const NotasEstudiante = React.lazy(() => import('./views/profile/notasEstudiante'))
 
 //Horario
 
@@ -54,6 +58,8 @@ const prueba = React.lazy(() => import('./views/Boletin/components/resumenSeccio
 
 //FIN RUTAS AGG
 
+const Preinscripcion = React.lazy(() => import('./views/preinscripcion/Preinscripcion'))
+const Representantes = React.lazy(() => import('./views/representantes/Representantes'))
 
 const routes = [
   // Página principal
@@ -61,6 +67,14 @@ const routes = [
 
   // Dashboard
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
+  // Competencias (Nuevo Módulo)
+  { path: '/competencias', name: 'Competencias', element: React.lazy(() => import('./views/competencias/CompetenciasManager')) },
+
+  // Preinscripcion
+  { path: '/preinscripcion', name: 'Preinscripción', element: Preinscripcion },
+
+  // Representantes
+  { path: '/representantes', name: 'Representantes', element: Representantes },
 
   // Login y Register
   { path: '/login', name: 'Login', element: Login },
@@ -71,6 +85,9 @@ const routes = [
 
   //RUTAS
   { path: '/inicio', name: 'Inicio', element: Inicio },
+  { path: '/inicio-notas', name: 'Inicio Notas', element: InicioNotas },
+  { path: '/inicio-boletines', name: 'Inicio Boletines', element: InicioBoletines },
+  { path: '/inicio-horarios', name: 'Inicio Horarios', element: InicioHorarios },
 
 
   { path: '/inscripcion', name: 'Inscripcion', element: Inscripcion }, // Inscripción
@@ -87,6 +104,7 @@ const routes = [
   //USERS
   { path: '/profile', name: 'Profile', element: profile }, // Profile
   { path: '/boletin-estudiante', name: 'BoletinEstudiante', element: boletinEstudiante },// Boletín Estudiante
+  { path: '/notas-estudiante', name: 'NotasEstudiante', element: NotasEstudiante },// Notas Estudiante
   { path: '/boletinEstudiante', name: 'BoletinEstudianteAlias', element: boletinEstudiante },// Alias
   { path: '/horario-estudiante', name: 'HorarioEstudiante', element: horarioEstudiante },// Horario Estudiante
   { path: '/horarioEstudiante', name: 'HorarioEstudianteAlias', element: horarioEstudiante },// Alias

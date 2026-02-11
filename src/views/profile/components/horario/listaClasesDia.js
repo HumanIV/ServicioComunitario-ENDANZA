@@ -7,15 +7,17 @@ import CardClase from './cardClase'
 const ListaClasesDia = ({ dia, clases, estudiante, colorDia, horasDia }) => {
   return (
     <div className="animate__animated animate__fadeIn">
-      <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-        <h4 className="mb-0 fw-bold text-dark d-flex align-items-center">
-          <CIcon icon={cilCalendar} className="me-2 text-primary" />
-          {dia.nombre}
-          <span className="text-muted fw-normal ms-2 small">| {estudiante.grado} {estudiante.seccion}</span>
-        </h4>
-        <CBadge className="bg-orange-soft text-primary rounded-pill px-4 py-2 fs-6 border border-primary border-opacity-10">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 px-2">
+        <div>
+          <h4 className="mb-1 fw-bold text-dark d-flex align-items-center fs-5 fs-md-4">
+            <CIcon icon={cilCalendar} className="me-2 text-primary" />
+            {dia.nombre}
+          </h4>
+          <span className="text-muted-custom fw-medium small">{estudiante.grado} • {estudiante.seccion}</span>
+        </div>
+        <CBadge className="bg-orange-soft text-primary rounded-pill px-3 py-2 fs-6 border border-primary border-opacity-10 w-100 w-md-auto shadow-sm d-flex align-items-center justify-content-center">
           <CIcon icon={cilClock} className="me-2" />
-          {horasDia} horas de clase programadas
+          <span className="small fw-bold">{horasDia} HORAS PROGRAMADAS</span>
         </CBadge>
       </div>
 

@@ -52,22 +52,22 @@ const ScheduleModal = ({ visible, onClose, aula, selectedYear, schedules }) => {
                     </div>
                     <CCardBody className="p-4">
                         <CRow className="g-3">
-                            <CCol md={4}>
+                            <CCol xs={12} md={4}>
                                 <div className="d-flex flex-column p-3 bg-light-custom bg-opacity-10 rounded-4 border border-light-custom shadow-sm">
                                     <span className="text-muted-custom small text-uppercase fw-bold ls-1" style={{ fontSize: '10px' }}>Tipo de Espacio</span>
                                     <strong className="fs-5 header-title-custom">{aula?.type}</strong>
                                 </div>
                             </CCol>
-                            <CCol md={4}>
-                                <div className="d-flex flex-column p-3 bg-light-custom bg-opacity-10 rounded-4 border border-light-custom shadow-sm">
+                            <CCol xs={6} md={4}>
+                                <div className="d-flex flex-column p-3 bg-light-custom bg-opacity-10 rounded-4 border border-light-custom shadow-sm h-100">
                                     <span className="text-muted-custom small text-uppercase fw-bold ls-1" style={{ fontSize: '10px' }}>Capacidad</span>
-                                    <strong className="fs-5 text-primary">{aula?.capacity} personas</strong>
+                                    <strong className="fs-6 fs-md-5 text-primary">{aula?.capacity} pers.</strong>
                                 </div>
                             </CCol>
-                            <CCol md={4}>
-                                <div className="d-flex flex-column p-3 bg-light-custom bg-opacity-10 rounded-4 border border-light-custom shadow-sm">
+                            <CCol xs={6} md={4}>
+                                <div className="d-flex flex-column p-3 bg-light-custom bg-opacity-10 rounded-4 border border-light-custom shadow-sm h-100">
                                     <span className="text-muted-custom small text-uppercase fw-bold ls-1" style={{ fontSize: '10px' }}>Total Clases</span>
-                                    <strong className="fs-5 text-primary">{schedules.length}</strong>
+                                    <strong className="fs-6 fs-md-5 text-primary">{schedules.length}</strong>
                                 </div>
                             </CCol>
                         </CRow>
@@ -93,31 +93,31 @@ const ScheduleModal = ({ visible, onClose, aula, selectedYear, schedules }) => {
                                             <CTableBody>
                                                 {schedulesByDay[day].map((item, idx) => (
                                                     <CTableRow key={idx} className="border-0">
-                                                        <CTableDataCell style={{ width: '20%' }} className="ps-4 border-0">
-                                                            <div className="d-flex align-items-center bg-light-custom bg-opacity-25 rounded-3 px-3 py-2 fit-content border border-light-custom shadow-sm">
-                                                                <CIcon icon={cilClock} size="sm" className="me-2 text-primary" />
-                                                                <span className="font-monospace fw-bold header-title-custom small">
+                                                        <CTableDataCell className="ps-4 border-0 py-3" style={{ minWidth: '140px' }}>
+                                                            <div className="d-flex align-items-center bg-light-custom bg-opacity-25 rounded-3 px-2 py-1 fit-content border border-light-custom shadow-sm">
+                                                                <CIcon icon={cilClock} size="sm" className="me-2 text-primary d-none d-md-inline" />
+                                                                <span className="font-monospace fw-bold header-title-custom small" style={{ fontSize: '0.75rem' }}>
                                                                     {item.startTime} - {item.endTime}
                                                                 </span>
                                                             </div>
                                                         </CTableDataCell>
-                                                        <CTableDataCell style={{ width: '25%' }} className="border-0">
-                                                            <div className="d-flex align-items-center">
-                                                                <CIcon icon={cilBook} size="sm" className="me-2 text-primary" />
-                                                                <span className="fw-bold header-title-custom">{item.subject}</span>
+                                                        <CTableDataCell className="border-0 py-3" style={{ minWidth: '150px' }}>
+                                                            <div className="d-flex flex-column">
+                                                                <div className="d-flex align-items-center mb-1">
+                                                                    <CIcon icon={cilBook} size="sm" className="me-2 text-primary opacity-75" />
+                                                                    <span className="fw-bold header-title-custom small">{item.subject}</span>
+                                                                </div>
+                                                                <div className="d-flex align-items-center">
+                                                                    <CIcon icon={cilUser} size="sm" className="me-2 text-primary opacity-50" />
+                                                                    <span className="text-muted-custom small" style={{ fontSize: '0.7rem' }}>{item.teacherName}</span>
+                                                                </div>
                                                             </div>
                                                         </CTableDataCell>
-                                                        <CTableDataCell style={{ width: '25%' }} className="border-0">
-                                                            <div>
-                                                                <span className="fw-bold header-title-custom">{item.sectionName}</span>
-                                                                <small className="d-block text-muted-custom fw-medium">{item.gradeLevel}</small>
-                                                            </div>
-                                                        </CTableDataCell>
-                                                        <CTableDataCell style={{ width: '30%' }} className="pe-4 border-0">
-                                                            <div className="d-flex align-items-center text-muted-custom small fw-medium">
-                                                                <CIcon icon={cilUser} size="sm" className="me-1 text-primary opacity-75" />
-                                                                {item.teacherName}
-                                                            </div>
+                                                        <CTableDataCell className="pe-4 border-0 py-3 text-end" style={{ minWidth: '100px' }}>
+                                                            <div className="fw-bold header-title-custom small">{item.sectionName}</div>
+                                                            <CBadge className="bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 rounded-pill px-2" style={{ fontSize: '0.6rem' }}>
+                                                                {item.gradeLevel}
+                                                            </CBadge>
                                                         </CTableDataCell>
                                                     </CTableRow>
                                                 ))}

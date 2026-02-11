@@ -366,6 +366,155 @@ const editForm = ({ formData, onInputChange, activeTab }) => {
           </CRow>
         </>
       )}
+
+      {/* SECCIÓN 4: REPRESENTANTE LEGAL */}
+      {activeTab === 4 && (
+        <>
+          <h5 className="mb-3 text-primary form-section-border pb-2">Asignación de Representante Legal</h5>
+          <CRow className="mb-4">
+            <CCol md={(!["Madre", "Padre", "Tío", "Abuelo", "Hermano", ""].includes(formData.RepresentanteParentesco)) ? 6 : 12}>
+              <CFormLabel className="fw-bold">¿Quién es el Representante Legal?</CFormLabel>
+              <CFormSelect
+                name="RepresentanteSelection"
+                value={
+                  ["Madre", "Padre", "Tío", "Abuelo", "Hermano", ""].includes(formData.RepresentanteParentesco)
+                    ? (formData.RepresentanteParentesco || "")
+                    : "Otro"
+                }
+                onChange={(e) => {
+                  const selection = e.target.value;
+                  const updatedData = { ...formData };
+
+                  if (selection === "Madre") {
+                    updatedData.RepresentanteParentesco = "Madre";
+                    updatedData.RepresentanteNombre = formData.MadreNombre || "";
+                    updatedData.RepresentanteApellido = formData.MadreApellido || "";
+                    updatedData.RepresentanteCedula = formData.MadreCedula || "";
+                    updatedData.RepresentanteTelefono = formData.MadreTelefono || "";
+                    updatedData.RepresentanteOcupacion = formData.MadreOcupacion || "";
+                    updatedData.RepresentanteEmail = formData.MadreEmail || "";
+                  } else if (selection === "Padre") {
+                    updatedData.RepresentanteParentesco = "Padre";
+                    updatedData.RepresentanteNombre = formData.PadreNombre || "";
+                    updatedData.RepresentanteApellido = formData.PadreApellido || "";
+                    updatedData.RepresentanteCedula = formData.PadreCedula || "";
+                    updatedData.RepresentanteTelefono = formData.PadreTelefono || "";
+                    updatedData.RepresentanteOcupacion = formData.PadreOcupacion || "";
+                    updatedData.RepresentanteEmail = formData.PadreEmail || "";
+                  } else if (selection === "Otro") {
+                    updatedData.RepresentanteParentesco = "OTRO_VALOR"; // Flag para mostrar input
+                  } else {
+                    updatedData.RepresentanteParentesco = selection;
+                  }
+
+                  onInputChange({ target: { name: 'multiple', value: updatedData } });
+                }}
+                className="input-premium h-auto py-2"
+                options={[
+                  { value: "", label: "Seleccionar parentesco" },
+                  { value: "Madre", label: "Madre" },
+                  { value: "Padre", label: "Padre" },
+                  { value: "Tío", label: "Tío(a)" },
+                  { value: "Abuelo", label: "Abuelo(a)" },
+                  { value: "Hermano", label: "Hermano(a) Mayor" },
+                  { value: "Otro", label: "Otro" }
+                ]}
+              />
+            </CCol>
+
+            {/* Campo dinámico para 'Otro' parentesco */}
+            {(!["Madre", "Padre", "Tío", "Abuelo", "Hermano", ""].includes(formData.RepresentanteParentesco)) && (
+              <CCol md={6} className="animate__animated animate__fadeIn">
+                <CFormLabel className="fw-bold">Especifique el Parentesco</CFormLabel>
+                <CFormInput
+                  type="text"
+                  name="RepresentanteParentesco"
+                  value={formData.RepresentanteParentesco === "OTRO_VALOR" ? "" : formData.RepresentanteParentesco}
+                  onChange={onInputChange}
+                  placeholder="Ej: Primo, Padrino..."
+                  className="input-premium h-auto py-2"
+                />
+              </CCol>
+            )}
+          </CRow>
+
+          <h5 className="mb-3 text-primary form-section-border pb-2">Información del Representante</h5>
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Nombres</CFormLabel>
+              <CFormInput
+                type="text"
+                name="RepresentanteNombre"
+                value={formData.RepresentanteNombre || ""}
+                onChange={onInputChange}
+                placeholder="Nombres del representante"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Apellidos</CFormLabel>
+              <CFormInput
+                type="text"
+                name="RepresentanteApellido"
+                value={formData.RepresentanteApellido || ""}
+                onChange={onInputChange}
+                placeholder="Apellidos del representante"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
+
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Cédula de Identidad</CFormLabel>
+              <CFormInput
+                type="text"
+                name="RepresentanteCedula"
+                value={formData.RepresentanteCedula || ""}
+                onChange={onInputChange}
+                placeholder="V-XXXXXXXX"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Teléfono de Contacto</CFormLabel>
+              <CFormInput
+                type="tel"
+                name="RepresentanteTelefono"
+                value={formData.RepresentanteTelefono || ""}
+                onChange={onInputChange}
+                placeholder="Ej: 04XX-XXXXXXX"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
+
+          <CRow className="mb-3">
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Ocupación / Profesión</CFormLabel>
+              <CFormInput
+                type="text"
+                name="RepresentanteOcupacion"
+                value={formData.RepresentanteOcupacion || ""}
+                onChange={onInputChange}
+                placeholder="Ej: Docente, Comerciante..."
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+            <CCol md={6}>
+              <CFormLabel className="fw-bold">Correo Electrónico</CFormLabel>
+              <CFormInput
+                type="email"
+                name="RepresentanteEmail"
+                value={formData.RepresentanteEmail || ""}
+                onChange={onInputChange}
+                placeholder="correo@ejemplo.com"
+                className="input-premium h-auto py-2"
+              />
+            </CCol>
+          </CRow>
+        </>
+      )}
       <style>{`
         .form-section-border { border-bottom: 2px solid var(--neutral-100) !important; }
         [data-coreui-theme="dark"] .form-section-border { border-bottom-color: rgba(255,255,255,0.05) !important; }

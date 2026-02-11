@@ -33,6 +33,7 @@ import { listSections, getAvailableYears } from 'src/services/schedules'
 // Componentes estéticos
 import NavegacionDocente from './components/horario/NavegacionDocente'
 import ListaClasesDocente from './components/horario/ListaClasesDocente'
+import VistaSemanalDocente from './components/horario/VistaSemanalDocente'
 
 const HorarioDocente = () => {
     const [loading, setLoading] = useState(true)
@@ -41,6 +42,7 @@ const HorarioDocente = () => {
     const [selectedYear, setSelectedYear] = useState('2025-2026')
     const [selectedTeacher, setSelectedTeacher] = useState('')
     const [activeDay, setActiveDay] = useState('LUNES')
+    const [modoVista, setModoVista] = useState('diario')
     const [toasts, setToasts] = useState([])
 
     const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES']
@@ -153,39 +155,28 @@ const HorarioDocente = () => {
         <CContainer fluid className="pb-5">
             <CRow>
                 <CCol>
-                    <CCard className="shadow-lg border-0 mb-4 premium-card" style={{ borderRadius: '16px' }}>
-                        <div className="bg-primary" style={{ height: '6px', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}></div>
-                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-light-custom" style={{ borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}>
-                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                                <div>
-                                    <h4 className="mb-1 fw-bold header-title-custom d-flex align-items-center">
-                                        <CIcon icon={cilCalendar} className="me-2 text-primary" />
-                                        Cronograma de Clases - Docente
-                                    </h4>
-                                    <p className="text-muted-custom mb-0 small fw-medium">
-                                        Visualización de carga horaria y asignaciones por profesor
-                                    </p>
-                                </div>
-
-                                <div className="d-flex align-items-center gap-2">
-                                    {/* Botón de Descarga PDF */}
-                                    <CButton
-                                        onClick={handleGenerarPDF}
-                                        className="btn-premium rounded-pill px-3 fw-bold d-flex align-items-center shadow-sm border-0 transition-all"
-                                        style={{ height: '38px', whiteSpace: 'nowrap', fontSize: '0.75rem' }}
-                                    >
-                                        <CIcon icon={cilCloudDownload} className="me-2" />
-                                        DESCARGAR PDF
-                                    </CButton>
-
-                                    {/* Selector de Año */}
-                                    <div className="bg-light-custom p-1 px-3 rounded-pill border border-light-custom shadow-sm">
-                                        <CDropdown>
-                                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center" style={{ whiteSpace: 'nowrap' }}>
+                    <CCard className="premium-card border-0 overflow-hidden mb-5 animate__animated animate__fadeIn">
+                        <CCardHeader className="bg-orange-soft border-0 py-3 py-md-4 px-3 px-md-4">
+                            <CRow className="align-items-center">
+                                <CCol xs={12} md={8}>
+                                    <div className="d-flex align-items-center">
+                                        <div className="p-2 p-md-3 bg-primary rounded-3 me-3 shadow-sm">
+                                            <CIcon icon={cilCalendar} size="lg" className="text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="mb-0 fw-bold header-title text-uppercase ls-1 fs-5 fs-md-4 header-title-custom">Cronograma Docente</h3>
+                                            <p className="mb-0 header-subtitle small text-uppercase d-none d-sm-block text-muted-custom">Escuela de Danza Endanza • Gestión de Horarios</p>
+                                        </div>
+                                    </div>
+                                </CCol>
+                                <CCol xs={12} md={4} className="text-md-end mt-2 mt-md-0">
+                                    <div className="bg-glass-premium p-1 px-3 rounded-pill border border-primary border-opacity-10 shadow-sm d-inline-flex align-items-center">
+                                        <CDropdown className="w-100 text-center">
+                                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
                                                 Ciclo {selectedYear}
                                                 <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
                                             </CDropdownToggle>
-                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll">
+                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll w-100 text-center">
                                                 {academicYears.map(y => (
                                                     <CDropdownItem key={y} onClick={() => setSelectedYear(y)} active={selectedYear === y} className="py-2 px-3 dropdown-item-premium">
                                                         Ciclo {y}
@@ -194,89 +185,153 @@ const HorarioDocente = () => {
                                             </CDropdownMenu>
                                         </CDropdown>
                                     </div>
-
-                                    <div className="bg-light-custom p-1 px-3 rounded-pill border border-light-custom ms-1 shadow-sm">
-                                        <CDropdown>
-                                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center" style={{ whiteSpace: 'nowrap' }}>
-                                                <CIcon icon={cilUser} className="me-2 opacity-50" />
-                                                {selectedTeacher || 'Seleccionar Docente'}
-                                                <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
-                                            </CDropdownToggle>
-                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                                                {teachersList.map(t => (
-                                                    <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
-                                                        {t}
-                                                    </CDropdownItem>
-                                                ))}
-                                            </CDropdownMenu>
-                                        </CDropdown>
-                                    </div>
-                                </div>
-                            </div>
+                                </CCol>
+                            </CRow>
                         </CCardHeader>
 
-                        <CCardBody className="px-4 pb-4">
-                            {selectedTeacher ? (
-                                <>
-                                    <div className="d-flex justify-content-between align-items-center mb-4 p-3 bg-light-custom bg-opacity-10 rounded-4 border border-dashed border-light-custom shadow-sm">
-                                        <div className="d-flex align-items-center">
-                                            <div className="bg-orange-soft p-3 rounded-circle me-3 text-primary shadow-sm">
-                                                <CIcon icon={cilUser} size="xl" />
+                        <CCardBody className="p-3 p-md-4">
+                            <CRow className="g-3 g-md-4 align-items-stretch">
+                                <CCol lg={7}>
+                                    <div className="p-3 p-md-4 rounded-4 info-box border border-primary border-opacity-10 h-100 bg-neutral-50 shadow-sm">
+                                        <div className="d-flex align-items-center mb-3 mb-md-4">
+                                            <div className="avatar avatar-lg bg-orange-soft text-primary rounded-circle me-3 fw-bold fs-4 flex-shrink-0 shadow-sm" style={{ width: '60px', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                {selectedTeacher ? selectedTeacher.charAt(0) : '?'}
                                             </div>
                                             <div>
-                                                <h5 className="mb-0 fw-bold header-title-custom">{selectedTeacher}</h5>
-                                                <span className="text-muted-custom small fw-bold text-uppercase ls-1">Docente de la Institución</span>
+                                                <div className="bg-glass-premium p-1 px-3 rounded-pill border border-primary border-opacity-10 shadow-sm d-inline-flex align-items-center mb-2">
+                                                    <CDropdown className="w-100">
+                                                        <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                                                            <CIcon icon={cilUser} size="sm" className="me-2 opacity-50" />
+                                                            {selectedTeacher || 'Seleccionar Docente'}
+                                                            <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
+                                                        </CDropdownToggle>
+                                                        <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll" style={{ maxHeight: '300px', width: '250px' }}>
+                                                            {teachersList.map(t => (
+                                                                <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
+                                                                    {t}
+                                                                </CDropdownItem>
+                                                            ))}
+                                                        </CDropdownMenu>
+                                                    </CDropdown>
+                                                </div>
+                                                <div className="d-block">
+                                                    <CBadge className="bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 border border-success border-opacity-10 small fw-bold">ESTADO: ACTIVO</CBadge>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="text-end">
-                                            <div className="text-muted-custom small fw-bold text-uppercase mb-1 ls-1">Carga Semanal</div>
-                                            <CBadge color="primary" className="px-3 py-2 rounded-pill fs-6 shadow-sm fw-bold">
-                                                {totalClases} Bloques de Clase
-                                            </CBadge>
-                                        </div>
+
+                                        <CRow className="g-2 g-md-3">
+                                            <CCol xs={12} sm={6}>
+                                                <label className="header-label label-micro mb-1 d-block text-muted-custom small fw-bold text-uppercase ls-1">Cargo Académico</label>
+                                                <div className="fw-bold fs-6 fs-sm-5 text-primary">Docente de Especialidad</div>
+                                            </CCol>
+                                            <CCol xs={12} sm={6}>
+                                                <label className="header-label label-micro mb-1 d-block text-muted-custom small fw-bold text-uppercase ls-1">Área Académica</label>
+                                                <div className="fw-bold fs-6 fs-sm-5 header-title-custom">Danza Clásica / Tradicional</div>
+                                            </CCol>
+                                        </CRow>
                                     </div>
+                                </CCol>
 
-                                    <CRow className="g-4">
-                                        <CCol xs={12}>
-                                            <NavegacionDocente
-                                                diasSemana={diasSemana}
-                                                activeDay={activeDay}
-                                                setActiveDay={setActiveDay}
-                                                teacherSchedules={teacherSchedules}
-                                            />
-                                        </CCol>
-
-                                        <CCol xs={12}>
-                                            {diasSemana.map(dia => (
-                                                <div key={dia} className={activeDay === dia ? 'animate__animated animate__fadeIn' : 'd-none'}>
-                                                    <ListaClasesDocente
-                                                        dia={dia}
-                                                        clases={teacherSchedules[dia] || []}
-                                                    />
-                                                </div>
-                                            ))}
-                                        </CCol>
-
-                                        {totalClases === 0 && (
-                                            <CCol xs={12}>
-                                                <div className="text-center py-5 border border-dashed border-light-custom rounded-4 bg-light-custom bg-opacity-10 text-muted-custom shadow-sm">
-                                                    <CIcon icon={cilCalendar} size="4xl" className="mb-3 opacity-25" />
-                                                    <h5 className="header-title-custom">Sin clases asignadas</h5>
-                                                    <p className="mb-0 fw-medium">El docente {selectedTeacher} no tiene bloques horarios creados para el ciclo {selectedYear}.</p>
+                                <CCol lg={5}>
+                                    <div className="p-3 p-md-4 rounded-4 bg-orange-soft h-100 shadow-sm border border-primary border-opacity-10">
+                                        <h6 className="text-primary label-micro mb-3 mb-md-4 d-flex align-items-center fw-bold text-uppercase ls-1">
+                                            <CIcon icon={cilClock} className="me-2" />
+                                            Resumen de Cátedra
+                                        </h6>
+                                        <CRow className="g-2 g-md-3">
+                                            <CCol xs={6}>
+                                                <div className="p-2 p-md-3 bg-glass-premium rounded-4 text-center shadow-sm border border-primary border-opacity-10 h-100 d-flex flex-column justify-content-center">
+                                                    <div className="fw-bold text-primary mb-0 fs-3 fs-md-2">{totalClases}</div>
+                                                    <div className="text-muted-custom label-micro mt-1 small fw-bold text-uppercase" style={{ fontSize: '0.6rem' }}>Bloques / Sem</div>
                                                 </div>
                                             </CCol>
-                                        )}
-                                    </CRow>
-                                </>
-                            ) : (
-                                <div className="text-center py-5 border border-dashed border-light-custom rounded-4 bg-light-custom bg-opacity-10 text-muted-custom shadow-sm">
-                                    <CIcon icon={cilUser} size="4xl" className="mb-3 opacity-25" />
-                                    <h5 className="header-title-custom">Seleccione un Docente</h5>
-                                    <p className="mb-0 fw-medium">Utilice el selector superior para visualizar el cronograma de un profesor específico.</p>
-                                </div>
-                            )}
+                                            <CCol xs={6}>
+                                                <div className="p-2 p-md-3 bg-glass-premium rounded-4 text-center shadow-sm border border-primary border-opacity-10 h-100 d-flex flex-column justify-content-center">
+                                                    <div className="fw-bold text-primary mb-0 fs-3 fs-md-2">{totalClases * 1.5}</div>
+                                                    <div className="text-muted-custom label-micro mt-1 small fw-bold text-uppercase" style={{ fontSize: '0.6rem' }}>Horas Sem</div>
+                                                </div>
+                                            </CCol>
+                                        </CRow>
+                                    </div>
+                                </CCol>
+                            </CRow>
                         </CCardBody>
                     </CCard>
+
+                    <div className="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-5 no-print">
+                        <div className="p-1 bg-neutral-100 rounded-pill shadow-sm border border-light d-flex">
+                            <CButton
+                                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all ${modoVista === 'diario' ? 'btn-premium text-white shadow-sm' : 'bg-transparent text-muted-custom'}`}
+                                onClick={() => setModoVista('diario')}
+                            >
+                                <CIcon icon={cilCalendar} className="me-2" />
+                                Vista por Día
+                            </CButton>
+                            <CButton
+                                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all ${modoVista === 'semanal' ? 'btn-premium text-white shadow-sm' : 'bg-transparent text-muted-custom'}`}
+                                onClick={() => setModoVista('semanal')}
+                            >
+                                <CIcon icon={cilCalendar} className="me-2" />
+                                Vista Semanal
+                            </CButton>
+                        </div>
+
+                        <div className="d-flex gap-3">
+                            <CButton
+                                className="btn-premium rounded-pill px-4 py-2 border-0 d-flex align-items-center shadow-sm"
+                                onClick={handleGenerarPDF}
+                            >
+                                <CIcon icon={cilCloudDownload} className="me-2" />
+                                Descargar Horario (PDF)
+                            </CButton>
+                            <CButton
+                                className="border-2 rounded-pill px-4 py-2 fw-bold bg-transparent border-neutral-200 text-neutral-600 hover-orange transition-all d-none d-md-flex align-items-center"
+                                onClick={() => window.print()}
+                            >
+                                <CIcon icon={cilCloudDownload} className="me-2 text-primary" />
+                                Imprimir
+                            </CButton>
+                        </div>
+                    </div>
+
+                    {selectedTeacher ? (
+                        modoVista === 'diario' ? (
+                            <div className="animate__animated animate__fadeIn">
+                                <NavegacionDocente
+                                    diasSemana={diasSemana}
+                                    activeDay={activeDay}
+                                    setActiveDay={setActiveDay}
+                                    teacherSchedules={teacherSchedules}
+                                />
+
+                                <div className="mt-4">
+                                    {diasSemana.map(dia => (
+                                        <div key={dia} className={activeDay === dia ? 'animate__animated animate__fadeIn' : 'd-none'}>
+                                            <ListaClasesDocente
+                                                dia={dia}
+                                                clases={teacherSchedules[dia] || []}
+                                                teacherName={selectedTeacher}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="animate__animated animate__fadeIn">
+                                <VistaSemanalDocente
+                                    diasSemana={diasSemana}
+                                    horario={teacherSchedules}
+                                />
+                            </div>
+                        )
+                    ) : (
+                        <div className="text-center py-5 border border-dashed border-light-custom rounded-4 bg-light-custom bg-opacity-10 text-muted-custom shadow-sm">
+                            <CIcon icon={cilUser} size="4xl" className="mb-3 opacity-25" />
+                            <h5 className="header-title-custom">Seleccione un Docente</h5>
+                            <p className="mb-0 fw-medium">Utilice el selector de la parte superior para visualizar el cronograma de un profesor específico.</p>
+                        </div>
+                    )}
                 </CCol>
             </CRow>
 
@@ -291,32 +346,7 @@ const HorarioDocente = () => {
                 ))}
             </CToaster>
 
-            <style>{`
-                .ls-1 { letter-spacing: 1px; }
-                .bg-orange-soft { background-color: rgba(242, 140, 15, 0.1); }
-                .fit-content { width: fit-content; }
-                .leading-tight { line-height: 1.2; }
-                .btn-premium {
-                    background: linear-gradient(135deg, #F28C0F 0%, #E07B00 100%);
-                    border: none;
-                    color: white;
-                }
-                .btn-premium:hover { filter: brightness(1.1); color: white; }
-                .dropdown-item-premium {
-                    transition: all 0.2s ease;
-                    border-radius: 8px;
-                    margin: 2px 8px;
-                    width: auto;
-                }
-                .dropdown-item-premium:hover {
-                    background-color: rgba(242, 140, 15, 0.1) !important;
-                    color: #F28C0F !important;
-                }
-                .dropdown-item-premium.active {
-                    background-color: #F28C0F !important;
-                    color: white !important;
-                }
-            `}</style>
+
         </CContainer>
     )
 }

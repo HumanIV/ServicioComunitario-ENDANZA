@@ -227,32 +227,7 @@ const PerfilStudents = () => {
         ))}
       </CToaster>
 
-      <style>{`
-        .profile-header-title { color: var(--neutral-800); }
-        .profile-nav-link { background-color: var(--neutral-100) !important; color: var(--neutral-600) !important; border: 1px solid transparent !important; }
-        .profile-nav-link:hover { background-color: var(--neutral-200) !important; color: var(--primary-600) !important; }
-        .profile-back-btn { color: var(--neutral-600); border-color: var(--neutral-200); }
-        .profile-outline-btn { color: var(--neutral-600) !important; border-color: var(--neutral-300) !important; background-color: transparent !important; }
-        .profile-footer { background-color: var(--neutral-50); }
-        .footer-text { color: var(--neutral-500); }
-
-        [data-coreui-theme="dark"] .profile-header-title { color: white; }
-        [data-coreui-theme="dark"] .profile-nav-link { background-color: rgba(255,255,255,0.05) !important; color: rgba(255,255,255,0.6) !important; border: 1px solid rgba(255,255,255,0.05) !important; }
-        [data-coreui-theme="dark"] .profile-nav-link:hover { background-color: rgba(255,255,255,0.1) !important; color: white !important; }
-        [data-coreui-theme="dark"] .profile-back-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); }
-        [data-coreui-theme="dark"] .profile-outline-btn { color: var(--primary-400) !important; border-color: var(--primary-400) !important; background-color: rgba(245, 185, 55, 0.05) !important; }
-        [data-coreui-theme="dark"] .profile-outline-btn:hover { background-color: var(--primary-500) !important; color: white !important; }
-        [data-coreui-theme="dark"] .profile-footer { background-color: rgba(0,0,0,0.2) !important; }
-        [data-coreui-theme="dark"] .footer-text { color: rgba(255,255,255,0.4); }
-
-        .avatar-circle-lg { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
-        .border-top-3 { border-top-width: 3px !important; }
-        .hover-lift:hover { transform: translateY(-3px); }
-        .cursor-pointer { cursor: pointer; }
-        .transition-all { transition: all 0.2s ease; }
-        @media print { .no-print { display: none !important; } }
-      `}</style>
-    </CContainer>
+    </CContainer >
   )
 }
 

@@ -20,7 +20,16 @@ import {
   CSpinner
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser, cilInput, cilWarning, cilCheckCircle } from '@coreui/icons'
+import {
+  cilLockLocked,
+  cilUser,
+  cilInput,
+  cilWarning,
+  cilCheckCircle,
+  cilShieldAlt,
+  cilXCircle,
+  cilInfo
+} from '@coreui/icons'
 import { helpFetch } from '../../../api/helpFetch'
 
 const api = helpFetch()
@@ -32,13 +41,13 @@ const detectErrorType = (response) => {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, ' ')  // Normalizar espacios múltiples
-  
+
   console.log('🔍 Mensaje de error normalizado:', `"${msg}"`)
-  
+
   // Patrones para detectar tipo de error
   const patterns = {
     password: [
-      'contraseña', 'password', 'credencial', 'incorrect password', 
+      'contraseña', 'password', 'credencial', 'incorrect password',
       'invalid password', 'wrong password', 'clave incorrecta',
       'bad credentials', 'invalid credentials'
     ],
@@ -48,13 +57,13 @@ const detectErrorType = (response) => {
       'no existe', 'no registrado'
     ],
     inactive: [
-      'inactivo', 'inactive', 'bloqueado', 'blocked', 'suspendido', 
+      'inactivo', 'inactive', 'bloqueado', 'blocked', 'suspendido',
       'suspended', 'desactivado', 'deshabilitado', 'disabled',
       'account is inactive', 'cuenta inactiva', 'activo ',  // ¡Importante! Maneja espacio al final
       'no activo', 'not active', 'pending activation', 'is inactive'
     ],
     unauthorized: [
-      'no autorizado', 'unauthorized', 'permiso', 'permission', 
+      'no autorizado', 'unauthorized', 'permiso', 'permission',
       'acceso denegado', 'access denied', 'forbidden', 'prohibido',
       'no tiene permisos'
     ],
@@ -63,12 +72,12 @@ const detectErrorType = (response) => {
       'campo requerido', 'required field'
     ]
   }
-  
+
   // Verificar cada tipo de error
   for (const [type, keywords] of Object.entries(patterns)) {
     for (const keyword of keywords) {
       const normalizedKeyword = keyword.trim().toLowerCase()
-      
+
       // Verificar coincidencia exacta o parcial
       if (
         msg === normalizedKeyword ||
@@ -81,7 +90,7 @@ const detectErrorType = (response) => {
       }
     }
   }
-  
+
   // Si no se encuentra ningún patrón específico
   console.log('⚠️ Error no identificado, usando genérico')
   return 'generic'
@@ -93,18 +102,18 @@ const validateAccountStatus = (userData) => {
     console.warn('❌ userData es null o undefined en validateAccountStatus')
     return false
   }
-  
+
   // DEBUG: Mostrar todos los datos del usuario
   console.log('🔍 DEBUG validateAccountStatus - userData completo:', userData)
   console.log('📋 Propiedades del userData:', Object.keys(userData))
-  
+
   // Buscar campo de estado en múltiples ubicaciones posibles
   let estadoEncontrado = ''
-  
+
   // Lista de campos posibles (agregué más campos comunes)
   const posiblesCampos = [
     'estado',
-    'status', 
+    'status',
     'accountStatus',
     'account_status',
     'activo',
@@ -120,7 +129,7 @@ const validateAccountStatus = (userData) => {
     'is_enabled',
     'enabled'
   ]
-  
+
   // Primero buscar en campos específicos
   for (const campo of posiblesCampos) {
     if (userData[campo] !== undefined && userData[campo] !== null && userData[campo] !== '') {
@@ -129,21 +138,21 @@ const validateAccountStatus = (userData) => {
       break
     }
   }
-  
+
   // Si no encontramos en campos específicos, buscar en cualquier propiedad
   if (!estadoEncontrado) {
     console.log('⚠️ No se encontró campo específico, buscando en todas las propiedades...')
-    
+
     // Buscar en todas las propiedades del objeto
     for (const [key, value] of Object.entries(userData)) {
       if (value !== null && value !== undefined && value !== '') {
         const valorStr = String(value).toLowerCase()
-        
+
         // Si el valor contiene indicadores de estado
-        if (valorStr.includes('activo') || valorStr.includes('active') || 
-            valorStr.includes('inactivo') || valorStr.includes('inactive') ||
-            valorStr === '1' || valorStr === '0' || 
-            valorStr === 'true' || valorStr === 'false') {
+        if (valorStr.includes('activo') || valorStr.includes('active') ||
+          valorStr.includes('inactivo') || valorStr.includes('inactive') ||
+          valorStr === '1' || valorStr === '0' ||
+          valorStr === 'true' || valorStr === 'false') {
           estadoEncontrado = String(value)
           console.log(`🔄 Estado encontrado en propiedad inesperada: "${key}" = "${estadoEncontrado}"`)
           break
@@ -151,35 +160,35 @@ const validateAccountStatus = (userData) => {
       }
     }
   }
-  
+
   // Si aún no encontramos nada, verificar si el objeto tiene propiedades mínimas
   if (!estadoEncontrado) {
     console.log('⚠️ No se pudo determinar estado, asumiendo activo si tiene id y email')
-    
+
     // Si el usuario tiene id y email, asumimos que está activo (para desarrollo)
     if (userData.id && userData.email) {
       console.log('✅ Usuario tiene id y email, asumiendo activo para desarrollo')
       return true // TEMPORAL: Para desarrollo, asumir activo
     }
-    
+
     return false
   }
-  
+
   // Normalizar el estado encontrado
   const estadoNormalizado = estadoEncontrado
     .toLowerCase()
     .trim()
     .replace(/\s+/g, '')  // Eliminar todos los espacios
-  
+
   // Lista de estados considerados como "activos" (expandida)
   const activeStates = [
-    'activo', 
-    'active', 
-    'habilitado', 
-    'enabled', 
-    '1', 
-    'true', 
-    'yes', 
+    'activo',
+    'active',
+    'habilitado',
+    'enabled',
+    '1',
+    'true',
+    'yes',
     'sí',
     'si',
     'activado',
@@ -188,21 +197,21 @@ const validateAccountStatus = (userData) => {
     'activa',
     'active'
   ]
-  
+
   console.log('🔍 Estado normalizado:', `"${estadoNormalizado}"`)
   console.log('✅ ¿Es activo?', activeStates.includes(estadoNormalizado))
-  
+
   return activeStates.includes(estadoNormalizado)
 }
 
 // FUNCIÓN PARA REDIRECCIÓN INTELIGENTE POR ROL
 const getRedirectPathByRole = (roleName) => {
   const savedPath = localStorage.getItem('redirectAfterLogin')
-  
+
   // Si hay una ruta guardada específica, usarla (solo si tiene permisos)
   if (savedPath && !savedPath.includes('/login')) {
     console.log('🎯 Intentando usar ruta guardada:', savedPath)
-    
+
     // Verificar que la ruta guardada sea accesible para este rol
     const allowedPathsByRole = {
       'admin': ['/dashboard', '/inicio', '/admin', '/students', '/inscripcion', '/notas', '/boletin', '/horario', '/aulas'],
@@ -210,12 +219,12 @@ const getRedirectPathByRole = (roleName) => {
       'estudiante': [], // ESTUDIANTE NO TIENE RUTAS PERMITIDAS
       'representante': ['/inicio', '/profile', '/boletin-estudiante', '/inscripcion', '/horario-estudiante']
     }
-    
+
     const allowedPaths = allowedPathsByRole[roleName] || []
-    const pathIsAllowed = allowedPaths.some(allowedPath => 
+    const pathIsAllowed = allowedPaths.some(allowedPath =>
       savedPath.startsWith(allowedPath)
     )
-    
+
     if (pathIsAllowed) {
       console.log('✅ Ruta guardada es accesible para este rol')
       localStorage.removeItem('redirectAfterLogin')
@@ -225,26 +234,26 @@ const getRedirectPathByRole = (roleName) => {
       localStorage.removeItem('redirectAfterLogin')
     }
   }
-  
+
   // Redirección por defecto según rol
   switch (roleName) {
     case 'admin':
       console.log('⚙️ Redirigiendo ADMINISTRADOR a dashboard')
       return '/dashboard'
-      
+
     case 'docente':
       console.log('📚 Redirigiendo DOCENTE a inicio docente')
       return '/docente/inicio'
-      
+
     case 'estudiante':
       // ¡IMPORTANTE! Redirigir a página especial para estudiantes
       console.log('🎓 ESTUDIANTE NO TIENE ACCESO DIRECTO - Redirigiendo a inicio')
       return '/inicio' // O redirigir a una página especial
-      
+
     case 'representante':
       console.log('👨‍👩‍👧‍👦 Redirigiendo REPRESENTANTE a inicio')
       return '/inicio'
-      
+
     default:
       console.log('🔀 Redirigiendo a inicio por defecto')
       return '/inicio'
@@ -255,18 +264,18 @@ const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
-  
+
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [backendStatus, setBackendStatus] = useState('checking')
-  
+
   // Estados para modales de error
   const [visiblePassError, setVisiblePassError] = useState(false)
   const [visibleEmailError, setVisibleEmailError] = useState(false)
   const [visibleGenericError, setVisibleGenericError] = useState(false)
   const [visibleInactiveError, setVisibleInactiveError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-  
+
   // Manejo de parámetros de URL
   const sessionExpired = searchParams.get('session') === 'expired'
   const logoutSuccess = searchParams.get('logout') === 'success'
@@ -278,7 +287,7 @@ const Login = () => {
         console.log('🔍 Verificando conexión con backend...')
         const isConnected = await api.checkConnection()
         setBackendStatus(isConnected ? 'connected' : 'error')
-        
+
         if (!isConnected) {
           console.error('❌ No se pudo conectar al backend')
         }
@@ -295,7 +304,7 @@ const Login = () => {
     const checkAuth = () => {
       const token = localStorage.getItem('accessToken')
       const user = localStorage.getItem('user')
-      
+
       if (!token || !user) {
         return false
       }
@@ -317,14 +326,14 @@ const Login = () => {
       try {
         const userData = JSON.parse(localStorage.getItem('user'))
         const roleName = userData?.rol || 'estudiante'
-        
+
         // Obtener la ruta de redirección inteligente
         const redirectPath = getRedirectPathByRole(roleName)
         console.log('🔀 Redirigiendo a:', redirectPath)
-        
+
         // Limpiar la ruta almacenada
         localStorage.removeItem('redirectAfterLogin')
-        
+
         navigate(redirectPath, { replace: true })
       } catch (error) {
         console.error('Error obteniendo datos de usuario:', error)
@@ -335,7 +344,7 @@ const Login = () => {
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
       localStorage.removeItem('user')
-      
+
       // Guardar la ruta actual para redirigir después del login (si no es login)
       if (!location.pathname.includes('/login')) {
         localStorage.setItem('redirectAfterLogin', location.pathname + location.search)
@@ -350,7 +359,7 @@ const Login = () => {
         // Remover el parámetro de la URL sin recargar la página
         navigate('/login', { replace: true })
       }, 5000)
-      
+
       return () => clearTimeout(timer)
     }
   }, [logoutSuccess, navigate])
@@ -363,7 +372,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
-    
+
     // Resetear todos los errores
     setVisiblePassError(false)
     setVisibleEmailError(false)
@@ -390,7 +399,7 @@ const Login = () => {
 
     try {
       console.log('📤 Enviando login...')
-      
+
       // Intentar login con el BACKEND
       const response = await api.post('/api/users/login', {
         email: formData.email.trim(),
@@ -398,13 +407,13 @@ const Login = () => {
       })
 
       console.log('✅ Login response completa:', response)
-      
+
       // DEBUG: Mostrar estructura completa de la respuesta
       console.log('🔍 INSOPECCIÓN COMPLETA DE LA RESPUESTA:')
       console.log('Tipo de respuesta:', typeof response)
       console.log('Es array?', Array.isArray(response))
       console.log('Claves principales:', Object.keys(response))
-      
+
       // Mostrar estructura del objeto user si existe
       if (response.user) {
         console.log('👤 ESTRUCTURA DEL OBJETO USER:')
@@ -416,12 +425,12 @@ const Login = () => {
       // 1. Primero verificar si la respuesta indica error
       if (response._ok === false || response.ok === false) {
         console.log('🔍 Respuesta no exitosa detectada')
-        
+
         // Usar la función de detección de errores
         const errorType = detectErrorType(response)
-        
+
         console.log('❌ Login fallido, tipo:', errorType, 'mensaje:', response.msg || response.message)
-        
+
         // Manejar según el tipo de error detectado
         switch (errorType) {
           case 'password':
@@ -432,8 +441,8 @@ const Login = () => {
             break
           case 'inactive':
             setErrorMessage(
-              response.msg || 
-              response.message || 
+              response.msg ||
+              response.message ||
               'Tu cuenta está inactiva. Por favor, contacta al administrador.'
             )
             setVisibleInactiveError(true)
@@ -457,24 +466,24 @@ const Login = () => {
       // 2. Verificar si es una respuesta exitosa
       if ((response.ok === true || response._ok === true) && response.accessToken && response.refreshToken) {
         console.log('🎯 Login exitoso, verificando estado de cuenta...')
-        
+
         // Verificar estado de la cuenta antes de proceder
         const esActivo = validateAccountStatus(response.user)
-        
+
         if (response.user && !esActivo) {
           console.warn('⚠️ Usuario marcado como INACTIVO por validateAccountStatus')
           console.log('📋 Propiedades del usuario recibido:', Object.keys(response.user))
           console.log('📊 Valores del usuario:', response.user)
-          
+
           setErrorMessage('Tu cuenta está inactiva. Contacta al administrador.')
           setVisibleInactiveError(true)
           setLoading(false)
           return
         }
-        
+
         // Login exitoso y cuenta activa
         console.log('✅ Cuenta ACTIVA, procediendo con login...')
-        
+
         // 1. Mapear Id_rol a nombre de rol estandarizado (usando TUS nombres de BD)
         const roleMap = {
           1: 'admin',           // "Administrador" en tu BD
@@ -482,13 +491,13 @@ const Login = () => {
           3: 'estudiante',      // "Estudiante" en tu BD
           4: 'representante'    // "Representante" en tu BD
         }
-        
+
         const roleId = response.user.Id_rol
         const roleName = roleMap[roleId] || 'estudiante'
         const tipoRol = response.user.tipo_rol || 'Estudiante'
-        
+
         console.log(`🔄 Mapeo de rol: Id_rol ${roleId} → ${roleName} (tipo_rol: ${tipoRol})`)
-        
+
         // 2. Preparar objeto user con rol estandarizado
         const userWithRole = {
           ...response.user,
@@ -499,19 +508,19 @@ const Login = () => {
           esEstudiante: roleName === 'estudiante',
           esRepresentante: roleName === 'representante'
         }
-        
+
         // 3. Guardar en localStorage
         localStorage.setItem('accessToken', response.accessToken)
         localStorage.setItem('refreshToken', response.refreshToken)
         localStorage.setItem('user', JSON.stringify(userWithRole))
-        
+
         console.log('🔑 Token guardado exitosamente')
         console.log('👤 Usuario guardado:', userWithRole)
-        
+
         // 4. REDIRECCIÓN INTELIGENTE POR ROL (usando la nueva función)
         const redirectPath = getRedirectPathByRole(roleName)
         console.log('🚀 Redirigiendo a:', redirectPath)
-        
+
         navigate(redirectPath, { replace: true })
       } else {
         // 3. Respuesta inesperada o mal formada
@@ -521,10 +530,10 @@ const Login = () => {
       }
     } catch (error) {
       console.error('❌ Error en login catch (error de red o excepción):', error)
-      
+
       let message = 'Error de conexión con el servidor'
       let errorType = 'generic'
-      
+
       // Ahora el error puede venir de la API (error.data) o ser un error de red
       if (error.data) {
         // Error estructurado del servidor
@@ -534,15 +543,15 @@ const Login = () => {
       } else if (error.message) {
         // Error de red u otro error
         message = error.message
-        
+
         // Verificar si es un error de conexión
         if (error.message.includes('Network') || error.message.includes('Failed to fetch')) {
           message = 'Error de conexión con el servidor. Verifica tu conexión a internet.'
         }
       }
-      
+
       setErrorMessage(message)
-      
+
       // Mostrar el modal correspondiente
       if (errorType === 'inactive') {
         setVisibleInactiveError(true)
@@ -584,7 +593,7 @@ const Login = () => {
               </div>
               <h1 className="text-white h3 fw-medium mb-1">ENDANZA</h1>
               <p className="text-white-50 fw-regular small mb-0">Escuela Nacional de Danza</p>
-              
+
               {/* Estado de conexión con BACKEND */}
               <div className="mt-3">
                 {backendStatus === 'checking' && (
@@ -603,9 +612,9 @@ const Login = () => {
                   <div className="d-flex align-items-center justify-content-center text-danger">
                     <CIcon icon={cilWarning} className="me-2" />
                     <small className="text-white-50">Error de conexión</small>
-                    <CButton 
-                      size="sm" 
-                      color="link" 
+                    <CButton
+                      size="sm"
+                      color="link"
                       className="text-warning p-0 ms-2"
                       onClick={handleRetryConnection}
                     >
@@ -704,8 +713,8 @@ const Login = () => {
 
                   {/* Enlace para recuperar contraseña */}
                   <div className="text-center mt-3">
-                    <a 
-                      href="#" 
+                    <a
+                      href="#"
                       onClick={(e) => {
                         e.preventDefault()
                         navigate('/forgot-password')
@@ -727,8 +736,8 @@ const Login = () => {
                 Backend: http://localhost:3001
               </small>
               <small className="text-white-50 d-block text-center mt-1">
-                Estado: {backendStatus === 'connected' ? '🟢 Conectado' : 
-                        backendStatus === 'error' ? '🔴 Error' : '🟡 Conectando...'}
+                Estado: {backendStatus === 'connected' ? '🟢 Conectado' :
+                  backendStatus === 'error' ? '🔴 Error' : '🟡 Conectando...'}
               </small>
             </div>
 
@@ -740,116 +749,139 @@ const Login = () => {
       </CContainer>
 
       {/* Modal para error de contraseña */}
-      <CModal visible={visiblePassError} onClose={() => setVisiblePassError(false)}>
-        <CModalHeader className="bg-warning text-white">
-          <CModalTitle>Error de contraseña</CModalTitle>
+      <CModal visible={visiblePassError} onClose={() => setVisiblePassError(false)} className="premium-modal" backdrop="static">
+        <div className="modal-top-bar bg-warning"></div>
+        <CModalHeader className="border-0 py-4 px-4 bg-transparent outline-none">
+          <CModalTitle className="fw-bold d-flex align-items-center header-title-custom w-100">
+            <div className="bg-orange-soft p-3 rounded-4 me-3">
+              <CIcon icon={cilLockLocked} className="text-warning" size="xl" />
+            </div>
+            <div className="flex-grow-1">
+              <h4 className="mb-0 fw-black header-title-custom ls-tight">Error de Seguridad</h4>
+              <div className="small text-muted-custom fw-medium">Contraseña incorrecta detectada</div>
+            </div>
+          </CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          <p>La contraseña ingresada es incorrecta.</p>
+        <CModalBody className="p-4 pt-2">
+          <div className="p-4 rounded-5 bg-light-custom bg-opacity-10 border border-light-custom border-opacity-20 mb-0 shadow-inner-soft">
+            <p className="mb-0 text-center fw-medium">
+              La contraseña ingresada no coincide con nuestros registros.
+              Por favor, verifique sus datos e intente nuevamente.
+            </p>
+          </div>
         </CModalBody>
-        <CModalFooter>
-          <CButton color="danger" onClick={() => setVisiblePassError(false)}>Cerrar</CButton>
+        <CModalFooter className="border-0 p-4 pt-1">
+          <CButton variant="ghost" className="px-4 fw-bold text-muted-custom hover-lift shadow-none border-0" onClick={() => setVisiblePassError(false)}>
+            CANCELAR
+          </CButton>
+          <CButton color="warning" className="btn-premium px-5 py-3 rounded-pill fw-bold ms-auto shadow-orange text-white" onClick={() => setVisiblePassError(false)}>
+            <CIcon icon={cilLockLocked} className="me-2" />
+            REINTENTAR
+          </CButton>
         </CModalFooter>
       </CModal>
 
       {/* Modal para error de correo */}
-      <CModal visible={visibleEmailError} onClose={() => setVisibleEmailError(false)}>
-        <CModalHeader className="bg-danger text-white">
-          <CModalTitle>Error de correo</CModalTitle>
+      <CModal visible={visibleEmailError} onClose={() => setVisibleEmailError(false)} className="premium-modal" backdrop="static">
+        <div className="modal-top-bar bg-danger"></div>
+        <CModalHeader className="border-0 py-4 px-4 bg-transparent outline-none">
+          <CModalTitle className="fw-bold d-flex align-items-center header-title-custom w-100">
+            <div className="bg-red-soft p-3 rounded-4 me-3">
+              <CIcon icon={cilXCircle} className="text-danger" size="xl" />
+            </div>
+            <div className="flex-grow-1">
+              <h4 className="mb-0 fw-black header-title-custom ls-tight">Usuario no Encontrado</h4>
+              <div className="small text-muted-custom fw-medium">Correo electrónico no registrado</div>
+            </div>
+          </CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          <p>El correo electrónico no está registrado.</p>
+        <CModalBody className="p-4 pt-2">
+          <div className="p-4 rounded-5 bg-light-custom bg-opacity-10 border border-light-custom border-opacity-20 mb-0 shadow-inner-soft">
+            <p className="mb-0 text-center fw-medium">
+              El correo electrónico ingresado no se encuentra en nuestra base de datos.
+              Asegúrese de escribirlo correctamente.
+            </p>
+          </div>
         </CModalBody>
-        <CModalFooter>
-          <CButton color="danger" onClick={() => setVisibleEmailError(false)}>Cerrar</CButton>
+        <CModalFooter className="border-0 p-4 pt-1">
+          <CButton variant="ghost" className="px-4 fw-bold text-muted-custom hover-lift shadow-none border-0" onClick={() => setVisibleEmailError(false)}>
+            CANCELAR
+          </CButton>
+          <CButton color="danger" className="btn-premium px-5 py-3 rounded-pill fw-bold ms-auto shadow-orange text-white" style={{ background: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={() => setVisibleEmailError(false)}>
+            <CIcon icon={cilUser} className="me-2" />
+            CERRAR
+          </CButton>
         </CModalFooter>
       </CModal>
 
       {/* Modal para cuenta inactiva */}
-      <CModal visible={visibleInactiveError} onClose={() => setVisibleInactiveError(false)}>
-        <CModalHeader className="bg-warning text-white">
-          <CModalTitle>
-            <CIcon icon={cilWarning} className="me-2" />
-            Cuenta Inactiva
+      <CModal visible={visibleInactiveError} onClose={() => setVisibleInactiveError(false)} className="premium-modal" backdrop="static">
+        <div className="modal-top-bar bg-warning"></div>
+        <CModalHeader className="border-0 py-4 px-4 bg-transparent outline-none">
+          <CModalTitle className="fw-bold d-flex align-items-center header-title-custom w-100">
+            <div className="bg-yellow-soft p-3 rounded-4 me-3">
+              <CIcon icon={cilWarning} className="text-warning" size="xl" />
+            </div>
+            <div className="flex-grow-1">
+              <h4 className="mb-0 fw-black header-title-custom ls-tight">Cuenta Inactiva</h4>
+              <div className="small text-muted-custom fw-medium">Acceso restringido temporalmente</div>
+            </div>
           </CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          <p className="mb-3">{errorMessage || 'Tu cuenta está inactiva.'}</p>
-          <div className="alert alert-info">
-            <small>
-              <strong>📞 Contacta al administrador:</strong>
-              <br />
-              • Teléfono: (123) 456-7890
-              <br />
-              • Email: admin@escueladanza.com
-              <br />
-              • Oficina: Edificio Principal, 2do piso
-            </small>
+        <CModalBody className="p-4 pt-2">
+          <div className="p-4 rounded-5 bg-light-custom bg-opacity-10 border border-light-custom border-opacity-20 mb-3 shadow-inner-soft">
+            <p className="mb-0 text-center fw-medium">
+              {errorMessage || 'Tu cuenta está inactiva actualmente. Por favor, contacta al administrador del sistema para activar tu cuenta.'}
+            </p>
+          </div>
+          <div className="p-3 rounded-4 bg-light-custom bg-opacity-10 border border-warning border-opacity-10">
+            <small className="d-block mb-2 text-uppercase fw-bold ls-1 opacity-75">📞 Contacto de Soporte:</small>
+            <div className="small">
+              <div className="mb-1">• Teléfono: <span className="fw-bold text-warning">(123) 456-7890</span></div>
+              <div className="mb-1">• Email: <span className="fw-bold text-warning">admin@escueladanza.com</span></div>
+              <div>• Ubicación: <span className="fw-bold">Edificio Principal, 2do piso</span></div>
+            </div>
           </div>
         </CModalBody>
-        <CModalFooter>
-          <CButton color="warning" onClick={handleContactAdmin}>
-            Contactar Administrador
+        <CModalFooter className="border-0 p-4 pt-1">
+          <CButton variant="ghost" className="px-4 fw-bold text-muted-custom hover-lift shadow-none border-0" onClick={() => setVisibleInactiveError(false)}>
+            CERRAR
           </CButton>
-          <CButton color="dark" onClick={() => setVisibleInactiveError(false)}>
-            Cerrar
+          <CButton color="warning" className="btn-premium px-5 py-3 rounded-pill fw-bold ms-auto shadow-orange text-white" onClick={handleContactAdmin}>
+            <CIcon icon={cilShieldAlt} className="me-2" />
+            CONTACTAR SOPORTE
           </CButton>
         </CModalFooter>
       </CModal>
 
       {/* Modal para errores genéricos */}
-      <CModal visible={visibleGenericError} onClose={() => setVisibleGenericError(false)}>
-        <CModalHeader className="bg-secondary text-white">
-          <CModalTitle>Error</CModalTitle>
+      <CModal visible={visibleGenericError} onClose={() => setVisibleGenericError(false)} className="premium-modal" backdrop="static">
+        <div className="modal-top-bar bg-secondary"></div>
+        <CModalHeader className="border-0 py-4 px-4 bg-transparent outline-none">
+          <CModalTitle className="fw-bold d-flex align-items-center header-title-custom w-100">
+            <div className="bg-blue-soft p-3 rounded-4 me-3">
+              <CIcon icon={cilInfo} className="text-info" size="xl" />
+            </div>
+            <div className="flex-grow-1">
+              <h4 className="mb-0 fw-black header-title-custom ls-tight">Información del Sistema</h4>
+              <div className="small text-muted-custom fw-medium">Notificación de proceso</div>
+            </div>
+          </CModalTitle>
         </CModalHeader>
-        <CModalBody>
-          <p>{errorMessage || 'Ocurrió un error al procesar la solicitud.'}</p>
+        <CModalBody className="p-4 pt-2">
+          <div className="p-4 rounded-5 bg-light-custom bg-opacity-10 border border-light-custom border-opacity-20 mb-0 shadow-inner-soft">
+            <p className="mb-0 text-center fw-medium">
+              {errorMessage || 'Ocurrió un error al procesar la solicitud. Por favor intente más tarde.'}
+            </p>
+          </div>
         </CModalBody>
-        <CModalFooter>
-          <CButton color="dark" onClick={() => setVisibleGenericError(false)}>Cerrar</CButton>
+        <CModalFooter className="border-0 p-4 pt-1">
+          <CButton color="secondary" className="btn-premium px-5 py-3 rounded-pill fw-bold ms-auto shadow-soft text-white" style={{ background: 'var(--neutral-600)', borderColor: 'var(--neutral-600)' }} onClick={() => setVisibleGenericError(false)}>
+            ENTENDIDO
+          </CButton>
         </CModalFooter>
       </CModal>
 
-      <style>{`
-        .login-page-wrapper {
-          min-height: 100vh;
-          background: #1a1c1e;
-          position: relative;
-          overflow: hidden;
-        }
-        .bg-circle {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(100px);
-          z-index: 0;
-          opacity: 0.5;
-        }
-        .bg-circle-1 {
-          width: 500px;
-          height: 500px;
-          background: var(--primary-500);
-          top: -200px;
-          right: -100px;
-        }
-        .bg-circle-2 {
-          width: 400px;
-          height: 400px;
-          background: var(--primary-700);
-          bottom: -150px;
-          left: -100px;
-        }
-        .premium-card {
-          animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .card-footer-accent {
-          height: 6px;
-          background: var(--primary-700);
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   )
 }

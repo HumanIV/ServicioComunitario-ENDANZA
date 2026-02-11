@@ -200,7 +200,7 @@ const PerfilEstudiantePrivado = () => {
             <CNavItem>
               <CNavLink
                 onClick={() => setActiveKey(1)}
-                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 1 ? 'bg-primary text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
+                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 1 ? 'bg-warning text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
               >
                 <CIcon icon={cilUser} className="me-2" />
                 DATOS PERSONALES
@@ -209,7 +209,7 @@ const PerfilEstudiantePrivado = () => {
             <CNavItem>
               <CNavLink
                 onClick={() => setActiveKey(2)}
-                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 2 ? 'bg-primary text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
+                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 2 ? 'bg-warning text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
               >
                 <CIcon icon={cilBadge} className="me-2" />
                 REPRESENTANTES
@@ -218,7 +218,7 @@ const PerfilEstudiantePrivado = () => {
             <CNavItem>
               <CNavLink
                 onClick={() => setActiveKey(4)}
-                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 4 ? 'bg-primary text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
+                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all cursor-pointer d-flex align-items-center ${activeKey === 4 ? 'bg-warning text-white shadow-sm' : 'profile-nav-link shadow-sm hover-lift'}`}
               >
                 <CIcon icon={cilMedicalCross} className="me-2" />
                 SALUD Y BIENESTAR
@@ -236,7 +236,7 @@ const PerfilEstudiantePrivado = () => {
       <CCard className="mt-5 border-0 premium-card overflow-hidden shadow-lg">
         <CCardFooter className="d-flex justify-content-between align-items-center bg-orange-soft border-0 py-4 px-4">
           <div className="d-flex align-items-center">
-            <div className="p-2 bg-primary rounded-circle me-3 shadow-sm d-none d-md-block">
+            <div className="p-2 bg-warning rounded-circle me-3 shadow-sm d-none d-md-block">
               <CIcon icon={cilCheckCircle} size="lg" className="text-white" />
             </div>
             <div>
@@ -246,7 +246,7 @@ const PerfilEstudiantePrivado = () => {
           </div>
           <div className="d-flex gap-2">
             <CButton size="sm" className="border-2 rounded-pill px-4 profile-outline-btn fw-bold shadow-sm d-flex align-items-center" onClick={handlePrint} variant="outline">
-              <CIcon icon={cilPrint} className="me-2" />
+              <CIcon icon={cilPrint} className="me-2 text-warning" />
               Descargar PDF
             </CButton>
           </div>
@@ -269,7 +269,7 @@ const PerfilEstudiantePrivado = () => {
       <style>{`
         .ls-1 { letter-spacing: 1px; }
         .hover-lift:hover { transform: translateY(-3px); }
-        .hover-orange:hover { color: var(--primary-600) !important; background: var(--primary-50) !important; }
+        .hover-orange:hover { color: #F28C0F !important; background: rgba(242, 140, 15, 0.05) !important; }
         .cursor-pointer { cursor: pointer; }
         .transition-all { transition: all 0.2s ease; }
         
@@ -282,8 +282,8 @@ const PerfilEstudiantePrivado = () => {
         [data-coreui-theme="dark"] .profile-header-title { color: white; }
         [data-coreui-theme="dark"] .profile-nav-link { background-color: rgba(255,255,255,0.05) !important; color: rgba(255,255,255,0.6) !important; }
         [data-coreui-theme="dark"] .profile-back-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); }
-        [data-coreui-theme="dark"] .profile-outline-btn { color: var(--primary-400) !important; border-color: var(--primary-400) !important; background-color: rgba(245, 185, 55, 0.05) !important; }
-        [data-coreui-theme="dark"] .profile-outline-btn:hover { background-color: var(--primary-500) !important; color: white !important; }
+        [data-coreui-theme="dark"] .profile-outline-btn { color: #F28C0F !important; border-color: #F28C0F !important; background-color: rgba(242, 140, 15, 0.05) !important; }
+        [data-coreui-theme="dark"] .profile-outline-btn:hover { background-color: #F28C0F !important; color: white !important; }
         [data-coreui-theme="dark"] .footer-text { color: rgba(255,255,255,0.4); }
 
         @media print { .no-print { display: none !important; } }

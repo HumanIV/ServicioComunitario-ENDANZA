@@ -40,11 +40,11 @@ const StudentFilters = ({
     onOpenDeleteMultiple
 }) => {
     return (
-        <div className="filters-row-container">
+        <div className="filters-row-container z-high">
             <CRow className="g-3 align-items-center">
                 {/* Búsqueda Principal */}
                 <CCol xs={12} lg={4}>
-                    <CInputGroup className="premium-input-group shadow-sm rounded-pill overflow-hidden border filter-search-container">
+                    <CInputGroup className="premium-input-group shadow-sm rounded-pill overflow-hidden border filter-search-container bg-glass-premium">
                         <CInputGroupText className="bg-transparent border-0 ps-3">
                             <CIcon icon={cilSearch} className="text-primary" />
                         </CInputGroupText>
@@ -59,7 +59,7 @@ const StudentFilters = ({
 
                 {/* Selector de Grado */}
                 <CCol xs={6} md={3} lg={2}>
-                    <div className="filter-pill-container shadow-sm border rounded-pill p-1 px-3 d-flex align-items-center w-100 h-100">
+                    <div className="filter-pill-container shadow-sm border rounded-pill p-1 px-3 d-flex align-items-center w-100 h-100 bg-glass-premium">
                         <CDropdown className="w-100">
                             <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100" style={{ whiteSpace: 'nowrap' }}>
                                 <div className="d-flex align-items-center text-truncate">
@@ -89,7 +89,7 @@ const StudentFilters = ({
 
                 {/* Selector de Sección */}
                 <CCol xs={6} md={3} lg={2}>
-                    <div className="filter-pill-container shadow-sm border rounded-pill p-1 px-3 d-flex align-items-center w-100 h-100">
+                    <div className="filter-pill-container shadow-sm border rounded-pill p-1 px-3 d-flex align-items-center w-100 h-100 bg-glass-premium">
                         <CDropdown className="w-100">
                             <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100" style={{ whiteSpace: 'nowrap' }}>
                                 <div className="d-flex align-items-center text-truncate">

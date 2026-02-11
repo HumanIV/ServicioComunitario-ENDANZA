@@ -7,128 +7,133 @@ const initialStudents = [
         name: 'Ana Sofía',
         lastName: 'Rodríguez',
         fullName: 'Ana Sofía Rodríguez',
-        NombreEstudiante: 'Ana Sofía',
-        ApellidoEstudiante: 'Rodríguez',
         gradeLevel: '4to Grado',
-        Grado: '4to Grado',
         section: 'A',
-        Seccion: 'A',
         status: 'Inscrito',
-        Estatus: 'Activo',
-        avatar: '',
         academicYear: '2024-2025',
         birthDate: '2014-02-15',
-        FechaNacimiento: '15 de Febrero del 2014',
-        age: '10 años',
-        Edad: '10 Años',
         gender: 'Femenino',
-        Sexo: 'Femenino',
-        bloodType: 'O+',
-        TipoSangre: 'O+',
-        address: 'Av. Sucre, Urbanización El Paraíso, Caracas 1010',
-        Direccion: 'Av. Sucre, Urbanización El Paraíso, Casa #45',
-        Ciudad: 'Caracas',
-        Estado: 'Distrito Capital',
-        Telefono: '0414-1234567',
-        Email: 'ana.rodriguez@gmail.com',
-        representative: 'Carlos Rodríguez',
-        RepresentanteNombre: 'Carlos',
+        representative: 'María Rodríguez',
+        RepresentanteNombre: 'María',
         RepresentanteApellido: 'Rodríguez',
-        RepresentanteCedula: 'V-12.345.678',
-        PadreNombre: 'Carlos',
-        PadreApellido: 'Rodríguez',
-        PadreCedula: 'V-12.345.678',
-        PadreParentesco: 'Padre',
-        PadreOcupacion: 'Ingeniero Comercial',
-        PadreTelefono: '0414-1234567',
-        PadreEmail: 'carlos.rod@gmail.com',
-        MadreNombre: 'María',
-        MadreApellido: 'López',
-        MadreCedula: 'V-13.987.654',
-        MadreParentesco: 'Madre',
-        MadreOcupacion: 'Docente Universitaria',
-        MadreTelefono: '0424-9876543',
-        MadreEmail: 'maria.lopez@yahoo.com',
-        NutricionPeso: '32 kg',
-        NutricionAltura: '1.40 m',
-        NutricionIMC: '16.3 Normal',
-        NutricionObs: 'La estudiante mantiene un peso acorde a su estatura y edad. Se recomienda mantener dieta balanceada.',
-        Alergias: 'Ninguna',
-        Medicamentos: 'Ninguno',
-        Enfermedades: 'Ninguna',
-        PromedioGeneral: '18.5',
-        Conducta: 'Excelente',
+        RepresentanteCedula: 'V-44555666',
+        RepresentanteId: 4,
         entryDate: '2023-09-10'
     },
     {
         id: 2,
-        code: 'END-2024-045',
+        code: 'END-2024-002',
         name: 'Luis Eduardo',
         lastName: 'Rodríguez',
         fullName: 'Luis Eduardo Rodríguez',
-        NombreEstudiante: 'Luis Eduardo',
-        ApellidoEstudiante: 'Rodríguez',
         gradeLevel: '2do Grado',
-        Grado: '2do Grado',
+        section: 'A',
+        status: 'Inscrito',
+        academicYear: '2024-2025',
+        birthDate: '2016-05-20',
+        gender: 'Masculino',
+        representative: 'María Rodríguez',
+        RepresentanteNombre: 'María',
+        RepresentanteApellido: 'Rodríguez',
+        RepresentanteCedula: 'V-44555666',
+        RepresentanteId: 4,
+        entryDate: '2024-01-15'
+    },
+    {
+        id: 3,
+        code: 'END-2024-089',
+        name: 'Lucía Isabela',
+        lastName: 'Méndez',
+        fullName: 'Lucía Isabela Méndez',
+        NombreEstudiante: 'Lucía Isabela',
+        ApellidoEstudiante: 'Méndez',
+        gradeLevel: '1er Grado',
+        Grado: '1er Grado',
         section: 'A',
         Seccion: 'A',
         status: 'Inscrito',
         Estatus: 'Activo',
         avatar: '',
-        academicYear: '2024-2025',
-        birthDate: '2016-05-20',
-        FechaNacimiento: '20 de Mayo del 2016',
-        age: '8 años',
-        Edad: '8 Años',
-        gender: 'Masculino',
-        Sexo: 'Masculino',
-        bloodType: 'A+',
-        TipoSangre: 'A+',
-        address: 'Av. Sucre, Urbanización El Paraíso, Caracas 1010',
-        Direccion: 'Av. Sucre, Urbanización El Paraíso, Casa #45',
+        academicYear: '2025-2026',
+        birthDate: '2017-09-12',
+        FechaNacimiento: '12 de Septiembre del 2017',
+        age: '7 años',
+        Edad: '7 Años',
+        gender: 'Femenino',
+        Sexo: 'Femenino',
+        bloodType: 'O+',
+        TipoSangre: 'O+',
+        address: 'Calle Real, Chacao, Caracas',
+        Direccion: 'Calle Real, Casa #12',
         Ciudad: 'Caracas',
         Estado: 'Distrito Capital',
-        Telefono: '0414-1234567',
-        Email: 'carlos.rod@gmail.com',
-        representative: 'Carlos Rodríguez',
-        RepresentanteNombre: 'Carlos',
-        RepresentanteApellido: 'Rodríguez',
-        RepresentanteCedula: 'V-12.345.678',
-        PadreNombre: 'Carlos',
-        PadreApellido: 'Rodríguez',
-        PadreCedula: 'V-12.345.678',
-        PadreParentesco: 'Padre',
-        PadreOcupacion: 'Ingeniero Comercial',
-        PadreTelefono: '0414-1234567',
-        PadreEmail: 'carlos.rod@gmail.com',
-        MadreNombre: 'María',
-        MadreApellido: 'López',
-        MadreCedula: 'V-13.987.654',
-        MadreParentesco: 'Madre',
-        MadreOcupacion: 'Docente Universitaria',
-        MadreTelefono: '0424-9876543',
-        MadreEmail: 'maria.lopez@yahoo.com',
-        NutricionPeso: '28 kg',
-        NutricionAltura: '1.25 m',
-        NutricionIMC: '17.9 Normal',
-        NutricionObs: 'Crecimiento adecuado para su edad. Se observa buen apetito y hábitos alimenticios.',
-        Alergias: 'Polen',
-        Medicamentos: 'Antialérgicos (S.O.S)',
-        Enfermedades: 'Rinitis Alérgica',
-        PromedioGeneral: '17.0',
+        Telefono: '0412-5556677',
+        Email: 'isabela.mendez@gmail.com',
+        representative: 'Mariana Méndez',
+        RepresentanteNombre: 'Mariana',
+        RepresentanteApellido: 'Méndez',
+        RepresentanteCedula: 'V-15.678.901',
+        NutricionPeso: '24 kg',
+        NutricionAltura: '1.20 m',
+        NutricionIMC: '16.7 Normal',
+        NutricionObs: 'Saludable.',
+        Alergias: 'Ninguna',
+        Medicamentos: 'Ninguno',
+        Enfermedades: 'Ninguna',
+        PromedioGeneral: '19.0',
+        Conducta: 'Excelente',
+        entryDate: '2024-09-10'
+    },
+    {
+        id: 4,
+        code: 'END-2024-090',
+        name: 'Mateo Sebastián',
+        lastName: 'Rivas',
+        fullName: 'Mateo Sebastián Rivas',
+        NombreEstudiante: 'Mateo Sebastián',
+        ApellidoEstudiante: 'Rivas',
+        gradeLevel: '1er Grado',
+        Grado: '1er Grado',
+        section: 'A',
+        Seccion: 'A',
+        status: 'Inscrito',
+        Estatus: 'Activo',
+        avatar: '',
+        academicYear: '2025-2026',
+        birthDate: '2017-11-05',
+        age: '7 años',
+        gender: 'Masculino',
+        representative: 'Pedro Rivas',
+        NutricionPeso: '26 kg',
+        NutricionAltura: '1.22 m',
+        NutricionIMC: '17.5 Normal',
+        Alergias: 'Ninguna',
+        Medicamentos: 'Ninguno',
+        Enfermedades: 'Ninguna',
+        PromedioGeneral: '18.0',
         Conducta: 'Buena',
-        entryDate: '2024-01-15'
+        entryDate: '2024-09-12'
     }
 ]
 
 function load() {
     try {
         const raw = localStorage.getItem(KEY)
-        if (!raw) {
-            save(initialStudents)
-            return initialStudents
-        }
-        return JSON.parse(raw)
+        let students = raw ? JSON.parse(raw) : initialStudents
+
+        // Inyectar Estudiantes de Prueba si no existen (1er Grado A)
+        const mockCodes = ['END-2024-089', 'END-2024-090']
+        mockCodes.forEach(code => {
+            if (!students.some(s => s.code === code)) {
+                const mockStudent = initialStudents.find(s => s.code === code)
+                if (mockStudent) {
+                    students.push(mockStudent)
+                    save(students)
+                }
+            }
+        })
+
+        return students
     } catch (e) {
         return initialStudents
     }
@@ -136,6 +141,24 @@ function load() {
 
 function save(items) {
     localStorage.setItem(KEY, JSON.stringify(items))
+}
+
+function nextId(items) {
+    const maxId = items.reduce((max, item) => Math.max(max, item.id || 0), 0)
+    return maxId + 1
+}
+
+export async function createStudent(payload) {
+    let data = load()
+    const id = nextId(data)
+    const newStudent = {
+        id,
+        ...payload,
+        createdAt: new Date().toISOString()
+    }
+    data.push(newStudent)
+    save(data)
+    return Promise.resolve(newStudent)
 }
 
 export async function listStudents(filters = {}) {

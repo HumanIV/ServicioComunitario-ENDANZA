@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import {
     CCard, CCardBody, CCardHeader, CContainer, CRow, CCol,
-    CButton, CTable, CTableHead, CTableRow, CTableHeaderCell,
+    CButton, CButtonGroup, CTable, CTableHead, CTableRow, CTableHeaderCell,
     CTableBody, CTableDataCell, CBadge, CSpinner, CDropdown,
-    CDropdownToggle, CDropdownMenu, CDropdownItem,
+    CDropdownToggle, CDropdownMenu, CDropdownItem, CDropdownDivider, CDropdownHeader,
     CToaster, CToast, CToastHeader, CToastBody
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -60,6 +60,9 @@ const Users = () => {
     }
 
     const filteredUsers = data.filter(user => {
+        // Excluimos representantes ya que ahora tienen su propio módulo
+        if (user.role === 'representante') return false;
+
         if (!searchTerm) return true
         const searchLower = searchTerm.toLowerCase()
         return (
@@ -126,8 +129,7 @@ const Users = () => {
         const config = {
             'superadmin': { color: 'danger', icon: cilShieldAlt, text: 'SUPERADMIN' },
             'admin': { color: 'warning', icon: cilShieldAlt, text: 'ADMIN' },
-            'docente': { color: 'info', icon: cilPeople, text: 'DOCENTE' },
-            'representante': { color: 'primary', icon: cilUser, text: 'REPRESENTANTE' }
+            'docente': { color: 'info', icon: cilPeople, text: 'DOCENTE' }
         }[r] || { color: 'secondary', icon: cilUser, text: role }
 
         return (
@@ -192,8 +194,8 @@ const Users = () => {
                         </div>
                     ) : currentPageData.length > 0 ? (
                         <>
-                            <div className="table-responsive rounded-4 border border-light-custom overflow-hidden shadow-sm">
-                                <CTable align="middle" hover className="mb-0 border-0 custom-premium-table">
+                            <div className="table-responsive rounded-4 border border-light-custom shadow-sm">
+                                <CTable align="middle" hover responsive className="mb-0 border-0 custom-premium-table">
                                     <CTableHead className="bg-light-custom bg-opacity-25 border-bottom border-light-custom border-opacity-10">
                                         <CTableRow>
                                             <CTableHeaderCell className="border-0 bg-transparent py-3 text-muted-custom small fw-bold ls-1 ps-4">PERFIL</CTableHeaderCell>
@@ -205,64 +207,93 @@ const Users = () => {
                                     </CTableHead>
                                     <CTableBody>
                                         {currentPageData.map(user => (
-                                            <CTableRow key={user.id} className="border-bottom-light hover-row">
-                                                <CTableDataCell className="ps-4 border-0">
-                                                    <div className="d-flex align-items-center py-2">
-                                                        <AvatarLetter name={user.first_name} lastName={user.last_name} size="md" />
-                                                        <div className="ms-3">
-                                                            <div className="fw-bold header-title-custom">{user.first_name} {user.last_name}</div>
-                                                            <div className="small text-muted-custom font-monospace">{user.dni}</div>
+                                            <CTableRow key={user.id} className="hover-row transition-all align-middle">
+                                                <CTableDataCell className="ps-4 py-3 border-bottom-light">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="me-3 flex-shrink-0">
+                                                            <AvatarLetter
+                                                                name={user.first_name + ' ' + user.last_name}
+                                                                size="md"
+                                                                className="shadow-sm border border-light"
+                                                            />
+                                                        </div>
+                                                        <div className="overflow-hidden">
+                                                            <div className="fw-bold header-title-custom text-truncate" style={{ maxWidth: '180px' }}>
+                                                                {user.first_name} {user.last_name}
+                                                            </div>
+                                                            <div className="text-muted-custom small d-flex align-items-center">
+                                                                <CIcon icon={cilUser} size="sm" className="me-1 opacity-50" />
+                                                                {user.dni}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </CTableDataCell>
-                                                <CTableDataCell className="border-0">
-                                                    <div className="small">
-                                                        <div className="fw-medium header-title-custom">{user.email}</div>
-                                                        <div className="text-muted-custom">{user.phone || 'S/T'}</div>
-                                                    </div>
+                                                <CTableDataCell className="border-bottom-light">
+                                                    <div className="fw-medium text-muted-custom small text-truncate" style={{ maxWidth: '150px' }}>{user.email}</div>
                                                 </CTableDataCell>
-                                                <CTableDataCell>
-                                                    {getRoleBadge(user.role)}
+                                                <CTableDataCell className="border-bottom-light text-center">
+                                                    <CBadge color={user.role === 'superadmin' ? 'danger' : 'primary'} className="rounded-pill px-2 py-1 bg-opacity-10 shadow-none border-0" style={{ color: user.role === 'superadmin' ? 'var(--cui-danger)' : 'var(--cui-primary)', textTransform: 'uppercase', fontSize: '0.65rem' }}>
+                                                        {user.role}
+                                                    </CBadge>
                                                 </CTableDataCell>
-                                                <CTableDataCell>
-                                                    {getStatusBadge(user.status)}
+                                                <CTableDataCell className="border-bottom-light text-center">
+                                                    <CBadge className={`rounded-pill px-3 py-2 fw-bold bg-opacity-10 border border-opacity-10 ${user.status === 'active' ? 'bg-success text-success border-success' : 'bg-warning text-warning border-warning'}`} style={{ fontSize: '0.7rem' }}>
+                                                        {user.status?.toUpperCase()}
+                                                    </CBadge>
                                                 </CTableDataCell>
-                                                <CTableDataCell className="text-end">
-                                                    <div className="d-flex justify-content-end gap-2">
-                                                        <CButton size="sm" variant="ghost" color="info" className="btn-icon-premium hover-scale" onClick={() => { setSelectedUser(user); setShowInfo(true); }}>
-                                                            <CIcon icon={cilInfo} />
+                                                <CTableDataCell className="text-end pe-4 border-bottom-light">
+                                                    <CButtonGroup className="shadow-sm rounded-pill overflow-hidden border border-light-custom border-opacity-10 table-action-group-premium">
+                                                        <CButton
+                                                            color="light"
+                                                            size="sm"
+                                                            onClick={() => { setSelectedUser(user); setShowInfo(true); }}
+                                                            className="px-2 px-md-3 border-0 transition-all btn-icon-premium bg-transparent"
+                                                            title="Ver información"
+                                                        >
+                                                            <CIcon icon={cilInfo} className="text-primary" />
                                                         </CButton>
+
                                                         <CDropdown variant="btn-group">
-                                                            <CDropdownToggle size="sm" variant="ghost" color="primary" className="btn-icon-premium hover-scale border-0" split={false}>
-                                                                <CIcon icon={cilPencil} />
+                                                            <CDropdownToggle
+                                                                size="sm"
+                                                                variant="ghost"
+                                                                className="px-2 px-md-3 border-0 transition-all btn-icon-premium bg-transparent rounded-0"
+                                                                caret={false}
+                                                            >
+                                                                <CIcon icon={cilPencil} className="text-primary" />
                                                             </CDropdownToggle>
-                                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll bg-dark-soft">
-                                                                <CDropdownItem onClick={() => { setEditing(user); setShowForm(true); }} className="py-2 px-3 dropdown-item-premium text-light-custom">
+                                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll bg-white">
+                                                                <CDropdownItem onClick={() => { setEditing(user); setShowForm(true); }} className="py-2 px-3 dropdown-item-premium">
                                                                     Editar Datos
                                                                 </CDropdownItem>
-                                                                <CDropdownItem divider className="bg-light-custom bg-opacity-10 my-1" />
-                                                                <CDropdownItem header className="text-muted-custom small text-uppercase fw-bold ls-1">Cambiar Rol</CDropdownItem>
-                                                                {['superadmin', 'admin', 'docente', 'representante'].filter(r => r !== user.role).map(r => (
-                                                                    <CDropdownItem key={r} onClick={() => handleRoleUpdate(user.id, r)} className="py-2 px-3 dropdown-item-premium text-light-custom">
+                                                                <CDropdownDivider className="bg-light bg-opacity-10 my-1" />
+                                                                <CDropdownHeader className="text-muted small text-uppercase fw-bold ls-1">Cambiar Rol</CDropdownHeader>
+                                                                {['superadmin', 'admin', 'docente'].filter(r => r !== user.role).map(r => (
+                                                                    <CDropdownItem key={r} onClick={() => handleRoleUpdate(user.id, r)} className="py-2 px-3 dropdown-item-premium">
                                                                         Habilitar {r}
                                                                     </CDropdownItem>
                                                                 ))}
-                                                                <CDropdownItem divider className="bg-light-custom bg-opacity-10 my-1" />
-                                                                <CDropdownItem header className="text-muted-custom small text-uppercase fw-bold ls-1">Cambiar Estado</CDropdownItem>
+                                                                <CDropdownDivider className="bg-light bg-opacity-10 my-1" />
+                                                                <CDropdownHeader className="text-muted small text-uppercase fw-bold ls-1">Cambiar Estado</CDropdownHeader>
                                                                 {['active', 'inactive', 'suspended'].filter(s => s !== user.status).map(s => (
-                                                                    <CDropdownItem key={s} onClick={() => handleStatusUpdate(user.id, s)} className="py-2 px-3 dropdown-item-premium text-light-custom">
+                                                                    <CDropdownItem key={s} onClick={() => handleStatusUpdate(user.id, s)} className="py-2 px-3 dropdown-item-premium">
                                                                         Pasar a {s}
                                                                     </CDropdownItem>
                                                                 ))}
                                                             </CDropdownMenu>
                                                         </CDropdown>
-                                                        <CButton size="sm" variant="ghost" color="danger" className="btn-icon-premium hover-scale"
+
+                                                        <CButton
+                                                            color="light"
+                                                            size="sm"
                                                             disabled={user.role === 'superadmin'}
                                                             onClick={() => setDeleteModal({ visible: true, userId: user.id, userName: `${user.first_name} ${user.last_name}` })}
+                                                            className="px-2 px-md-3 border-0 transition-all btn-icon-premium bg-transparent"
+                                                            title="Eliminar usuario"
                                                         >
-                                                            <CIcon icon={cilTrash} />
+                                                            <CIcon icon={cilTrash} className="text-primary" />
                                                         </CButton>
-                                                    </div>
+                                                    </CButtonGroup>
                                                 </CTableDataCell>
                                             </CTableRow>
                                         ))}

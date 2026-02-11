@@ -141,24 +141,7 @@ const InicioDocente = () => {
                 loadingStudents={loadingStudents}
             />
 
-            <style>{`
-                .ls-1 { letter-spacing: 1px; }
-                .bg-orange-soft { background-color: rgba(242, 140, 15, 0.12); }
-                .btn-premium {
-                    background: #E07B00;
-                    border: none;
-                    color: white;
-                    border-radius: 12px;
-                    transition: all 0.3s ease;
-                }
-                .btn-premium:hover { 
-                    background: #F28C0F !important;
-                    color: white !important;
-                    transform: translateY(-1px); 
-                }
-                .h-fit { height: fit-content; }
-                .leading-tight { line-height: 1.2; }
-            `}</style>
+
         </CContainer>
     )
 }

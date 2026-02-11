@@ -24,7 +24,7 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
     const [password, setPassword] = useState('');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
-    const [role, setRole] = useState('representante');
+    const [role, setRole] = useState('docente');
     const [status, setStatus] = useState('active');
     const [errors, setErrors] = useState({});
     const [saving, setSaving] = useState(false);
@@ -38,7 +38,7 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
                 setPassword('');
                 setPhone(initial.phone || '');
                 setEmail(initial.email || '');
-                setRole(initial.role || 'representante');
+                setRole(initial.role || 'docente');
                 setStatus(initial.status || 'active');
             } else {
                 setDni('V-');
@@ -47,7 +47,7 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
                 setPassword('');
                 setPhone('');
                 setEmail('');
-                setRole('representante');
+                setRole('docente');
                 setStatus('active');
             }
             setErrors({});
@@ -173,7 +173,6 @@ const UserForm = ({ visible, onClose, onSave, initial = null }) => {
                                 <option value="superadmin">Superadmin</option>
                                 <option value="admin">Administrador</option>
                                 <option value="docente">Docente</option>
-                                <option value="representante">Representante</option>
                             </CFormSelect>
                         </CCol>
                         <CCol md={6}>

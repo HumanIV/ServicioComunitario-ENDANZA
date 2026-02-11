@@ -38,7 +38,7 @@ const EvaluationSummary = ({ subject, notas, calculatePromedio }) => {
 
     return (
         <CRow className="mt-4 g-3 no-print">
-            <CCol xs={12} sm={6} lg={3}>
+            <CCol xs={6} lg={3}>
                 <SummaryCard
                     label="Estudiantes"
                     value={subject.estudiantes.length}
@@ -47,7 +47,7 @@ const EvaluationSummary = ({ subject, notas, calculatePromedio }) => {
                     iconColor="var(--primary-600)"
                 />
             </CCol>
-            <CCol xs={12} sm={6} lg={3}>
+            <CCol xs={6} lg={3}>
                 <SummaryCard
                     label="Calificados"
                     value={withGrades}
@@ -56,7 +56,7 @@ const EvaluationSummary = ({ subject, notas, calculatePromedio }) => {
                     iconColor="var(--info)"
                 />
             </CCol>
-            <CCol xs={12} sm={6} lg={3}>
+            <CCol xs={6} lg={3}>
                 <SummaryCard
                     label="Aprobados"
                     value={approved}
@@ -65,7 +65,7 @@ const EvaluationSummary = ({ subject, notas, calculatePromedio }) => {
                     iconColor="var(--success)"
                 />
             </CCol>
-            <CCol xs={12} sm={6} lg={3}>
+            <CCol xs={6} lg={3}>
                 <SummaryCard
                     label="Reprobados"
                     value={failed}

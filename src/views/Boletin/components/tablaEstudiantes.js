@@ -36,8 +36,8 @@ export const TablaEstudiantes = ({
               />
             </CTableHeaderCell>
             <CTableHeaderCell className="text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Estudiante</CTableHeaderCell>
-            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Código</CTableHeaderCell>
-            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Edad</CTableHeaderCell>
+            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0 d-mobile-none">Código</CTableHeaderCell>
+            <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0 d-mobile-none">Edad</CTableHeaderCell>
             <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Promedio</CTableHeaderCell>
             <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Estado</CTableHeaderCell>
             <CTableHeaderCell className="text-center text-uppercase text-muted-custom small fw-bold ls-1 py-3 border-0">Acciones</CTableHeaderCell>
@@ -72,13 +72,13 @@ export const TablaEstudiantes = ({
                   </div>
                 </CTableDataCell>
 
-                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10 d-mobile-none">
                   <CBadge color="dark" className="rounded-pill px-3 bg-dark bg-opacity-75 font-monospace">
                     {estudiante.codigo}
                   </CBadge>
                 </CTableDataCell>
 
-                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10 text-muted-custom fw-bold">
+                <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10 text-muted-custom fw-bold d-mobile-none">
                   {estudiante.edad} años
                 </CTableDataCell>
 
@@ -108,20 +108,22 @@ export const TablaEstudiantes = ({
                 </CTableDataCell>
 
                 <CTableDataCell className="text-center border-0 border-bottom border-light-custom border-opacity-10">
-                  <div className="d-flex justify-content-center gap-2">
+                  <div className="d-flex justify-content-center gap-1 gap-md-2">
                     <CButton
-                      className="btn-sm d-flex align-items-center bg-info bg-opacity-10 text-info border-0 fw-bold px-3 hover-lift shadow-sm"
+                      className="btn-sm d-flex align-items-center bg-info bg-opacity-10 text-info border-0 fw-bold px-2 px-md-3 hover-lift shadow-sm"
                       onClick={() => onVerBoletin(estudiante)}
                       title="Ver boletín detallado"
                     >
-                      <CIcon icon={cilMagnifyingGlass} className="me-1" size="sm" /> Ver
+                      <CIcon icon={cilMagnifyingGlass} className="me-md-1" size="sm" />
+                      <span className="d-none d-md-inline">Ver</span>
                     </CButton>
                     <CButton
-                      className="btn-sm d-flex align-items-center bg-success bg-opacity-10 text-success border-0 fw-bold px-3 hover-lift shadow-sm"
+                      className="btn-sm d-flex align-items-center bg-success bg-opacity-10 text-success border-0 fw-bold px-2 px-md-3 hover-lift shadow-sm"
                       onClick={() => onAgregarBoletin(estudiante)}
                       title="Agregar para generar boletín"
                     >
-                      <CIcon icon={cilFile} className="me-1" size="sm" /> Boletín
+                      <CIcon icon={cilFile} className="me-md-1" size="sm" />
+                      <span className="d-none d-md-inline">Boletín</span>
                     </CButton>
                   </div>
                 </CTableDataCell>

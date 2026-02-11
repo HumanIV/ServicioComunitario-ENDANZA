@@ -3,8 +3,8 @@ import { CNav, CNavItem, CNavLink, CBadge } from "@coreui/react"
 
 const NavegacionDias = ({ diasSemana, activeDay, setActiveDay, calcularHorasDia }) => {
   return (
-    <div className="mb-4 d-flex justify-content-center">
-      <div className="p-2 nav-dias-bg rounded-pill shadow-sm border border-light d-inline-flex flex-wrap justify-content-center gap-2">
+    <div className="mb-4 d-flex justify-content-center w-100">
+      <div className="p-2 nav-dias-bg rounded-pill shadow-sm border border-light d-flex flex-nowrap overflow-auto justify-content-start justify-content-md-center gap-2 w-100 w-md-auto nav-pills-responsive">
         {diasSemana.map(dia => (
           <CNavItem key={dia.id} className="list-unstyled">
             <CNavLink
@@ -15,7 +15,7 @@ const NavegacionDias = ({ diasSemana, activeDay, setActiveDay, calcularHorasDia 
                 : 'nav-dias-text bg-transparent hover-light'
                 }`}
             >
-              <CBadge className={`rounded-pill px-2 py-1 ${activeDay === dia.id ? 'bg-white text-primary' : 'bg-orange-soft text-primary'}`}>
+              <CBadge className={`rounded-pill px-2 py-1 ${activeDay === dia.id ? 'badge-active text-warning' : 'bg-orange-soft text-warning'}`}>
                 {dia.nombre.substring(0, 3)}
               </CBadge>
               <span className="d-none d-md-inline">{dia.nombre}</span>
@@ -33,9 +33,11 @@ const NavegacionDias = ({ diasSemana, activeDay, setActiveDay, calcularHorasDia 
             .transition-all { transition: all 0.2s ease; }
             .nav-dias-bg { background-color: white; }
             .nav-dias-text { color: var(--neutral-500); }
+            .badge-active { background-color: white; }
 
             [data-coreui-theme="dark"] .nav-dias-bg { background-color: rgba(255,255,255,0.05); }
             [data-coreui-theme="dark"] .nav-dias-text { color: rgba(255,255,255,0.4); }
+            [data-coreui-theme="dark"] .badge-active { background-color: rgba(255,255,255,0.15); }
           `}
       </style>
     </div>

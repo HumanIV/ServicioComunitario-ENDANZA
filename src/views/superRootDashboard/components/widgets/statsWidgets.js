@@ -1,105 +1,146 @@
 import React from 'react'
-import { CRow, CCol, CCard, CCardBody } from '@coreui/react'
+import { CRow, CCol, CCard, CCardBody, CBadge } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilClipboard, cilChartLine, cilCalendar, cilUserFollow } from '@coreui/icons'
+import { cilPeople, cilUserFollow, cilCalendar, cilCloudUpload } from '@coreui/icons'
 
-const PremiumStatCard = ({ title, value, subtitle, icon, onClick }) => (
-  <CCard
-    className="premium-card h-100 cursor-pointer hover-lift border-0 overflow-hidden"
-    onClick={onClick}
-    style={{ borderRadius: '20px' }}
-  >
-    <div className="position-absolute top-0 start-0 w-100" style={{ height: '4px', background: '#E07B00' }}></div>
-    <CCardBody className="d-flex flex-column justify-content-between p-4" style={{ zIndex: 1 }}>
-      <div>
-        <div className="d-flex align-items-center mb-3">
-          <div className="bg-orange-soft p-2 rounded-3 me-3 d-flex align-items-center justify-content-center" style={{ width: '48px', height: '48px' }}>
-            <span className="text-primary">{icon}</span>
-          </div>
-          <h6 className="stat-card-title mb-0 small fw-bold text-uppercase ls-1">{title}</h6>
+const ModernStatCard = ({ title, value, subtitle, icon, onClick, type = 'default' }) => {
+  const isActionable = !!onClick;
+
+  return (
+    <CCard
+      className={`border-0 overflow-hidden shadow-sm h-100 bg-glass-premium ${isActionable ? 'cursor-pointer hover-lift-subtle shadow-hover' : ''}`}
+      onClick={onClick}
+      style={{
+        borderRadius: '24px',
+        transition: 'all 0.3s ease'
+      }}
+    >
+      <CCardBody className="p-3 p-xl-4 d-flex align-items-center bg-transparent">
+        <div className={`stat-icon-square rounded-4 me-3 me-xl-4 d-flex align-items-center justify-content-center bg-stat-light-${type} responsive-icon-square`}>
+          {icon}
         </div>
-        <h2 className="fw-bold mb-1 stat-card-value display-6">{value}</h2>
-        <p className="stat-card-subtitle small mb-0">{subtitle}</p>
-      </div>
-      <div className="mt-4 pt-3 border-top border-light-custom d-flex justify-content-end">
-        <span className="small text-primary fw-bold">Ver detalles →</span>
-      </div>
-    </CCardBody>
 
-    <style>{`
-      .hover-lift:hover { 
-        transform: translateY(-6px); 
-        cursor: pointer;
-      }
-      .bg-orange-soft { background-color: rgba(242, 140, 15, 0.1); }
-      .ls-1 { letter-spacing: 1px; }
-      
-      .stat-card-title { color: var(--neutral-500); }
-      .stat-card-value { color: var(--neutral-800); }
-      .stat-card-subtitle { color: var(--neutral-400); }
-      .border-top.border-light-custom { border-top: 1px solid rgba(0,0,0,0.05) !important; }
+        <div className="flex-grow-1 overflow-hidden">
+          <div className="d-flex justify-content-between align-items-center mb-1">
+            <h6 className="text-muted-custom mb-0 small fw-bold text-uppercase ls-1 text-truncate">{title}</h6>
+            {isActionable && (
+              <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1 fw-bold d-none d-xxl-inline-block" style={{ fontSize: '0.65rem' }}>
+                GESTIONAR
+              </CBadge>
+            )}
+          </div>
+          <h3 className="fw-bold mb-0 stat-value-text ls-tight">{value}</h3>
+          <p className="text-muted-custom small mb-0 text-truncate opacity-75">{subtitle}</p>
+        </div>
+      </CCardBody>
 
-      [data-coreui-theme="dark"] .stat-card-title { color: rgba(255,255,255,0.5); }
-      [data-coreui-theme="dark"] .stat-card-value { color: white; }
-      [data-coreui-theme="dark"] .stat-card-subtitle { color: rgba(255,255,255,0.4); }
-      [data-coreui-theme="dark"] .border-top.border-light-custom { border-top: 1px solid rgba(255,255,255,0.05) !important; }
-    `}</style>
-  </CCard>
-)
+      <style>{`
+        .bg-stat-light-default { background-color: rgba(224, 123, 0, 0.1); color: #E07B00; }
+        .bg-stat-light-students { background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+        .bg-stat-light-new { background-color: rgba(25, 135, 84, 0.1); color: #198754; }
+        .bg-stat-light-period { background-color: rgba(102, 16, 242, 0.1); color: #6610f2; }
+        
+        .responsive-icon-square {
+            width: 80px;
+            height: 80px;
+            min-width: 80px;
+        }
+
+        .stat-value-text { 
+            font-size: 2.25rem; 
+            color: var(--neutral-800);
+            white-space: nowrap;
+        }
+        [data-coreui-theme="dark"] .stat-value-text { color: white !important; }
+        
+        .hover-lift-subtle:hover {
+            transform: translateY(-4px);
+        }
+        
+        .shadow-hover:hover {
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+        [data-coreui-theme="dark"] .shadow-hover:hover {
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4) !important;
+        }
+
+        @media (max-width: 1400px) {
+            .stat-value-text { font-size: 2rem; }
+            .responsive-icon-square {
+                width: 70px;
+                height: 70px;
+                min-width: 70px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stat-value-text { font-size: 1.5rem; }
+            .responsive-icon-square {
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+            }
+        }
+      `}</style>
+    </CCard>
+  );
+}
 
 const StatsWidgets = ({
-  notasPendientes,
-  boletines,
-  periodoInscripcion,
-  usuarios,
-  onOpenValidacionNotas,
-  onOpenControlBoletines,
+  students = [],
+  repsCount = 0,
+  periodoInscripcion = {},
+  periodoSubidaNotas = {},
   onOpenPeriodoInscripcion,
-  onOpenGestionAccesos
+  onOpenSubidaNotas
 }) => {
+  const currentYear = new Date().getFullYear();
+  const newEnrollments = students.filter(s => {
+    if (!s.entryDate) return false;
+    return s.entryDate.includes(currentYear.toString()) || s.entryDate.includes('2024');
+  }).length;
+
   return (
-    <CRow className="mb-4 gy-4">
-      {/* Notas Pendientes */}
-      <CCol xs={12} sm={6} lg={3}>
-        <PremiumStatCard
-          title="Notas por Validar"
-          value={notasPendientes.filter(n => n.estado === 'pendiente').length}
-          subtitle="Registros pendientes de revisión"
-          icon={<CIcon icon={cilClipboard} size="lg" />}
-          onClick={onOpenValidacionNotas}
+    <CRow className="mb-5 gy-4 justify-content-center">
+      <CCol xs={12} md={6} lg={6}>
+        <ModernStatCard
+          title="Estudiantes"
+          value={students.length}
+          subtitle="Total alumnos activos"
+          icon={<CIcon icon={cilPeople} size="xl" />}
+          type="students"
         />
       </CCol>
 
-      {/* Boletines */}
-      <CCol xs={12} sm={6} lg={3}>
-        <PremiumStatCard
-          title="Boletines Activos"
-          value={boletines.filter(b => b.disponible).length}
-          subtitle={`de ${boletines.length} totales disponibles`}
-          icon={<CIcon icon={cilChartLine} size="lg" />}
-          onClick={onOpenControlBoletines}
+      <CCol xs={12} md={6} lg={6}>
+        <ModernStatCard
+          title="Nuevos Ingresos"
+          value={newEnrollments}
+          subtitle="Ciclo actual"
+          icon={<CIcon icon={cilUserFollow} size="xl" />}
+          type="new"
         />
       </CCol>
 
-      {/* Inscripciones */}
-      <CCol xs={12} sm={6} lg={3}>
-        <PremiumStatCard
+      <CCol xs={12} md={6} lg={6}>
+        <ModernStatCard
           title="Inscripciones"
-          value={periodoInscripcion.activo ? "Activo" : "Inactivo"}
-          subtitle="Estado del periodo actual"
-          icon={<CIcon icon={cilCalendar} size="lg" />}
+          value={periodoInscripcion.activo ? "Abierto" : "Cerrado"}
+          subtitle={periodoInscripcion.activo ? "Portal habilitado" : "Fuera de fecha"}
+          icon={<CIcon icon={cilCalendar} size="xl" />}
           onClick={onOpenPeriodoInscripcion}
+          type="period"
         />
       </CCol>
 
-      {/* Usuarios Activos */}
-      <CCol xs={12} sm={6} lg={3}>
-        <PremiumStatCard
-          title="Accesos"
-          value={usuarios.filter(u => u.activo).length}
-          subtitle="Cuentas con acceso activo"
-          icon={<CIcon icon={cilUserFollow} size="lg" />}
-          onClick={onOpenGestionAccesos}
+      <CCol xs={12} md={6} lg={6}>
+        <ModernStatCard
+          title="Subida de Notas"
+          value={periodoSubidaNotas.activo ? "Activo" : "Inactivo"}
+          subtitle={periodoSubidaNotas.activo ? "Carga permitida" : "Periodo cerrado"}
+          icon={<CIcon icon={cilCloudUpload} size="xl" />}
+          onClick={onOpenSubidaNotas}
+          type="default"
         />
       </CCol>
     </CRow>

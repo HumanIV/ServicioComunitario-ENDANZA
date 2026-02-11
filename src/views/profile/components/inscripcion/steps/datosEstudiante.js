@@ -294,19 +294,6 @@ const DatosEstudiante = ({ formData, onChange, errores = {}, mode = "completo" }
           </CRow>
         )}
       </CForm>
-      <style>{`
-        .ls-1 { letter-spacing: 1px; }
-        .step-section-bg { background-color: var(--neutral-50); }
-        .step-label { color: var(--neutral-600); }
-
-        [data-coreui-theme="dark"] .step-section-bg { background-color: rgba(255,255,255,0.02); }
-        [data-coreui-theme="dark"] .step-label { color: rgba(255,255,255,0.7); }
-        .step-section-border { border: 1px solid var(--neutral-200) !important; }
-        [data-coreui-theme="dark"] .step-section-border { border: 1px solid rgba(255,255,255,0.05) !important; }
-        
-        /* Forzar alineación de inputs mediante altura mínima de etiquetas */
-        span.step-label { min-height: 2.2rem; display: block; }
-      `}</style>
     </div>
   );
 };
