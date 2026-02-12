@@ -16,8 +16,6 @@ import { AppSidebarNav } from './AppSidebarNav'
 // Usaremos el favicon como logo sin fondo
 const logoEndanza = "/favicon.png"
 
-// QUITA ESTA LÍNEA - Ya no necesitas importar navigation aquí
-// import navigation from '../_nav'
 
 const AppSidebar = ({ navigation = [] }) => { // RECIBE navigation COMO PROP, con valor por defecto array vacío
   const dispatch = useDispatch()
