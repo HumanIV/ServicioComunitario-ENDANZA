@@ -11,7 +11,7 @@ import {
     cilPeople, cilInfo, cilSearch, cilCheckCircle, cilWarning, cilUser, cilChild, cilEnvelopeClosed, cilPhone, cilBadge, cilOptions
 } from '@coreui/icons'
 
-import * as UserService from '../users/Users.service'
+// import * as UserService from '../users/Users.service'
 import { listStudents } from 'src/services/students'
 import AvatarLetter from 'src/components/AvatarLetter'
 import SearchInput from 'src/components/SearchInput'
