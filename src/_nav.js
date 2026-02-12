@@ -22,6 +22,8 @@ import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 
 const _nav = [
   // INICIO (Solo para Representante)
+
+  
   {
     component: CNavItem,
     name: 'INICIO',
@@ -39,27 +41,10 @@ const _nav = [
     roles: ['admin']
   },
 
-  // COMPETENCIAS (Solo admin)
-  {
-    component: CNavItem,
-    name: 'COMPETENCIAS',
-    to: '/competencias',
-    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
-    roles: ['admin']
-  },
-
-  {
-    component: CNavItem,
-    name: 'PREINSCRIPCIÓN',
-    to: '/preinscripcion',
-    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
-    roles: ['admin']
-  },
-
   {
     component: CNavTitle,
     name: 'MÓDULOS',
-    roles: ['admin', 'docente', 'representante']
+    roles: ['admin', 'docente']
   },
 
   // GESTIÓN ACADÉMICA (Solo para Representantes)
@@ -96,6 +81,7 @@ const _nav = [
       }
     ],
   },
+  
 
   // GESTIÓN DE ESTUDIANTES (Solo admin)
   {
@@ -136,7 +122,14 @@ const _nav = [
         name: 'Gestión de Inscripciones',
         to: '/inscripcion',
         roles: ['admin']
+      },
+      {
+        component: CNavItem,
+        name: 'profile',
+        to: '/perfil',
+        roles: ['admin']
       }
+
     ],
   },
 
@@ -237,22 +230,22 @@ const _nav = [
     ],
   },
 
-  // PANEL REPRESENTANTE (Solo representantes)
+    // COMPETENCIAS (Solo admin)
   {
-    component: CNavGroup,
-    name: 'Panel Representante',
-    to: '/inicio',
-    icon: <CIcon icon={cilUser} customClassName="nav-icon" />,
-    roles: ['representante'],
-    items: [
-      {
-        component: CNavItem,
-        name: 'Inicio Representante',
-        to: '/inicio',
-        roles: ['representante']
-      }
-    ],
-  }
+    component: CNavItem,
+    name: 'COMPETENCIAS',
+    to: '/competencias',
+    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
+    roles: ['admin']
+  },
+
+  {
+    component: CNavItem,
+    name: 'PREINSCRIPCIÓN',
+    to: '/preinscripcion',
+    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
+    roles: ['admin']
+  },
 ]
 
 // Función para filtrar navegación según rol

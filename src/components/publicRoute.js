@@ -17,8 +17,10 @@ const PublicRoute = ({ children }) => {
         return <Navigate to="/docente/inicio" replace />
       case 'representante':
         return <Navigate to="/inicio" replace />
+      
       default:
         return <Navigate to="/inicio" replace />
+
     }
   }
   

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { listUsers } from '../../users/Users.service'
+import { listUsers } from '../../../services/userService'  // ✅ Usa tu servicio REAL
 import { listStudents } from '../../../services/students'
 import { listSections } from '../../../services/schedules'
 
@@ -32,8 +32,9 @@ export const useSuperRootData = () => {
     const fetchData = async () => {
       setLoading(true)
       try {
+        // ✅ Usamos las mismas funciones pero con el backend real
         const [usersData, studentsData, sectionsData] = await Promise.all([
-          listUsers(),
+          listUsers(),        // ✅ Ahora usa userService.listUsers() del backend real
           listStudents(),
           listSections()
         ])

@@ -61,6 +61,9 @@ const prueba = React.lazy(() => import('./views/Boletin/components/resumenSeccio
 const Preinscripcion = React.lazy(() => import('./views/preinscripcion/Preinscripcion'))
 const Representantes = React.lazy(() => import('./views/representantes/Representantes'))
 
+
+const perfil = React.lazy(() => import('./views/perfilUSUARIO/perfil'))
+
 const routes = [
   // Página principal
   { path: '/', exact: true, name: 'Home' },
@@ -113,6 +116,8 @@ const routes = [
   { path: '/prueba', name: 'prueba', element: prueba },
   { path: '/docente/horario', name: 'Horario Docente', element: React.lazy(() => import('./views/Docente/HorarioDocente')) },
   { path: '/docente/inicio', name: 'Inicio Docente', element: React.lazy(() => import('./views/Docente/InicioDocente')) },
+
+  {path: '/perfil', name: 'PerfilUsuarioGeneral', element: perfil}, // Perfil Usuario General
 
 
 

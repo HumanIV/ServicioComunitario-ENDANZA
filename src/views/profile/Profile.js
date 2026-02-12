@@ -16,7 +16,8 @@ import {
   CToast,
   CToastHeader,
   CToastBody,
-  CAlert
+  CAlert,
+  CTabs,
 } from "@coreui/react"
 import { Link, useNavigate } from "react-router-dom"
 import CIcon from "@coreui/icons-react"

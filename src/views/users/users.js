@@ -2,19 +2,21 @@ import React, { useEffect, useState } from 'react'
 import {
     CCard, CCardBody, CCardHeader, CContainer, CRow, CCol,
     CButton, CButtonGroup, CTable, CTableHead, CTableRow, CTableHeaderCell,
-    CTableBody, CTableDataCell, CBadge, CSpinner, CDropdown,
-    CDropdownToggle, CDropdownMenu, CDropdownItem, CDropdownDivider, CDropdownHeader,
-    CToaster, CToast, CToastHeader, CToastBody
+    CTableBody, CTableDataCell, CBadge, CSpinner,
+    CToaster, CToast, CToastHeader, CToastBody,
+    CModal, CModalHeader, CModalTitle, CModalBody, CModalFooter,
+    CFormSelect
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
     cilPlus, cilPencil, cilTrash, cilUser, cilShieldAlt,
-    cilPeople, cilInfo, cilSearch, cilCheckCircle, cilWarning
+    cilPeople, cilInfo, cilSearch, cilCheckCircle, cilWarning,
+    cilBan, cilCheck, cilLockLocked,cilCircle,cilReportSlash
 } from '@coreui/icons'
 
 import UserForm from './UserForm'
 import InfoUser from './InfoUser'
-import * as UserService from './Users.service'
+import * as UserService from '../../services/userService'
 import AvatarLetter from 'src/components/AvatarLetter'
 import SearchInput from 'src/components/SearchInput'
 import Pagination from 'src/components/Pagination'
@@ -28,6 +30,13 @@ const Users = () => {
     const [editing, setEditing] = useState(null)
     const [selectedUser, setSelectedUser] = useState(null)
     const [toasts, setToasts] = useState([])
+
+    // Estados para modales de acciones
+    const [showRoleModal, setShowRoleModal] = useState(false)
+    const [showStatusModal, setShowStatusModal] = useState(false)
+    const [actionUser, setActionUser] = useState(null)
+    const [selectedRole, setSelectedRole] = useState('')
+    const [selectedStatus, setSelectedStatus] = useState('')
 
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage] = useState(8)
@@ -60,9 +69,7 @@ const Users = () => {
     }
 
     const filteredUsers = data.filter(user => {
-        // Excluimos representantes ya que ahora tienen su propio módulo
         if (user.role === 'representante') return false;
-
         if (!searchTerm) return true
         const searchLower = searchTerm.toLowerCase()
         return (
@@ -104,24 +111,44 @@ const Users = () => {
         }
     }
 
-    async function handleStatusUpdate(id, status) {
+    async function handleStatusUpdate() {
+        if (!actionUser || !selectedStatus) return;
         try {
-            await UserService.changeUserStatus(id, status)
-            showToast(`Estado cambiado a ${status}`)
+            await UserService.changeUserStatus(actionUser.id, selectedStatus)
+            showToast(`Estado cambiado a ${selectedStatus}`)
+            setShowStatusModal(false)
+            setActionUser(null)
+            setSelectedStatus('')
             fetchData()
         } catch (error) {
             showToast('Error al cambiar estado', 'danger')
         }
     }
 
-    async function handleRoleUpdate(id, role) {
+    async function handleRoleUpdate() {
+        if (!actionUser || !selectedRole) return;
         try {
-            await UserService.changeUserRole(id, role)
-            showToast(`Rol cambiado a ${role}`)
+            await UserService.changeUserRole(actionUser.id, selectedRole)
+            showToast(`Rol cambiado a ${selectedRole}`)
+            setShowRoleModal(false)
+            setActionUser(null)
+            setSelectedRole('')
             fetchData()
         } catch (error) {
             showToast('Error al cambiar rol', 'danger')
         }
+    }
+
+    const openRoleModal = (user) => {
+        setActionUser(user)
+        setSelectedRole('')
+        setShowRoleModal(true)
+    }
+
+    const openStatusModal = (user) => {
+        setActionUser(user)
+        setSelectedStatus('')
+        setShowStatusModal(true)
     }
 
     const getRoleBadge = (role) => {
@@ -143,11 +170,16 @@ const Users = () => {
     const getStatusBadge = (status) => {
         const s = status?.toLowerCase()
         const config = {
-            'active': { color: 'success', text: 'Activo' },
-            'suspended': { color: 'warning', text: 'Suspendido' },
-            'inactive': { color: 'secondary', text: 'Inactivo' }
-        }[s] || { color: 'secondary', text: status }
-        return <CBadge color={config.color} shape="rounded-pill" className="px-2 py-1">{config.text.toUpperCase()}</CBadge>
+            'active': { color: 'success', text: 'Activo', icon: cilCheck },
+            'suspended': { color: 'warning', text: 'Suspendido', icon: cilBan },
+            'inactive': { color: 'secondary', text: 'Inactivo', icon: cilLockLocked }
+        }[s] || { color: 'secondary', text: status, icon: cilUser }
+        return (
+            <CBadge color={config.color} className="d-flex align-items-center gap-1 px-3 py-2 rounded-pill">
+                <CIcon icon={config.icon} size="sm" />
+                {config.text.toUpperCase()}
+            </CBadge>
+        )
     }
 
     return (
@@ -231,68 +263,49 @@ const Users = () => {
                                                 <CTableDataCell className="border-bottom-light">
                                                     <div className="fw-medium text-muted-custom small text-truncate" style={{ maxWidth: '150px' }}>{user.email}</div>
                                                 </CTableDataCell>
-                                                <CTableDataCell className="border-bottom-light text-center">
-                                                    <CBadge color={user.role === 'superadmin' ? 'danger' : 'primary'} className="rounded-pill px-2 py-1 bg-opacity-10 shadow-none border-0" style={{ color: user.role === 'superadmin' ? 'var(--cui-danger)' : 'var(--cui-primary)', textTransform: 'uppercase', fontSize: '0.65rem' }}>
-                                                        {user.role}
-                                                    </CBadge>
+                                                <CTableDataCell className="border-bottom-light">
+                                                    {getRoleBadge(user.role)}
                                                 </CTableDataCell>
-                                                <CTableDataCell className="border-bottom-light text-center">
-                                                    <CBadge className={`rounded-pill px-3 py-2 fw-bold bg-opacity-10 border border-opacity-10 ${user.status === 'active' ? 'bg-success text-success border-success' : 'bg-warning text-warning border-warning'}`} style={{ fontSize: '0.7rem' }}>
-                                                        {user.status?.toUpperCase()}
-                                                    </CBadge>
+                                                <CTableDataCell className="border-bottom-light">
+                                                    {getStatusBadge(user.status)}
                                                 </CTableDataCell>
                                                 <CTableDataCell className="text-end pe-4 border-bottom-light">
-                                                    <CButtonGroup className="shadow-sm rounded-pill overflow-hidden border border-light-custom border-opacity-10 table-action-group-premium">
+                                                    <CButtonGroup className="shadow-sm rounded-pill overflow-hidden border border-light-custom border-opacity-10">
+                                                        {/* Botón Ver Info */}
                                                         <CButton
                                                             color="light"
                                                             size="sm"
                                                             onClick={() => { setSelectedUser(user); setShowInfo(true); }}
-                                                            className="px-2 px-md-3 border-0 transition-all btn-icon-premium bg-transparent"
+                                                            className="px-3 border-0 btn-icon-premium bg-transparent"
                                                             title="Ver información"
                                                         >
                                                             <CIcon icon={cilInfo} className="text-primary" />
                                                         </CButton>
 
-                                                        <CDropdown variant="btn-group">
-                                                            <CDropdownToggle
-                                                                size="sm"
-                                                                variant="ghost"
-                                                                className="px-2 px-md-3 border-0 transition-all btn-icon-premium bg-transparent rounded-0"
-                                                                caret={false}
-                                                            >
-                                                                <CIcon icon={cilPencil} className="text-primary" />
-                                                            </CDropdownToggle>
-                                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll bg-white">
-                                                                <CDropdownItem onClick={() => { setEditing(user); setShowForm(true); }} className="py-2 px-3 dropdown-item-premium">
-                                                                    Editar Datos
-                                                                </CDropdownItem>
-                                                                <CDropdownDivider className="bg-light bg-opacity-10 my-1" />
-                                                                <CDropdownHeader className="text-muted small text-uppercase fw-bold ls-1">Cambiar Rol</CDropdownHeader>
-                                                                {['superadmin', 'admin', 'docente'].filter(r => r !== user.role).map(r => (
-                                                                    <CDropdownItem key={r} onClick={() => handleRoleUpdate(user.id, r)} className="py-2 px-3 dropdown-item-premium">
-                                                                        Habilitar {r}
-                                                                    </CDropdownItem>
-                                                                ))}
-                                                                <CDropdownDivider className="bg-light bg-opacity-10 my-1" />
-                                                                <CDropdownHeader className="text-muted small text-uppercase fw-bold ls-1">Cambiar Estado</CDropdownHeader>
-                                                                {['active', 'inactive', 'suspended'].filter(s => s !== user.status).map(s => (
-                                                                    <CDropdownItem key={s} onClick={() => handleStatusUpdate(user.id, s)} className="py-2 px-3 dropdown-item-premium">
-                                                                        Pasar a {s}
-                                                                    </CDropdownItem>
-                                                                ))}
-                                                            </CDropdownMenu>
-                                                        </CDropdown>
 
+                                                        {/* Botón Cambiar Rol */}
                                                         <CButton
                                                             color="light"
                                                             size="sm"
+                                                            onClick={() => openRoleModal(user)}
+                                                            className="px-3 border-0 btn-icon-premium bg-transparent"
+                                                            title="Cambiar rol"
                                                             disabled={user.role === 'superadmin'}
-                                                            onClick={() => setDeleteModal({ visible: true, userId: user.id, userName: `${user.first_name} ${user.last_name}` })}
-                                                            className="px-2 px-md-3 border-0 transition-all btn-icon-premium bg-transparent"
-                                                            title="Eliminar usuario"
                                                         >
-                                                            <CIcon icon={cilTrash} className="text-primary" />
+                                                            <CIcon icon={cilReportSlash} className="text-primary" />
                                                         </CButton>
+
+                                                        {/* Botón Cambiar Estado */}
+                                                        <CButton
+                                                            color="light"
+                                                            size="sm"
+                                                            onClick={() => openStatusModal(user)}
+                                                            className="px-3 border-0 btn-icon-premium bg-transparent"
+                                                            title="Cambiar estado"
+                                                        >
+                                                            <CIcon icon={cilBan} className="text-primary" />
+                                                        </CButton>
+
                                                     </CButtonGroup>
                                                 </CTableDataCell>
                                             </CTableRow>
@@ -316,9 +329,77 @@ const Users = () => {
                 </CCardBody>
             </CCard>
 
+            {/* Modal para Cambiar Rol */}
+            <CModal visible={showRoleModal} onClose={() => setShowRoleModal(false)} alignment="center">
+                <CModalHeader>
+                    <CModalTitle>Cambiar Rol de Usuario</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                    <p className="mb-3">
+                        <strong>Usuario:</strong> {actionUser?.first_name} {actionUser?.last_name}
+                    </p>
+                    <p className="mb-2">Selecciona el nuevo rol:</p>
+                    <CFormSelect 
+                        value={selectedRole} 
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                    >
+                        <option value="">-- Selecciona un rol --</option>
+                        <option value="admin">Administrador</option>
+                        <option value="docente">Docente</option>
+                        <option value="superadmin">Superadmin</option>
+                    </CFormSelect>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="secondary" onClick={() => setShowRoleModal(false)}>
+                        Cancelar
+                    </CButton>
+                    <CButton 
+                        color="primary" 
+                        onClick={handleRoleUpdate}
+                        disabled={!selectedRole}
+                    >
+                        Cambiar Rol
+                    </CButton>
+                </CModalFooter>
+            </CModal>
+
+            {/* Modal para Cambiar Estado */}
+            <CModal visible={showStatusModal} onClose={() => setShowStatusModal(false)} alignment="center">
+                <CModalHeader>
+                    <CModalTitle>Cambiar Estado de Usuario</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                    <p className="mb-3">
+                        <strong>Usuario:</strong> {actionUser?.first_name} {actionUser?.last_name}
+                    </p>
+                    <p className="mb-2">Selecciona el nuevo estado:</p>
+                    <CFormSelect 
+                        value={selectedStatus} 
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                    >
+                        <option value="">-- Selecciona un estado --</option>
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                        <option value="suspended">Suspendido</option>
+                    </CFormSelect>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="secondary" onClick={() => setShowStatusModal(false)}>
+                        Cancelar
+                    </CButton>
+                    <CButton 
+                        color="primary" 
+                        onClick={handleStatusUpdate}
+                        disabled={!selectedStatus}
+                    >
+                        Cambiar Estado
+                    </CButton>
+                </CModalFooter>
+            </CModal>
+
             <UserForm visible={showForm} onClose={() => setShowForm(false)} onSave={handleSave} initial={editing} />
             <InfoUser visible={showInfo} onClose={() => setShowInfo(false)} user={selectedUser} />
-
+            
             <SystemMessageModal
                 visible={deleteModal.visible}
                 onClose={() => setDeleteModal({ visible: false, userId: null, userName: '' })}

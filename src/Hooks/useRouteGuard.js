@@ -15,9 +15,10 @@ const routePermissions = {
   '/docente/inicio': ['docente'],
   '/docente/horario': ['docente'],
   '/inicio': ['representante'],
-  '/profile': ['representante'],
+  '/profile': ['representante','admin','docente'],
   '/boletin-estudiante': ['representante'],
   '/horario-estudiante': ['representante'],
+  '/perfil': ['admin', 'docente', 'representante']
 }
 
 const useRouteGuard = () => {
