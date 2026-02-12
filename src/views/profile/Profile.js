@@ -6,7 +6,6 @@ import {
   CRow,
   CCol,
   CButton,
-  CTabs,
   CNav,
   CNavItem,
   CNavLink,

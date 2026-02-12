@@ -38,29 +38,8 @@ const _nav = [
     icon: <CIcon icon={cilSpeedometer} customClassName="nav-icon" />,
     roles: ['admin']
   },
+  
 
-  // COMPETENCIAS (Solo admin)
-  {
-    component: CNavItem,
-    name: 'COMPETENCIAS',
-    to: '/competencias',
-    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
-    roles: ['admin']
-  },
-
-  {
-    component: CNavItem,
-    name: 'PREINSCRIPCIÓN',
-    to: '/preinscripcion',
-    icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
-    roles: ['admin']
-  },
-
-  {
-    component: CNavTitle,
-    name: 'MÓDULOS',
-    roles: ['admin', 'docente', 'representante']
-  },
 
   // GESTIÓN ACADÉMICA (Solo para Representantes)
   {
@@ -110,12 +89,6 @@ const _nav = [
         name: 'Lista de Estudiantes',
         to: '/students',
         roles: ['admin']
-      },
-      {
-        component: CNavItem,
-        name: 'Registrar Estudiante',
-        to: '/students/nuevo',
-        roles: ['admin']
       }
     ],
   },
@@ -142,12 +115,6 @@ const _nav = [
         name: 'Gestión de Inscripciones',
         to: '/inscripcion',
         roles: ['admin']
-      },
-      {
-        component: CNavItem,
-        name: 'Nueva Inscripción',
-        to: '/inscripcion/nueva',
-        roles: ['admin']
       }
     ],
   },
@@ -158,19 +125,13 @@ const _nav = [
     name: 'Calificaciones',
     to: '/notas',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
-    roles: ['admin', 'docente'],
+    roles: ['admin'],
     items: [
       {
         component: CNavItem,
         name: 'Gestión de Notas',
         to: '/notas',
-        roles: ['admin', 'docente']
-      },
-      {
-        component: CNavItem,
-        name: 'Registrar Calificaciones',
-        to: '/notas/registrar',
-        roles: ['admin', 'docente']
+        roles: ['admin']
       }
     ],
   },
@@ -181,18 +142,12 @@ const _nav = [
     name: 'Boletines',
     to: '/boletin',
     icon: <CIcon icon={cilSpreadsheet} customClassName="nav-icon" />,
-    roles: ['admin', 'docente'],
+    roles: ['admin'],
     items: [
       {
         component: CNavItem,
         name: 'Ver Boletines',
         to: '/boletin',
-        roles: ['admin', 'docente']
-      },
-      {
-        component: CNavItem,
-        name: 'Generar Boletines',
-        to: '/boletin/generar',
         roles: ['admin']
       }
     ],
@@ -204,18 +159,12 @@ const _nav = [
     name: 'Horarios',
     to: '/horario',
     icon: <CIcon icon={cilClock} customClassName="nav-icon" />,
-    roles: ['admin', 'docente'],
+    roles: ['admin'],
     items: [
       {
         component: CNavItem,
         name: 'Ver Horarios',
         to: '/horario',
-        roles: ['admin', 'docente']
-      },
-      {
-        component: CNavItem,
-        name: 'Crear Horario',
-        to: '/horario/nuevo',
         roles: ['admin']
       }
     ],
@@ -233,12 +182,6 @@ const _nav = [
         component: CNavItem,
         name: 'Gestión de Aulas',
         to: '/aulas',
-        roles: ['admin']
-      },
-      {
-        component: CNavItem,
-        name: 'Asignar Aulas',
-        to: '/aulas/asignar',
         roles: ['admin']
       }
     ],
@@ -285,12 +228,6 @@ const _nav = [
         component: CNavItem,
         name: 'Inicio Representante',
         to: '/inicio',
-        roles: ['representante']
-      },
-      {
-        component: CNavItem,
-        name: 'Mis Representados',
-        to: '/representante/estudiantes',
         roles: ['representante']
       }
     ],
