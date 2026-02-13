@@ -12,7 +12,7 @@ import {
 } from '@coreui/icons'
 
 // import * as UserService from '../users/Users.service'
-import { listStudents } from 'src/services/students'
+import { listStudents, getStudent, createStudent } from '../../services/studentsService';
 import AvatarLetter from 'src/components/AvatarLetter'
 import SearchInput from 'src/components/SearchInput'
 import Pagination from 'src/components/Pagination'

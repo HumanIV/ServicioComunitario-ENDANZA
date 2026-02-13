@@ -46,19 +46,28 @@ const PeriodoInscripcionModal = ({
     const startDate = new Date(localData.fechaInicio)
     const endDate = new Date(localData.fechaFin)
 
-    if (!localData.activo) {
-      return { type: 'closed', message: 'Sistema Desconectado', detail: 'El portal no acepta registros manual o automáticamente', icon: cilPowerStandby, color: 'muted' }
+    // ✅ PRIMERO: Verificar si está activo
+    if (localData.activo) {
+      return { 
+        type: 'active', 
+        message: 'Proceso Activo', 
+        detail: `Válido hasta el ${formatDateDisplay(localData.fechaFin)}`, 
+        icon: cilCalendarCheck, 
+        color: 'success' 
+      }
     }
 
+    // ❌ SOLO si NO está activo, verificar fechas
     if (today > endDate) {
       return { type: 'expired', message: 'Plazo Vencido', detail: `El periodo finalizó el ${formatDateDisplay(localData.fechaFin)}`, icon: cilWarning, color: 'danger' }
     }
 
     if (today < startDate) {
-      return { type: 'pending', message: 'Programado', detail: `Apertura automatica el ${formatDateDisplay(localData.fechaInicio)}`, icon: cilClock, color: 'warning' }
+      return { type: 'pending', message: 'Programado', detail: `Apertura automática el ${formatDateDisplay(localData.fechaInicio)}`, icon: cilClock, color: 'warning' }
     }
 
-    return { type: 'active', message: 'Proceso Activo', detail: `Válido hasta el ${formatDateDisplay(localData.fechaFin)}`, icon: cilCalendarCheck, color: 'success' }
+    // Si no está activo pero está en fechas
+    return { type: 'closed', message: 'Sistema Desconectado', detail: 'El portal no acepta registros manual o automáticamente', icon: cilPowerStandby, color: 'muted' }
   }
 
   const status = getEnrollmentStatus()

@@ -1,3 +1,5 @@
+// Archivo: src/dashboard/SuperRootDashboard.jsx
+
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -23,18 +25,20 @@ import StatsWidgets from './components/widgets/statsWidgets'
 import TeacherSectionsList from './components/TeacherSectionsList'
 import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal'
 import SubidaNotasModal from './components/modals/subidaNotasModal'
+import CrearAnioModal from './components/modals/CrearAnioModal' // 👈 NUEVO MODAL
 import SystemMessageModal from '../../components/SystemMessageModal'
 
-// ✅ IMPORTACIÓN CORREGIDA
+// Hooks y servicios
 import useDashboardData from './hooks/useDashboardData'
-import { addAcademicYear, getAvailableYears } from '../../services/schedules'
+import { getAvailableYears, addAcademicYear } from '../../services/configService'
 
 export const SuperRootDashboard = () => {
   const navigate = useNavigate()
-  const [currentYear, setCurrentYear] = useState('')
+  const [currentYear, setCurrentYear] = useState(null)
   const [availableYears, setAvailableYears] = useState([])
+  const [visibleCrearAnio, setVisibleCrearAnio] = useState(false) // 👈 NUEVO ESTADO
 
-  // ✅ Usamos el hook corregido
+  // ✅ Pasamos el ID del año seleccionado al hook
   const {
     periodoInscripcion,
     periodoSubidaNotas,
@@ -48,8 +52,9 @@ export const SuperRootDashboard = () => {
     visibleSubidaNotas,
     setVisibleSubidaNotas,
     guardarPeriodoInscripcion,
-    guardarPeriodoSubidaNotas
-  } = useDashboardData()
+    guardarPeriodoSubidaNotas,
+    refreshData
+  } = useDashboardData(currentYear?.id)
 
   const [messageModal, setMessageModal] = useState({
     visible: false,
@@ -60,6 +65,7 @@ export const SuperRootDashboard = () => {
     onConfirm: null
   })
 
+  // Cargar años disponibles al montar el componente
   useEffect(() => {
     fetchYears()
   }, [])
@@ -67,77 +73,44 @@ export const SuperRootDashboard = () => {
   const fetchYears = async () => {
     try {
       const years = await getAvailableYears()
+      console.log("Años recibidos:", years)
       setAvailableYears(Array.isArray(years) ? years : [])
-      if (years.length > 0 && !currentYear) setCurrentYear(years[0])
+      
+      // Seleccionar el primer año por defecto, o el activo si existe
+      if (years.length > 0 && !currentYear) {
+        // Buscar el año 2024-2025 primero si existe
+        const year2025 = years.find(y => y.name === '2024-2025')
+        const activeYear = years.find(y => y.active === true)
+        setCurrentYear(year2025 || activeYear || years[0])
+      }
     } catch (error) {
       console.error("Error fetching years:", error)
       setAvailableYears([])
     }
   }
 
-  const checkCanCreateYear = () => {
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentCalendarYear = now.getFullYear()
-
-    if (currentMonth !== 8) {
-      return {
-        allowed: false,
-        reason: 'La apertura de nuevos ciclos académicos solo está permitida durante el mes de Septiembre.'
-      }
-    }
-
-    const lastCreated = localStorage.getItem('last_academic_year_creation_calendar_year')
-    if (lastCreated === currentCalendarYear.toString()) {
-      return {
-        allowed: false,
-        reason: 'El ciclo académico para este periodo ya ha sido aperturado previamente.'
-      }
-    }
-    return { allowed: true }
-  }
-
-  const confirmCreateYear = async () => {
-    closeMessageModal()
-    if (!currentYear) return
-
-    const [start, end] = currentYear.split('-').map(Number);
-    const nextYear = `${start + 1}-${end + 1}`;
-
+  const confirmCreateYear = async (nuevoAnio) => {
     try {
-      await addAcademicYear(nextYear)
-      localStorage.setItem('last_academic_year_creation_calendar_year', new Date().getFullYear().toString())
-      await fetchYears()
-
-      setTimeout(() => {
-        showSystemMessage('¡Éxito!', `Ciclo ${nextYear} creado y aperturado correctamente.`, 'success')
-      }, 300)
+      const response = await addAcademicYear(nuevoAnio)
+      
+      if (response.ok) {
+        await fetchYears() // Recargar la lista
+        
+        // Mostrar mensaje de éxito
+        showSystemMessage('¡Éxito!', `Ciclo ${nuevoAnio} creado y aperturado correctamente.`, 'success')
+        
+        return true
+      } else {
+        throw new Error(response.msg || 'No se pudo crear el ciclo')
+      }
     } catch (e) {
-      setTimeout(() => {
-        showSystemMessage('Error', 'No se pudo crear el ciclo: ' + e.message, 'error')
-      }, 300)
+      showSystemMessage('Error', 'No se pudo crear el ciclo: ' + e.message, 'error')
+      throw e
     }
   }
 
   const handleCreateNextYear = () => {
-    const validation = checkCanCreateYear()
-    if (!validation.allowed) {
-      showSystemMessage('Apertura Bloqueada', validation.reason, 'warning')
-      return
-    }
-
-    if (!currentYear) return
-
-    const [start, end] = currentYear.split('-').map(Number);
-    const nextYear = `${start + 1}-${end + 1}`;
-
-    showSystemMessage(
-      'Confirmar Nuevo Ciclo',
-      `¿Desea aperturar oficialmente el nuevo Ciclo Académico ${nextYear}? Esta acción preparará el sistema para el nuevo periodo.`,
-      'info',
-      'confirm',
-      confirmCreateYear
-    )
+    setVisibleCrearAnio(true) // Abrir el modal en lugar de mostrar mensaje de confirmación
   }
 
   const closeMessageModal = () => {
@@ -188,17 +161,17 @@ export const SuperRootDashboard = () => {
                 className="bg-glass-premium border border-light-custom border-opacity-10 fw-bold text-primary-header small d-flex align-items-center px-3 py-2 rounded-pill hover-lift shadow-none"
               >
                 <CIcon icon={cilSchool} className="me-2 text-primary" />
-                <span>CICLO {currentYear}</span>
+                <span>CICLO {currentYear?.name || 'CARGANDO...'}</span>
                 <CIcon icon={cilChevronBottom} className="ms-2 opacity-50" size="sm" />
               </CDropdownToggle>
               <CDropdownMenu className="cycle-dropdown-menu">
                 {availableYears.map(year => (
                   <CDropdownItem
-                    key={year}
+                    key={year.id}
                     onClick={() => setCurrentYear(year)}
-                    className={`cycle-dropdown-item ${currentYear === year ? 'active' : ''}`}
+                    className={`cycle-dropdown-item ${currentYear?.id === year.id ? 'active' : ''}`}
                   >
-                    Período {year}
+                    Período {year.name}
                   </CDropdownItem>
                 ))}
               </CDropdownMenu>
@@ -217,6 +190,7 @@ export const SuperRootDashboard = () => {
         </CRow>
       </div>
 
+      {/* RESTO DEL COMPONENTE SIN CAMBIOS */}
       <div className="px-3 px-md-4">
         {/* WIDGETS DE ESTADÍSTICAS */}
         <StatsWidgets
@@ -234,7 +208,7 @@ export const SuperRootDashboard = () => {
           </CCol>
 
           <CCol xs={12} lg={4}>
-            {/* PANEL DE USUARIOS - ✅ TOTALMENTE CORREGIDO */}
+            {/* PANEL DE USUARIOS */}
             <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
               <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
                 <div className="d-flex align-items-center justify-content-between mb-2">
@@ -249,13 +223,11 @@ export const SuperRootDashboard = () => {
               </CCardHeader>
               <CCardBody className="px-4 py-4">
                 <div className="d-flex flex-column gap-2 mb-4">
-                  {/* ✅ VALIDACIONES COMPLETAS - NUNCA FALLA */}
                   {usuarios && usuarios.length > 0 ? (
                     usuarios.slice(0, 5).map(u => (
                       <div key={u?.id || Math.random()} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
                         <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" 
                              style={{ width: '40px', height: '40px' }}>
-                          {/* ✅ SEGURO: si no hay nombre, muestra '?' */}
                           {u?.nombre ? u.nombre[0] : '?'}
                         </div>
                         <div className="flex-grow-1 overflow-hidden">
@@ -266,7 +238,6 @@ export const SuperRootDashboard = () => {
                             {u?.rol?.toUpperCase() || 'SIN ROL'}
                           </div>
                         </div>
-                        {/* ✅ SEGURO: estado con valor por defecto */}
                         {u?.activo ? (
                           <span className="badge-dot bg-success"></span>
                         ) : (
@@ -307,6 +278,14 @@ export const SuperRootDashboard = () => {
         onClose={() => setVisibleSubidaNotas(false)}
         periodoSubida={periodoSubidaNotas}
         onSave={guardarPeriodoSubidaNotas}
+      />
+
+      <CrearAnioModal
+        visible={visibleCrearAnio}
+        onClose={() => setVisibleCrearAnio(false)}
+        onConfirm={confirmCreateYear}
+        currentYear={currentYear}
+        existingYears={availableYears}
       />
 
       <SystemMessageModal
