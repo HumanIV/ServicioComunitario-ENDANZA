@@ -16,7 +16,7 @@ import {
   CButton
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilAddressBook, cilExternalLink, cilChevronBottom } from '@coreui/icons'
+import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilExternalLink, cilChevronBottom } from '@coreui/icons'
 
 // Componentes
 import StatsWidgets from './components/widgets/statsWidgets'
@@ -25,8 +25,8 @@ import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal
 import SubidaNotasModal from './components/modals/subidaNotasModal'
 import SystemMessageModal from '../../components/SystemMessageModal'
 
-// Hook y servicios
-import useSuperRootData from './hooks/userSuperRootData'
+// ✅ IMPORTACIÓN CORREGIDA
+import useDashboardData from './hooks/useDashboardData'
 import { addAcademicYear, getAvailableYears } from '../../services/schedules'
 
 export const SuperRootDashboard = () => {
@@ -34,6 +34,7 @@ export const SuperRootDashboard = () => {
   const [currentYear, setCurrentYear] = useState('')
   const [availableYears, setAvailableYears] = useState([])
 
+  // ✅ Usamos el hook corregido
   const {
     periodoInscripcion,
     periodoSubidaNotas,
@@ -48,7 +49,7 @@ export const SuperRootDashboard = () => {
     setVisibleSubidaNotas,
     guardarPeriodoInscripcion,
     guardarPeriodoSubidaNotas
-  } = useSuperRootData()
+  } = useDashboardData()
 
   const [messageModal, setMessageModal] = useState({
     visible: false,
@@ -66,10 +67,11 @@ export const SuperRootDashboard = () => {
   const fetchYears = async () => {
     try {
       const years = await getAvailableYears()
-      setAvailableYears(years)
+      setAvailableYears(Array.isArray(years) ? years : [])
       if (years.length > 0 && !currentYear) setCurrentYear(years[0])
     } catch (error) {
       console.error("Error fetching years:", error)
+      setAvailableYears([])
     }
   }
 
@@ -163,7 +165,7 @@ export const SuperRootDashboard = () => {
 
   return (
     <CContainer fluid className="px-0 pb-5 overflow-hidden">
-      {/* HEADER REFINADO */}
+      {/* HEADER */}
       <div className="mb-4 mb-md-5 mt-4 px-3 px-md-4">
         <CRow className="align-items-center g-3">
           <CCol xs={12} lg={7}>
@@ -218,8 +220,8 @@ export const SuperRootDashboard = () => {
       <div className="px-3 px-md-4">
         {/* WIDGETS DE ESTADÍSTICAS */}
         <StatsWidgets
-          students={students}
-          repsCount={repsCount}
+          students={students || []}
+          repsCount={repsCount || 0}
           periodoInscripcion={periodoInscripcion}
           periodoSubidaNotas={periodoSubidaNotas}
           onOpenPeriodoInscripcion={() => setVisiblePeriodoInscripcion(true)}
@@ -228,11 +230,11 @@ export const SuperRootDashboard = () => {
 
         <CRow className="gy-4">
           <CCol xs={12} lg={8}>
-            <TeacherSectionsList sections={sections} />
+            <TeacherSectionsList sections={sections || []} />
           </CCol>
 
           <CCol xs={12} lg={4}>
-            {/* PANEL DE USUARIOS REFINADO */}
+            {/* PANEL DE USUARIOS - ✅ TOTALMENTE CORREGIDO */}
             <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
               <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
                 <div className="d-flex align-items-center justify-content-between mb-2">
@@ -241,28 +243,42 @@ export const SuperRootDashboard = () => {
                     Accesos
                   </h5>
                   <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1">
-                    {usuarios.length} TOTAL
+                    {usuarios?.length || 0} TOTAL
                   </CBadge>
                 </div>
               </CCardHeader>
               <CCardBody className="px-4 py-4">
                 <div className="d-flex flex-column gap-2 mb-4">
-                  {usuarios.slice(0, 5).map(u => (
-                    <div key={u.id} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
-                      <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" style={{ width: '40px', height: '40px' }}>
-                        {u.nombre[0]}
+                  {/* ✅ VALIDACIONES COMPLETAS - NUNCA FALLA */}
+                  {usuarios && usuarios.length > 0 ? (
+                    usuarios.slice(0, 5).map(u => (
+                      <div key={u?.id || Math.random()} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
+                        <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" 
+                             style={{ width: '40px', height: '40px' }}>
+                          {/* ✅ SEGURO: si no hay nombre, muestra '?' */}
+                          {u?.nombre ? u.nombre[0] : '?'}
+                        </div>
+                        <div className="flex-grow-1 overflow-hidden">
+                          <div className="fw-bold header-title-custom text-truncate small">
+                            {u?.nombre || 'Sin nombre'}
+                          </div>
+                          <div className="text-muted-custom text-truncate" style={{ fontSize: '0.7rem' }}>
+                            {u?.rol?.toUpperCase() || 'SIN ROL'}
+                          </div>
+                        </div>
+                        {/* ✅ SEGURO: estado con valor por defecto */}
+                        {u?.activo ? (
+                          <span className="badge-dot bg-success"></span>
+                        ) : (
+                          <span className="badge-dot bg-danger"></span>
+                        )}
                       </div>
-                      <div className="flex-grow-1 overflow-hidden">
-                        <div className="fw-bold header-title-custom text-truncate small">{u.nombre}</div>
-                        <div className="text-muted-custom text-truncate" style={{ fontSize: '0.7rem' }}>{u.rol.toUpperCase()}</div>
-                      </div>
-                      {u.activo ? (
-                        <span className="badge-dot bg-success"></span>
-                      ) : (
-                        <span className="badge-dot bg-danger"></span>
-                      )}
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-muted-custom">
+                      No hay usuarios para mostrar
                     </div>
-                  ))}
+                  )}
                 </div>
 
                 <CButton
@@ -302,7 +318,7 @@ export const SuperRootDashboard = () => {
         title={messageModal.title}
         message={messageModal.message}
       />
-    </CContainer >
+    </CContainer>
   )
 }
 

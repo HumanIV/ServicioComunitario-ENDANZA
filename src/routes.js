@@ -12,6 +12,13 @@ const Users = React.lazy(() => import('./views/users/users'))
 const profile = React.lazy(() => import('./views/profile/Profile'))
 
 
+
+
+
+
+const docenteAsignacion = React.lazy(() => import('./views/superRootDashboard/components/docenteAsignacion'))
+
+
 //RUTAS
 
 //Inicio
@@ -119,6 +126,7 @@ const routes = [
 
   {path: '/perfil', name: 'PerfilUsuarioGeneral', element: perfil}, // Perfil Usuario General
 
+  {path: '/docenteAsignacion', name: 'docente Asignacion', element: docenteAsignacion}, // Asignación Docente
 
 
 

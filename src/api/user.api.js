@@ -1,7 +1,6 @@
-// api/user.api.js - API específica para usuarios
+// api/user.api.js - CORREGIDO
 import { helpFetch } from './helpFetch.js'
 
-// Instancia del servicio base
 const fetch = helpFetch()
 
 export const userAPI = {
@@ -54,36 +53,30 @@ export const userAPI = {
   searchUsers: (searchTerm) => 
     fetch.get(`/api/users/search?search=${encodeURIComponent(searchTerm)}`),
   
-  // ✅ NUEVO: Crear usuario (admin)
   createUser: (userData) => 
     fetch.post('/api/users/create', userData),
   
-  // ✅ NUEVO: Actualizar usuario (admin)
   updateUser: (userId, userData) => 
     fetch.put(`/api/users/${userId}`, userData),
   
-  // ✅ NUEVO: Cambiar rol específicamente
   changeUserRole: (userId, role) => 
     fetch.put(`/api/users/${userId}/role`, { role }),
   
-  // ✅ NUEVO: Método unificado para cambiar estado
   changeUserStatus: (userId, status) => {
     const action = status === 'active' ? 'activate' : 'deactivate';
     return fetch.put(`/api/users/${action}/${userId}`, {});
   },
   
-  // Métodos específicos de estado
   activateUser: (userId) => 
     fetch.put(`/api/users/activate/${userId}`, {}),
   
   deactivateUser: (userId) => 
     fetch.put(`/api/users/deactivate/${userId}`, {}),
   
-  // Eliminar usuario
+  // ✅ CORREGIDO: Ahora usa el método correcto y URL correcta
   deleteUser: (userId) => 
-    fetch.delet('/api/users', userId),
+    fetch.del(`/api/users/${userId}`),  // ← CAMBIADO A 'del' Y URL CORRECTA
   
-  // Migrar passwords
   migratePasswords: () => 
     fetch.post('/api/users/migrate-passwords', {})
 }

@@ -109,29 +109,7 @@ const _nav = [
     roles: ['admin']
   },
 
-  // INSCRIPCIONES (Solo admin)
-  {
-    component: CNavGroup,
-    name: 'Inscripciones',
-    to: '/inscripcion',
-    icon: <CIcon icon={cilTask} customClassName="nav-icon" />,
-    roles: ['admin'],
-    items: [
-      {
-        component: CNavItem,
-        name: 'Gestión de Inscripciones',
-        to: '/inscripcion',
-        roles: ['admin']
-      },
-      {
-        component: CNavItem,
-        name: 'profile',
-        to: '/perfil',
-        roles: ['admin']
-      }
 
-    ],
-  },
 
   // NOTAS (Solo docentes y admin)
   {
