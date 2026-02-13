@@ -23,6 +23,7 @@ import AvatarLetter from '../../../components/AvatarLetter'
 import SearchInput from '../../../components/SearchInput'
 import Pagination from '../../../components/Pagination'
 import SystemMessageModal from '../../../components/SystemMessageModal'
+import AsignarEspecialidadGradosModal from './AsignarModal'
 
 // ✅ SERVICIO CORREGIDO - IMPORTACIÓN ÚNICA
 import * as TeacherService from '../../../services/teacherService'
@@ -37,16 +38,13 @@ const TeacherManagement = () => {
     const [selectedTeacher, setSelectedTeacher] = useState(null)
     const [toasts, setToasts] = useState([])
 
-    // Estados para asignación de especialidad
-    const [showSpecialtyModal, setShowSpecialtyModal] = useState(false)
-    const [showGradeModal, setShowGradeModal] = useState(false)
+    // Estados para asignación unificada
+    const [showUnifiedModal, setShowUnifiedModal] = useState(false)
     const [actionTeacher, setActionTeacher] = useState(null)
     
     // Datos de catálogos
     const [specialties, setSpecialties] = useState([])
     const [grades, setGrades] = useState([])
-    const [selectedSpecialty, setSelectedSpecialty] = useState('')
-    const [selectedGrades, setSelectedGrades] = useState([])
 
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage] = useState(8)
@@ -63,7 +61,7 @@ const TeacherManagement = () => {
         fetchCatalogData()
     }, [])
 
-    // ✅ CORREGIDO: Usar TeacherService en lugar de servicios antiguos
+    // ✅ CORREGIDO: SIN DATOS MOCK - SOLO BACKEND REAL
     async function fetchCatalogData() {
         try {
             const [specials, gradesData] = await Promise.all([
@@ -72,27 +70,12 @@ const TeacherManagement = () => {
             ])
             setSpecialties(specials || [])
             setGrades(gradesData || [])
+            console.log('📚 Especialidades cargadas:', specials)
+            console.log('📚 Grados cargados:', gradesData)
         } catch (error) {
             console.error('Error fetching catalog data:', error)
-            // Datos de respaldo SOLO para desarrollo
-            if (process.env.NODE_ENV === 'development') {
-                setSpecialties([
-                    { id: 1, name: 'Danza Clásica' },
-                    { id: 2, name: 'Ballet Inicial' },
-                    { id: 3, name: 'Jazz Contemporáneo' },
-                    { id: 4, name: 'Pre-Ballet' },
-                    { id: 5, name: 'Acrodanza' },
-                    { id: 6, name: 'Danza Moderna' }
-                ])
-                setGrades([
-                    { id: 1, name: 'Baby Ballet', level: 'Inicial' },
-                    { id: 2, name: 'Preparatorio', level: 'Inicial' },
-                    { id: 3, name: '1er Grado', level: 'Básica' },
-                    { id: 4, name: '2do Grado', level: 'Básica' },
-                    { id: 5, name: '3er Grado', level: 'Básica' },
-                    { id: 6, name: '4to Grado', level: 'Básica' }
-                ])
-            }
+            setSpecialties([])
+            setGrades([])
         }
     }
 
@@ -101,6 +84,7 @@ const TeacherManagement = () => {
         try {
             const res = await TeacherService.getAll()
             setTeachers(res || [])
+            console.log('👨‍🏫 Docentes cargados:', res)
         } catch (error) {
             console.error('Error fetching teachers:', error)
             showToast('Error al cargar docentes', 'danger')
@@ -157,105 +141,62 @@ const TeacherManagement = () => {
     }
 
     // ============================================
-    // ASIGNACIÓN DE ESPECIALIDAD - CORREGIDO
+    // MODAL UNIFICADO - ESPECIALIDAD + GRADOS
     // ============================================
-    const openSpecialtyModal = (teacher) => {
+    const openUnifiedModal = (teacher) => {
         setActionTeacher(teacher)
-        setSelectedSpecialty(teacher.specialty || '')
-        setShowSpecialtyModal(true)
+        setShowUnifiedModal(true)
     }
 
-    async function handleSpecialtyUpdate() {
-        if (!actionTeacher || !selectedSpecialty) return
+    async function handleUnifiedSave(teacherId, data) {
         try {
-            const result = await TeacherService.assignSpecialty(actionTeacher.id, selectedSpecialty)
-            showToast(`Especialidad asignada: ${selectedSpecialty}`)
-            
-            // ✅ ACTUALIZAR EL DOCENTE EN EL ESTADO LOCAL INMEDIATAMENTE
-            setTeachers(prevTeachers => 
-                prevTeachers.map(teacher => 
-                    teacher.id === actionTeacher.id 
-                        ? { ...teacher, specialty: selectedSpecialty }
-                        : teacher
-                )
-            )
-            
-            setShowSpecialtyModal(false)
-            setActionTeacher(null)
-            setSelectedSpecialty('')
-            
-            // ✅ Recargar para asegurar consistencia
-            fetchTeachers()
-        } catch (error) {
-            showToast(error.message || 'Error al asignar especialidad', 'danger')
-        }
-    }
-
-    // ============================================
-    // ASIGNACIÓN DE GRADOS - VERSIÓN CORREGIDA Y MEJORADA
-    // ============================================
-    const openGradeModal = (teacher) => {
-        setActionTeacher(teacher)
-        setSelectedGrades(teacher.grades?.map(g => g.id) || [])
-        setShowGradeModal(true)
-    }
-
-    const handleGradeToggle = (gradeId) => {
-        setSelectedGrades(prev => {
-            if (prev.includes(gradeId)) {
-                return prev.filter(id => id !== gradeId)
-            } else {
-                return [...prev, gradeId]
+            // Guardar especialidad si se seleccionó
+            if (data.specialty) {
+                await TeacherService.assignSpecialty(teacherId, data.specialty)
             }
-        })
-    }
-
-    // ✅ FUNCIÓN COMPLETAMENTE CORREGIDA
-    async function handleGradeUpdate() {
-        if (!actionTeacher) return;
-        
-        // Mostrar toast de procesando
-        showToast('Asignando grados...', 'info');
-        
-        try {
-            const result = await TeacherService.assignGrades(actionTeacher.id, selectedGrades);
             
-            // Crear array de grados con nombres
-            const updatedGrades = selectedGrades.map(id => {
-                const grade = grades.find(g => g.id === id);
+            // Guardar grados si se seleccionaron
+            if (data.gradeIds.length > 0) {
+                await TeacherService.assignGrades(teacherId, data.gradeIds)
+            }
+            
+            showToast('Asignaciones guardadas correctamente', 'success')
+            
+            // Crear array de grados con nombres (usando datos reales)
+            const updatedGrades = data.gradeIds.map(id => {
+                const grade = grades.find(g => g.id === id)
                 return { 
                     id, 
                     name: grade?.name || `Grado ${id}`,
                     level: grade?.level || 'danza'
-                };
-            });
+                }
+            })
             
             // ✅ ACTUALIZAR EL DOCENTE EN EL ESTADO LOCAL INMEDIATAMENTE
             setTeachers(prevTeachers => 
                 prevTeachers.map(teacher => 
-                    teacher.id === actionTeacher.id 
+                    teacher.id === teacherId 
                         ? { 
                             ...teacher, 
+                            specialty: data.specialty || teacher.specialty,
                             grades: updatedGrades
                           }
                         : teacher
                 )
-            );
+            )
             
-            showToast(`${selectedGrades.length} grado(s) asignado(s) correctamente`, 'success');
-            
-            setShowGradeModal(false);
-            setActionTeacher(null);
-            setSelectedGrades([]);
+            setShowUnifiedModal(false)
+            setActionTeacher(null)
             
             // ✅ Recargar para asegurar consistencia con el backend
             setTimeout(() => {
-                fetchTeachers();
-            }, 300);
+                fetchTeachers()
+            }, 300)
             
         } catch (error) {
-            console.error('Error asignando grados:', error);
-            showToast(error.message || 'Error al asignar grados', 'danger');
+            console.error('Error guardando asignaciones:', error)
+            showToast(error.message || 'Error al guardar asignaciones', 'danger')
+            throw error
         }
     }
 
@@ -265,14 +206,23 @@ const TeacherManagement = () => {
     const getSpecialtyBadge = (specialty) => {
         if (!specialty || specialty === 'Sin asignar') {
             return (
-                <CBadge color="secondary" className="rounded-pill px-3 py-2 bg-opacity-10 text-secondary">
+                <CBadge className="rounded-pill px-3 py-2" style={{ 
+                    background: 'rgba(108, 117, 125, 0.1)',
+                    color: '#6c757d',
+                    border: 'none'
+                }}>
                     <CIcon icon={cilBan} className="me-1" size="sm" />
                     SIN ASIGNAR
                 </CBadge>
             )
         }
         return (
-            <CBadge className="rounded-pill px-3 py-2" style={{ backgroundColor: 'rgba(224,122,0,0.1)', color: '#E07A00' }}>
+            <CBadge className="rounded-pill px-3 py-2" style={{ 
+                background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                color: 'white',
+                border: 'none',
+                boxShadow: '0 4px 8px rgba(224,122,0,0.2)'
+            }}>
                 <CIcon icon={cilStar} className="me-1" size="sm" />
                 {specialty.toUpperCase()}
             </CBadge>
@@ -282,7 +232,9 @@ const TeacherManagement = () => {
     const getGradeBadges = (grades) => {
         if (!grades || grades.length === 0) {
             return (
-                <span className="text-muted-custom small fw-medium">Sin grados asignados</span>
+                <span className="small fw-medium" style={{ color: '#6c757d' }}>
+                    Sin grados asignados
+                </span>
             )
         }
         return (
@@ -291,7 +243,11 @@ const TeacherManagement = () => {
                     <CBadge 
                         key={grade.id} 
                         className="rounded-pill px-2 py-1 fw-normal"
-                        style={{ backgroundColor: 'rgba(224,122,0,0.05)', color: '#E07A00', border: '1px solid rgba(224,122,0,0.2)' }}
+                        style={{ 
+                            background: 'rgba(224,122,0,0.08)',
+                            color: '#E07A00',
+                            border: '1px solid rgba(224,122,0,0.2)'
+                        }}
                     >
                         {grade.name}
                     </CBadge>
@@ -299,7 +255,11 @@ const TeacherManagement = () => {
                 {grades.length > 3 && (
                     <CBadge 
                         className="rounded-pill px-2 py-1"
-                        style={{ backgroundColor: 'rgba(0,0,0,0.05)', color: '#666' }}
+                        style={{ 
+                            background: 'rgba(0,0,0,0.03)',
+                            color: '#6c757d',
+                            border: '1px solid rgba(0,0,0,0.1)'
+                        }}
                     >
                         +{grades.length - 3}
                     </CBadge>
@@ -311,12 +271,37 @@ const TeacherManagement = () => {
     const getStatusBadge = (status) => {
         const s = status?.toLowerCase()
         const config = {
-            'active': { color: 'success', text: 'Activo', icon: cilCheck },
-            'suspended': { color: 'warning', text: 'Suspendido', icon: cilBan },
-            'inactive': { color: 'secondary', text: 'Inactivo', icon: cilLockLocked }
-        }[s] || { color: 'secondary', text: status, icon: cilUser }
+            'active': { 
+                color: '#28a745', 
+                text: 'Activo', 
+                icon: cilCheck,
+                bg: 'rgba(40, 167, 69, 0.1)'
+            },
+            'suspended': { 
+                color: '#ffc107', 
+                text: 'Suspendido', 
+                icon: cilBan,
+                bg: 'rgba(255, 193, 7, 0.1)'
+            },
+            'inactive': { 
+                color: '#6c757d', 
+                text: 'Inactivo', 
+                icon: cilLockLocked,
+                bg: 'rgba(108, 117, 125, 0.1)'
+            }
+        }[s] || { 
+            color: '#6c757d', 
+            text: status, 
+            icon: cilUser,
+            bg: 'rgba(108, 117, 125, 0.1)'
+        }
+        
         return (
-            <CBadge color={config.color} className="d-flex align-items-center gap-1 px-3 py-2 rounded-pill">
+            <CBadge className="rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2" style={{ 
+                background: config.bg,
+                color: config.color,
+                border: 'none'
+            }}>
                 <CIcon icon={config.icon} size="sm" />
                 {config.text.toUpperCase()}
             </CBadge>
@@ -328,40 +313,75 @@ const TeacherManagement = () => {
             {/* BOTÓN DE REGRESO */}
             <div className="mb-4 d-flex align-items-center">
                 <CButton
-                    color="light"
                     className="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border-0"
-                    style={{ width: '48px', height: '48px', backgroundColor: 'rgba(224,122,0,0.1)' }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(224,122,0,0.2)'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(224,122,0,0.1)'}
+                    style={{ 
+                        width: '48px', 
+                        height: '48px', 
+                        background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                        color: 'white',
+                        boxShadow: '0 4px 12px rgba(224,122,0,0.3)'
+                    }}
+                    onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
+                    onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
                     onClick={() => navigate('/dashboard')}
                 >
-                    <CIcon icon={cilArrowLeft} style={{ color: '#E07A00' }} size="lg" />
+                    <CIcon icon={cilArrowLeft} size="lg" />
                 </CButton>
                 <div>
-                    <h5 className="fw-bold mb-0 d-flex align-items-center">
+                    <h5 className="fw-bold mb-0 d-flex align-items-center" style={{ color: '#1e293b' }}>
                         <CIcon icon={cilSpeedometer} className="me-2" style={{ color: '#E07A00' }} size="sm" />
                         Dashboard / <span style={{ color: '#E07A00' }}>Gestión de Docentes</span>
                     </h5>
                 </div>
             </div>
 
-            <CCard className="shadow-lg border-0 mb-4" style={{ borderRadius: '20px' }}>
-                <div style={{ height: '8px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px', backgroundColor: '#E07A00' }}></div>
-                <CCardHeader className="bg-light-custom border-0 pt-4 px-4">
+            <CCard className="shadow-lg border-0 mb-4" style={{ 
+                borderRadius: '24px',
+                background: 'white',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.02)'
+            }}>
+                <div style={{ 
+                    height: '8px', 
+                    borderTopLeftRadius: '24px', 
+                    borderTopRightRadius: '24px',
+                    background: 'linear-gradient(90deg, #E07A00, #F39C12, #E07A00)'
+                }}></div>
+                <CCardHeader className="bg-transparent border-0 pt-4 px-4">
                     <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div>
-                            <h3 className="fw-bold mb-1">
-                                <CIcon icon={cilSchool} className="me-2" style={{ color: '#E07A00' }} size="lg" />
+                            <h3 className="fw-bold mb-1 d-flex align-items-center" style={{ color: '#1e293b' }}>
+                                <div style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                    borderRadius: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginRight: '16px',
+                                    boxShadow: '0 6px 12px rgba(224,122,0,0.2)'
+                                }}>
+                                    <CIcon icon={cilSchool} className="text-white" size="lg" />
+                                </div>
                                 Gestión de Docentes
                             </h3>
-                            <p className="text-muted-custom mb-0 small">Asignación de especialidades y grados académicos</p>
+                            <p className="mb-0 small" style={{ color: '#64748b', marginLeft: '64px' }}>
+                                Asignación de especialidades y grados académicos
+                            </p>
                         </div>
                         <div className="d-flex gap-2">
                             <CButton
-                                className="px-4 d-flex align-items-center shadow-sm"
-                                style={{ backgroundColor: '#E07A00', borderColor: '#E07A00', color: 'white' }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#C66900'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = '#E07A00'}
+                                className="px-4 d-flex align-items-center border-0"
+                                style={{
+                                    background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                    color: 'white',
+                                    borderRadius: '14px',
+                                    padding: '12px 24px',
+                                    fontWeight: '600',
+                                    boxShadow: '0 8px 16px rgba(224,122,0,0.2)'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
+                                onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
                                 onClick={() => { setEditing(null); setShowForm(true); }}
                             >
                                 <CIcon icon={cilPlus} className="me-2" />
@@ -373,8 +393,8 @@ const TeacherManagement = () => {
                 <CCardBody className="p-4">
                     {/* BÚSQUEDA */}
                     <div className="mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
-                        <div className="small fw-bold">
-                            Total Docentes: <span style={{ color: '#E07A00' }}>{filteredTeachers.length}</span>
+                        <div className="small fw-bold" style={{ color: '#64748b' }}>
+                            Total Docentes: <span style={{ color: '#E07A00', fontWeight: '700' }}>{filteredTeachers.length}</span>
                         </div>
                         <div style={{ maxWidth: '400px', width: '100%' }}>
                             <SearchInput
@@ -391,77 +411,123 @@ const TeacherManagement = () => {
                         </div>
                     ) : currentPageData.length > 0 ? (
                         <>
-                            <div className="table-responsive">
-                                <CTable align="middle" hover>
-                                    <CTableHead>
+                            <div className="table-responsive" style={{ borderRadius: '16px', border: '1px solid rgba(224,122,0,0.1)' }}>
+                                <CTable align="middle" hover className="mb-0">
+                                    <CTableHead style={{ background: 'rgba(224,122,0,0.02)' }}>
                                         <CTableRow>
-                                            <CTableHeaderCell>DOCENTE</CTableHeaderCell>
-                                            <CTableHeaderCell>CONTACTO</CTableHeaderCell>
-                                            <CTableHeaderCell>ESPECIALIDAD</CTableHeaderCell>
-                                            <CTableHeaderCell>GRADOS</CTableHeaderCell>
-                                            <CTableHeaderCell>ESTADO</CTableHeaderCell>
-                                            <CTableHeaderCell className="text-end">ACCIONES</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>DOCENTE</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>CONTACTO</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>ESPECIALIDAD</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>GRADOS</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>ESTADO</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3 text-end" style={{ color: '#64748b', fontWeight: '600' }}>ACCIONES</CTableHeaderCell>
                                         </CTableRow>
                                     </CTableHead>
                                     <CTableBody>
                                         {currentPageData.map(teacher => (
-                                            <CTableRow key={teacher.id}>
-                                                <CTableDataCell>
+                                            <CTableRow key={teacher.id} style={{ borderBottom: '1px solid rgba(224,122,0,0.05)' }}>
+                                                <CTableDataCell className="py-3">
                                                     <div className="d-flex align-items-center">
                                                         <AvatarLetter
                                                             name={teacher.first_name + ' ' + teacher.last_name}
                                                             size="md"
-                                                            style={{ background: 'linear-gradient(135deg, #E07A00, #C66900)' }}
+                                                            style={{
+                                                                background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                                                color: 'white',
+                                                                fontWeight: '600',
+                                                                width: '44px',
+                                                                height: '44px',
+                                                                borderRadius: '14px',
+                                                                boxShadow: '0 4px 8px rgba(224,122,0,0.2)'
+                                                            }}
                                                         />
                                                         <div className="ms-3">
-                                                            <div className="fw-bold">{teacher.first_name} {teacher.last_name}</div>
-                                                            <div className="small text-muted">{teacher.dni}</div>
+                                                            <div className="fw-bold" style={{ color: '#1e293b' }}>{teacher.first_name} {teacher.last_name}</div>
+                                                            <div className="small" style={{ color: '#64748b' }}>{teacher.dni}</div>
                                                         </div>
                                                     </div>
                                                 </CTableDataCell>
-                                                <CTableDataCell>
-                                                    <div>{teacher.email}</div>
-                                                    <div className="small text-muted">{teacher.phone || 'Sin teléfono'}</div>
+                                                <CTableDataCell className="py-3">
+                                                    <div style={{ color: '#1e293b' }}>{teacher.email}</div>
+                                                    <div className="small" style={{ color: '#64748b' }}>{teacher.phone || 'Sin teléfono'}</div>
                                                 </CTableDataCell>
-                                                <CTableDataCell>{getSpecialtyBadge(teacher.specialty)}</CTableDataCell>
-                                                <CTableDataCell>{getGradeBadges(teacher.grades)}</CTableDataCell>
-                                                <CTableDataCell>{getStatusBadge(teacher.status)}</CTableDataCell>
-                                                <CTableDataCell className="text-end">
-                                                    <CButtonGroup>
+                                                <CTableDataCell className="py-3">{getSpecialtyBadge(teacher.specialty)}</CTableDataCell>
+                                                <CTableDataCell className="py-3">{getGradeBadges(teacher.grades)}</CTableDataCell>
+                                                <CTableDataCell className="py-3">{getStatusBadge(teacher.status)}</CTableDataCell>
+                                                <CTableDataCell className="py-3 text-end">
+                                                    <div className="d-flex gap-2 justify-content-end">
+                                                        {/* Botón Ver Info */}
                                                         <CButton
-                                                            color="light"
                                                             size="sm"
                                                             onClick={() => { setSelectedTeacher(teacher); setShowInfo(true); }}
                                                             title="Ver información"
+                                                            style={{
+                                                                width: '36px',
+                                                                height: '36px',
+                                                                borderRadius: '10px',
+                                                                background: 'rgba(224,122,0,0.1)',
+                                                                border: 'none',
+                                                                color: '#E07A00',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                padding: 0
+                                                            }}
+                                                            onMouseEnter={(e) => e.target.style.background = 'rgba(224,122,0,0.2)'}
+                                                            onMouseLeave={(e) => e.target.style.background = 'rgba(224,122,0,0.1)'}
                                                         >
-                                                            <CIcon icon={cilInfo} style={{ color: '#E07A00' }} />
+                                                            <CIcon icon={cilInfo} />
                                                         </CButton>
+                                                        
+                                                        {/* Botón Asignar */}
                                                         <CButton
-                                                            color="light"
                                                             size="sm"
-                                                            onClick={() => openSpecialtyModal(teacher)}
-                                                            title="Asignar especialidad"
+                                                            onClick={() => openUnifiedModal(teacher)}
+                                                            title="Asignar especialidad y grados"
+                                                            style={{
+                                                                width: '36px',
+                                                                height: '36px',
+                                                                borderRadius: '10px',
+                                                                background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                                                border: 'none',
+                                                                color: 'white',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                padding: 0,
+                                                                boxShadow: '0 4px 8px rgba(224,122,0,0.2)'
+                                                            }}
+                                                            onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
+                                                            onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
                                                         >
-                                                            <CIcon icon={cilStar} style={{ color: '#E07A00' }} />
+                                                            <CIcon icon={cilStar} />
                                                         </CButton>
+
+                                                        {/* Botón Editar */}
                                                         <CButton
-                                                            color="light"
-                                                            size="sm"
-                                                            onClick={() => openGradeModal(teacher)}
-                                                            title="Asignar grados"
-                                                        >
-                                                            <CIcon icon={cilBookmark} style={{ color: '#E07A00' }} />
-                                                        </CButton>
-                                                        <CButton
-                                                            color="light"
                                                             size="sm"
                                                             onClick={() => { setEditing(teacher); setShowForm(true); }}
                                                             title="Editar"
+                                                            style={{
+                                                                width: '36px',
+                                                                height: '36px',
+                                                                borderRadius: '10px',
+                                                                background: 'rgba(224,122,0,0.1)',
+                                                                border: 'none',
+                                                                color: '#E07A00',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                padding: 0
+                                                            }}
+                                                            onMouseEnter={(e) => e.target.style.background = 'rgba(224,122,0,0.2)'}
+                                                            onMouseLeave={(e) => e.target.style.background = 'rgba(224,122,0,0.1)'}
                                                         >
-                                                            <CIcon icon={cilPencil} style={{ color: '#E07A00' }} />
+                                                            <CIcon icon={cilPencil} />
                                                         </CButton>
+
+                                                        {/* Botón Eliminar */}
                                                         <CButton
-                                                            color="light"
                                                             size="sm"
                                                             onClick={() => setDeleteModal({ 
                                                                 visible: true, 
@@ -469,10 +535,24 @@ const TeacherManagement = () => {
                                                                 teacherName: `${teacher.first_name} ${teacher.last_name}` 
                                                             })}
                                                             title="Eliminar"
+                                                            style={{
+                                                                width: '36px',
+                                                                height: '36px',
+                                                                borderRadius: '10px',
+                                                                background: 'rgba(220, 53, 69, 0.1)',
+                                                                border: 'none',
+                                                                color: '#dc3545',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                padding: 0
+                                                            }}
+                                                            onMouseEnter={(e) => e.target.style.background = 'rgba(220, 53, 69, 0.2)'}
+                                                            onMouseLeave={(e) => e.target.style.background = 'rgba(220, 53, 69, 0.1)'}
                                                         >
-                                                            <CIcon icon={cilTrash} style={{ color: '#E07A00' }} />
+                                                            <CIcon icon={cilTrash} />
                                                         </CButton>
-                                                    </CButtonGroup>
+                                                    </div>
                                                 </CTableDataCell>
                                             </CTableRow>
                                         ))}
@@ -487,80 +567,33 @@ const TeacherManagement = () => {
                         </>
                     ) : (
                         <div className="text-center py-5">
-                            <CIcon icon={cilSearch} size="3xl" className="text-muted opacity-25 mb-3" />
-                            <h5 className="text-muted">No se encontraron docentes</h5>
+                            <div style={{
+                                width: '80px',
+                                height: '80px',
+                                background: 'rgba(224,122,0,0.1)',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                margin: '0 auto 20px'
+                            }}>
+                                <CIcon icon={cilSearch} size="3xl" style={{ color: '#E07A00', opacity: 0.5 }} />
+                            </div>
+                            <h5 style={{ color: '#1e293b', fontWeight: '600' }}>No se encontraron docentes</h5>
                         </div>
                     )}
                 </CCardBody>
             </CCard>
 
-            {/* MODAL ASIGNAR ESPECIALIDAD */}
-            <CModal visible={showSpecialtyModal} onClose={() => setShowSpecialtyModal(false)} alignment="center">
-                <CModalHeader>
-                    <CModalTitle>Asignar Especialidad</CModalTitle>
-                </CModalHeader>
-                <CModalBody>
-                    <p><strong>Docente:</strong> {actionTeacher?.first_name} {actionTeacher?.last_name}</p>
-                    <CFormSelect 
-                        value={selectedSpecialty} 
-                        onChange={(e) => setSelectedSpecialty(e.target.value)}
-                    >
-                        <option value="">-- Selecciona especialidad --</option>
-                        {specialties.map(spec => (
-                            <option key={spec.id} value={spec.name}>{spec.name}</option>
-                        ))}
-                    </CFormSelect>
-                </CModalBody>
-                <CModalFooter>
-                    <CButton color="light" onClick={() => setShowSpecialtyModal(false)}>CANCELAR</CButton>
-                    <CButton
-                        style={{ backgroundColor: '#E07A00', borderColor: '#E07A00', color: 'white' }}
-                        onClick={handleSpecialtyUpdate}
-                        disabled={!selectedSpecialty}
-                    >
-                        ASIGNAR
-                    </CButton>
-                </CModalFooter>
-            </CModal>
-
-            {/* MODAL ASIGNAR GRADOS - CORREGIDO */}
-            <CModal visible={showGradeModal} onClose={() => setShowGradeModal(false)} size="lg" alignment="center">
-                <CModalHeader>
-                    <CModalTitle>Asignar Grados</CModalTitle>
-                </CModalHeader>
-                <CModalBody>
-                    <p><strong>Docente:</strong> {actionTeacher?.first_name} {actionTeacher?.last_name}</p>
-                    <CRow className="g-2">
-                        {grades.map(grade => (
-                            <CCol xs={6} md={4} key={grade.id}>
-                                <CButton
-                                    className="w-100"
-                                    color={selectedGrades.includes(grade.id) ? "primary" : "light"}
-                                    onClick={() => handleGradeToggle(grade.id)}
-                                    style={selectedGrades.includes(grade.id) ? { backgroundColor: '#E07A00', borderColor: '#E07A00', color: 'white' } : {}}
-                                >
-                                    {grade.name}
-                                </CButton>
-                            </CCol>
-                        ))}
-                    </CRow>
-                    <div className="mt-3">
-                        <CBadge color="info" className="px-3 py-2">
-                            {selectedGrades.length} grado(s) seleccionado(s)
-                        </CBadge>
-                    </div>
-                </CModalBody>
-                <CModalFooter>
-                    <CButton color="light" onClick={() => setShowGradeModal(false)}>CANCELAR</CButton>
-                    <CButton
-                        style={{ backgroundColor: '#E07A00', borderColor: '#E07A00', color: 'white' }}
-                        onClick={handleGradeUpdate}
-                        disabled={selectedGrades.length === 0}
-                    >
-                        ASIGNAR {selectedGrades.length} GRADO(S)
-                    </CButton>
-                </CModalFooter>
-            </CModal>
+            {/* ✅ MODAL UNIFICADO - ESPECIALIDAD + GRADOS */}
+            <AsignarEspecialidadGradosModal
+                visible={showUnifiedModal}
+                onClose={() => setShowUnifiedModal(false)}
+                teacher={actionTeacher}
+                specialties={specialties}
+                grades={grades}
+                onSave={handleUnifiedSave}
+            />
 
             {/* COMPONENTES */}
             <TeacherForm 
