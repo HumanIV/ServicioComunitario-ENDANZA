@@ -25,7 +25,9 @@ import StatsWidgets from './components/widgets/statsWidgets'
 import TeacherSectionsList from './components/TeacherSectionsList'
 import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal'
 import SubidaNotasModal from './components/modals/subidaNotasModal'
-import CrearAnioModal from './components/modals/CrearAnioModal' // 👈 NUEVO MODAL
+import ValidacionNotasModal from './components/modals/ValidacionNotasModal'
+import ControlBoletinesModal from './components/modals/ControlBoletinesModal'
+import CrearAnioModal from './components/modals/CrearAnioModal'
 import SystemMessageModal from '../../components/SystemMessageModal'
 
 // Hooks y servicios
@@ -36,10 +38,11 @@ export const SuperRootDashboard = () => {
   const navigate = useNavigate()
   const [currentYear, setCurrentYear] = useState(null)
   const [availableYears, setAvailableYears] = useState([])
-  const [visibleCrearAnio, setVisibleCrearAnio] = useState(false) // 👈 NUEVO ESTADO
+  const [visibleCrearAnio, setVisibleCrearAnio] = useState(false)
 
-  // ✅ Pasamos el ID del año seleccionado al hook
+  // ✅ Hook con todos los datos necesarios - INCLUYE TEACHERS
   const {
+    // Datos básicos
     periodoInscripcion,
     periodoSubidaNotas,
     usuarios,
@@ -47,12 +50,30 @@ export const SuperRootDashboard = () => {
     students,
     sections,
     loading,
+    
+    // Nuevos datos
+    notasPendientes,
+    boletines,
+    teachers, // ✅ AGREGADO - AHORA ESTÁ DEFINIDO
+    
+    // Estados de modales
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
     visibleSubidaNotas,
     setVisibleSubidaNotas,
+    visibleValidacionNotas,
+    setVisibleValidacionNotas,
+    visibleControlBoletines,
+    setVisibleControlBoletines,
+    
+    // Acciones
     guardarPeriodoInscripcion,
     guardarPeriodoSubidaNotas,
+    aprobarNotaPendiente,
+    rechazarNotaPendiente,
+    aprobarTodasNotasPendientes,
+    toggleBoletin,
+    habilitarTodosBoletinesDelAnio,
     refreshData
   } = useDashboardData(currentYear?.id)
 
@@ -110,7 +131,64 @@ export const SuperRootDashboard = () => {
   }
 
   const handleCreateNextYear = () => {
-    setVisibleCrearAnio(true) // Abrir el modal en lugar de mostrar mensaje de confirmación
+    setVisibleCrearAnio(true)
+  }
+
+  const handleAprobarNota = async (notaId) => {
+    const success = await aprobarNotaPendiente(notaId)
+    if (success) {
+      showSystemMessage('Éxito', 'Nota aprobada correctamente', 'success')
+    } else {
+      showSystemMessage('Error', 'No se pudo aprobar la nota', 'error')
+    }
+  }
+
+  const handleRechazarNota = async (notaId) => {
+    const success = await rechazarNotaPendiente(notaId)
+    if (success) {
+      showSystemMessage('Éxito', 'Nota rechazada correctamente', 'success')
+    } else {
+      showSystemMessage('Error', 'No se pudo rechazar la nota', 'error')
+    }
+  }
+
+  const handleAprobarTodasNotas = async () => {
+    const success = await aprobarTodasNotasPendientes()
+    if (success) {
+      showSystemMessage('Éxito', 'Todas las notas fueron aprobadas', 'success')
+      setVisibleValidacionNotas(false)
+    } else {
+      showSystemMessage('Error', 'No se pudieron aprobar todas las notas', 'error')
+    }
+  }
+
+  const handleToggleBoletin = async (id) => {
+    const boletin = boletines.find(b => b.id === id)
+    const success = await toggleBoletin(id, !boletin.disponible)
+    if (success) {
+      showSystemMessage('Éxito', `Boletín ${!boletin.disponible ? 'habilitado' : 'deshabilitado'}`, 'success')
+    } else {
+      showSystemMessage('Error', 'No se pudo cambiar el estado del boletín', 'error')
+    }
+  }
+
+  const handleHabilitarTodosBoletines = async () => {
+    if (notasPendientes.length > 0) {
+      showSystemMessage(
+        'Validación requerida', 
+        'No se pueden habilitar los boletines porque hay notas pendientes de validación.', 
+        'warning'
+      )
+      return
+    }
+    
+    const success = await habilitarTodosBoletinesDelAnio()
+    if (success) {
+      showSystemMessage('Éxito', 'Todos los boletines fueron habilitados', 'success')
+      setVisibleControlBoletines(false)
+    } else {
+      showSystemMessage('Error', 'No se pudieron habilitar todos los boletines', 'error')
+    }
   }
 
   const closeMessageModal = () => {
@@ -135,6 +213,8 @@ export const SuperRootDashboard = () => {
       </div>
     )
   }
+
+  const puedeHabilitarBoletines = notasPendientes.length === 0
 
   return (
     <CContainer fluid className="px-0 pb-5 overflow-hidden">
@@ -190,21 +270,30 @@ export const SuperRootDashboard = () => {
         </CRow>
       </div>
 
-      {/* RESTO DEL COMPONENTE SIN CAMBIOS */}
       <div className="px-3 px-md-4">
-        {/* WIDGETS DE ESTADÍSTICAS */}
+
+        {/* WIDGETS DE ESTADÍSTICAS - Actualizado con notas y boletines */}
         <StatsWidgets
           students={students || []}
           repsCount={repsCount || 0}
           periodoInscripcion={periodoInscripcion}
           periodoSubidaNotas={periodoSubidaNotas}
+          notasPendientes={notasPendientes}
+          boletines={boletines}
           onOpenPeriodoInscripcion={() => setVisiblePeriodoInscripcion(true)}
           onOpenSubidaNotas={() => setVisibleSubidaNotas(true)}
+          onOpenValidacionNotas={() => setVisibleValidacionNotas(true)}
+          onOpenControlBoletines={() => setVisibleControlBoletines(true)}
         />
 
         <CRow className="gy-4">
           <CCol xs={12} lg={8}>
-            <TeacherSectionsList sections={sections || []} />
+            <TeacherSectionsList 
+              sections={sections || []} 
+              teachers={teachers || []}  // ✅ AHORA teachers ESTÁ DEFINIDO
+              currentYear={currentYear} 
+              loading={loading}
+            />
           </CCol>
 
           <CCol xs={12} lg={4}>
@@ -278,6 +367,22 @@ export const SuperRootDashboard = () => {
         onClose={() => setVisibleSubidaNotas(false)}
         periodoSubida={periodoSubidaNotas}
         onSave={guardarPeriodoSubidaNotas}
+      />
+
+      <ValidacionNotasModal
+        visible={visibleValidacionNotas}
+        onClose={() => setVisibleValidacionNotas(false)}
+        notasPendientes={notasPendientes}
+        onAprobar={handleAprobarNota}
+        onRechazar={handleRechazarNota}
+      />
+
+      <ControlBoletinesModal
+        visible={visibleControlBoletines}
+        onClose={() => setVisibleControlBoletines(false)}
+        boletines={boletines}
+        onToggleDisponible={handleToggleBoletin}
+        onHabilitarTodos={handleHabilitarTodosBoletines}
       />
 
       <CrearAnioModal

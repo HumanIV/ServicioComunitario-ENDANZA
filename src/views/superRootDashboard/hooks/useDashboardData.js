@@ -1,4 +1,4 @@
-// Archivo: src/dashboard/hooks/useDashboardData.js
+// src/dashboard/hooks/useDashboardData.js
 
 import { useState, useEffect, useCallback } from 'react';
 import { listUsers } from '../../../services/userService';
@@ -10,16 +10,37 @@ import {
 } from '../../../services/configService';
 import { listSections } from '../../../services/sectionsService';
 import { listStudents } from '../../../services/studentsService';
+import { 
+  getNotasPendientes, 
+  aprobarNota, 
+  rechazarNota,
+  aprobarTodasNotas 
+} from '../../../services/notasService';
+import { 
+  getBoletines, 
+  toggleBoletinDisponible, 
+  habilitarTodosBoletines,
+  verificarNotasPendientes 
+} from '../../../services/boletinesService';
+// ✅ IMPORTAR SERVICIO DE DOCENTES
+import * as TeacherService from '../../../services/teacherService';
 
 export const useDashboardData = (selectedYearId) => {
   const [usuarios, setUsuarios] = useState([]);
   const [repsCount, setRepsCount] = useState(0);
   const [students, setStudents] = useState([]);
   const [sections, setSections] = useState([]);
+  const [notasPendientes, setNotasPendientes] = useState([]);
+  const [boletines, setBoletines] = useState([]);
+  // ✅ NUEVO: Estado para docentes
+  const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // Estados para modales
   const [visiblePeriodoInscripcion, setVisiblePeriodoInscripcion] = useState(false);
   const [visibleSubidaNotas, setVisibleSubidaNotas] = useState(false);
+  const [visibleValidacionNotas, setVisibleValidacionNotas] = useState(false);
+  const [visibleControlBoletines, setVisibleControlBoletines] = useState(false);
 
   const [periodoInscripcion, setPeriodoInscripcion] = useState({ 
     fechaInicio: '', 
@@ -45,10 +66,8 @@ export const useDashboardData = (selectedYearId) => {
     console.log(`📊 Cargando datos para año ID: ${selectedYearId}`);
     
     try {
-      // 1. Cargar usuarios (no depende del año)
+      // 1. Cargar usuarios
       const usersData = await listUsers();
-      console.log("📊 Usuarios recibidos:", usersData);
-      
       const users = Array.isArray(usersData) ? usersData : [];
       
       const usuariosTransformados = users
@@ -63,25 +82,32 @@ export const useDashboardData = (selectedYearId) => {
       setUsuarios(usuariosTransformados);
       setRepsCount(users.filter(u => u?.role === 'representante').length);
 
-      // 2. Cargar período de inscripción
+      // 2. Cargar períodos
       const enrollmentData = await getEnrollmentPeriod(selectedYearId);
-      console.log("📊 Período inscripción:", enrollmentData);
       setPeriodoInscripcion(enrollmentData);
 
-      // 3. Cargar período de subida de notas
       const gradesData = await getGradesPeriod(selectedYearId);
-      console.log("📊 Período notas:", gradesData);
       setPeriodoSubidaNotas(gradesData);
 
-      // 4. Cargar secciones del año seleccionado
+      // 3. Cargar secciones
       const sectionsData = await listSections(selectedYearId);
-      console.log("📊 Secciones recibidas:", sectionsData);
       setSections(sectionsData);
 
-      // 5. Cargar estudiantes del año seleccionado
+      // 4. Cargar estudiantes
       const studentsData = await listStudents({ academicYearId: selectedYearId });
-      console.log("📊 Estudiantes recibidos:", studentsData);
       setStudents(studentsData);
+
+      // 5. Cargar notas pendientes
+      const notasData = await getNotasPendientes(selectedYearId);
+      setNotasPendientes(notasData);
+
+      // 6. Cargar boletines
+      const boletinesData = await getBoletines(selectedYearId);
+      setBoletines(boletinesData);
+
+      // ✅ 7. Cargar docentes FILTRADOS POR EL AÑO SELECCIONADO
+      const teachersData = await TeacherService.getAll(selectedYearId);
+      setTeachers(teachersData || []);
 
     } catch (error) {
       console.error("❌ Error cargando datos del dashboard:", error);
@@ -90,31 +116,42 @@ export const useDashboardData = (selectedYearId) => {
     }
   }, [selectedYearId]);
 
-  // 📌 Cargar datos cuando cambia el año seleccionado
+  // 📌 Función para copiar asignaciones del año anterior
+  const copyTeacherAssignmentsFromPreviousYear = useCallback(async () => {
+    if (!selectedYearId) return false;
+    
+    try {
+      // Obtener el año anterior (asumiendo que los IDs son consecutivos)
+      const previousYearId = selectedYearId - 1;
+      
+      const response = await TeacherService.copyTeacherAssignments(previousYearId, selectedYearId);
+      
+      if (response.ok) {
+        console.log(`✅ Asignaciones copiadas: ${response.copied || 0}`);
+        await fetchAllData(); // Recargar datos
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ Error copiando asignaciones:", error);
+      return false;
+    }
+  }, [selectedYearId, fetchAllData]);
+
+  // 📌 Cargar datos cuando cambia el año
   useEffect(() => {
     fetchAllData();
-  }, [fetchAllData, selectedYearId]); // 👈 AÑADIMOS selectedYearId como dependencia
+  }, [fetchAllData, selectedYearId]);
 
   // 📌 Guardar período de inscripción
   const guardarPeriodoInscripcion = async (data) => {
-    if (!selectedYearId) {
-      console.error("No hay año seleccionado");
-      return;
-    }
-    
+    if (!selectedYearId) return;
     try {
       const response = await updateEnrollmentPeriod(selectedYearId, data);
       if (response.ok) {
-        // Actualizar estado local
         setPeriodoInscripcion(data);
         setVisiblePeriodoInscripcion(false);
-        console.log("✅ Período de inscripción guardado");
-        
-        // 👇 FORZAR RECARGA DE DATOS después de guardar
         await fetchAllData();
-        
-      } else {
-        console.error("❌ Error guardando:", response.msg);
       }
     } catch (error) {
       console.error("❌ Error guardando período de inscripción:", error);
@@ -123,45 +160,136 @@ export const useDashboardData = (selectedYearId) => {
 
   // 📌 Guardar período de subida de notas
   const guardarPeriodoSubidaNotas = async (data) => {
-    if (!selectedYearId) {
-      console.error("No hay año seleccionado");
-      return;
-    }
-    
+    if (!selectedYearId) return;
     try {
       const response = await updateGradesPeriod(selectedYearId, data);
       if (response.ok) {
-        // Actualizar estado local
         setPeriodoSubidaNotas(data);
         setVisibleSubidaNotas(false);
-        console.log("✅ Período de notas guardado");
-        
-        // 👇 FORZAR RECARGA DE DATOS después de guardar
         await fetchAllData();
-        
-      } else {
-        console.error("❌ Error guardando:", response.msg);
       }
     } catch (error) {
       console.error("❌ Error guardando período de notas:", error);
     }
   };
 
+  // 📌 Aprobar una nota
+  const aprobarNotaPendiente = async (notaId) => {
+    try {
+      const response = await aprobarNota(notaId);
+      if (response.ok) {
+        await fetchAllData(); // Recargar datos
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ Error aprobando nota:", error);
+      return false;
+    }
+  };
+
+  // 📌 Rechazar una nota
+  const rechazarNotaPendiente = async (notaId) => {
+    try {
+      const response = await rechazarNota(notaId);
+      if (response.ok) {
+        await fetchAllData(); // Recargar datos
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ Error rechazando nota:", error);
+      return false;
+    }
+  };
+
+  // 📌 Aprobar todas las notas
+  const aprobarTodasNotasPendientes = async () => {
+    try {
+      const response = await aprobarTodasNotas();
+      if (response.ok) {
+        await fetchAllData(); // Recargar datos
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ Error aprobando todas las notas:", error);
+      return false;
+    }
+  };
+
+  // 📌 Alternar disponibilidad de boletín
+  const toggleBoletin = async (boletinId, disponible) => {
+    try {
+      const response = await toggleBoletinDisponible(boletinId, disponible);
+      if (response.ok) {
+        await fetchAllData(); // Recargar datos
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ Error alternando boletín:", error);
+      return false;
+    }
+  };
+
+  // 📌 Habilitar todos los boletines
+  const habilitarTodosBoletinesDelAnio = async () => {
+    if (!selectedYearId) return false;
+    
+    // Verificar si hay notas pendientes
+    const hayPendientes = await verificarNotasPendientes(selectedYearId);
+    if (hayPendientes) {
+      alert("No se pueden habilitar los boletines porque hay notas pendientes de validación.");
+      return false;
+    }
+    
+    try {
+      const response = await habilitarTodosBoletines(selectedYearId);
+      if (response.ok) {
+        await fetchAllData(); // Recargar datos
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("❌ Error habilitando todos los boletines:", error);
+      return false;
+    }
+  };
+
   return {
+    // Datos
     periodoInscripcion,
     periodoSubidaNotas,
     usuarios,
     repsCount,
     students,
     sections,
+    notasPendientes,
+    boletines,
+    teachers, // ✅ DOCENTES FILTRADOS POR AÑO
     loading,
+    
+    // Estados de modales
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
     visibleSubidaNotas,
     setVisibleSubidaNotas,
+    visibleValidacionNotas,
+    setVisibleValidacionNotas,
+    visibleControlBoletines,
+    setVisibleControlBoletines,
+    
+    // Acciones
     guardarPeriodoInscripcion,
     guardarPeriodoSubidaNotas,
-    refreshData: fetchAllData // Exponemos la función para usarla manualmente si es necesario
+    aprobarNotaPendiente,
+    rechazarNotaPendiente,
+    aprobarTodasNotasPendientes,
+    toggleBoletin,
+    habilitarTodosBoletinesDelAnio,
+    copyTeacherAssignmentsFromPreviousYear, // ✅ NUEVA FUNCIÓN
+    refreshData: fetchAllData
   };
 };
 

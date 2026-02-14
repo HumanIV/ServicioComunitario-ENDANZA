@@ -1,3 +1,5 @@
+// Archivo: src/views/docente/AsignarModal.jsx
+
 import React, { useState, useEffect } from 'react'
 import {
     CModal,
@@ -6,65 +8,91 @@ import {
     CModalBody,
     CModalFooter,
     CButton,
-    CRow,
-    CCol,
     CFormSelect,
-    CBadge,
-    CCard,
-    CCardBody
+    CSpinner,
+    CFormCheck,
+    CFormLabel,
+    CAlert
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { 
-    cilStar, 
-    cilBookmark, 
-    cilCheck,
-    cilBan,
-    cilInfo
-} from '@coreui/icons'
+import { cilUser, cilSchool, cilWarning, cilCalendar } from '@coreui/icons'
 
 const AsignarEspecialidadGradosModal = ({ 
     visible, 
     onClose, 
     teacher, 
     specialties = [], 
-    grades = [],
-    onSave 
+    grades = [], 
+    onSave,
+    currentYear // año actual
 }) => {
-    const [selectedSpecialty, setSelectedSpecialty] = useState('')
+    const [selectedSpecialtyId, setSelectedSpecialtyId] = useState('')
     const [selectedGrades, setSelectedGrades] = useState([])
-    const [saving, setSaving] = useState(false)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
+    // Resetear cuando se abre el modal con un nuevo teacher
     useEffect(() => {
-        if (visible && teacher) {
-            setSelectedSpecialty(teacher.specialty || '')
-            setSelectedGrades(teacher.grades?.map(g => g.id) || [])
-        }
-    }, [visible, teacher])
-
-    const handleGradeToggle = (gradeId) => {
-        setSelectedGrades(prev => {
-            if (prev.includes(gradeId)) {
-                return prev.filter(id => id !== gradeId)
+        if (teacher) {
+            // Buscar la especialidad del año actual si existe
+            if (currentYear && teacher.specialties && teacher.specialties.length > 0) {
+                const currentYearSpecialty = teacher.specialties.find(
+                    s => s.academicYearId === currentYear.id
+                )
+                setSelectedSpecialtyId(currentYearSpecialty?.id?.toString() || '')
             } else {
-                return [...prev, gradeId]
+                setSelectedSpecialtyId('')
             }
-        })
+            
+            // Filtrar solo los grados del año actual si existen
+            const currentYearGrades = currentYear 
+                ? (teacher.grades || []).filter(g => g.academicYearId === currentYear.id)
+                : teacher.grades || []
+            setSelectedGrades(currentYearGrades.map(g => g.id))
+            setError('')
+        }
+    }, [teacher, currentYear])
+
+    // Manejador para checkboxes de grados
+    const handleGradeToggle = (gradeId) => {
+        setSelectedGrades(prev => 
+            prev.includes(gradeId)
+                ? prev.filter(id => id !== gradeId)
+                : [...prev, gradeId]
+        )
     }
 
-    const handleSave = async () => {
+    // Manejador para "Seleccionar todos"
+    const handleSelectAll = () => {
+        if (selectedGrades.length === grades.length) {
+            setSelectedGrades([])
+        } else {
+            setSelectedGrades(grades.map(g => g.id))
+        }
+    }
+
+    const handleSubmit = async () => {
         if (!teacher) return
+
+        // Validar que al menos seleccione algo
+        if (!selectedSpecialtyId && selectedGrades.length === 0) {
+            setError('Debes seleccionar al menos una especialidad o un grado')
+            return
+        }
+
+        setLoading(true)
+        setError('')
         
-        setSaving(true)
         try {
             await onSave(teacher.id, {
-                specialty: selectedSpecialty,
+                specialtyId: selectedSpecialtyId ? parseInt(selectedSpecialtyId) : null,
                 gradeIds: selectedGrades
             })
-            onClose()
-        } catch (error) {
-            console.error('Error guardando asignaciones:', error)
+            // No cerrar aquí - onSave debe manejar el cierre
+        } catch (err) {
+            setError(err.message || 'Error al guardar las asignaciones')
         } finally {
-            setSaving(false)
+            setLoading(false)
         }
     }
 
@@ -74,265 +102,155 @@ const AsignarEspecialidadGradosModal = ({
         <CModal 
             visible={visible} 
             onClose={onClose} 
-            size="lg" 
+            size="lg"
             alignment="center"
-            className="premium-modal"
+            backdrop="static"
         >
-            <CModalHeader className="border-0 pb-3" style={{ 
-                borderBottom: '1px solid rgba(224,122,0,0.2)',
-                background: 'linear-gradient(145deg, #ffffff, #f8fafc)'
-            }}>
-                <CModalTitle className="fw-bold d-flex align-items-center">
-                    <div style={{
-                        width: '48px',
-                        height: '48px',
-                        background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginRight: '16px',
-                        boxShadow: '0 6px 12px rgba(224,122,0,0.2)'
-                    }}>
-                        <CIcon icon={cilStar} className="text-white" size="lg" />
+            <CModalHeader className="border-0 pb-0">
+                <CModalTitle className="d-flex align-items-center">
+                    <div className="bg-orange rounded-3 p-2 me-3 d-flex align-items-center justify-content-center shadow-orange-sm" 
+                        style={{ width: '48px', height: '48px' }}
+                    >
+                        <CIcon icon={cilUser} className="text-white" size="lg" />
                     </div>
                     <div>
-                        <div style={{ fontSize: '1.25rem', color: '#1e293b' }}>
-                            Asignar Especialidad y Grados
-                        </div>
-                        <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 'normal', marginTop: '4px' }}>
+                        <h5 className="mb-0 fw-bold">Asignar Especialidad y Grados</h5>
+                        <small className="text-muted">
                             {teacher.first_name} {teacher.last_name}
-                        </div>
+                        </small>
+                        {currentYear && (
+                            <div className="d-flex align-items-center mt-1">
+                                <CIcon icon={cilCalendar} size="sm" className="text-muted me-1" />
+                                <span className="small text-muted">
+                                    Asignaciones para: <strong>{currentYear.name}</strong>
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </CModalTitle>
             </CModalHeader>
 
-            <CModalBody className="p-4">
-                {/* BANNER INFORMATIVO */}
-                <div style={{
-                    background: 'linear-gradient(145deg, rgba(224,122,0,0.05), rgba(224,122,0,0.02))',
-                    borderRadius: '16px',
-                    padding: '16px',
-                    marginBottom: '24px',
-                    border: '1px solid rgba(224,122,0,0.1)'
-                }}>
-                    <div className="d-flex align-items-center gap-2">
-                        <CIcon icon={cilInfo} style={{ color: '#E07A00' }} size="lg" />
-                        <div>
-                            <span style={{ color: '#E07A00', fontWeight: '600' }}>Configuración Académica</span>
-                            <p className="mb-0 small" style={{ color: '#64748b' }}>
-                                Define la especialidad y los grados que este docente podrá dictar
-                            </p>
-                        </div>
-                    </div>
+            <CModalBody>
+                {error && (
+                    <CAlert color="danger" className="d-flex align-items-center">
+                        <CIcon icon={cilWarning} className="me-2" />
+                        {error}
+                    </CAlert>
+                )}
+
+                {/* ESPECIALIDAD */}
+                <div className="mb-4">
+                    <CFormLabel className="fw-bold mb-2" style={{ color: '#1e293b' }}>
+                        Especialidad para {currentYear?.name}
+                    </CFormLabel>
+                    <CFormSelect
+                        value={selectedSpecialtyId}
+                        onChange={(e) => setSelectedSpecialtyId(e.target.value)}
+                        style={{
+                            border: '1px solid rgba(224,122,0,0.2)',
+                            borderRadius: '12px',
+                            padding: '12px'
+                        }}
+                    >
+                        <option value="">Selecciona una especialidad...</option>
+                        {specialties.map(s => (
+                            <option key={s.id} value={s.id}>
+                                {s.name} {s.area ? `(${s.area})` : ''}
+                            </option>
+                        ))}
+                    </CFormSelect>
+                    <small className="text-muted d-block mt-1">
+                        {selectedSpecialtyId ? 'Especialidad seleccionada' : 'Sin especialidad asignada'}
+                    </small>
                 </div>
 
-                <CRow className="g-4">
-                    {/* COLUMNA IZQUIERDA - ESPECIALIDAD */}
-                    <CCol md={5}>
-                        <CCard className="border-0 h-100" style={{
-                            background: 'rgba(224,122,0,0.02)',
-                            borderRadius: '20px',
-                            border: '1px solid rgba(224,122,0,0.1)'
-                        }}>
-                            <CCardBody className="p-4">
-                                <div className="d-flex align-items-center gap-2 mb-4">
-                                    <div style={{
-                                        width: '36px',
-                                        height: '36px',
-                                        background: 'rgba(224,122,0,0.1)',
-                                        borderRadius: '12px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}>
-                                        <CIcon icon={cilStar} style={{ color: '#E07A00' }} />
-                                    </div>
-                                    <div>
-                                        <h6 className="fw-bold mb-1" style={{ color: '#1e293b' }}>
-                                            Especialidad
-                                        </h6>
-                                        <p className="small mb-0" style={{ color: '#64748b' }}>
-                                            Área principal de enseñanza
-                                        </p>
-                                    </div>
+                {/* GRADOS */}
+                <div className="mb-3">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <CFormLabel className="fw-bold mb-0" style={{ color: '#1e293b' }}>
+                            Grados a Asignar ({currentYear?.name || ''})
+                        </CFormLabel>
+                        <CButton
+                            color="link"
+                            onClick={handleSelectAll}
+                            size="sm"
+                            style={{ color: '#E07A00', textDecoration: 'none' }}
+                        >
+                            {selectedGrades.length === grades.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
+                        </CButton>
+                    </div>
+                    <div style={{
+                        maxHeight: '250px',
+                        overflowY: 'auto',
+                        border: '1px solid rgba(224,122,0,0.1)',
+                        borderRadius: '12px',
+                        padding: '12px'
+                    }}>
+                        {grades.length > 0 ? (
+                            grades.map(grade => (
+                                <div key={grade.id} className="mb-2">
+                                    <CFormCheck
+                                        id={`grade-${grade.id}`}
+                                        label={`${grade.name} (${grade.level || 'danza'})`}
+                                        checked={selectedGrades.includes(grade.id)}
+                                        onChange={() => handleGradeToggle(grade.id)}
+                                        style={{ 
+                                            cursor: 'pointer',
+                                            padding: '8px',
+                                            borderRadius: '8px',
+                                            backgroundColor: selectedGrades.includes(grade.id) ? 'rgba(224,122,0,0.05)' : 'transparent'
+                                        }}
+                                    />
                                 </div>
-
-                                <CFormSelect
-                                    value={selectedSpecialty}
-                                    onChange={(e) => setSelectedSpecialty(e.target.value)}
-                                    style={{
-                                        borderRadius: '14px',
-                                        padding: '12px',
-                                        border: '1px solid rgba(224,122,0,0.2)',
-                                        backgroundColor: 'white'
-                                    }}
-                                >
-                                    <option value="">-- Seleccionar especialidad --</option>
-                                    {specialties.map(spec => (
-                                        <option key={spec.id} value={spec.name}>
-                                            {spec.name}
-                                        </option>
-                                    ))}
-                                </CFormSelect>
-
-                                {selectedSpecialty && (
-                                    <div className="mt-3 text-center">
-                                        <CBadge style={{
-                                            background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                                            color: 'white',
-                                            padding: '8px 16px',
-                                            borderRadius: '30px',
-                                            fontSize: '0.85rem'
-                                        }}>
-                                            <CIcon icon={cilCheck} className="me-1" size="sm" />
-                                            {selectedSpecialty}
-                                        </CBadge>
-                                    </div>
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-
-                    {/* COLUMNA DERECHA - GRADOS */}
-                    <CCol md={7}>
-                        <CCard className="border-0 h-100" style={{
-                            background: 'rgba(224,122,0,0.02)',
-                            borderRadius: '20px',
-                            border: '1px solid rgba(224,122,0,0.1)'
-                        }}>
-                            <CCardBody className="p-4">
-                                <div className="d-flex align-items-center gap-2 mb-4">
-                                    <div style={{
-                                        width: '36px',
-                                        height: '36px',
-                                        background: 'rgba(224,122,0,0.1)',
-                                        borderRadius: '12px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                    }}>
-                                        <CIcon icon={cilBookmark} style={{ color: '#E07A00' }} />
-                                    </div>
-                                    <div>
-                                        <h6 className="fw-bold mb-1" style={{ color: '#1e293b' }}>
-                                            Grados Académicos
-                                        </h6>
-                                        <p className="small mb-0" style={{ color: '#64748b' }}>
-                                            Selecciona los grados que dictará
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="mb-3">
-                                    <CBadge style={{
-                                        background: selectedGrades.length > 0 
-                                            ? 'linear-gradient(145deg, #E07A00, #C66900)'
-                                            : 'rgba(100,116,139,0.1)',
-                                        color: selectedGrades.length > 0 ? 'white' : '#64748b',
-                                        padding: '8px 16px',
-                                        borderRadius: '30px'
-                                    }}>
-                                        {selectedGrades.length} grado(s) seleccionado(s)
-                                    </CBadge>
-                                </div>
-
-                                <CRow className="g-2">
-                                    {grades.map(grade => (
-                                        <CCol xs={6} key={grade.id}>
-                                            <CButton
-                                                className="w-100 py-3"
-                                                style={{
-                                                    background: selectedGrades.includes(grade.id)
-                                                        ? 'linear-gradient(145deg, #E07A00, #C66900)'
-                                                        : 'white',
-                                                    border: selectedGrades.includes(grade.id)
-                                                        ? 'none'
-                                                        : '1px solid rgba(224,122,0,0.2)',
-                                                    color: selectedGrades.includes(grade.id)
-                                                        ? 'white'
-                                                        : '#1e293b',
-                                                    borderRadius: '14px',
-                                                    fontWeight: '500',
-                                                    transition: 'all 0.2s ease',
-                                                    boxShadow: selectedGrades.includes(grade.id)
-                                                        ? '0 4px 12px rgba(224,122,0,0.3)'
-                                                        : 'none'
-                                                }}
-                                                onClick={() => handleGradeToggle(grade.id)}
-                                                onMouseEnter={(e) => {
-                                                    if (!selectedGrades.includes(grade.id)) {
-                                                        e.target.style.background = 'rgba(224,122,0,0.05)'
-                                                    }
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    if (!selectedGrades.includes(grade.id)) {
-                                                        e.target.style.background = 'white'
-                                                    }
-                                                }}
-                                            >
-                                                {grade.name}
-                                                {selectedGrades.includes(grade.id) && (
-                                                    <CIcon icon={cilCheck} className="ms-2" size="sm" />
-                                                )}
-                                            </CButton>
-                                        </CCol>
-                                    ))}
-                                </CRow>
-
-                                {selectedGrades.length === 0 && (
-                                    <div className="text-center mt-3">
-                                        <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-                                            <CIcon icon={cilBan} className="me-1" size="sm" />
-                                            Ningún grado seleccionado
-                                        </span>
-                                    </div>
-                                )}
-                            </CCardBody>
-                        </CCard>
-                    </CCol>
-                </CRow>
+                            ))
+                        ) : (
+                            <p className="text-muted text-center py-3">No hay grados disponibles</p>
+                        )}
+                    </div>
+                    <small className="text-muted d-block mt-2">
+                        {selectedGrades.length} grado(s) seleccionado(s)
+                    </small>
+                </div>
             </CModalBody>
 
-            <CModalFooter className="border-0 p-4" style={{ 
-                background: 'linear-gradient(145deg, #f8fafc, #f1f5f9)',
-                borderTop: '1px solid rgba(224,122,0,0.1)'
-            }}>
+            <CModalFooter className="border-0">
                 <CButton
-                    color="light"
+                    color="secondary"
+                    variant="ghost"
                     onClick={onClose}
-                    style={{
-                        borderRadius: '14px',
-                        padding: '12px 24px',
-                        fontWeight: '600',
-                        border: '1px solid rgba(224,122,0,0.2)',
-                        background: 'white'
-                    }}
+                    disabled={loading}
+                    className="px-4"
+                    style={{ borderRadius: '12px' }}
                 >
-                    CANCELAR
+                    Cancelar
                 </CButton>
                 <CButton
+                    className="px-4 text-white border-0"
                     style={{
                         background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                        border: 'none',
-                        borderRadius: '14px',
-                        padding: '12px 32px',
-                        fontWeight: '600',
-                        color: 'white',
-                        boxShadow: '0 8px 16px rgba(224,122,0,0.2)',
-                        opacity: saving ? 0.8 : 1
+                        borderRadius: '12px',
+                        minWidth: '120px'
                     }}
-                    onClick={handleSave}
-                    disabled={saving || (!selectedSpecialty && selectedGrades.length === 0)}
+                    onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
+                    onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
+                    onClick={handleSubmit}
+                    disabled={loading}
                 >
-                    {saving ? 'GUARDANDO...' : (
-                        <>
-                            <CIcon icon={cilCheck} className="me-2" size="sm" />
-                            GUARDAR ASIGNACIONES
-                        </>
-                    )}
+                    {loading ? (
+                        <CSpinner size="sm" className="me-2" />
+                    ) : null}
+                    {loading ? 'Guardando...' : 'Guardar Asignaciones'}
                 </CButton>
             </CModalFooter>
+
+            <style>{`
+                .bg-orange {
+                    background-color: #E07A00 !important;
+                }
+                .shadow-orange-sm {
+                    box-shadow: 0 4px 8px rgba(224, 122, 0, 0.2);
+                }
+            `}</style>
         </CModal>
     )
 }

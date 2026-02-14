@@ -1,3 +1,4 @@
+// src/services/teacherService.js
 import { teacherAPI } from '../api/teacher.api';
 import { userAPI } from '../api/user.api';
 
@@ -7,10 +8,18 @@ import { userAPI } from '../api/user.api';
 
 /**
  * Obtiene todos los docentes
+ * @param {number} academicYearId - ID del año académico (opcional)
  */
-export const getAll = async () => {
+export const getAll = async (academicYearId = null) => {
     try {
-        const response = await teacherAPI.listTeachers();
+        let response;
+        
+        if (academicYearId) {
+            response = await teacherAPI.listTeachersByYear(academicYearId);
+        } else {
+            response = await teacherAPI.listTeachers();
+        }
+        
         if (response?.ok) {
             return response.teachers || [];
         }
@@ -24,10 +33,19 @@ export const getAll = async () => {
 
 /**
  * Obtiene un docente por ID
+ * @param {number} id - ID del docente
+ * @param {number} academicYearId - ID del año académico (opcional)
  */
-export const getById = async (id) => {
+export const getById = async (id, academicYearId = null) => {
     try {
-        const response = await teacherAPI.getTeacherById(id);
+        let response;
+        
+        if (academicYearId) {
+            response = await teacherAPI.getTeacherByIdWithYear(id, academicYearId);
+        } else {
+            response = await teacherAPI.getTeacherById(id);
+        }
+        
         if (response?.ok) {
             return response.teacher || null;
         }
@@ -95,9 +113,11 @@ export const remove = async (id) => {
 // ============================================
 
 /**
- * Asigna especialidad a un docente
+ * Asigna especialidad a un docente (versión legacy - sin año)
+ * @deprecated Usar assignSpecialtyByYear en su lugar
  */
 export const assignSpecialty = async (userId, specialty) => {
+    console.warn('⚠️ assignSpecialty está obsoleta. Usa assignSpecialtyByYear con academicYearId');
     try {
         const response = await teacherAPI.assignSpecialty(userId, specialty);
         if (response?.ok) {
@@ -111,19 +131,37 @@ export const assignSpecialty = async (userId, specialty) => {
 };
 
 /**
- * Asigna grados a un docente
+ * Asigna especialidad a un docente para un año específico (NUEVO)
+ * @param {number} userId - ID del usuario/docente
+ * @param {number} specialtyId - ID de la especialidad
+ * @param {number} academicYearId - ID del año académico
  */
-// ============================================
-// ASIGNACIÓN DE GRADOS - ¡CORREGIDO!
-// ============================================
-export const assignGrades = async (userId, gradeIds) => {
+export const assignSpecialtyByYear = async (userId, specialtyId, academicYearId) => {
     try {
-        const response = await teacherAPI.assignGrades(userId, gradeIds);
+        const response = await teacherAPI.assignSpecialtyByYear(userId, specialtyId, academicYearId);
         if (response?.ok) {
-            // ✅ Devolver los datos completos
+            return response.data;
+        }
+        throw new Error(response?.msg || 'Error al asignar especialidad');
+    } catch (error) {
+        console.error('❌ Error en assignSpecialtyByYear:', error);
+        throw error;
+    }
+};
+
+/**
+ * Asigna grados a un docente para un año específico
+ * @param {number} userId - ID del usuario/docente
+ * @param {Array} gradeIds - Array de IDs de grados
+ * @param {number} academicYearId - ID del año académico
+ */
+export const assignGrades = async (userId, gradeIds, academicYearId) => {
+    try {
+        const response = await teacherAPI.assignGrades(userId, gradeIds, academicYearId);
+        if (response?.ok) {
             return {
                 ...response.data,
-                grades: response.data.grades || []  // Asegurar que siempre hay array
+                grades: response.data.grades || []
             };
         }
         throw new Error(response?.msg || 'Error al asignar grados');
@@ -133,6 +171,38 @@ export const assignGrades = async (userId, gradeIds) => {
     }
 };
 
+/**
+ * Obtiene los grados asignados a un docente para un año específico
+ */
+export const getTeacherGrades = async (userId, academicYearId) => {
+    try {
+        const response = await teacherAPI.getTeacherGrades(userId, academicYearId);
+        if (response?.ok) {
+            return response.grades || [];
+        }
+        return [];
+    } catch (error) {
+        console.error('❌ Error en getTeacherGrades:', error);
+        return [];
+    }
+};
+
+/**
+ * Obtiene la especialidad de un docente para un año específico
+ */
+export const getTeacherSpecialty = async (userId, academicYearId) => {
+    try {
+        // Usamos getTeacherByIdWithYear que ahora incluye specialties
+        const response = await teacherAPI.getTeacherByIdWithYear(userId, academicYearId);
+        if (response?.ok && response.teacher) {
+            return response.teacher.specialty || null;
+        }
+        return null;
+    } catch (error) {
+        console.error('❌ Error en getTeacherSpecialty:', error);
+        return null;
+    }
+};
 
 // ============================================
 // CATÁLOGOS - ESPECIALIDADES Y GRADOS
@@ -173,54 +243,22 @@ export const getGrades = async () => {
 };
 
 // ============================================
-// ASIGNACIÓN DE MATERIAS
+// COPIAR ASIGNACIONES ENTRE AÑOS
 // ============================================
 
 /**
- * Asigna una materia a un docente
+ * Copia todas las asignaciones de un año a otro
  */
-export const assignSubject = async (teacherId, subjectId) => {
+export const copyTeacherAssignments = async (fromYearId, toYearId) => {
     try {
-        const response = await teacherAPI.assignSubject(teacherId, subjectId);
-        if (response?.ok) {
-            return response.data;
-        }
-        throw new Error(response?.msg || 'Error al asignar materia');
-    } catch (error) {
-        console.error('❌ Error en assignSubject:', error);
-        throw error;
-    }
-};
-
-/**
- * Elimina una materia de un docente
- */
-export const removeSubject = async (teacherId, subjectId) => {
-    try {
-        const response = await teacherAPI.removeSubject(teacherId, subjectId);
+        const response = await teacherAPI.copyAssignments(fromYearId, toYearId);
         if (response?.ok) {
             return response;
         }
-        throw new Error(response?.msg || 'Error al eliminar materia');
+        throw new Error(response?.msg || 'Error al copiar asignaciones');
     } catch (error) {
-        console.error('❌ Error en removeSubject:', error);
+        console.error('❌ Error en copyTeacherAssignments:', error);
         throw error;
-    }
-};
-
-/**
- * Obtiene las materias de un docente
- */
-export const getTeacherSubjects = async (teacherId) => {
-    try {
-        const response = await teacherAPI.getTeacherSubjects(teacherId);
-        if (response?.ok) {
-            return response.subjects || [];
-        }
-        return [];
-    } catch (error) {
-        console.error('❌ Error en getTeacherSubjects:', error);
-        return [];
     }
 };
 

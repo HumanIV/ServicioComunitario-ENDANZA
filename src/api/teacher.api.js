@@ -1,59 +1,77 @@
-import { helpFetch } from './helpFetch.js';
+// src/api/teacher.api.js
+import { helpFetch } from './helpFetch';
 
 const fetch = helpFetch();
 
 export const teacherAPI = {
-    // ============ GESTIÓN DE DOCENTES ============
-    listTeachers: () => 
-        fetch.get('/api/teachers/list'),
+    // Listar todos los docentes
+    listTeachers: () => fetch.get('/api/teachers/list'),
     
-    getTeacherById: (id) => 
-        fetch.get(`/api/teachers/${id}`),
+    // Listar docentes por año académico
+    listTeachersByYear: (academicYearId) => 
+        fetch.get(`/api/teachers/list/year/${academicYearId}`),
     
+    // Obtener docente por ID
+    getTeacherById: (id) => fetch.get(`/api/teachers/${id}`),
+    
+    // Obtener docente por ID con año específico
+    getTeacherByIdWithYear: (userId, academicYearId) => 
+        fetch.get(`/api/teachers/${userId}/year/${academicYearId}`),
+    
+    // Obtener grados de un docente para un año
+    getTeacherGrades: (userId, academicYearId) => 
+        fetch.get(`/api/teachers/${userId}/grades/year/${academicYearId}`),
+    
+    // Asignar especialidad (versión legacy - sin año)
+    assignSpecialty: (userId, specialty) => 
+        fetch.put(`/api/teachers/${userId}/specialty`, { specialty }),
+    
+    // NUEVO: Asignar especialidad con año académico
+    assignSpecialtyByYear: (userId, specialtyId, academicYearId) => 
+        fetch.put(`/api/teachers/${userId}/specialty/year`, { specialtyId, academicYearId }),
+    
+    // Asignar grados (con año en body)
+    assignGrades: (userId, gradeIds, academicYearId) => 
+        fetch.put(`/api/teachers/${userId}/grades`, { gradeIds, academicYearId }),
+    
+    // Asignar grados con año en URL
+    assignGradesWithYear: (userId, gradeIds, academicYearId) => 
+        fetch.post(`/api/teachers/${userId}/grades/year/${academicYearId}`, { gradeIds }),
+    
+    // Copiar asignaciones entre años
+    copyAssignments: (fromYearId, toYearId) => 
+        fetch.post(`/api/teachers/copy-assignments/${fromYearId}/${toYearId}`),
+    
+    // Actualizar docente
     updateTeacher: (id, teacherData) => 
         fetch.put(`/api/teachers/${id}`, teacherData),
     
-    deleteTeacher: (id) => 
-        fetch.del(`/api/teachers/${id}`), // ✅ CORREGIDO: era 'delet' ahora es 'del'
+    // Eliminar docente
+    deleteTeacher: (id) => fetch.delete(`/api/teachers/${id}`),
     
-    // ============ ASIGNACIONES ============
-    assignSpecialty: (id, specialty) => 
-        fetch.put(`/api/teachers/${id}/specialty`, { specialty }),
+    // Obtener especialidades
+    getSpecialties: () => fetch.get('/api/teachers/catalog/specialties'),
     
-    assignGrades: (id, gradeIds) => 
-        fetch.put(`/api/teachers/${id}/grades`, { gradeIds }),
+    // Obtener grados
+    getGrades: () => fetch.get('/api/teachers/catalog/grades'),
     
-    // ============ CATÁLOGOS ============
-    getSpecialties: () => 
-        fetch.get('/api/teachers/catalog/specialties'),
+    // Obtener horario del docente
+    getTeacherSchedule: (teacherId) => 
+        fetch.get(`/api/teachers/${teacherId}/schedule`),
     
-    getGrades: () => 
-        fetch.get('/api/teachers/catalog/grades'),
+    // Asignar horario
+    assignSchedule: (teacherId, scheduleData) => 
+        fetch.post(`/api/teachers/${teacherId}/schedule`, scheduleData),
     
-    // ============ RUTAS DEL DOCENTE ============
-    getMySchedule: (id) => 
-        fetch.get(`/api/teachers/${id}/my-schedule`),
+    // Eliminar horario
+    removeSchedule: (teacherId, scheduleId) => 
+        fetch.delete(`/api/teachers/${teacherId}/schedule/${scheduleId}`),
     
-    getMyStudents: (id) => 
-        fetch.get(`/api/teachers/${id}/my-students`),
+    // Obtener mi horario (como docente)
+    getMySchedule: (userId) => 
+        fetch.get(`/api/teachers/${userId}/my-schedule`),
     
-    // ============ NUEVOS MÉTODOS PARA MATERIAS ============
-    assignSubject: (id, subjectId) => 
-        fetch.post(`/api/teachers/${id}/subjects`, { subjectId }),
-    
-    removeSubject: (id, subjectId) => 
-        fetch.del(`/api/teachers/${id}/subjects/${subjectId}`),
-    
-    getTeacherSubjects: (id) => 
-        fetch.get(`/api/teachers/${id}/subjects`),
-    
-    // ============ NUEVOS MÉTODOS PARA HORARIOS ============
-    getTeacherSchedule: (id) => 
-        fetch.get(`/api/teachers/${id}/schedules`),
-    
-    assignSchedule: (id, scheduleData) => 
-        fetch.post(`/api/teachers/${id}/schedules`, scheduleData),
-    
-    removeSchedule: (id, scheduleId) => 
-        fetch.del(`/api/teachers/${id}/schedules/${scheduleId}`)
+    // Obtener mis estudiantes (como docente)
+    getMyStudents: (userId) => 
+        fetch.get(`/api/teachers/${userId}/my-students`)
 };
