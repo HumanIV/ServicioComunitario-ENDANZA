@@ -15,7 +15,7 @@ import RegistroEstudiante from './RegistroEstudiante';
 
 
 
-import { createStudent, listStudents } from '../../services/students';
+import { createStudent, listStudents } from '../../services/studentsService';
 import SystemMessageModal from '../../components/SystemMessageModal';
 
 const Preinscripcion = () => {
