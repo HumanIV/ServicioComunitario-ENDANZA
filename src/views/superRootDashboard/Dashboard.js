@@ -26,7 +26,7 @@ import TeacherSectionsList from './components/TeacherSectionsList'
 import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal'
 import SubidaNotasModal from './components/modals/subidaNotasModal'
 import ValidacionNotasModal from './components/modals/validacionNotasModal'
-import ControlBoletinesModal from './components/modals/ControlBoletinesModal'
+import ControlBoletinesModal from './components/modals/controlBoletinesModal'
 import CrearAnioModal from './components/modals/CrearAnioModal'
 import SystemMessageModal from '../../components/SystemMessageModal'
 
