@@ -12,6 +12,7 @@ import CIcon from '@coreui/icons-react';
 import WelcomeBanner from '../Inicio/components/WelcomeBanner';
 import RegistroRepresentante from './RegistroRepresentante';
 import RegistroEstudiante from './RegistroEstudiante';
+import PreinscripcionInicio from './PreinscripcionInicio';
 
 
 
@@ -19,7 +20,7 @@ import { createStudent, listStudents } from '../../services/studentsService';
 import SystemMessageModal from '../../components/SystemMessageModal';
 
 const Preinscripcion = () => {
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
     const [representativeData, setRepresentativeData] = useState(null);
     const [existingStudents, setExistingStudents] = useState([]);
@@ -51,7 +52,7 @@ const Preinscripcion = () => {
     };
 
     const handleBack = () => {
-        setStep(1);
+        setStep(prev => Math.max(0, prev - 1));
         window.scrollTo(0, 0);
     };
 
@@ -148,31 +149,33 @@ const Preinscripcion = () => {
                     />
 
                     {/* Stepper Indictor */}
-                    <div className="d-flex justify-content-center mb-5 mt-2">
-                        <div className="d-flex align-items-center position-relative w-100" style={{ maxWidth: '600px' }}>
-                            <div className="flex-fill text-center">
-                                <div
-                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all position-relative ${step >= 1 ? 'bg-warning text-white shadow' : 'bg-light-custom'}`}
-                                    style={{ width: '50px', height: '50px', zIndex: 2 }}
-                                >
-                                    <CIcon icon={cilUser} />
+                    {step > 0 && (
+                        <div className="d-flex justify-content-center mb-5 mt-2 animate__animated animate__fadeIn">
+                            <div className="d-flex align-items-center position-relative w-100" style={{ maxWidth: '600px' }}>
+                                <div className="flex-fill text-center">
+                                    <div
+                                        className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all position-relative step-icon-circle ${step >= 1 ? 'bg-warning text-white shadow' : 'bg-light-custom'}`}
+                                        style={{ width: '50px', height: '50px', zIndex: 2 }}
+                                    >
+                                        <CIcon icon={cilUser} />
+                                    </div>
+                                    <span className={`small fw-bold text-uppercase ls-1 ${step >= 1 ? 'text-warning' : 'opacity-50'}`}>Representante</span>
                                 </div>
-                                <span className={`small fw-bold text-uppercase ls-1 ${step >= 1 ? 'text-warning' : 'opacity-50'}`}>Representante</span>
-                            </div>
 
-                            <div className="position-absolute w-50" style={{ left: '25%', top: '25px', height: '3px', backgroundColor: step >= 2 ? 'var(--cui-warning)' : 'var(--neutral-200)', zIndex: 0 }}></div>
+                                <div className="position-absolute w-50 step-line" style={{ left: '25%', top: '25px', height: '3px', backgroundColor: step >= 2 ? 'var(--cui-warning)' : '', zIndex: 0 }}></div>
 
-                            <div className="flex-fill text-center">
-                                <div
-                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all position-relative ${step >= 2 ? 'bg-warning text-white shadow' : 'bg-light-custom'}`}
-                                    style={{ width: '50px', height: '50px', zIndex: 2, opacity: step >= 2 ? 1 : 0.5 }}
-                                >
-                                    <CIcon icon={cilEducation} />
+                                <div className="flex-fill text-center">
+                                    <div
+                                        className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all position-relative step-icon-circle ${step >= 2 ? 'bg-warning text-white shadow' : 'bg-light-custom'}`}
+                                        style={{ width: '50px', height: '50px', zIndex: 2, opacity: step >= 2 ? 1 : 0.5 }}
+                                    >
+                                        <CIcon icon={cilEducation} />
+                                    </div>
+                                    <span className={`small fw-bold text-uppercase ls-1 ${step >= 2 ? 'text-warning' : 'opacity-50'}`}>Estudiante(s)</span>
                                 </div>
-                                <span className={`small fw-bold text-uppercase ls-1 ${step >= 2 ? 'text-warning' : 'opacity-50'}`}>Estudiante(s)</span>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     <div className="preinscripcion-content mx-auto" style={{ maxWidth: '900px' }}>
                         {loading && (
@@ -182,9 +185,14 @@ const Preinscripcion = () => {
                             </div>
                         )}
 
+                        {step === 0 && (
+                            <PreinscripcionInicio onStart={() => setStep(1)} />
+                        )}
+
                         {!loading && step === 1 && (
                             <RegistroRepresentante
                                 onNext={handleRepresentativeNext}
+                                onBack={handleBack}
                                 initialData={representativeData}
                             />
                         )}
@@ -211,6 +219,20 @@ const Preinscripcion = () => {
                 .ls-1 { letter-spacing: 1px; }
                 .transition-all { transition: all 0.3s ease; }
                 .border-light-custom { border-color: rgba(0, 0, 0, 0.05) !important; }
+
+                .step-line {
+                    background-color: var(--neutral-200);
+                }
+
+                [data-coreui-theme="dark"] .step-line {
+                    background-color: rgba(255, 255, 255, 0.1) !important;
+                }
+
+                [data-coreui-theme="dark"] .step-icon-circle.bg-light-custom {
+                    background-color: #0c0d1e !important;
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                }
+
                 [data-coreui-theme="dark"] .border-light-custom { border-color: rgba(255, 255, 255, 0.05) !important; }
             `}</style>
         </CContainer>

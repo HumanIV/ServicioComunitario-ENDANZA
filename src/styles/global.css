@@ -164,6 +164,14 @@ a:hover {
     color: white !important;
 }
 
+[data-coreui-theme="dark"] a {
+    color: var(--primary-400) !important;
+}
+
+[data-coreui-theme="dark"] a:hover {
+    color: white !important;
+}
+
 .premium-card {
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
@@ -2446,7 +2454,7 @@ span.step-label {
 }
 
 [data-coreui-theme="dark"] .text-muted-custom {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.6) !important;
 }
 
 [data-coreui-theme="dark"] .text-dark-custom {
@@ -2714,4 +2722,480 @@ span.step-label {
 
 .outline-none {
     outline: none !important;
+}
+
+/* --- DASHBOARD SUPERROOT DARK MODE SUPPORT --- */
+
+/* Background light custom */
+.bg-light-custom {
+    background-color: #f8f9fa;
+}
+
+[data-coreui-theme="dark"] .bg-light-custom {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.header-title-custom {
+    color: var(--neutral-800);
+}
+
+[data-coreui-theme="dark"] .header-title-custom {
+    color: white !important;
+}
+
+/* Border light custom */
+.border-light-custom {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+[data-coreui-theme="dark"] .border-light-custom {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Shadow orange */
+.shadow-orange {
+    box-shadow: 0 8px 20px rgba(242, 140, 15, 0.25);
+}
+
+[data-coreui-theme="dark"] .shadow-orange {
+    box-shadow: 0 8px 20px rgba(242, 140, 15, 0.4);
+}
+
+/* Hover lift subtle */
+.hover-lift-subtle {
+    transition: all 0.2s ease;
+}
+
+.hover-lift-subtle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+[data-coreui-theme="dark"] .hover-lift-subtle:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Text primary header */
+.text-primary-header {
+    color: var(--neutral-800);
+}
+
+[data-coreui-theme="dark"] .text-primary-header {
+    color: white !important;
+}
+
+/* Modal content dark mode */
+[data-coreui-theme="dark"] .modal-content {
+    background-color: #1a1c2e !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-coreui-theme="dark"] .modal-header {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-coreui-theme="dark"] .modal-body {
+    background-color: #1a1c2e !important;
+    color: white !important;
+}
+
+[data-coreui-theme="dark"] .modal-footer {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Table dark mode */
+[data-coreui-theme="dark"] .table {
+    --cui-table-bg: transparent !important;
+    --cui-table-color: white !important;
+    --cui-table-border-color: rgba(255, 255, 255, 0.1) !important;
+    --cui-table-striped-bg: rgba(255, 255, 255, 0.02) !important;
+    --cui-table-hover-bg: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-coreui-theme="dark"] .table thead {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-coreui-theme="dark"] .table tbody tr {
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Form controls dark mode */
+[data-coreui-theme="dark"] .form-control,
+[data-coreui-theme="dark"] .form-select {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+[data-coreui-theme="dark"] .form-control:focus,
+[data-coreui-theme="dark"] .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--primary-500) !important;
+    color: white !important;
+    box-shadow: 0 0 0 0.25rem rgba(242, 140, 15, 0.25) !important;
+}
+
+[data-coreui-theme="dark"] .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Badge dark mode */
+[data-coreui-theme="dark"] .badge {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+/* Button outline dark mode */
+[data-coreui-theme="dark"] .btn-orange-outline {
+    border-color: var(--primary-500) !important;
+    color: var(--primary-400) !important;
+}
+
+[data-coreui-theme="dark"] .btn-orange-outline:hover {
+    background-color: var(--primary-500) !important;
+    color: white !important;
+}
+
+/* Spinner dark mode */
+[data-coreui-theme="dark"] .spinner-border,
+[data-coreui-theme="dark"] .spinner-grow {
+    color: var(--primary-400) !important;
+}
+
+/* ================================================ */
+/* DASHBOARD SUPERROOT - STATS WIDGETS MODULE      */
+/* ================================================ */
+
+/* Transition utilities */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.cursor-pointer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(242, 140, 15, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Action cards backgrounds */
+.action-card-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.action-card-primary {
+    background: linear-gradient(135deg, rgba(242, 140, 15, 0.08), rgba(242, 140, 15, 0.02));
+    border: 1px solid rgba(242, 140, 15, 0.2);
+}
+
+.action-card-secondary {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.08), rgba(100, 116, 139, 0.02));
+    border: 1px solid rgba(100, 116, 139, 0.2);
+}
+
+.action-card-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02));
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Icon gradients */
+.icon-gradient-warning {
+    background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.icon-gradient-primary {
+    background: linear-gradient(135deg, #F28C0F 0%, #F5A623 100%);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.icon-gradient-blue {
+    background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.icon-gradient-success {
+    background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Stats card background */
+.stats-card {
+    background: linear-gradient(135deg, rgba(242, 140, 15, 0.08), rgba(242, 140, 15, 0.02));
+    border: 1px solid rgba(242, 140, 15, 0.2);
+}
+
+.stat-widget-card {
+    background: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode support for StatsWidgets */
+[data-coreui-theme="dark"] .action-card-warning,
+[data-coreui-theme="dark"] .action-card-primary,
+[data-coreui-theme="dark"] .action-card-secondary,
+[data-coreui-theme="dark"] .action-card-success {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-coreui-theme="dark"] .stats-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-coreui-theme="dark"] .stat-widget-card {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+[data-coreui-theme="dark"] .cursor-pointer:hover {
+    box-shadow: 0 10px 15px -3px rgba(242, 140, 15, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ================================================ */
+/* DOCENTES MODULE - DARK MODE SUPPORT             */
+/* ================================================ */
+
+/* Docente card styles */
+.docente-card {
+    background: white;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02);
+}
+
+[data-coreui-theme="dark"] .docente-card {
+    background: rgba(30, 41, 59, 0.4) !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Docente table header */
+.docente-table-header {
+    background: rgba(224, 122, 0, 0.02);
+}
+
+[data-coreui-theme="dark"] .docente-table-header {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Docente table row borders */
+.docente-table-row {
+    border-bottom: 1px solid rgba(224, 122, 0, 0.05);
+}
+
+[data-coreui-theme="dark"] .docente-table-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Docente empty state */
+.docente-empty-state {
+    background: rgba(224, 122, 0, 0.1);
+}
+
+[data-coreui-theme="dark"] .docente-empty-state {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Docente badges */
+.docente-specialty-badge {
+    background: linear-gradient(145deg, #E07A00, #C66900);
+    color: white;
+    box-shadow: 0 4px 8px rgba(224, 122, 0, 0.2);
+}
+
+.docente-grade-badge {
+    background: rgba(224, 122, 0, 0.08);
+    color: #E07A00;
+    border: 1px solid rgba(224, 122, 0, 0.2);
+}
+
+[data-coreui-theme="dark"] .docente-grade-badge {
+    background: rgba(224, 122, 0, 0.15);
+    color: #F5A623;
+    border-color: rgba(224, 122, 0, 0.3);
+}
+
+/* Docente button styles */
+.docente-btn-primary {
+    background: linear-gradient(145deg, #E07A00, #C66900);
+    color: white;
+    box-shadow: 0 8px 16px rgba(224, 122, 0, 0.2);
+}
+
+.docente-btn-primary:hover {
+    background: linear-gradient(145deg, #C66900, #B05A00);
+}
+
+.docente-btn-secondary {
+    background: rgba(224, 122, 0, 0.1);
+    color: #E07A00;
+}
+
+.docente-btn-secondary:hover {
+    background: rgba(224, 122, 0, 0.2);
+}
+
+[data-coreui-theme="dark"] .docente-btn-secondary {
+    background: rgba(224, 122, 0, 0.15);
+    color: #F5A623;
+}
+
+[data-coreui-theme="dark"] .docente-btn-secondary:hover {
+    background: rgba(224, 122, 0, 0.25);
+}
+
+/* ================================================ */
+/* REPRESENTANTES MODULE - DARK MODE SUPPORT       */
+/* ================================================ */
+
+/* Representante warning badge */
+[data-coreui-theme="dark"] .bg-warning.bg-opacity-10 {
+    background-color: rgba(245, 185, 55, 0.15) !important;
+}
+
+/* Representante hover row */
+.hover-row {
+    transition: all 0.2s ease;
+}
+
+.hover-row:hover {
+    background-color: rgba(242, 140, 15, 0.03) !important;
+}
+
+[data-coreui-theme="dark"] .hover-row:hover {
+    background-color: rgba(242, 140, 15, 0.08) !important;
+}
+
+/* Representante empty state */
+.representante-empty-state {
+    background: #f8f9fa;
+    border: 2px dashed rgba(0, 0, 0, 0.1);
+}
+
+[data-coreui-theme="dark"] .representante-empty-state {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+[data-coreui-theme="dark"] .representante-empty-state h5 {
+    color: white !important;
+}
+
+[data-coreui-theme="dark"] .representante-empty-state .text-muted-custom {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Representante info button */
+.representante-info-btn {
+    background: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.representante-info-btn:hover {
+    background: rgba(13, 110, 253, 0.2);
+}
+
+[data-coreui-theme="dark"] .representante-info-btn {
+    background: rgba(13, 110, 253, 0.15);
+    color: #6ea8fe;
+}
+
+[data-coreui-theme="dark"] .representante-info-btn:hover {
+    background: rgba(13, 110, 253, 0.25);
+}
+
+/* ================================================ */
+/* DOCENTE INFO MODAL - DARK MODE SUPPORT          */
+/* ================================================ */
+
+/* Info card backgrounds */
+.info-card-docente {
+    background: rgba(224, 122, 0, 0.05);
+    border: 1px solid rgba(224, 122, 0, 0.1);
+}
+
+[data-coreui-theme="dark"] .info-card-docente {
+    background: rgba(224, 122, 0, 0.1) !important;
+    border-color: rgba(224, 122, 0, 0.2) !important;
+}
+
+/* Specialty area badges */
+.specialty-area-badge {
+    background: rgba(224, 122, 0, 0.1);
+    color: #E07A00;
+    border: 1px solid rgba(224, 122, 0, 0.2);
+}
+
+[data-coreui-theme="dark"] .specialty-area-badge {
+    background: rgba(224, 122, 0, 0.15);
+    color: #F5A623;
+    border-color: rgba(224, 122, 0, 0.3);
+}
+
+/* ================================================ */
+/* TOAST NOTIFICATIONS - DARK MODE SUPPORT         */
+/* ================================================ */
+
+[data-coreui-theme="dark"] .toast {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+[data-coreui-theme="dark"] .toast-header {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+[data-coreui-theme="dark"] .toast-body {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ================================================ */
+/* HOVER LIFT EFFECT - UNIVERSAL                   */
+/* ================================================ */
+
+.hover-lift {
+    transition: all 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+[data-coreui-theme="dark"] .hover-lift:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* ================================================ */
+/* TEXT CONTRAST - ENSURE READABILITY              */
+/* ================================================ */
+
+.text-contrast {
+    color: #1e293b;
+}
+
+[data-coreui-theme="dark"] .text-contrast {
+    color: white !important;
+}
+
+.placeholder-opacity-50::placeholder {
+    opacity: 0.5;
+}
+
+[data-coreui-theme="dark"] .placeholder-opacity-50::placeholder {
+    opacity: 0.4;
+    color: rgba(255, 255, 255, 0.4) !important;
 }

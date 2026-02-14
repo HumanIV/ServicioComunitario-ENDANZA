@@ -25,11 +25,45 @@ const SistemaEvaluacionDanza = () => {
     const [modalVisible, setModalVisible] = useState(false)
     const [enviando, setEnviando] = useState(false)
     const [toasts, setToasts] = useState([])
+    const [currentUser, setCurrentUser] = useState(null)
+    const [currentCompetencies, setCurrentCompetencies] = useState([])
+    const [academicYear, setAcademicYear] = useState('2025-2026') // Default or from context
 
     useEffect(() => {
         const notasGuardadas = localStorage.getItem('notasEndanza')
         if (notasGuardadas) setNotas(JSON.parse(notasGuardadas))
+
+        const userStr = localStorage.getItem('user')
+        if (userStr) setCurrentUser(JSON.parse(userStr))
     }, [])
+
+    // Cargar competencias cuando se selecciona una materia
+    useEffect(() => {
+        if (materiaSeleccionada) {
+            const competenciesKey = 'competencies_config_v1'
+            const stored = localStorage.getItem(competenciesKey)
+            if (stored) {
+                const configData = JSON.parse(stored)
+                // Usamos el academicYear actual (podría venir de un selector o configuración global)
+                const yearConfig = configData[academicYear] || {}
+                const subjectConfig = yearConfig[materiaSeleccionada.id] || yearConfig[materiaSeleccionada.nombre]
+
+                if (subjectConfig && subjectConfig.lapsos) {
+                    // Por simplicidad, tomamos el lapso 1 o el actualmente activo si hubiera un selector
+                    // En este prototipo usamos el lapso 1 por defecto
+                    setCurrentCompetencies(subjectConfig.lapsos[1]?.evaluations || [])
+                } else {
+                    setCurrentCompetencies([])
+                }
+            } else {
+                setCurrentCompetencies([])
+            }
+        }
+    }, [materiaSeleccionada, academicYear])
+
+    const isAdmin = currentUser?.rol === 'admin'
+    const isDocente = currentUser?.rol === 'docente'
+    const canEdit = isDocente // Según requerimiento: solo profesores montan notas
 
     // ---------------------- FUNCIONES DE LOGICA ---------------------- //
     const manejarNotaChange = (estudianteId, numeroNota, valor) => {
@@ -46,10 +80,24 @@ const SistemaEvaluacionDanza = () => {
 
     const calcularPromedio = (estudianteId) => {
         const notasEstudiante = notas[estudianteId]
-        if (!notasEstudiante) return null
-        const valores = [notasEstudiante.n1, notasEstudiante.n2, notasEstudiante.n3, notasEstudiante.n4].filter(n => n !== "" && !isNaN(parseFloat(n)))
-        if (valores.length === 0) return null
-        return (valores.reduce((acc, n) => acc + parseFloat(n), 0) / valores.length).toFixed(1)
+        if (!notasEstudiante || currentCompetencies.length === 0) return null
+
+        let totalPonderado = 0
+        let totalPeso = 0
+
+        currentCompetencies.forEach((comp, idx) => {
+            const nota = notasEstudiante[`n${idx + 1}`]
+            if (nota !== "" && !isNaN(parseFloat(nota))) {
+                const peso = parseFloat(comp.weight) / 100
+                totalPonderado += parseFloat(nota) * peso
+                totalPeso += comp.weight
+            }
+        })
+
+        if (totalPeso === 0) return null
+        // Si no se han llenado todas, podemos promediar lo que hay o esperar al 100%
+        // Aquí promediamos según el peso relativo de lo completado
+        return (totalPonderado / (totalPeso / 100)).toFixed(1)
     }
 
     const determinarEstado = (promedio) => promedio === null ? "Pendiente" : (parseFloat(promedio) >= 10 ? "Aprobado" : "Reprobado")
@@ -147,6 +195,8 @@ const SistemaEvaluacionDanza = () => {
                             determinarEstado={determinarEstado}
                             getColorNota={getColorNota}
                             getColorEstado={getColorEstado}
+                            competencies={currentCompetencies}
+                            canEdit={canEdit}
                         />
                     </div>
                 </>

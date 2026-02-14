@@ -35,7 +35,7 @@ const InfoTeacher = ({ visible, onClose, teacher, specialties = [], grades = [] 
             )
         }
         return (
-            <CBadge className="px-3 py-2 rounded-pill" style={{ backgroundColor: 'rgba(224,122,0,0.1)', color: '#E07A00' }}>
+            <CBadge className="px-3 py-2 rounded-pill docente-specialty-badge">
                 <CIcon icon={cilStar} className="me-1" size="sm" />
                 {specialty.toUpperCase()}
             </CBadge>
@@ -68,9 +68,9 @@ const InfoTeacher = ({ visible, onClose, teacher, specialties = [], grades = [] 
 
     return (
         <CModal size="lg" visible={visible} onClose={onClose} className="animate-fade-in premium-modal">
-            <CModalHeader className="border-0 pb-3" style={{ borderBottom: '1px solid rgba(224,122,0,0.2)' }}>
-                <CModalTitle className="fw-bold d-flex align-items-center">
-                    <CIcon icon={cilSchool} className="me-2" style={{ color: '#E07A00' }} />
+            <CModalHeader className="border-0 pb-3" style={{ borderBottom: '1px solid rgba(242, 140, 15, 0.2)' }}>
+                <CModalTitle className="fw-bold d-flex align-items-center header-title-custom">
+                    <CIcon icon={cilSchool} className="me-2 text-primary" />
                     Perfil Docente
                 </CModalTitle>
             </CModalHeader>
@@ -82,13 +82,14 @@ const InfoTeacher = ({ visible, onClose, teacher, specialties = [], grades = [] 
                                 name={teacher.first_name}
                                 lastName={teacher.last_name}
                                 size="xl"
-                                style={{ background: 'linear-gradient(135deg, #E07A00, #C66900)' }}
+                                className="shadow-orange"
+                                style={{ background: 'linear-gradient(135deg, #F5B937, #DD6F1E)' }}
                             />
                         </div>
                         <h4 className="fw-bold mb-1 header-title-custom">{teacher.first_name}</h4>
                         <h4 className="fw-bold text-muted-custom mb-3">{teacher.last_name}</h4>
                         <div className="d-flex flex-column gap-2 align-items-center">
-                            <CBadge className="px-3 py-2 rounded-pill" style={{ backgroundColor: 'rgba(224,122,0,0.1)', color: '#E07A00' }}>
+                            <CBadge className="px-3 py-2 rounded-pill docente-grade-badge">
                                 <CIcon icon={cilSchool} className="me-1" size="sm" />
                                 DOCENTE
                             </CBadge>
@@ -104,28 +105,28 @@ const InfoTeacher = ({ visible, onClose, teacher, specialties = [], grades = [] 
                                 <CCol sm={6}>
                                     <div className="text-muted-custom small">Cédula</div>
                                     <div className="fw-bold d-flex align-items-center header-title-custom">
-                                        <CIcon icon={cilAddressBook} className="me-2 opacity-75" style={{ color: '#E07A00' }} size="sm" />
+                                        <CIcon icon={cilAddressBook} className="me-2 opacity-75 text-primary" size="sm" />
                                         {teacher.dni}
                                     </div>
                                 </CCol>
                                 <CCol sm={6}>
                                     <div className="text-muted-custom small">Correo Electrónico</div>
                                     <div className="fw-bold d-flex align-items-center text-truncate header-title-custom">
-                                        <CIcon icon={cilEnvelopeOpen} className="me-2 opacity-75" style={{ color: '#E07A00' }} size="sm" />
+                                        <CIcon icon={cilEnvelopeOpen} className="me-2 opacity-75 text-primary" size="sm" />
                                         {teacher.email}
                                     </div>
                                 </CCol>
                                 <CCol sm={6}>
                                     <div className="text-muted-custom small">Teléfono</div>
                                     <div className="fw-bold d-flex align-items-center header-title-custom">
-                                        <CIcon icon={cilPhone} className="me-2 opacity-75" style={{ color: '#E07A00' }} size="sm" />
+                                        <CIcon icon={cilPhone} className="me-2 opacity-75 text-primary" size="sm" />
                                         {teacher.phone || 'No registrado'}
                                     </div>
                                 </CCol>
                                 <CCol sm={6}>
                                     <div className="text-muted-custom small">Fecha de Registro</div>
                                     <div className="fw-bold d-flex align-items-center header-title-custom">
-                                        <CIcon icon={cilCalendar} className="me-2 opacity-75" style={{ color: '#E07A00' }} size="sm" />
+                                        <CIcon icon={cilCalendar} className="me-2 opacity-75 text-primary" size="sm" />
                                         {formatDate(teacher.createdAt)}
                                     </div>
                                 </CCol>
@@ -148,10 +149,9 @@ const InfoTeacher = ({ visible, onClose, teacher, specialties = [], grades = [] 
                                     <div className="mt-1 d-flex gap-1 flex-wrap">
                                         {teacher.grades && teacher.grades.length > 0 ? (
                                             teacher.grades.map(grade => (
-                                                <CBadge 
-                                                    key={grade.id} 
-                                                    className="px-2 py-1 rounded-pill fw-normal"
-                                                    style={{ backgroundColor: 'rgba(224,122,0,0.05)', color: '#E07A00', border: '1px solid rgba(224,122,0,0.2)' }}
+                                                <CBadge
+                                                    key={grade.id}
+                                                    className="px-2 py-1 rounded-pill fw-normal docente-grade-badge"
                                                 >
                                                     <CIcon icon={cilBookmark} className="me-1" size="sm" />
                                                     {grade.name}
@@ -165,10 +165,10 @@ const InfoTeacher = ({ visible, onClose, teacher, specialties = [], grades = [] 
                             </CRow>
                         </div>
 
-                        <div className="p-3 rounded-3" style={{ backgroundColor: 'rgba(224,122,0,0.05)', border: '1px solid rgba(224,122,0,0.1)' }}>
-                            <div className="small fw-bold mb-1" style={{ color: '#E07A00' }}>Nota del Sistema</div>
-                            <p className="small mb-0 text-muted-custom">
-                                Este docente {teacher.specialty ? `tiene especialidad en ${teacher.specialty}` : 'aún no tiene especialidad asignada'} 
+                        <div className="p-3 rounded-4 info-card-docente">
+                            <div className="small fw-bold mb-1 text-primary">Nota del Sistema</div>
+                            <p className="small mb-0 text-muted-custom fw-medium">
+                                Este docente {teacher.specialty ? `tiene especialidad en ${teacher.specialty}` : 'aún no tiene especialidad asignada'}
                                 {teacher.grades?.length > 0 ? ` y está a cargo de ${teacher.grades.length} grado(s) académico(s).` : '.'}
                             </p>
                         </div>
@@ -176,10 +176,10 @@ const InfoTeacher = ({ visible, onClose, teacher, specialties = [], grades = [] 
                 </CRow>
             </CModalBody>
             <CModalFooter className="border-0">
-                <CButton 
-                    color="light" 
-                    onClick={onClose} 
-                    variant="ghost" 
+                <CButton
+                    color="light"
+                    onClick={onClose}
+                    variant="ghost"
                     className="fw-bold text-uppercase text-muted-custom"
                 >
                     Cerrar

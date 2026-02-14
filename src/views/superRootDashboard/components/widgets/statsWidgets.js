@@ -8,13 +8,13 @@ import {
   CCardBody
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { 
+import {
   cilArrowRight,
-  cilUser, 
-  cilSchool, 
-  cilCalendar, 
-  cilPencil, 
-  cilCheckCircle, 
+  cilUser,
+  cilSchool,
+  cilCalendar,
+  cilPencil,
+  cilCheckCircle,
   cilCloudDownload,
   cilSpeedometer,
   cilGroup,
@@ -23,78 +23,65 @@ import {
   cilColorBorder
 } from '@coreui/icons'
 
-const StatsWidgets = ({ 
+const StatsWidgets = ({
   // Datos
-  students = [], 
+  students = [],
   repsCount = 0,
   periodoInscripcion,
   periodoSubidaNotas,
   notasPendientes = [],
   boletines = [],
-  
+
   // Acciones
   onOpenPeriodoInscripcion,
   onOpenSubidaNotas,
   onOpenValidacionNotas,
   onOpenControlBoletines
 }) => {
-  
+
   const notasPendientesCount = notasPendientes.length;
   const boletinesDisponibles = boletines.filter(b => b.disponible).length;
   const puedeHabilitarBoletines = notasPendientesCount === 0;
-
-  // Colores de ENDANZA
-  const colors = {
-    primary: '#F28C0F',
-    primaryLight: '#FEF3E2',
-    secondary: '#64748B',
-    success: '#10B981',
-    warning: '#F59E0B',
-    danger: '#EF4444',
-    text: '#1F2937',
-    textLight: '#6B7280',
-    background: '#FFFFFF'
-  };
 
   // Acciones rápidas - 4 acciones esenciales
   const quickActions = [
     {
       title: 'Validar Notas',
       icon: cilCheckCircle,
-      color: colors.warning,
+      colorClass: 'warning',
       action: onOpenValidacionNotas,
       badge: notasPendientesCount > 0 ? notasPendientesCount : null,
-      description: notasPendientesCount > 0 
-        ? `${notasPendientesCount} pendiente${notasPendientesCount !== 1 ? 's' : ''}` 
+      description: notasPendientesCount > 0
+        ? `${notasPendientesCount} pendiente${notasPendientesCount !== 1 ? 's' : ''}`
         : 'Sin pendientes',
-      gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)'
+      gradientClass: 'gradient-warning'
     },
     {
       title: 'Publicar Boletines',
       icon: cilCloudDownload,
-      color: puedeHabilitarBoletines ? colors.primary : colors.secondary,
+      colorClass: puedeHabilitarBoletines ? 'primary' : 'secondary',
       action: onOpenControlBoletines,
       disabled: !puedeHabilitarBoletines && boletines.length > 0,
-      description: boletinesDisponibles > 0 
-        ? `${boletinesDisponibles} disponible${boletinesDisponibles !== 1 ? 's' : ''}` 
+      description: boletinesDisponibles > 0
+        ? `${boletinesDisponibles} disponible${boletinesDisponibles !== 1 ? 's' : ''}`
         : 'Ninguno disponible',
-      gradient: 'linear-gradient(135deg, #F28C0F 0%, #F5A623 100%)'
+      gradientClass: 'gradient-primary'
     },
     {
       title: 'Configurar Períodos',
       icon: cilCalendar,
-      color: colors.primary,
+      colorClass: 'primary',
       action: onOpenPeriodoInscripcion,
       description: periodoInscripcion.activo ? 'Activo' : 'Configurar',
-      gradient: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)'
+      gradientClass: 'gradient-blue'
     },
     {
       title: 'Gestión de Notas',
       icon: cilPencil,
-      color: periodoSubidaNotas.activo ? colors.success : colors.secondary,
+      colorClass: periodoSubidaNotas.activo ? 'success' : 'secondary',
       action: onOpenSubidaNotas,
       description: periodoSubidaNotas.activo ? 'Habilitado' : 'Configurar',
-      gradient: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)'
+      gradientClass: 'gradient-success'
     }
   ];
 
@@ -104,28 +91,18 @@ const StatsWidgets = ({
       <CRow className="g-4 mb-4">
         {/* Columna izquierda - Acciones rápidas (más ancha) */}
         <CCol lg={8}>
-          <CCard className="border-0 shadow-sm overflow-hidden" style={{ 
-            borderRadius: '24px',
-            background: colors.background,
-            border: '1px solid rgba(242, 140, 15, 0.1)'
-          }}>
+          <CCard className="premium-card border-0 shadow-sm overflow-hidden" style={{ borderRadius: '24px' }}>
             <CCardBody className="p-4">
               {/* Header */}
               <div className="d-flex align-items-center mb-4">
-                <div 
-                  className="rounded-2 p-2 me-2 d-flex align-items-center justify-content-center"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${colors.primary}20, ${colors.primary}05)`,
-                    color: colors.primary
-                  }}
-                >
-                  <CIcon icon={cilSpeedometer} size="lg" />
+                <div className="rounded-2 p-2 me-2 d-flex align-items-center justify-content-center bg-orange-soft">
+                  <CIcon icon={cilSpeedometer} size="lg" className="text-primary" />
                 </div>
                 <div>
-                  <h5 className="fw-bold mb-0" style={{ color: colors.text }}>
+                  <h5 className="fw-bold mb-0 header-title-custom">
                     Panel de Control Rápido
                   </h5>
-                  <small className="text-muted">Acciones administrativas frecuentes</small>
+                  <small className="text-muted-custom">Acciones administrativas frecuentes</small>
                 </div>
               </div>
 
@@ -133,60 +110,47 @@ const StatsWidgets = ({
               <CRow className="g-3">
                 {quickActions.map((action, index) => (
                   <CCol xs={12} md={6} key={`action-${index}`}>
-                    <CCard 
-                      className={`border-0 h-100 transition-all ${action.action ? 'cursor-pointer' : ''} ${action.disabled ? 'opacity-50' : ''}`}
-                      style={{ 
-                        borderRadius: '16px',
-                        background: `linear-gradient(135deg, ${action.color}08, ${action.color}02)`,
-                        border: `1px solid ${action.color}20`,
-                        overflow: 'hidden'
-                      }}
+                    <CCard
+                      className={`border-0 h-100 transition-all action-card-${action.colorClass} ${action.action ? 'cursor-pointer' : ''} ${action.disabled ? 'opacity-50' : ''}`}
+                      style={{ borderRadius: '16px', overflow: 'hidden' }}
                       onClick={!action.disabled ? action.action : undefined}
                     >
                       <CCardBody className="p-3">
                         <div className="d-flex">
                           {/* Icono con gradiente */}
-                          <div 
-                            className="rounded-3 p-2 me-3 d-flex align-items-center justify-content-center"
-                            style={{ 
+                          <div
+                            className={`rounded-3 p-2 me-3 d-flex align-items-center justify-content-center icon-${action.gradientClass}`}
+                            style={{
                               width: '44px',
-                              height: '44px',
-                              background: action.gradient,
-                              color: 'white',
-                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                              height: '44px'
                             }}
                           >
                             <CIcon icon={action.icon} size="lg" />
                           </div>
-                          
+
                           {/* Contenido */}
                           <div className="flex-grow-1">
                             <div className="d-flex align-items-center justify-content-between mb-1">
-                              <h6 className="fw-bold mb-0" style={{ fontSize: '0.9rem', color: colors.text }}>
+                              <h6 className="fw-bold mb-0 header-title-custom" style={{ fontSize: '0.9rem' }}>
                                 {action.title}
                               </h6>
                               {action.badge && (
-                                <span className="badge rounded-pill" 
-                                      style={{ 
-                                        backgroundColor: colors.danger, 
-                                        color: 'white',
-                                        fontSize: '0.6rem',
-                                        padding: '3px 6px'
-                                      }}>
+                                <span className="badge rounded-pill bg-danger text-white"
+                                  style={{
+                                    fontSize: '0.6rem',
+                                    padding: '3px 6px'
+                                  }}>
                                   {action.badge}
                                 </span>
                               )}
                             </div>
-                            
-                            <p className="small mb-2" style={{ fontSize: '0.7rem', color: colors.textLight }}>
+
+                            <p className="small mb-2 text-muted-custom" style={{ fontSize: '0.7rem' }}>
                               {action.description}
                             </p>
-                            
-                            <div className="d-flex align-items-center justify-content-between">
-                              <span className="small text-muted" style={{ fontSize: '0.6rem' }}>
-                                {action.shortcut}
-                              </span>
-                              <div className="d-flex align-items-center" style={{ fontSize: '0.65rem', color: action.color }}>
+
+                            <div className="d-flex align-items-center justify-content-end">
+                              <div className={`d-flex align-items-center text-${action.colorClass}`} style={{ fontSize: '0.65rem' }}>
                                 <span className="fw-semibold">Ejecutar</span>
                                 <CIcon icon={cilArrowRight} size="sm" className="ms-1" />
                               </div>
@@ -204,55 +168,38 @@ const StatsWidgets = ({
 
         {/* Columna derecha - Estadísticas (más estrecha) */}
         <CCol lg={4}>
-          <CCard className="border-0 shadow-sm h-100 overflow-hidden" style={{ 
-            borderRadius: '24px',
-            background: `linear-gradient(135deg, ${colors.primary}08, ${colors.primary}02)`,
-            border: '1px solid rgba(242, 140, 15, 0.2)'
-          }}>
+          <CCard className="premium-card border-0 shadow-sm h-100 overflow-hidden stats-card" style={{ borderRadius: '24px' }}>
             <CCardBody className="p-4">
               {/* Header */}
               <div className="d-flex align-items-center mb-4">
-                <div 
-                  className="rounded-2 p-2 me-2 d-flex align-items-center justify-content-center"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${colors.primary}20, ${colors.primary}05)`,
-                    color: colors.primary
-                  }}
-                >
-                  <CIcon icon={cilGroup} size="lg" />
+                <div className="rounded-2 p-2 me-2 d-flex align-items-center justify-content-center bg-orange-soft">
+                  <CIcon icon={cilGroup} size="lg" className="text-primary" />
                 </div>
                 <div>
-                  <h5 className="fw-bold mb-0" style={{ color: colors.text }}>
+                  <h5 className="fw-bold mb-0 header-title-custom">
                     Comunidad ENDANZA
                   </h5>
-                  <small className="text-muted">Estadísticas generales</small>
+                  <small className="text-muted-custom">Estadísticas generales</small>
                 </div>
               </div>
 
               {/* Widget de Estudiantes */}
-              <CCard className="border-0 mb-3" style={{ 
-                borderRadius: '16px',
-                background: 'white',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}>
+              <CCard className="border-0 mb-3 stat-widget-card" style={{ borderRadius: '16px' }}>
                 <CCardBody className="p-3">
                   <div className="d-flex align-items-center">
-                    <div 
-                      className="rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
-                      style={{ 
+                    <div className="rounded-circle p-2 me-3 d-flex align-items-center justify-content-center bg-orange-soft"
+                      style={{
                         width: '48px',
-                        height: '48px',
-                        background: '#FEF3E2',
-                        color: colors.primary
+                        height: '48px'
                       }}
                     >
-                      <CIcon icon={cilUser} size="xl" />
+                      <CIcon icon={cilUser} size="xl" className="text-primary" />
                     </div>
                     <div>
-                      <small className="text-muted text-uppercase" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>
+                      <small className="text-muted-custom text-uppercase" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>
                         ESTUDIANTES
                       </small>
-                      <h2 className="fw-bold mb-0" style={{ fontSize: '2rem', color: colors.text }}>
+                      <h2 className="fw-bold mb-0 header-title-custom" style={{ fontSize: '2rem' }}>
                         {students.length || 0}
                       </h2>
                     </div>
@@ -261,29 +208,22 @@ const StatsWidgets = ({
               </CCard>
 
               {/* Widget de Representantes */}
-              <CCard className="border-0" style={{ 
-                borderRadius: '16px',
-                background: 'white',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-              }}>
+              <CCard className="border-0 stat-widget-card" style={{ borderRadius: '16px' }}>
                 <CCardBody className="p-3">
                   <div className="d-flex align-items-center">
-                    <div 
-                      className="rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
-                      style={{ 
+                    <div className="rounded-circle p-2 me-3 d-flex align-items-center justify-content-center bg-orange-soft"
+                      style={{
                         width: '48px',
-                        height: '48px',
-                        background: '#FEF3E2',
-                        color: colors.primary
+                        height: '48px'
                       }}
                     >
-                      <CIcon icon={cilSchool} size="xl" />
+                      <CIcon icon={cilSchool} size="xl" className="text-primary" />
                     </div>
                     <div>
-                      <small className="text-muted text-uppercase" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>
+                      <small className="text-muted-custom text-uppercase" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>
                         REPRESENTANTES
                       </small>
-                      <h2 className="fw-bold mb-0" style={{ fontSize: '2rem', color: colors.text }}>
+                      <h2 className="fw-bold mb-0 header-title-custom" style={{ fontSize: '2rem' }}>
                         {repsCount}
                       </h2>
                     </div>
@@ -293,11 +233,7 @@ const StatsWidgets = ({
 
               {/* Badge de total */}
               <div className="text-center mt-3">
-                <span className="badge rounded-pill px-3 py-2" style={{ 
-                  background: `linear-gradient(135deg, ${colors.primary}20, ${colors.primary}05)`,
-                  color: colors.primary,
-                  fontSize: '0.75rem'
-                }}>
+                <span className="badge rounded-pill px-3 py-2 bg-orange-soft text-primary" style={{ fontSize: '0.75rem' }}>
                   Total: {students.length + repsCount} personas
                 </span>
               </div>
@@ -305,16 +241,6 @@ const StatsWidgets = ({
           </CCard>
         </CCol>
       </CRow>
-
-      <style>{`
-        .transition-all {
-          transition: all 0.3s ease;
-        }
-        [class*="cursor-pointer"]:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 15px -3px rgba(242, 140, 15, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-        }
-      `}</style>
     </>
   )
 }

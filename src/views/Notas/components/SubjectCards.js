@@ -9,12 +9,11 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
         <div className="animate__animated animate__fadeIn">
             <div className="d-flex align-items-center mb-5 px-2">
                 <CButton
-                    color="light"
-                    className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent"
+                    className="btn-back-custom me-3 rounded-pill border-2 shadow-sm d-flex align-items-center header-title-custom py-2 px-4 text-uppercase fw-bold"
                     onClick={onBack}
                 >
                     <CIcon icon={cilArrowLeft} className="me-2" />
-                    Volver
+                    VOLVER
                 </CButton>
                 <div>
                     <h3 className="mb-0 fw-bold header-title-custom">{grade.grado}</h3>
@@ -100,6 +99,31 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
                     </CCol>
                 ))}
             </CRow>
+            <style>{`
+                .btn-back-custom {
+                    background: transparent;
+                    color: var(--neutral-600);
+                    border: 1px solid var(--neutral-200);
+                    transition: all 0.2s ease;
+                }
+
+                .btn-back-custom:hover {
+                    background: var(--neutral-100);
+                    color: var(--primary-500);
+                    border-color: var(--primary-200);
+                }
+
+                [data-coreui-theme="dark"] .btn-back-custom {
+                    color: rgba(255, 255, 255, 0.6);
+                    border-color: rgba(255, 255, 255, 0.1);
+                }
+
+                [data-coreui-theme="dark"] .btn-back-custom:hover {
+                    background: rgba(255, 255, 255, 0.05);
+                    color: white;
+                    border-color: rgba(255, 255, 255, 0.2);
+                }
+            `}</style>
         </div>
     )
 }

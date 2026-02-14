@@ -27,7 +27,7 @@ const InfoRepresentante = ({ visible, onClose, representative }) => {
                     <CIcon icon={cilUser} className="me-2 text-white-50" />
                     Ficha del Representante
                 </CModalTitle>
-                <CButton onClick={onClose} className="btn-close-white shadow-none"></CButton>
+                <CButton onClick={onClose} className="btn-close-white shadow-none" style={{ filter: 'invert(1) grayscale(100%) brightness(200%)' }}></CButton>
             </CModalHeader>
             <CModalBody className="p-4 bg-light-custom bg-opacity-10">
                 <div className="text-center mb-4">
@@ -38,7 +38,7 @@ const InfoRepresentante = ({ visible, onClose, representative }) => {
                         className="mb-3 shadow-lg border border-3 border-white"
                     />
                     <h4 className="fw-bold header-title-custom mb-0">{representative.first_name} {representative.last_name}</h4>
-                    <CBadge color="warning" className="px-3 py-2 rounded-pill fw-bold bg-opacity-10 text-warning mt-2 ls-1 shadow-sm">
+                    <CBadge color="warning" className="px-3 py-2 rounded-pill fw-bold bg-warning bg-opacity-10 text-warning mt-2 ls-1 shadow-sm">
                         REPRESENTANTE OFICIAL
                     </CBadge>
                 </div>
@@ -129,14 +129,6 @@ const InfoRepresentante = ({ visible, onClose, representative }) => {
                     </div>
                 </div>
             </CModalBody>
-            <style>{`
-                .btn-close-white {
-                    filter: invert(1) grayscale(100%) brightness(200%);
-                }
-                .text-contrast { color: var(--neutral-800); }
-                [data-coreui-theme="dark"] .text-contrast { color: white; }
-                .leading-tight { line-height: 1.2; }
-            `}</style>
         </CModal>
     )
 }

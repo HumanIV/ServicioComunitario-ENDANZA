@@ -269,12 +269,11 @@ const SistemaBoletinesDanza = () => {
             <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 mb-md-5">
               <div className="d-flex align-items-center justify-content-center justify-content-md-start">
                 <CButton
-                  color="light"
-                  className="me-3 rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm flex-shrink-0"
-                  style={{ width: '40px', height: '40px' }}
+                  className="btn-back-custom me-3 rounded-pill border-2 shadow-sm d-flex align-items-center header-title-custom py-2 px-3 text-uppercase fw-bold"
                   onClick={() => dispatch({ type: 'VOLVER_A_GRADOS' })}
                 >
-                  <CIcon icon={cilArrowLeft} />
+                  <CIcon icon={cilArrowLeft} className="me-2" />
+                  VOLVER
                 </CButton>
                 <div>
                   <h3 className="mb-0 fw-bold header-title-custom fs-4 fs-md-3">{gradoSeleccionado.grado}</h3>
@@ -282,20 +281,19 @@ const SistemaBoletinesDanza = () => {
                 </div>
               </div>
 
-              <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+              <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto mt-2 mt-md-0">
                 <CButton
-                  color="light"
-                  className="text-primary fw-bold w-100 w-sm-auto shadow-sm"
+                  className="btn-select-all-custom rounded-pill px-4 py-2 border-2 fw-bold shadow-sm w-100 w-sm-auto d-flex align-items-center justify-content-center"
                   style={{ fontSize: '0.85rem' }}
                   onClick={() => handleToggleSeleccion('todos')}
                 >
                   {estudiantesSeleccionados.size === estudiantesUnicos.length
-                    ? "Deseleccionar Todos"
-                    : "Seleccionar Todos"}
+                    ? "DESELECCIONAR TODOS"
+                    : "SELECCIONAR TODOS"}
                 </CButton>
 
                 <CButton
-                  className={`btn-premium px-4 d-flex align-items-center justify-content-center w-100 w-sm-auto shadow-sm ${estudiantesSeleccionados.size === 0 ? 'opacity-50' : ''}`}
+                  className={`btn-premium rounded-pill px-4 py-2 d-flex align-items-center justify-content-center w-100 w-sm-auto shadow-sm ${estudiantesSeleccionados.size === 0 ? 'opacity-50' : ''}`}
                   style={{ fontSize: '0.85rem' }}
                   onClick={() => dispatch({ type: 'MOSTRAR_MODAL' })}
                   disabled={estudiantesSeleccionados.size === 0}
@@ -352,38 +350,89 @@ const SistemaBoletinesDanza = () => {
   if (!vistaActual) return null; // Evitar renderizado si no hay estado
 
   return (
-    <CContainer className="py-4">
-      {vistaActual === 'grados' && (
-        <header className="mb-5 text-center">
-          <div className="d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-orange-soft mb-3 text-primary">
-            <CIcon icon={cilEducation} size="xl" />
-          </div>
-          <h2 className="header-title-custom fw-bold mb-1 ls-1">
-            Sistema de Boletines
-          </h2>
-          <p className="text-muted-custom small text-uppercase ls-1 fw-bold">
-            Ciclo Académico 2024 - 2025
-          </p>
-        </header>
-      )}
+    <>
+      <CContainer className="py-4">
+        {vistaActual === 'grados' && (
+          <header className="mb-5 text-center">
+            <div className="d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-orange-soft mb-3 text-primary">
+              <CIcon icon={cilEducation} size="xl" />
+            </div>
+            <h2 className="header-title-custom fw-bold mb-1 ls-1">
+              Sistema de Boletines
+            </h2>
+            <p className="text-muted-custom small text-uppercase ls-1 fw-bold">
+              Ciclo Académico 2024 - 2025
+            </p>
+          </header>
+        )}
 
-      {renderVistaActual()}
+        {renderVistaActual()}
 
-      <ModalBoletinesLote
-        visible={modalVisible}
-        enviando={enviando}
-        gradoSeleccionado={gradoSeleccionado}
-        estudiantesSeleccionados={estudiantesSeleccionados}
-        estudiantesUnicos={estudiantesUnicos}
-        calculos={calculos}
-        dispatch={dispatch}
-        onGenerarBoletinesLote={generarBoletinesLote}
-      />
+        <ModalBoletinesLote
+          visible={modalVisible}
+          enviando={enviando}
+          gradoSeleccionado={gradoSeleccionado}
+          estudiantesSeleccionados={estudiantesSeleccionados}
+          estudiantesUnicos={estudiantesUnicos}
+          calculos={calculos}
+          dispatch={dispatch}
+          onGenerarBoletinesLote={generarBoletinesLote}
+        />
 
-      <ToastContainer toasts={toasts} dispatch={dispatch} />
+        <ToastContainer toasts={toasts} dispatch={dispatch} />
 
 
-    </CContainer>
+      </CContainer>
+      <style>{`
+        .btn-back-custom {
+          background: transparent;
+          color: var(--neutral-600);
+          border: 1px solid var(--neutral-200);
+          transition: all 0.2s ease;
+        }
+
+        .btn-back-custom:hover {
+          background: var(--neutral-100);
+          color: var(--primary-500);
+          border-color: var(--primary-200);
+        }
+
+        [data-coreui-theme="dark"] .btn-back-custom {
+          color: rgba(255, 255, 255, 0.6);
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-coreui-theme="dark"] .btn-back-custom:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: white;
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-select-all-custom {
+          background: transparent;
+          color: var(--neutral-600);
+          border: 1px solid var(--neutral-200);
+          transition: all 0.2s ease;
+        }
+
+        .btn-select-all-custom:hover {
+          background: var(--neutral-100);
+          color: var(--primary-500);
+          border-color: var(--primary-200);
+        }
+
+        [data-coreui-theme="dark"] .btn-select-all-custom {
+          color: rgba(255, 255, 255, 0.6);
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        [data-coreui-theme="dark"] .btn-select-all-custom:hover {
+          background: rgba(255, 255, 255, 0.05);
+          color: white;
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
+    </>
   );
 };
 

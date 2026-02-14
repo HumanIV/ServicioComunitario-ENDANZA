@@ -43,7 +43,7 @@ const TeacherManagement = () => {
     // Estados para asignación unificada
     const [showUnifiedModal, setShowUnifiedModal] = useState(false)
     const [actionTeacher, setActionTeacher] = useState(null)
-    
+
     // Datos de catálogos
     const [specialties, setSpecialties] = useState([])
     const [grades, setGrades] = useState([])
@@ -108,16 +108,16 @@ const TeacherManagement = () => {
         try {
             const res = await TeacherService.getAll()
             console.log('👨‍🏫 Docentes cargados (RAW):', JSON.parse(JSON.stringify(res)))
-            
+
             // Verificar estructura de specialties y grades
             if (res.length > 0) {
                 res.forEach(teacher => {
                     console.log(`\n📋 Teacher ${teacher.first_name} ${teacher.last_name}:`);
-                    
+
                     if (teacher.specialties && teacher.specialties.length > 0) {
-                        console.log(`  ✅ Specialties:`, 
-                            teacher.specialties.map(s => ({ 
-                                name: s.name, 
+                        console.log(`  ✅ Specialties:`,
+                            teacher.specialties.map(s => ({
+                                name: s.name,
                                 year: s.academicYearId,
                                 area: s.area
                             }))
@@ -125,12 +125,12 @@ const TeacherManagement = () => {
                     } else {
                         console.log(`  ⚠️ Sin especialidades`);
                     }
-                    
+
                     if (teacher.grades && teacher.grades.length > 0) {
-                        console.log(`  ✅ Grades:`, 
-                            teacher.grades.map(g => ({ 
-                                name: g.name, 
-                                year: g.academicYearId 
+                        console.log(`  ✅ Grades:`,
+                            teacher.grades.map(g => ({
+                                name: g.name,
+                                year: g.academicYearId
                             }))
                         );
                     } else {
@@ -138,7 +138,7 @@ const TeacherManagement = () => {
                     }
                 });
             }
-            
+
             setTeachers(res || [])
         } catch (error) {
             console.error('Error fetching teachers:', error)
@@ -166,10 +166,10 @@ const TeacherManagement = () => {
                 teacher.specialty?.toLowerCase().includes(searchLower)
             )
         }
-        
+
         // Si no hay año seleccionado, solo aplicar filtro de búsqueda
         if (!currentYear) return matchesSearch
-        
+
         return matchesSearch
     })
 
@@ -218,20 +218,20 @@ const TeacherManagement = () => {
             if (data.specialtyId && currentYear) {
                 await TeacherService.assignSpecialtyByYear(teacherId, data.specialtyId, currentYear.id)
             }
-            
+
             // Guardar grados con el año actual
             if (data.gradeIds.length > 0 && currentYear) {
                 await TeacherService.assignGrades(teacherId, data.gradeIds, currentYear.id)
             }
-            
+
             showToast('Asignaciones guardadas correctamente', 'success')
-            
+
             // ✅ ACTUALIZAR EL DOCENTE EN EL ESTADO LOCAL INMEDIATAMENTE
-            setTeachers(prevTeachers => 
+            setTeachers(prevTeachers =>
                 prevTeachers.map(teacher => {
                     if (teacher.id === teacherId) {
                         // Crear objeto de especialidad con el año actual
-                        const updatedSpecialty = data.specialtyId ? 
+                        const updatedSpecialty = data.specialtyId ?
                             (() => {
                                 const specialty = specialties.find(s => s.id === data.specialtyId)
                                 return {
@@ -241,34 +241,34 @@ const TeacherManagement = () => {
                                     academicYearId: currentYear?.id
                                 }
                             })() : null
-                        
+
                         // Crear objetos de grado con el año actual
                         const updatedGrades = data.gradeIds.map(id => {
                             const grade = grades.find(g => g.id === id)
-                            return { 
-                                id, 
+                            return {
+                                id,
                                 name: grade?.name || `Grado ${id}`,
                                 level: grade?.level || 'danza',
                                 academicYearId: currentYear?.id
                             }
                         })
-                        
+
                         // Mantener especialidades de otros años
                         const otherYearSpecialties = (teacher.specialties || []).filter(
                             s => s.academicYearId !== currentYear?.id
                         )
-                        
+
                         // Mantener grados de otros años
                         const otherYearGrades = (teacher.grades || []).filter(
                             g => g.academicYearId !== currentYear?.id
                         )
-                        
-                        return { 
-                            ...teacher, 
+
+                        return {
+                            ...teacher,
                             // Actualizar specialty (para el badge) con la nueva especialidad si existe
                             specialty: updatedSpecialty?.name || teacher.specialty,
                             // Actualizar specialties (array completo)
-                            specialties: updatedSpecialty 
+                            specialties: updatedSpecialty
                                 ? [...otherYearSpecialties, updatedSpecialty]
                                 : otherYearSpecialties,
                             // Actualizar grades
@@ -278,15 +278,15 @@ const TeacherManagement = () => {
                     return teacher
                 })
             )
-            
+
             setShowUnifiedModal(false)
             setActionTeacher(null)
-            
+
             // ✅ Recargar para asegurar consistencia con el backend
             setTimeout(() => {
                 fetchTeachers()
             }, 300)
-            
+
         } catch (error) {
             console.error('Error guardando asignaciones:', error)
             showToast(error.message || 'Error al guardar asignaciones', 'danger')
@@ -306,7 +306,7 @@ const TeacherManagement = () => {
         try {
             const previousYearId = currentYear.id - 1
             const response = await TeacherService.copyTeacherAssignments(previousYearId, currentYear.id)
-            
+
             if (response.ok) {
                 showToast(`✅ Se copiaron ${response.copiedGrades || 0} grados y ${response.copiedSpecialties || 0} especialidades del año anterior a ${currentYear.name}`, 'success')
                 fetchTeachers() // Recargar docentes
@@ -327,12 +327,12 @@ const TeacherManagement = () => {
         const currentYearSpecialty = currentYear && teacher.specialties
             ? teacher.specialties.find(s => s.academicYearId === currentYear.id)
             : null
-        
+
         const specialtyName = currentYearSpecialty?.name || teacher.specialty || null
 
         if (!specialtyName) {
             return (
-                <CBadge className="rounded-pill px-3 py-2" style={{ 
+                <CBadge className="rounded-pill px-3 py-2" style={{
                     background: 'rgba(108, 117, 125, 0.1)',
                     color: '#6c757d',
                     border: 'none'
@@ -343,12 +343,7 @@ const TeacherManagement = () => {
             )
         }
         return (
-            <CBadge className="rounded-pill px-3 py-2" style={{ 
-                background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                color: 'white',
-                border: 'none',
-                boxShadow: '0 4px 8px rgba(224,122,0,0.2)'
-            }}>
+            <CBadge className="rounded-pill px-3 py-2 docente-specialty-badge">
                 <CIcon icon={cilStar} className="me-1" size="sm" />
                 {specialtyName.toUpperCase()}
             </CBadge>
@@ -358,20 +353,20 @@ const TeacherManagement = () => {
     const getGradeBadges = (grades) => {
         if (!grades || grades.length === 0) {
             return (
-                <span className="small fw-medium" style={{ color: '#6c757d' }}>
+                <span className="small fw-medium text-muted-custom">
                     Sin grados asignados
                 </span>
             )
         }
 
         // Filtrar grados por año actual
-        const filteredGrades = currentYear 
+        const filteredGrades = currentYear
             ? grades.filter(g => g.academicYearId === currentYear.id)
             : grades
 
         if (filteredGrades.length === 0) {
             return (
-                <span className="small fw-medium" style={{ color: '#6c757d' }}>
+                <span className="small fw-medium text-muted-custom">
                     Sin asignaciones en {currentYear?.name || 'este año'}
                 </span>
             )
@@ -380,26 +375,17 @@ const TeacherManagement = () => {
         return (
             <div className="d-flex gap-1 flex-wrap">
                 {filteredGrades.slice(0, 3).map(grade => (
-                    <CBadge 
-                        key={grade.id} 
-                        className="rounded-pill px-2 py-1 fw-normal"
-                        style={{ 
-                            background: 'rgba(224,122,0,0.08)',
-                            color: '#E07A00',
-                            border: '1px solid rgba(224,122,0,0.2)'
-                        }}
+                    <CBadge
+                        key={grade.id}
+                        className="rounded-pill px-2 py-1 fw-normal docente-grade-badge"
                     >
                         {grade.name}
                     </CBadge>
                 ))}
                 {filteredGrades.length > 3 && (
-                    <CBadge 
-                        className="rounded-pill px-2 py-1"
-                        style={{ 
-                            background: 'rgba(0,0,0,0.03)',
-                            color: '#6c757d',
-                            border: '1px solid rgba(0,0,0,0.1)'
-                        }}
+                    <CBadge
+                        className="rounded-pill px-2 py-1 bg-light-custom"
+                        style={{ color: '#6c757d', border: '1px solid rgba(0,0,0,0.1)' }}
                     >
                         +{filteredGrades.length - 3}
                     </CBadge>
@@ -411,33 +397,33 @@ const TeacherManagement = () => {
     const getStatusBadge = (status) => {
         const s = status?.toLowerCase()
         const config = {
-            'active': { 
-                color: '#28a745', 
-                text: 'Activo', 
+            'active': {
+                color: '#28a745',
+                text: 'Activo',
                 icon: cilCheck,
                 bg: 'rgba(40, 167, 69, 0.1)'
             },
-            'suspended': { 
-                color: '#ffc107', 
-                text: 'Suspendido', 
+            'suspended': {
+                color: '#ffc107',
+                text: 'Suspendido',
                 icon: cilBan,
                 bg: 'rgba(255, 193, 7, 0.1)'
             },
-            'inactive': { 
-                color: '#6c757d', 
-                text: 'Inactivo', 
+            'inactive': {
+                color: '#6c757d',
+                text: 'Inactivo',
                 icon: cilLockLocked,
                 bg: 'rgba(108, 117, 125, 0.1)'
             }
-        }[s] || { 
-            color: '#6c757d', 
-            text: status, 
+        }[s] || {
+            color: '#6c757d',
+            text: status,
             icon: cilUser,
             bg: 'rgba(108, 117, 125, 0.1)'
         }
-        
+
         return (
-            <CBadge className="rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2" style={{ 
+            <CBadge className="rounded-pill px-3 py-2 d-inline-flex align-items-center gap-2" style={{
                 background: config.bg,
                 color: config.color,
                 border: 'none'
@@ -456,24 +442,20 @@ const TeacherManagement = () => {
                     <CCol xs={12} md={6}>
                         <div className="d-flex align-items-center">
                             <CButton
-                                className="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border-0"
-                                style={{ 
-                                    width: '48px', 
-                                    height: '48px', 
-                                    background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                                    color: 'white',
+                                className="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border-0 docente-btn-primary"
+                                style={{
+                                    width: '48px',
+                                    height: '48px',
                                     boxShadow: '0 4px 12px rgba(224,122,0,0.3)'
                                 }}
-                                onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
-                                onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
                                 onClick={() => navigate('/dashboard')}
                             >
                                 <CIcon icon={cilArrowLeft} size="lg" />
                             </CButton>
                             <div>
-                                <h5 className="fw-bold mb-0 d-flex align-items-center" style={{ color: '#1e293b' }}>
-                                    <CIcon icon={cilSpeedometer} className="me-2" style={{ color: '#E07A00' }} size="sm" />
-                                    Dashboard / <span style={{ color: '#E07A00' }}>Gestión de Docentes</span>
+                                <h5 className="fw-bold mb-0 d-flex align-items-center header-title-custom">
+                                    <CIcon icon={cilSpeedometer} className="me-2 text-primary" size="sm" />
+                                    Dashboard / <span className="text-primary">Gestión de Docentes</span>
                                 </h5>
                             </div>
                         </div>
@@ -496,14 +478,9 @@ const TeacherManagement = () => {
 
                         <CDropdown className="cycle-dropdown">
                             <CDropdownToggle
-                                className="bg-glass-premium border border-light-custom border-opacity-10 fw-bold text-primary-header small d-flex align-items-center px-3 py-2 rounded-pill hover-lift shadow-none"
-                                style={{
-                                    background: 'white',
-                                    border: '1px solid rgba(224,122,0,0.2)',
-                                    color: '#E07A00'
-                                }}
+                                className="bg-glass-premium border border-light-custom border-opacity-10 fw-bold text-primary-header small d-flex align-items-center px-3 py-2 rounded-pill hover-lift shadow-none docente-btn-secondary"
                             >
-                                <CIcon icon={cilSchool} className="me-2" style={{ color: '#E07A00' }} />
+                                <CIcon icon={cilSchool} className="me-2 text-primary" />
                                 <span>CICLO {currentYear?.name || 'CARGANDO...'}</span>
                                 <CIcon icon={cilChevronBottom} className="ms-2 opacity-50" size="sm" />
                             </CDropdownToggle>
@@ -513,7 +490,6 @@ const TeacherManagement = () => {
                                         key={year.id}
                                         onClick={() => setCurrentYear(year)}
                                         className={`cycle-dropdown-item ${currentYear?.id === year.id ? 'active' : ''}`}
-                                        style={currentYear?.id === year.id ? { backgroundColor: '#E07A00', color: 'white' } : {}}
                                     >
                                         Período {year.name}
                                     </CDropdownItem>
@@ -524,53 +500,30 @@ const TeacherManagement = () => {
                 </CRow>
             </div>
 
-            <CCard className="shadow-lg border-0 mb-4" style={{ 
-                borderRadius: '24px',
-                background: 'white',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.02)'
-            }}>
-                <div style={{ 
-                    height: '8px', 
-                    borderTopLeftRadius: '24px', 
-                    borderTopRightRadius: '24px',
-                    background: 'linear-gradient(90deg, #E07A00, #F39C12, #E07A00)'
+            <CCard className="shadow-lg border-0 mb-4 premium-card docente-card" style={{ borderRadius: '24px' }}>
+                <div className="bg-primary" style={{
+                    height: '8px',
+                    borderTopLeftRadius: '24px',
+                    borderTopRightRadius: '24px'
                 }}></div>
                 <CCardHeader className="bg-transparent border-0 pt-4 px-4">
                     <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div>
-                            <h3 className="fw-bold mb-1 d-flex align-items-center" style={{ color: '#1e293b' }}>
-                                <div style={{
-                                    width: '48px',
-                                    height: '48px',
-                                    background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                                    borderRadius: '16px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginRight: '16px',
-                                    boxShadow: '0 6px 12px rgba(224,122,0,0.2)'
-                                }}>
+                            <h3 className="fw-bold mb-1 d-flex align-items-center header-title-custom">
+                                <div className="bg-primary rounded-4 me-3 d-flex align-items-center justify-content-center shadow-orange"
+                                    style={{ width: '48px', height: '48px' }}>
                                     <CIcon icon={cilSchool} className="text-white" size="lg" />
                                 </div>
                                 Gestión de Docentes
                             </h3>
-                            <p className="mb-0 small" style={{ color: '#64748b', marginLeft: '64px' }}>
+                            <p className="mb-0 small text-muted-custom" style={{ marginLeft: '64px' }}>
                                 Asignación de especialidades y grados académicos por período
                             </p>
                         </div>
                         <div className="d-flex gap-2">
                             <CButton
-                                className="px-4 d-flex align-items-center border-0"
-                                style={{
-                                    background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                                    color: 'white',
-                                    borderRadius: '14px',
-                                    padding: '12px 24px',
-                                    fontWeight: '600',
-                                    boxShadow: '0 8px 16px rgba(224,122,0,0.2)'
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
-                                onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
+                                className="px-4 d-flex align-items-center border-0 docente-btn-primary"
+                                style={{ borderRadius: '14px', padding: '12px 24px', fontWeight: '600' }}
                                 onClick={() => { setEditing(null); setShowForm(true); }}
                             >
                                 <CIcon icon={cilPlus} className="me-2" />
@@ -582,11 +535,11 @@ const TeacherManagement = () => {
                 <CCardBody className="p-4">
                     {/* BÚSQUEDA */}
                     <div className="mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
-                        <div className="small fw-bold" style={{ color: '#64748b' }}>
+                        <div className="small fw-bold text-muted-custom">
                             <CIcon icon={cilUser} className="me-1" />
-                            Total Docentes: <span style={{ color: '#E07A00', fontWeight: '700' }}>{filteredTeachers.length}</span>
+                            Total Docentes: <span className="text-primary fw-bold">{filteredTeachers.length}</span>
                             {currentYear && (
-                                <span className="ms-2 text-muted">
+                                <span className="ms-2 opacity-75">
                                     <CIcon icon={cilCalendar} size="sm" className="me-1" />
                                     mostrando asignaciones de {currentYear.name}
                                 </span>
@@ -597,6 +550,7 @@ const TeacherManagement = () => {
                                 value={searchTerm}
                                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                 placeholder="Buscar docente..."
+                                className="bg-light-custom"
                             />
                         </div>
                     </div>
@@ -607,94 +561,69 @@ const TeacherManagement = () => {
                         </div>
                     ) : currentPageData.length > 0 ? (
                         <>
-                            <div className="table-responsive" style={{ borderRadius: '16px', border: '1px solid rgba(224,122,0,0.1)' }}>
-                                <CTable align="middle" hover className="mb-0">
-                                    <CTableHead style={{ background: 'rgba(224,122,0,0.02)' }}>
+                            <div className="table-responsive rounded-4 border border-light-custom">
+                                <CTable align="middle" hover className="mb-0 custom-premium-table">
+                                    <CTableHead className="docente-table-header">
                                         <CTableRow>
-                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>DOCENTE</CTableHeaderCell>
-                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>CONTACTO</CTableHeaderCell>
-                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>ESPECIALIDAD ({currentYear?.name || 'ACTUAL'})</CTableHeaderCell>
-                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>GRADOS ({currentYear?.name || 'TODOS'})</CTableHeaderCell>
-                                            <CTableHeaderCell className="border-0 py-3" style={{ color: '#64748b', fontWeight: '600' }}>ESTADO</CTableHeaderCell>
-                                            <CTableHeaderCell className="border-0 py-3 text-end" style={{ color: '#64748b', fontWeight: '600' }}>ACCIONES</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3 text-muted-custom fw-bold">DOCENTE</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3 text-muted-custom fw-bold">CONTACTO</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3 text-muted-custom fw-bold">ESPECIALIDAD ({currentYear?.name || 'ACTUAL'})</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3 text-muted-custom fw-bold">GRADOS ({currentYear?.name || 'TODOS'})</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3 text-muted-custom fw-bold">ESTADO</CTableHeaderCell>
+                                            <CTableHeaderCell className="border-0 py-3 text-end text-muted-custom fw-bold pe-4">ACCIONES</CTableHeaderCell>
                                         </CTableRow>
                                     </CTableHead>
                                     <CTableBody>
                                         {currentPageData.map(teacher => (
-                                            <CTableRow key={teacher.id} style={{ borderBottom: '1px solid rgba(224,122,0,0.05)' }}>
-                                                <CTableDataCell className="py-3">
+                                            <CTableRow key={teacher.id} className="docente-table-row hover-row transition-all align-middle">
+                                                <CTableDataCell className="py-3 ps-4">
                                                     <div className="d-flex align-items-center">
                                                         <AvatarLetter
                                                             name={teacher.first_name + ' ' + teacher.last_name}
                                                             size="md"
+                                                            className="shadow-orange"
                                                             style={{
-                                                                background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                                                background: 'linear-gradient(145deg, #F5B937, #DD6F1E)',
                                                                 color: 'white',
                                                                 fontWeight: '600',
                                                                 width: '44px',
                                                                 height: '44px',
-                                                                borderRadius: '14px',
-                                                                boxShadow: '0 4px 8px rgba(224,122,0,0.2)'
+                                                                borderRadius: '14px'
                                                             }}
                                                         />
                                                         <div className="ms-3">
-                                                            <div className="fw-bold" style={{ color: '#1e293b' }}>{teacher.first_name} {teacher.last_name}</div>
-                                                            <div className="small" style={{ color: '#64748b' }}>{teacher.dni}</div>
+                                                            <div className="fw-bold header-title-custom">{teacher.first_name} {teacher.last_name}</div>
+                                                            <div className="small text-muted-custom">{teacher.dni}</div>
                                                         </div>
                                                     </div>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="py-3">
-                                                    <div style={{ color: '#1e293b' }}>{teacher.email}</div>
-                                                    <div className="small" style={{ color: '#64748b' }}>{teacher.phone || 'Sin teléfono'}</div>
+                                                    <div className="header-title-custom fw-medium">{teacher.email}</div>
+                                                    <div className="small text-muted-custom">{teacher.phone || 'Sin teléfono'}</div>
                                                 </CTableDataCell>
                                                 <CTableDataCell className="py-3">{getSpecialtyBadge(teacher)}</CTableDataCell>
                                                 <CTableDataCell className="py-3">{getGradeBadges(teacher.grades)}</CTableDataCell>
                                                 <CTableDataCell className="py-3">{getStatusBadge(teacher.status)}</CTableDataCell>
-                                                <CTableDataCell className="py-3 text-end">
+                                                <CTableDataCell className="py-3 text-end pe-4">
                                                     <div className="d-flex gap-2 justify-content-end">
                                                         {/* Botón Ver Info */}
                                                         <CButton
                                                             size="sm"
                                                             onClick={() => { setSelectedTeacher(teacher); setShowInfo(true); }}
                                                             title="Ver información"
-                                                            style={{
-                                                                width: '36px',
-                                                                height: '36px',
-                                                                borderRadius: '10px',
-                                                                background: 'rgba(224,122,0,0.1)',
-                                                                border: 'none',
-                                                                color: '#E07A00',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                padding: 0
-                                                            }}
-                                                            onMouseEnter={(e) => e.target.style.background = 'rgba(224,122,0,0.2)'}
-                                                            onMouseLeave={(e) => e.target.style.background = 'rgba(224,122,0,0.1)'}
+                                                            className="docente-btn-secondary hover-lift"
+                                                            style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
                                                         >
                                                             <CIcon icon={cilInfo} />
                                                         </CButton>
-                                                        
+
                                                         {/* Botón Asignar */}
                                                         <CButton
                                                             size="sm"
                                                             onClick={() => openUnifiedModal(teacher)}
                                                             title="Asignar especialidad y grados"
-                                                            style={{
-                                                                width: '36px',
-                                                                height: '36px',
-                                                                borderRadius: '10px',
-                                                                background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                                                                border: 'none',
-                                                                color: 'white',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                padding: 0,
-                                                                boxShadow: '0 4px 8px rgba(224,122,0,0.2)'
-                                                            }}
-                                                            onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
-                                                            onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
+                                                            className="docente-btn-primary hover-lift"
+                                                            style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
                                                         >
                                                             <CIcon icon={cilStar} />
                                                         </CButton>
@@ -704,20 +633,8 @@ const TeacherManagement = () => {
                                                             size="sm"
                                                             onClick={() => { setEditing(teacher); setShowForm(true); }}
                                                             title="Editar"
-                                                            style={{
-                                                                width: '36px',
-                                                                height: '36px',
-                                                                borderRadius: '10px',
-                                                                background: 'rgba(224,122,0,0.1)',
-                                                                border: 'none',
-                                                                color: '#E07A00',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                padding: 0
-                                                            }}
-                                                            onMouseEnter={(e) => e.target.style.background = 'rgba(224,122,0,0.2)'}
-                                                            onMouseLeave={(e) => e.target.style.background = 'rgba(224,122,0,0.1)'}
+                                                            className="docente-btn-secondary hover-lift"
+                                                            style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
                                                         >
                                                             <CIcon icon={cilPencil} />
                                                         </CButton>
@@ -725,26 +642,14 @@ const TeacherManagement = () => {
                                                         {/* Botón Eliminar */}
                                                         <CButton
                                                             size="sm"
-                                                            onClick={() => setDeleteModal({ 
-                                                                visible: true, 
-                                                                teacherId: teacher.id, 
-                                                                teacherName: `${teacher.first_name} ${teacher.last_name}` 
+                                                            onClick={() => setDeleteModal({
+                                                                visible: true,
+                                                                teacherId: teacher.id,
+                                                                teacherName: `${teacher.first_name} ${teacher.last_name}`
                                                             })}
                                                             title="Eliminar"
-                                                            style={{
-                                                                width: '36px',
-                                                                height: '36px',
-                                                                borderRadius: '10px',
-                                                                background: 'rgba(220, 53, 69, 0.1)',
-                                                                border: 'none',
-                                                                color: '#dc3545',
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center',
-                                                                padding: 0
-                                                            }}
-                                                            onMouseEnter={(e) => e.target.style.background = 'rgba(220, 53, 69, 0.2)'}
-                                                            onMouseLeave={(e) => e.target.style.background = 'rgba(220, 53, 69, 0.1)'}
+                                                            className="bg-danger bg-opacity-10 text-danger border-0 hover-lift"
+                                                            style={{ width: '36px', height: '36px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
                                                         >
                                                             <CIcon icon={cilTrash} />
                                                         </CButton>
@@ -763,23 +668,14 @@ const TeacherManagement = () => {
                         </>
                     ) : (
                         <div className="text-center py-5">
-                            <div style={{
-                                width: '80px',
-                                height: '80px',
-                                background: 'rgba(224,122,0,0.1)',
-                                borderRadius: '50%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                margin: '0 auto 20px'
-                            }}>
-                                <CIcon icon={cilSearch} size="3xl" style={{ color: '#E07A00', opacity: 0.5 }} />
+                            <div className="docente-empty-state rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style={{ width: '80px', height: '80px' }}>
+                                <CIcon icon={cilSearch} size="3xl" className="text-primary opacity-50" />
                             </div>
-                            <h5 style={{ color: '#1e293b', fontWeight: '600' }}>
+                            <h5 className="header-title-custom fw-bold">
                                 {searchTerm ? 'No se encontraron docentes' : 'No hay docentes registrados'}
                             </h5>
                             {currentYear && (
-                                <p className="text-muted small">
+                                <p className="text-muted-custom small">
                                     Para {currentYear.name}
                                 </p>
                             )}
@@ -800,19 +696,19 @@ const TeacherManagement = () => {
             />
 
             {/* COMPONENTES */}
-            <TeacherForm 
-                visible={showForm} 
-                onClose={() => setShowForm(false)} 
-                onSave={handleSave} 
-                initial={editing} 
+            <TeacherForm
+                visible={showForm}
+                onClose={() => setShowForm(false)}
+                onSave={handleSave}
+                initial={editing}
             />
-            
-            <InfoTeacher 
-                visible={showInfo} 
-                onClose={() => setShowInfo(false)} 
-                teacher={selectedTeacher} 
+
+            <InfoTeacher
+                visible={showInfo}
+                onClose={() => setShowInfo(false)}
+                teacher={selectedTeacher}
             />
-            
+
             <SystemMessageModal
                 visible={deleteModal.visible}
                 onClose={() => setDeleteModal({ visible: false, teacherId: null, teacherName: '' })}
