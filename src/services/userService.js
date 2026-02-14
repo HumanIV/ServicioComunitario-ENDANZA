@@ -1,268 +1,179 @@
+// services/userService.js
 import { userAPI } from '../api/user.api';
 
 // ============================================
-// LISTAR USUARIOS
+// AUTENTICACIÓN
 // ============================================
+
+export const login = async (email, password) => {
+    try {
+        const response = await userAPI.login({ email, password });
+        if (response?.ok) {
+            if (response.accessToken) {
+                localStorage.setItem('accessToken', response.accessToken);
+            }
+            if (response.refreshToken) {
+                localStorage.setItem('refreshToken', response.refreshToken);
+            }
+            return response;
+        }
+        throw new Error(response?.msg || 'Error al iniciar sesión');
+    } catch (error) {
+        console.error('❌ Error en login:', error);
+        throw error;
+    }
+};
+
+export const logout = async () => {
+    try {
+        await userAPI.logout();
+    } catch (error) {
+        console.error('❌ Error en logout:', error);
+    } finally {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+    }
+};
+
+export const getCurrentUser = async () => {
+    try {
+        const response = await userAPI.getProfile();
+        if (response?.ok) {
+            return response.user;
+        }
+        return null;
+    } catch (error) {
+        console.error('❌ Error en getCurrentUser:', error);
+        return null;
+    }
+};
+
+// ============================================
+// PERFIL
+// ============================================
+
+export const updateProfile = async (profileData) => {
+    try {
+        const response = await userAPI.updateProfile(profileData);
+        if (response?.ok) {
+            return response.user;
+        }
+        throw new Error(response?.msg || 'Error al actualizar perfil');
+    } catch (error) {
+        console.error('❌ Error en updateProfile:', error);
+        throw error;
+    }
+};
+
+export const changePassword = async (currentPassword, newPassword) => {
+    try {
+        const response = await userAPI.changePassword({ currentPassword, newPassword });
+        if (response?.ok) {
+            return true;
+        }
+        throw new Error(response?.msg || 'Error al cambiar contraseña');
+    } catch (error) {
+        console.error('❌ Error en changePassword:', error);
+        throw error;
+    }
+};
+
+// ============================================
+// ADMINISTRACIÓN DE USUARIOS - ✅ NOMBRES CORRECTOS
+// ============================================
+
+// ✅ ESTE ES EL QUE USA Users.js - ¡NO CAMBIAR!
 export const listUsers = async () => {
-  try {
-    console.log('📋 Listando usuarios...');
-    const response = await userAPI.listUsers();
-    
-    if (response.ok && response.users) {
-      console.log(`✅ ${response.users.length} usuarios encontrados`);
-      return response.users; // Ya viene mapeado del backend
+    try {
+        const response = await userAPI.listUsers();
+        if (response?.ok && Array.isArray(response.users)) {
+            return response.users;
+        }
+        console.warn('⚠️ listUsers no retornó un array:', response);
+        return [];
+    } catch (error) {
+        console.error('❌ Error en listUsers:', error);
+        return [];
     }
-    
-    return [];
-  } catch (error) {
-    console.error('❌ Error en listUsers:', error);
-    throw error;
-  }
 };
 
-// ============================================
-// CREAR USUARIO (Admin)
-// ============================================
+// ✅ Alias para compatibilidad (por si alguien usa getAllUsers)
+export const getAllUsers = listUsers;
+
 export const createUser = async (userData) => {
-  try {
-    console.log('👤 Creando usuario:', { 
-      email: userData.email, 
-      role: userData.role,
-      dni: userData.dni 
-    });
-
-    // Validaciones básicas
-    if (!userData.password && !userData._skipPasswordCheck) {
-      throw new Error('La contraseña es obligatoria para crear un usuario');
+    try {
+        const response = await userAPI.createUser(userData);
+        if (response?.ok) {
+            return response.user;
+        }
+        throw new Error(response?.msg || 'Error al crear usuario');
+    } catch (error) {
+        console.error('❌ Error en createUser:', error);
+        throw error;
     }
-
-    // Limpiar el DNI (asegurar formato V-)
-    let dni = userData.dni;
-    if (!dni.startsWith('V-')) {
-      dni = 'V-' + dni.replace(/[^0-9]/g, '');
-    }
-
-    // Preparar payload
-    const payload = {
-      dni: dni,
-      first_name: userData.first_name,
-      last_name: userData.last_name,
-      email: userData.email,
-      phone: userData.phone || '',
-      role: userData.role,
-      status: userData.status || 'active',
-      password: userData.password,
-      // Campos opcionales
-      fecha_nacimiento: userData.fecha_nacimiento || null,
-      genero: userData.genero || null,
-      Id_direccion: userData.Id_direccion || null
-    };
-
-    const response = await userAPI.createUser(payload);
-    
-    if (!response.ok) {
-      throw new Error(response.msg || 'Error al crear usuario');
-    }
-    
-    console.log(`✅ Usuario ${userData.role} creado exitosamente:`, response.user);
-    return response.user;
-    
-  } catch (error) {
-    console.error('❌ Error en createUser:', error);
-    throw error;
-  }
 };
 
-// ============================================
-// ACTUALIZAR USUARIO (Admin)
-// ============================================
 export const updateUser = async (userId, userData) => {
-  try {
-    console.log(`📝 Actualizando usuario ${userId}:`, {
-      email: userData.email,
-      role: userData.role
-    });
-
-    // Limpiar el DNI (asegurar formato V-)
-    let dni = userData.dni;
-    if (dni && !dni.startsWith('V-')) {
-      dni = 'V-' + dni.replace(/[^0-9]/g, '');
+    try {
+        const response = await userAPI.updateUser(userId, userData);
+        if (response?.ok) {
+            return response.user;
+        }
+        throw new Error(response?.msg || 'Error al actualizar usuario');
+    } catch (error) {
+        console.error('❌ Error en updateUser:', error);
+        throw error;
     }
-
-    // Preparar payload
-    const payload = {
-      dni: dni,
-      first_name: userData.first_name,
-      last_name: userData.last_name,
-      email: userData.email,
-      phone: userData.phone || '',
-      role: userData.role,
-      status: userData.status,
-      ...(userData.password && { password: userData.password }) // Solo si se proporciona nueva contraseña
-    };
-
-    const response = await userAPI.updateUser(userId, payload);
-    
-    if (!response.ok) {
-      throw new Error(response.msg || 'Error al actualizar usuario');
-    }
-    
-    console.log(`✅ Usuario ${userId} actualizado exitosamente`);
-    return response.user;
-    
-  } catch (error) {
-    console.error('❌ Error en updateUser:', error);
-    throw error;
-  }
 };
 
-// ============================================
-// ELIMINAR USUARIO (Admin)
-// ============================================
 export const deleteUser = async (userId) => {
-  try {
-    console.log(`🗑️ Eliminando usuario ${userId}`);
-    
-    const response = await userAPI.deleteUser(userId);
-    
-    if (!response.ok) {
-      throw new Error(response.msg || 'Error al eliminar usuario');
+    try {
+        const response = await userAPI.deleteUser(userId);
+        if (response?.ok) {
+            return response;
+        }
+        throw new Error(response?.msg || 'Error al eliminar usuario');
+    } catch (error) {
+        console.error('❌ Error en deleteUser:', error);
+        throw error;
     }
-    
-    console.log(`✅ Usuario ${userId} eliminado exitosamente`);
-    return response;
-    
-  } catch (error) {
-    console.error('❌ Error en deleteUser:', error);
-    throw error;
-  }
 };
 
-// ============================================
-// CAMBIAR ESTADO DEL USUARIO (Activar/Desactivar/Suspender)
-// ============================================
-export const changeUserStatus = async (userId, status) => {
-  try {
-    console.log(`🔄 Cambiando estado de usuario ${userId} a: ${status}`);
-    
-    let response;
-    
-    if (status === 'active') {
-      response = await userAPI.activateUser(userId);
-    } else if (status === 'inactive') {
-      response = await userAPI.deactivateUser(userId);
-    } else if (status === 'suspended') {
-      // Para suspendido, usamos deactivate (ajusta según tu backend)
-      response = await userAPI.deactivateUser(userId);
-    }
-    
-    if (!response.ok) {
-      throw new Error(response.msg || 'Error al cambiar estado');
-    }
-    
-    console.log(`✅ Estado de usuario ${userId} cambiado a: ${status}`);
-    return response;
-    
-  } catch (error) {
-    console.error('❌ Error en changeUserStatus:', error);
-    throw error;
-  }
-};
-
-// ============================================
-// CAMBIAR ROL DEL USUARIO
-// ============================================
 export const changeUserRole = async (userId, role) => {
-  try {
-    console.log(`🔄 Cambiando rol de usuario ${userId} a: ${role}`);
-    
-    // Validar rol permitido
-    const allowedRoles = ['admin', 'docente', 'superadmin'];
-    if (!allowedRoles.includes(role)) {
-      throw new Error(`Rol no permitido: ${role}`);
+    try {
+        const response = await userAPI.changeUserRole(userId, role);
+        if (response?.ok) {
+            return response.user;
+        }
+        throw new Error(response?.msg || 'Error al cambiar rol');
+    } catch (error) {
+        console.error('❌ Error en changeUserRole:', error);
+        throw error;
     }
-    
-    const response = await userAPI.changeUserRole(userId, role);
-    
-    if (!response.ok) {
-      throw new Error(response.msg || 'Error al cambiar rol');
-    }
-    
-    console.log(`✅ Rol de usuario ${userId} cambiado a: ${role}`);
-    return response;
-    
-  } catch (error) {
-    console.error('❌ Error en changeUserRole:', error);
-    throw error;
-  }
 };
 
-// ============================================
-// BUSCAR USUARIOS
-// ============================================
+export const changeUserStatus = async (userId, status) => {
+    try {
+        const response = await userAPI.changeUserStatus(userId, status);
+        if (response?.ok) {
+            return response.user;
+        }
+        throw new Error(response?.msg || 'Error al cambiar estado');
+    } catch (error) {
+        console.error('❌ Error en changeUserStatus:', error);
+        throw error;
+    }
+};
+
 export const searchUsers = async (searchTerm) => {
-  try {
-    console.log(`🔍 Buscando usuarios con: "${searchTerm}"`);
-    
-    const response = await userAPI.searchUsers(searchTerm);
-    
-    if (response.ok && response.users) {
-      return response.users;
+    try {
+        const response = await userAPI.searchUsers(searchTerm);
+        if (response?.ok) {
+            return response.users || [];
+        }
+        return [];
+    } catch (error) {
+        console.error('❌ Error en searchUsers:', error);
+        return [];
     }
-    
-    return [];
-  } catch (error) {
-    console.error('❌ Error en searchUsers:', error);
-    throw error;
-  }
-};
-
-// ============================================
-// OBTENER USUARIO POR ID
-// ============================================
-export const getUserById = async (userId) => {
-  try {
-    console.log(`🔍 Obteniendo usuario ${userId}`);
-    
-    // Como no tenemos un endpoint específico, listamos y filtramos
-    const users = await listUsers();
-    const user = users.find(u => u.id === parseInt(userId));
-    
-    if (!user) {
-      throw new Error('Usuario no encontrado');
-    }
-    
-    return user;
-    
-  } catch (error) {
-    console.error('❌ Error en getUserById:', error);
-    throw error;
-  }
-};
-
-// ============================================
-// VALIDAR CÉDULA (Helper)
-// ============================================
-export const validateVenezuelanId = (dni) => {
-  if (!dni) return false;
-  
-  // Formato V-12345678
-  const pattern = /^V-\d{6,8}$/;
-  return pattern.test(dni);
-};
-
-// ============================================
-// FORMATEAR CÉDULA (Helper)
-// ============================================
-export const formatVenezuelanId = (dni) => {
-  if (!dni) return 'V-';
-  
-  // Si ya tiene formato V-, devolverlo
-  if (dni.startsWith('V-')) {
-    return dni;
-  }
-  
-  // Limpiar y formatear
-  const numbers = dni.replace(/[^0-9]/g, '');
-  return numbers ? `V-${numbers}` : 'V-';
 };

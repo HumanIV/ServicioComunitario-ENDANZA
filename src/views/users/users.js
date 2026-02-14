@@ -11,8 +11,10 @@ import CIcon from '@coreui/icons-react'
 import {
     cilPlus, cilPencil, cilTrash, cilUser, cilShieldAlt,
     cilPeople, cilInfo, cilSearch, cilCheckCircle, cilWarning,
-    cilBan, cilCheck, cilLockLocked,cilCircle,cilReportSlash
+    cilBan, cilCheck, cilLockLocked, cilCircle, cilReportSlash,
+    cilArrowLeft, cilSpeedometer
 } from '@coreui/icons'
+import { useNavigate } from 'react-router-dom'
 
 import UserForm from './UserForm'
 import InfoUser from './InfoUser'
@@ -23,6 +25,7 @@ import Pagination from 'src/components/Pagination'
 import SystemMessageModal from 'src/components/SystemMessageModal'
 
 const Users = () => {
+    const navigate = useNavigate()
     const [data, setData] = useState([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
@@ -184,30 +187,80 @@ const Users = () => {
 
     return (
         <CContainer fluid className="mt-4 pb-5">
+            {/* ✅ BOTÓN DE REGRESO - HEADER SUPERIOR (COLORES DEL SISTEMA #E07A00) */}
+            <div className="mb-4 d-flex align-items-center">
+                <CButton
+                    color="light"
+                    className="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border-0"
+                    style={{ width: '48px', height: '48px', backgroundColor: 'rgba(224, 122, 0, 0.1)' }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(224, 122, 0, 0.2)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(224, 122, 0, 0.1)'}
+                    onClick={() => navigate('/dashboard')}
+                    title="Volver al Dashboard"
+                >
+                    <CIcon icon={cilArrowLeft} style={{ color: '#E07A00' }} size="lg" />
+                </CButton>
+                <div>
+                    <h5 className="fw-bold header-title-custom mb-0 d-flex align-items-center">
+                        <CIcon icon={cilSpeedometer} className="me-2" style={{ color: '#E07A00' }} size="sm" />
+                        Dashboard / <span style={{ color: '#E07A00' }}>Gestión de Usuarios</span>
+                    </h5>
+                    <p className="text-muted-custom small mb-0">Regresar al panel principal</p>
+                </div>
+            </div>
+
             <CCard className="shadow-lg border-0 mb-4 premium-card" style={{ borderRadius: '20px' }}>
-                <div className="bg-primary" style={{ height: '8px', borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}></div>
+                <div style={{ 
+                    height: '8px', 
+                    borderTopLeftRadius: '20px', 
+                    borderTopRightRadius: '20px',
+                    background: 'linear-gradient(90deg, #E07A00, #C66900)'
+                }}></div>
                 <CCardHeader className="bg-light-custom border-0 pt-4 px-4" style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}>
                     <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
                         <div>
                             <h3 className="fw-bold header-title-custom mb-1">
-                                <CIcon icon={cilPeople} className="me-2 text-primary" size="lg" />
+                                <CIcon icon={cilPeople} className="me-2" style={{ color: '#E07A00' }} size="lg" />
                                 Gestión de Usuarios
                             </h3>
                             <p className="text-muted-custom mb-0 small fw-medium">Control de accesos y administración del personal</p>
                         </div>
-                        <CButton
-                            className="btn-premium px-4 d-flex align-items-center shadow-sm"
-                            onClick={() => { setEditing(null); setShowForm(true); }}
-                        >
-                            <CIcon icon={cilPlus} className="me-2 fw-bold" />
-                            NUEVO USUARIO
-                        </CButton>
+                        <div className="d-flex gap-2">
+                            <CButton
+                                className="px-4 d-flex align-items-center shadow-sm border-0"
+                                style={{ 
+                                    backgroundColor: '#E07A00',
+                                    color: 'white'
+                                }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = '#C66900'}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = '#E07A00'}
+                                onClick={() => { setEditing(null); setShowForm(true); }}
+                            >
+                                <CIcon icon={cilPlus} className="me-2 fw-bold" />
+                                NUEVO USUARIO
+                            </CButton>
+                        </div>
                     </div>
                 </CCardHeader>
                 <CCardBody className="p-4 bg-light-custom">
+                    {/* ✅ BREADCRUMB SIMPLE (COLORES DEL SISTEMA) */}
+                    <div className="mb-3 d-flex align-items-center">
+                        <span className="text-muted-custom small">
+                            <span 
+                                className="cursor-pointer" 
+                                onClick={() => navigate('/dashboard')} 
+                                style={{ color: '#E07A00' }}
+                            >
+                                Dashboard
+                            </span>
+                            <span className="mx-2">/</span>
+                            <span className="fw-bold">Gestión de Usuarios</span>
+                        </span>
+                    </div>
+
                     <div className="mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 bg-light-custom bg-opacity-10 p-3 rounded-4 border border-light-custom border-opacity-10 shadow-sm">
                         <div className="small fw-bold text-muted-custom text-uppercase ls-1">
-                            Total Registros: <span className="text-primary">{filteredUsers.length}</span>
+                            Total Registros: <span style={{ color: '#E07A00' }}>{filteredUsers.length}</span>
                         </div>
                         <div style={{ maxWidth: '400px', width: '100%' }}>
                             <SearchInput
@@ -221,7 +274,7 @@ const Users = () => {
 
                     {loading ? (
                         <div className="text-center py-5">
-                            <CSpinner color="primary" variant="grow" />
+                            <CSpinner style={{ color: '#E07A00' }} variant="grow" />
                             <div className="mt-3 text-muted fw-medium">Cargando base de datos segura...</div>
                         </div>
                     ) : currentPageData.length > 0 ? (
@@ -247,6 +300,7 @@ const Users = () => {
                                                                 name={user.first_name + ' ' + user.last_name}
                                                                 size="md"
                                                                 className="shadow-sm border border-light"
+                                                                style={{ background: 'linear-gradient(135deg, #E07A00, #C66900)' }}
                                                             />
                                                         </div>
                                                         <div className="overflow-hidden">
@@ -279,9 +333,8 @@ const Users = () => {
                                                             className="px-3 border-0 btn-icon-premium bg-transparent"
                                                             title="Ver información"
                                                         >
-                                                            <CIcon icon={cilInfo} className="text-primary" />
+                                                            <CIcon icon={cilInfo} style={{ color: '#E07A00' }} />
                                                         </CButton>
-
 
                                                         {/* Botón Cambiar Rol */}
                                                         <CButton
@@ -292,7 +345,7 @@ const Users = () => {
                                                             title="Cambiar rol"
                                                             disabled={user.role === 'superadmin'}
                                                         >
-                                                            <CIcon icon={cilReportSlash} className="text-primary" />
+                                                            <CIcon icon={cilReportSlash} style={{ color: '#E07A00' }} />
                                                         </CButton>
 
                                                         {/* Botón Cambiar Estado */}
@@ -303,9 +356,24 @@ const Users = () => {
                                                             className="px-3 border-0 btn-icon-premium bg-transparent"
                                                             title="Cambiar estado"
                                                         >
-                                                            <CIcon icon={cilBan} className="text-primary" />
+                                                            <CIcon icon={cilBan} style={{ color: '#E07A00' }} />
                                                         </CButton>
 
+                                                        {/* Botón Eliminar */}
+                                                        <CButton
+                                                            color="light"
+                                                            size="sm"
+                                                            disabled={user.role === 'superadmin' || user.role === 'admin'}
+                                                            onClick={() => setDeleteModal({ 
+                                                                visible: true, 
+                                                                userId: user.id, 
+                                                                userName: `${user.first_name} ${user.last_name}` 
+                                                            })}
+                                                            className="px-3 border-0 btn-icon-premium bg-transparent"
+                                                            title="Eliminar usuario"
+                                                        >
+                                                            <CIcon icon={cilTrash} style={{ color: '#E07A00' }} />
+                                                        </CButton>
                                                     </CButtonGroup>
                                                 </CTableDataCell>
                                             </CTableRow>
@@ -323,11 +391,36 @@ const Users = () => {
                         <div className="text-center py-5 border rounded-4 border-dashed bg-light">
                             <CIcon icon={cilSearch} size="3xl" className="text-muted opacity-25 mb-3" />
                             <h5 className="text-muted">No se encontraron usuarios</h5>
-                            <CButton color="link" onClick={() => setSearchTerm('')}>Limpiar búsqueda</CButton>
+                            <CButton 
+                                color="link" 
+                                onClick={() => setSearchTerm('')}
+                                style={{ color: '#E07A00' }}
+                            >
+                                Limpiar búsqueda
+                            </CButton>
                         </div>
                     )}
                 </CCardBody>
             </CCard>
+
+            {/* ✅ BOTÓN FLOTANTE DE REGRESO PARA MÓVIL (COLORES DEL SISTEMA) */}
+            <div className="d-block d-md-none position-fixed" style={{ bottom: '20px', right: '20px', zIndex: 1000 }}>
+                <CButton
+                    className="rounded-circle d-flex align-items-center justify-content-center shadow-lg border-0"
+                    style={{ 
+                        width: '56px', 
+                        height: '56px', 
+                        backgroundColor: '#E07A00',
+                        color: 'white'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#C66900'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#E07A00'}
+                    onClick={() => navigate('/dashboard')}
+                    title="Volver al Dashboard"
+                >
+                    <CIcon icon={cilArrowLeft} size="xl" />
+                </CButton>
+            </div>
 
             {/* Modal para Cambiar Rol */}
             <CModal visible={showRoleModal} onClose={() => setShowRoleModal(false)} alignment="center">
@@ -355,6 +448,9 @@ const Users = () => {
                     </CButton>
                     <CButton 
                         color="primary" 
+                        style={{ backgroundColor: '#E07A00', borderColor: '#E07A00' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#C66900'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#E07A00'}
                         onClick={handleRoleUpdate}
                         disabled={!selectedRole}
                     >
@@ -389,6 +485,9 @@ const Users = () => {
                     </CButton>
                     <CButton 
                         color="primary" 
+                        style={{ backgroundColor: '#E07A00', borderColor: '#E07A00' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#C66900'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#E07A00'}
                         onClick={handleStatusUpdate}
                         disabled={!selectedStatus}
                     >

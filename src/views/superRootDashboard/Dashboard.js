@@ -1,3 +1,5 @@
+// Archivo: src/dashboard/SuperRootDashboard.jsx
+
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -16,31 +18,31 @@ import {
   CButton
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilAddressBook, cilExternalLink, cilChevronBottom } from '@coreui/icons'
+import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilExternalLink, cilChevronBottom } from '@coreui/icons'
 
 // Componentes
 import StatsWidgets from './components/widgets/statsWidgets'
 import TeacherSectionsList from './components/TeacherSectionsList'
 import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal'
 import SubidaNotasModal from './components/modals/subidaNotasModal'
-<<<<<<< Updated upstream
-=======
 import ValidacionNotasModal from './components/modals/validacionNotasModal'
 import ControlBoletinesModal from './components/modals/controlBoletinesModal'
 import CrearAnioModal from './components/modals/CrearAnioModal'
->>>>>>> Stashed changes
 import SystemMessageModal from '../../components/SystemMessageModal'
 
-// Hook y servicios
-import useSuperRootData from './hooks/userSuperRootData'
-import { addAcademicYear, getAvailableYears } from '../../services/schedules'
+// Hooks y servicios
+import useDashboardData from './hooks/useDashboardData'
+import { getAvailableYears, addAcademicYear } from '../../services/configService'
 
 export const SuperRootDashboard = () => {
   const navigate = useNavigate()
-  const [currentYear, setCurrentYear] = useState('')
+  const [currentYear, setCurrentYear] = useState(null)
   const [availableYears, setAvailableYears] = useState([])
+  const [visibleCrearAnio, setVisibleCrearAnio] = useState(false)
 
+  // ✅ Hook con todos los datos necesarios - INCLUYE TEACHERS
   const {
+    // Datos básicos
     periodoInscripcion,
     periodoSubidaNotas,
     usuarios,
@@ -48,32 +50,32 @@ export const SuperRootDashboard = () => {
     students,
     sections,
     loading,
-<<<<<<< Updated upstream
-=======
-
+    
     // Nuevos datos
     notasPendientes,
     boletines,
     teachers, // ✅ AGREGADO - AHORA ESTÁ DEFINIDO
-
+    
     // Estados de modales
->>>>>>> Stashed changes
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
     visibleSubidaNotas,
     setVisibleSubidaNotas,
-<<<<<<< Updated upstream
-=======
     visibleValidacionNotas,
     setVisibleValidacionNotas,
     visibleControlBoletines,
     setVisibleControlBoletines,
-
+    
     // Acciones
->>>>>>> Stashed changes
     guardarPeriodoInscripcion,
-    guardarPeriodoSubidaNotas
-  } = useSuperRootData()
+    guardarPeriodoSubidaNotas,
+    aprobarNotaPendiente,
+    rechazarNotaPendiente,
+    aprobarTodasNotasPendientes,
+    toggleBoletin,
+    habilitarTodosBoletinesDelAnio,
+    refreshData
+  } = useDashboardData(currentYear?.id)
 
   const [messageModal, setMessageModal] = useState({
     visible: false,
@@ -84,6 +86,7 @@ export const SuperRootDashboard = () => {
     onConfirm: null
   })
 
+  // Cargar años disponibles al montar el componente
   useEffect(() => {
     fetchYears()
   }, [])
@@ -93,7 +96,7 @@ export const SuperRootDashboard = () => {
       const years = await getAvailableYears()
       console.log("Años recibidos:", years)
       setAvailableYears(Array.isArray(years) ? years : [])
-
+      
       // Seleccionar el primer año por defecto, o el activo si existe
       if (years.length > 0 && !currentYear) {
         // Buscar el año 2024-2025 primero si existe
@@ -103,26 +106,27 @@ export const SuperRootDashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching years:", error)
+      setAvailableYears([])
     }
   }
 
   const confirmCreateYear = async (nuevoAnio) => {
     try {
       const response = await addAcademicYear(nuevoAnio)
-
+      
       if (response.ok) {
         await fetchYears() // Recargar la lista
-
+        
         // Mostrar mensaje de éxito
         showSystemMessage('¡Éxito!', `Ciclo ${nuevoAnio} creado y aperturado correctamente.`, 'success')
-
+        
         return true
       } else {
         throw new Error(response.msg || 'No se pudo crear el ciclo')
       }
     } catch (e) {
       showSystemMessage('Error', 'No se pudo crear el ciclo: ' + e.message, 'error')
-      return false
+      throw e
     }
   }
 
@@ -171,13 +175,13 @@ export const SuperRootDashboard = () => {
   const handleHabilitarTodosBoletines = async () => {
     if (notasPendientes.length > 0) {
       showSystemMessage(
-        'Validación requerida',
-        'No se pueden habilitar los boletines porque hay notas pendientes de validación.',
+        'Validación requerida', 
+        'No se pueden habilitar los boletines porque hay notas pendientes de validación.', 
         'warning'
       )
       return
     }
-
+    
     const success = await habilitarTodosBoletinesDelAnio()
     if (success) {
       showSystemMessage('Éxito', 'Todos los boletines fueron habilitados', 'success')
@@ -210,9 +214,11 @@ export const SuperRootDashboard = () => {
     )
   }
 
+  const puedeHabilitarBoletines = notasPendientes.length === 0
+
   return (
     <CContainer fluid className="px-0 pb-5 overflow-hidden">
-      {/* HEADER REFINADO */}
+      {/* HEADER */}
       <div className="mb-4 mb-md-5 mt-4 px-3 px-md-4">
         <CRow className="align-items-center g-3">
           <CCol xs={12} lg={7}>
@@ -235,17 +241,17 @@ export const SuperRootDashboard = () => {
                 className="bg-glass-premium border border-light-custom border-opacity-10 fw-bold text-primary-header small d-flex align-items-center px-3 py-2 rounded-pill hover-lift shadow-none"
               >
                 <CIcon icon={cilSchool} className="me-2 text-primary" />
-                <span>CICLO {currentYear}</span>
+                <span>CICLO {currentYear?.name || 'CARGANDO...'}</span>
                 <CIcon icon={cilChevronBottom} className="ms-2 opacity-50" size="sm" />
               </CDropdownToggle>
               <CDropdownMenu className="cycle-dropdown-menu">
                 {availableYears.map(year => (
                   <CDropdownItem
-                    key={year}
+                    key={year.id}
                     onClick={() => setCurrentYear(year)}
-                    className={`cycle-dropdown-item ${currentYear === year ? 'active' : ''}`}
+                    className={`cycle-dropdown-item ${currentYear?.id === year.id ? 'active' : ''}`}
                   >
-                    Período {year}
+                    Período {year.name}
                   </CDropdownItem>
                 ))}
               </CDropdownMenu>
@@ -265,58 +271,52 @@ export const SuperRootDashboard = () => {
       </div>
 
       <div className="px-3 px-md-4">
-        {/* WIDGETS DE ESTADÍSTICAS */}
+
+        {/* WIDGETS DE ESTADÍSTICAS - Actualizado con notas y boletines */}
         <StatsWidgets
-          students={students}
-          repsCount={repsCount}
+          students={students || []}
+          repsCount={repsCount || 0}
           periodoInscripcion={periodoInscripcion}
           periodoSubidaNotas={periodoSubidaNotas}
+          notasPendientes={notasPendientes}
+          boletines={boletines}
           onOpenPeriodoInscripcion={() => setVisiblePeriodoInscripcion(true)}
           onOpenSubidaNotas={() => setVisibleSubidaNotas(true)}
+          onOpenValidacionNotas={() => setVisibleValidacionNotas(true)}
+          onOpenControlBoletines={() => setVisibleControlBoletines(true)}
         />
 
         <CRow className="gy-4">
           <CCol xs={12} lg={8}>
-<<<<<<< Updated upstream
-  <TeacherSectionsList sections={sections} />
-=======
-            <TeacherSectionsList
-              sections={sections || []}
+            <TeacherSectionsList 
+              sections={sections || []} 
               teachers={teachers || []}  // ✅ AHORA teachers ESTÁ DEFINIDO
-              currentYear={currentYear}
+              currentYear={currentYear} 
               loading={loading}
             />
->>>>>>> Stashed changes
-          </CCol >
+          </CCol>
 
-  <CCol xs={12} lg={4}>
-    {/* PANEL DE USUARIOS REFINADO */}
-    <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
-      <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
-        <div className="d-flex align-items-center justify-content-between mb-2">
-          <h5 className="fw-bold header-title-custom d-flex align-items-center mb-0">
-            <CIcon icon={cilUser} className="me-2 text-primary" />
-            Accesos
-          </h5>
-          <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1">
-            {usuarios.length} TOTAL
-          </CBadge>
-        </div>
-      </CCardHeader>
-      <CCardBody className="px-4 py-4">
-        <div className="d-flex flex-column gap-2 mb-4">
-<<<<<<< Updated upstream
-{
-  usuarios.slice(0, 5).map(u => (
-                    <div key={u.id} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
-                      <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" style={{ width: '40px', height: '40px' }}>
-                        {u.nombre[0]}
-=======
+          <CCol xs={12} lg={4}>
+            {/* PANEL DE USUARIOS */}
+            <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
+              <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
+                <div className="d-flex align-items-center justify-content-between mb-2">
+                  <h5 className="fw-bold header-title-custom d-flex align-items-center mb-0">
+                    <CIcon icon={cilUser} className="me-2 text-primary" />
+                    Accesos
+                  </h5>
+                  <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1">
+                    {usuarios?.length || 0} TOTAL
+                  </CBadge>
+                </div>
+              </CCardHeader>
+              <CCardBody className="px-4 py-4">
+                <div className="d-flex flex-column gap-2 mb-4">
                   {usuarios && usuarios.length > 0 ? (
-          usuarios.slice(0, 5).map(u => (
+                    usuarios.slice(0, 5).map(u => (
                       <div key={u?.id || Math.random()} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
-                        <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0"
-                          style={{ width: '40px', height: '40px' }}>
+                        <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" 
+                             style={{ width: '40px', height: '40px' }}>
                           {u?.nombre ? u.nombre[0] : '?'}
                         </div>
                         <div className="flex-grow-1 overflow-hidden">
@@ -332,49 +332,65 @@ export const SuperRootDashboard = () => {
                         ) : (
                           <span className="badge-dot bg-danger"></span>
                         )}
->>>>>>> Stashed changes
                       </div>
-                      <div className="flex-grow-1 overflow-hidden">
-                        <div className="fw-bold header-title-custom text-truncate small">{u.nombre}</div>
-                        <div className="text-muted-custom text-truncate" style={{ fontSize: '0.7rem' }}>{u.rol.toUpperCase()}</div>
-                      </div>
-                      {
-              u.activo ? (
-                <span className="badge-dot bg-success"></span>
-              ) : (
-                <span className="badge-dot bg-danger"></span>
-              )
-            }
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-muted-custom">
+                      No hay usuarios para mostrar
                     </div>
-                  ))}
-    </div>
+                  )}
+                </div>
 
-    <CButton
-      className="w-100 rounded-pill fw-bold py-3 btn-orange-outline d-flex align-items-center justify-content-center"
-      onClick={() => navigate('/users')}
-    >
-      GESTIONAR TODOS LOS USUARIOS
-      <CIcon icon={cilExternalLink} className="ms-2" size="sm" />
-    </CButton>
-              </CCardBody >
-            </CCard >
-          </CCol >
-        </CRow >
-      </div >
+                <CButton
+                  className="w-100 rounded-pill fw-bold py-3 btn-orange-outline d-flex align-items-center justify-content-center"
+                  onClick={() => navigate('/users')}
+                >
+                  GESTIONAR TODOS LOS USUARIOS
+                  <CIcon icon={cilExternalLink} className="ms-2" size="sm" />
+                </CButton>
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+      </div>
 
-    {/* MODALES */ }
-    < PeriodoInscripcionModal
-        visible = { visiblePeriodoInscripcion }
-        onClose = {() => setVisiblePeriodoInscripcion(false)}
-periodoInscripcion = { periodoInscripcion }
-onSave = { guardarPeriodoInscripcion }
-  />
+      {/* MODALES */}
+      <PeriodoInscripcionModal
+        visible={visiblePeriodoInscripcion}
+        onClose={() => setVisiblePeriodoInscripcion(false)}
+        periodoInscripcion={periodoInscripcion}
+        onSave={guardarPeriodoInscripcion}
+      />
 
       <SubidaNotasModal
         visible={visibleSubidaNotas}
         onClose={() => setVisibleSubidaNotas(false)}
         periodoSubida={periodoSubidaNotas}
         onSave={guardarPeriodoSubidaNotas}
+      />
+
+      <ValidacionNotasModal
+        visible={visibleValidacionNotas}
+        onClose={() => setVisibleValidacionNotas(false)}
+        notasPendientes={notasPendientes}
+        onAprobar={handleAprobarNota}
+        onRechazar={handleRechazarNota}
+      />
+
+      <ControlBoletinesModal
+        visible={visibleControlBoletines}
+        onClose={() => setVisibleControlBoletines(false)}
+        boletines={boletines}
+        onToggleDisponible={handleToggleBoletin}
+        onHabilitarTodos={handleHabilitarTodosBoletines}
+      />
+
+      <CrearAnioModal
+        visible={visibleCrearAnio}
+        onClose={() => setVisibleCrearAnio(false)}
+        onConfirm={confirmCreateYear}
+        currentYear={currentYear}
+        existingYears={availableYears}
       />
 
       <SystemMessageModal
@@ -386,7 +402,7 @@ onSave = { guardarPeriodoInscripcion }
         title={messageModal.title}
         message={messageModal.message}
       />
-    </CContainer >
+    </CContainer>
   )
 }
 

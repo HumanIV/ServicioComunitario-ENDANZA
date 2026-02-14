@@ -8,7 +8,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilClock, cilPeople } from '@coreui/icons'
-import { listStudents } from 'src/services/students'
+import { listStudents } from 'src/services/studentsService'
 
 // Importar los nuevos componentes
 import WelcomeBanner from './components/WelcomeBanner'

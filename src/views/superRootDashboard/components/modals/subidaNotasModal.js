@@ -13,7 +13,7 @@ import {
     CCol,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilCloudUpload, cilClock, cilSave, cilWarning, cilCalendar, cilPowerStandby } from '@coreui/icons'
+import { cilCloudUpload, cilClock, cilSave, cilWarning, cilCalendar, cilPowerStandby, cilCheckCircle} from '@coreui/icons'
 
 const SubidaNotasModal = ({
     visible,
@@ -46,10 +46,18 @@ const SubidaNotasModal = ({
         const startDate = new Date(localData.fechaInicio)
         const endDate = new Date(localData.fechaFin)
 
-        if (!localData.activo) {
-            return { type: 'closed', message: 'Recepción Desactivada', detail: 'Los docentes no tienen permiso para cargar notas', icon: cilPowerStandby, color: 'muted' }
+        // ✅ PRIMERO: Verificar si está activo
+        if (localData.activo) {
+            return { 
+                type: 'active', 
+                message: 'Carga Habilitada', 
+                detail: `Los docentes pueden subir notas hasta el ${formatDateDisplay(localData.fechaFin)}`, 
+                icon: cilCheckCircle, 
+                color: 'success' 
+            }
         }
 
+        // ❌ SOLO si NO está activo, verificar fechas
         if (today > endDate) {
             return { type: 'expired', message: 'Periodo Finalizado', detail: `La recepción cerró el ${formatDateDisplay(localData.fechaFin)}`, icon: cilWarning, color: 'danger' }
         }
@@ -58,7 +66,8 @@ const SubidaNotasModal = ({
             return { type: 'pending', message: 'Programado', detail: `Habilitación automática el ${formatDateDisplay(localData.fechaInicio)}`, icon: cilClock, color: 'warning' }
         }
 
-        return { type: 'active', message: 'Carga Habilitada', detail: `Los docentes pueden subir notas hasta el ${formatDateDisplay(localData.fechaFin)}`, icon: cilCheckCircle, color: 'success' }
+        // Si no está activo pero está en fechas
+        return { type: 'closed', message: 'Recepción Desactivada', detail: 'Los docentes no tienen permiso para cargar notas', icon: cilPowerStandby, color: 'muted' }
     }
 
     const status = getStatus()

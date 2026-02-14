@@ -4,7 +4,7 @@ import {
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import { cilEducation, cilPeople, cilSchool } from "@coreui/icons";
-import { listStudents } from 'src/services/students';
+import { listStudents } from 'src/services/studentsService';
 import WelcomeBanner from '../Inicio/components/WelcomeBanner';
 import StudentSelectionCard from '../Inicio/components/StudentSelectionCard';
 import InscripcionCompletaForm from "./components/inscripcion/inscripcionCompletaForm";

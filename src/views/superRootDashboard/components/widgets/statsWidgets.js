@@ -1,3 +1,5 @@
+// Archivo: src/dashboard/components/widgets/statsWidgets.js
+
 import React from 'react'
 import {
   CRow,
@@ -6,34 +8,37 @@ import {
   CCardBody
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import {
+import { 
   cilArrowRight,
-  cilUser,
-  cilSchool,
-  cilCalendar,
-  cilPencil,
-  cilCheckCircle,
+  cilUser, 
+  cilSchool, 
+  cilCalendar, 
+  cilPencil, 
+  cilCheckCircle, 
   cilCloudDownload,
   cilSpeedometer,
-  cilGroup
+  cilGroup,
+  cilChart,
+  cilNotes,
+  cilColorBorder
 } from '@coreui/icons'
 
-const StatsWidgets = ({
+const StatsWidgets = ({ 
   // Datos
-  students = [],
+  students = [], 
   repsCount = 0,
-  periodoInscripcion = { activo: false },
-  periodoSubidaNotas = { activo: false },
+  periodoInscripcion,
+  periodoSubidaNotas,
   notasPendientes = [],
   boletines = [],
-
+  
   // Acciones
   onOpenPeriodoInscripcion,
   onOpenSubidaNotas,
   onOpenValidacionNotas,
   onOpenControlBoletines
 }) => {
-
+  
   const notasPendientesCount = notasPendientes.length;
   const boletinesDisponibles = boletines.filter(b => b.disponible).length;
   const puedeHabilitarBoletines = notasPendientesCount === 0;
@@ -59,8 +64,8 @@ const StatsWidgets = ({
       color: colors.warning,
       action: onOpenValidacionNotas,
       badge: notasPendientesCount > 0 ? notasPendientesCount : null,
-      description: notasPendientesCount > 0
-        ? `${notasPendientesCount} pendiente${notasPendientesCount !== 1 ? 's' : ''}`
+      description: notasPendientesCount > 0 
+        ? `${notasPendientesCount} pendiente${notasPendientesCount !== 1 ? 's' : ''}` 
         : 'Sin pendientes',
       gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)'
     },
@@ -70,8 +75,8 @@ const StatsWidgets = ({
       color: puedeHabilitarBoletines ? colors.primary : colors.secondary,
       action: onOpenControlBoletines,
       disabled: !puedeHabilitarBoletines && boletines.length > 0,
-      description: boletinesDisponibles > 0
-        ? `${boletinesDisponibles} disponible${boletinesDisponibles !== 1 ? 's' : ''}`
+      description: boletinesDisponibles > 0 
+        ? `${boletinesDisponibles} disponible${boletinesDisponibles !== 1 ? 's' : ''}` 
         : 'Ninguno disponible',
       gradient: 'linear-gradient(135deg, #F28C0F 0%, #F5A623 100%)'
     },
@@ -99,7 +104,7 @@ const StatsWidgets = ({
       <CRow className="g-4 mb-4">
         {/* Columna izquierda - Acciones rápidas (más ancha) */}
         <CCol lg={8}>
-          <CCard className="border-0 shadow-sm overflow-hidden" style={{
+          <CCard className="border-0 shadow-sm overflow-hidden" style={{ 
             borderRadius: '24px',
             background: colors.background,
             border: '1px solid rgba(242, 140, 15, 0.1)'
@@ -107,9 +112,9 @@ const StatsWidgets = ({
             <CCardBody className="p-4">
               {/* Header */}
               <div className="d-flex align-items-center mb-4">
-                <div
+                <div 
                   className="rounded-2 p-2 me-2 d-flex align-items-center justify-content-center"
-                  style={{
+                  style={{ 
                     background: `linear-gradient(135deg, ${colors.primary}20, ${colors.primary}05)`,
                     color: colors.primary
                   }}
@@ -128,9 +133,9 @@ const StatsWidgets = ({
               <CRow className="g-3">
                 {quickActions.map((action, index) => (
                   <CCol xs={12} md={6} key={`action-${index}`}>
-                    <CCard
+                    <CCard 
                       className={`border-0 h-100 transition-all ${action.action ? 'cursor-pointer' : ''} ${action.disabled ? 'opacity-50' : ''}`}
-                      style={{
+                      style={{ 
                         borderRadius: '16px',
                         background: `linear-gradient(135deg, ${action.color}08, ${action.color}02)`,
                         border: `1px solid ${action.color}20`,
@@ -141,9 +146,9 @@ const StatsWidgets = ({
                       <CCardBody className="p-3">
                         <div className="d-flex">
                           {/* Icono con gradiente */}
-                          <div
+                          <div 
                             className="rounded-3 p-2 me-3 d-flex align-items-center justify-content-center"
-                            style={{
+                            style={{ 
                               width: '44px',
                               height: '44px',
                               background: action.gradient,
@@ -153,7 +158,7 @@ const StatsWidgets = ({
                           >
                             <CIcon icon={action.icon} size="lg" />
                           </div>
-
+                          
                           {/* Contenido */}
                           <div className="flex-grow-1">
                             <div className="d-flex align-items-center justify-content-between mb-1">
@@ -161,22 +166,22 @@ const StatsWidgets = ({
                                 {action.title}
                               </h6>
                               {action.badge && (
-                                <span className="badge rounded-pill"
-                                  style={{
-                                    backgroundColor: colors.danger,
-                                    color: 'white',
-                                    fontSize: '0.6rem',
-                                    padding: '3px 6px'
-                                  }}>
+                                <span className="badge rounded-pill" 
+                                      style={{ 
+                                        backgroundColor: colors.danger, 
+                                        color: 'white',
+                                        fontSize: '0.6rem',
+                                        padding: '3px 6px'
+                                      }}>
                                   {action.badge}
                                 </span>
                               )}
                             </div>
-
+                            
                             <p className="small mb-2" style={{ fontSize: '0.7rem', color: colors.textLight }}>
                               {action.description}
                             </p>
-
+                            
                             <div className="d-flex align-items-center justify-content-between">
                               <span className="small text-muted" style={{ fontSize: '0.6rem' }}>
                                 {action.shortcut}
@@ -199,7 +204,7 @@ const StatsWidgets = ({
 
         {/* Columna derecha - Estadísticas (más estrecha) */}
         <CCol lg={4}>
-          <CCard className="border-0 shadow-sm h-100 overflow-hidden" style={{
+          <CCard className="border-0 shadow-sm h-100 overflow-hidden" style={{ 
             borderRadius: '24px',
             background: `linear-gradient(135deg, ${colors.primary}08, ${colors.primary}02)`,
             border: '1px solid rgba(242, 140, 15, 0.2)'
@@ -207,9 +212,9 @@ const StatsWidgets = ({
             <CCardBody className="p-4">
               {/* Header */}
               <div className="d-flex align-items-center mb-4">
-                <div
+                <div 
                   className="rounded-2 p-2 me-2 d-flex align-items-center justify-content-center"
-                  style={{
+                  style={{ 
                     background: `linear-gradient(135deg, ${colors.primary}20, ${colors.primary}05)`,
                     color: colors.primary
                   }}
@@ -225,16 +230,16 @@ const StatsWidgets = ({
               </div>
 
               {/* Widget de Estudiantes */}
-              <CCard className="border-0 mb-3" style={{
+              <CCard className="border-0 mb-3" style={{ 
                 borderRadius: '16px',
                 background: 'white',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}>
                 <CCardBody className="p-3">
                   <div className="d-flex align-items-center">
-                    <div
+                    <div 
                       className="rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
-                      style={{
+                      style={{ 
                         width: '48px',
                         height: '48px',
                         background: '#FEF3E2',
@@ -256,16 +261,16 @@ const StatsWidgets = ({
               </CCard>
 
               {/* Widget de Representantes */}
-              <CCard className="border-0" style={{
+              <CCard className="border-0" style={{ 
                 borderRadius: '16px',
                 background: 'white',
                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
               }}>
                 <CCardBody className="p-3">
                   <div className="d-flex align-items-center">
-                    <div
+                    <div 
                       className="rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
-                      style={{
+                      style={{ 
                         width: '48px',
                         height: '48px',
                         background: '#FEF3E2',
@@ -288,7 +293,7 @@ const StatsWidgets = ({
 
               {/* Badge de total */}
               <div className="text-center mt-3">
-                <span className="badge rounded-pill px-3 py-2" style={{
+                <span className="badge rounded-pill px-3 py-2" style={{ 
                   background: `linear-gradient(135deg, ${colors.primary}20, ${colors.primary}05)`,
                   color: colors.primary,
                   fontSize: '0.75rem'
