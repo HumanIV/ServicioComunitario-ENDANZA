@@ -133,10 +133,10 @@ const Representantes = () => {
                         )}
                     </div>
                 </CCardHeader>
-                <CCardBody className="p-4 bg-light-custom">
-                    <div className="mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 bg-light-custom bg-opacity-10 p-3 rounded-4 border border-light-custom border-opacity-10 shadow-sm">
+                <CCardBody className="p-4">
+                    <div className="mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 bg-glass-premium p-3 rounded-4 border border-light-custom border-opacity-10 shadow-sm">
                         <div className="small fw-bold text-muted-custom text-uppercase ls-1">
-                            Total Representantes: <span className="text-warning">{filteredReps.length}</span>
+                            Total Representantes: <span className="text-primary">{filteredReps.length}</span>
                         </div>
                         <div style={{ maxWidth: '400px', width: '100%' }}>
                             <SearchInput
@@ -230,10 +230,10 @@ const Representantes = () => {
                             )}
                         </>
                     ) : (
-                        <div className="text-center py-5 border rounded-4 border-dashed bg-light">
-                            <CIcon icon={cilSearch} size="3xl" className="text-muted opacity-25 mb-3" />
-                            <h5 className="text-muted">No se encontraron representantes</h5>
-                            <CButton color="link" className="text-warning" onClick={() => setSearchTerm('')}>Limpiar criterios de búsqueda</CButton>
+                        <div className="text-center py-5 rounded-4 representante-empty-state">
+                            <CIcon icon={cilSearch} size="3xl" className="text-primary opacity-25 mb-3" />
+                            <h5 className="text-muted-custom fw-bold">No se encontraron representantes</h5>
+                            <CButton color="link" className="text-warning fw-bold text-decoration-none" onClick={() => setSearchTerm('')}>Limpiar criterios de búsqueda</CButton>
                         </div>
                     )}
                 </CCardBody>
@@ -258,11 +258,6 @@ const Representantes = () => {
                     </CToast>
                 ))}
             </CToaster>
-            <style>{`
-                [data-coreui-theme="dark"] .bg-warning.bg-opacity-10 {
-                    background-color: rgba(245, 185, 55, 0.15) !important;
-                }
-            `}</style>
         </CContainer>
     )
 }

@@ -17,12 +17,12 @@ import {
 import CIcon from '@coreui/icons-react'
 import { cilUser, cilSchool, cilWarning, cilCalendar } from '@coreui/icons'
 
-const AsignarEspecialidadGradosModal = ({ 
-    visible, 
-    onClose, 
-    teacher, 
-    specialties = [], 
-    grades = [], 
+const AsignarEspecialidadGradosModal = ({
+    visible,
+    onClose,
+    teacher,
+    specialties = [],
+    grades = [],
     onSave,
     currentYear // año actual
 }) => {
@@ -43,9 +43,9 @@ const AsignarEspecialidadGradosModal = ({
             } else {
                 setSelectedSpecialtyId('')
             }
-            
+
             // Filtrar solo los grados del año actual si existen
-            const currentYearGrades = currentYear 
+            const currentYearGrades = currentYear
                 ? (teacher.grades || []).filter(g => g.academicYearId === currentYear.id)
                 : teacher.grades || []
             setSelectedGrades(currentYearGrades.map(g => g.id))
@@ -55,7 +55,7 @@ const AsignarEspecialidadGradosModal = ({
 
     // Manejador para checkboxes de grados
     const handleGradeToggle = (gradeId) => {
-        setSelectedGrades(prev => 
+        setSelectedGrades(prev =>
             prev.includes(gradeId)
                 ? prev.filter(id => id !== gradeId)
                 : [...prev, gradeId]
@@ -82,7 +82,7 @@ const AsignarEspecialidadGradosModal = ({
 
         setLoading(true)
         setError('')
-        
+
         try {
             await onSave(teacher.id, {
                 specialtyId: selectedSpecialtyId ? parseInt(selectedSpecialtyId) : null,
@@ -99,30 +99,30 @@ const AsignarEspecialidadGradosModal = ({
     if (!teacher) return null
 
     return (
-        <CModal 
-            visible={visible} 
-            onClose={onClose} 
+        <CModal
+            visible={visible}
+            onClose={onClose}
             size="lg"
             alignment="center"
             backdrop="static"
         >
             <CModalHeader className="border-0 pb-0">
-                <CModalTitle className="d-flex align-items-center">
-                    <div className="bg-orange rounded-3 p-2 me-3 d-flex align-items-center justify-content-center shadow-orange-sm" 
+                <CModalTitle className="d-flex align-items-center header-title-custom">
+                    <div className="bg-primary rounded-4 p-2 me-3 d-flex align-items-center justify-content-center shadow-orange"
                         style={{ width: '48px', height: '48px' }}
                     >
                         <CIcon icon={cilUser} className="text-white" size="lg" />
                     </div>
                     <div>
-                        <h5 className="mb-0 fw-bold">Asignar Especialidad y Grados</h5>
-                        <small className="text-muted">
+                        <h5 className="mb-0 fw-bold header-title-custom">Asignar Especialidad y Grados</h5>
+                        <small className="text-muted-custom fw-medium">
                             {teacher.first_name} {teacher.last_name}
                         </small>
                         {currentYear && (
                             <div className="d-flex align-items-center mt-1">
-                                <CIcon icon={cilCalendar} size="sm" className="text-muted me-1" />
-                                <span className="small text-muted">
-                                    Asignaciones para: <strong>{currentYear.name}</strong>
+                                <CIcon icon={cilCalendar} size="sm" className="text-muted-custom me-1" />
+                                <span className="small text-muted-custom">
+                                    Asignaciones para: <strong className="text-primary">{currentYear.name}</strong>
                                 </span>
                             </div>
                         )}
@@ -140,17 +140,13 @@ const AsignarEspecialidadGradosModal = ({
 
                 {/* ESPECIALIDAD */}
                 <div className="mb-4">
-                    <CFormLabel className="fw-bold mb-2" style={{ color: '#1e293b' }}>
+                    <CFormLabel className="fw-bold mb-2 header-title-custom">
                         Especialidad para {currentYear?.name}
                     </CFormLabel>
                     <CFormSelect
                         value={selectedSpecialtyId}
                         onChange={(e) => setSelectedSpecialtyId(e.target.value)}
-                        style={{
-                            border: '1px solid rgba(224,122,0,0.2)',
-                            borderRadius: '12px',
-                            padding: '12px'
-                        }}
+                        className="bg-light-custom border-light-custom rounded-3 p-2"
                     >
                         <option value="">Selecciona una especialidad...</option>
                         {specialties.map(s => (
@@ -159,7 +155,7 @@ const AsignarEspecialidadGradosModal = ({
                             </option>
                         ))}
                     </CFormSelect>
-                    <small className="text-muted d-block mt-1">
+                    <small className="text-muted-custom d-block mt-1 fw-medium">
                         {selectedSpecialtyId ? 'Especialidad seleccionada' : 'Sin especialidad asignada'}
                     </small>
                 </div>
@@ -167,25 +163,19 @@ const AsignarEspecialidadGradosModal = ({
                 {/* GRADOS */}
                 <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                        <CFormLabel className="fw-bold mb-0" style={{ color: '#1e293b' }}>
+                        <CFormLabel className="fw-bold mb-0 header-title-custom">
                             Grados a Asignar ({currentYear?.name || ''})
                         </CFormLabel>
                         <CButton
                             color="link"
                             onClick={handleSelectAll}
                             size="sm"
-                            style={{ color: '#E07A00', textDecoration: 'none' }}
+                            className="text-primary text-decoration-none fw-bold"
                         >
                             {selectedGrades.length === grades.length ? 'Deseleccionar todos' : 'Seleccionar todos'}
                         </CButton>
                     </div>
-                    <div style={{
-                        maxHeight: '250px',
-                        overflowY: 'auto',
-                        border: '1px solid rgba(224,122,0,0.1)',
-                        borderRadius: '12px',
-                        padding: '12px'
-                    }}>
+                    <div className="bg-light-custom border border-light-custom rounded-4 p-3" style={{ maxHeight: '250px', overflowY: 'auto' }}>
                         {grades.length > 0 ? (
                             grades.map(grade => (
                                 <div key={grade.id} className="mb-2">
@@ -194,20 +184,16 @@ const AsignarEspecialidadGradosModal = ({
                                         label={`${grade.name} (${grade.level || 'danza'})`}
                                         checked={selectedGrades.includes(grade.id)}
                                         onChange={() => handleGradeToggle(grade.id)}
-                                        style={{ 
-                                            cursor: 'pointer',
-                                            padding: '8px',
-                                            borderRadius: '8px',
-                                            backgroundColor: selectedGrades.includes(grade.id) ? 'rgba(224,122,0,0.05)' : 'transparent'
-                                        }}
+                                        className={`p-2 rounded-3 transition-all ${selectedGrades.includes(grade.id) ? 'bg-primary bg-opacity-10' : ''}`}
+                                        style={{ cursor: 'pointer' }}
                                     />
                                 </div>
                             ))
                         ) : (
-                            <p className="text-muted text-center py-3">No hay grados disponibles</p>
+                            <p className="text-muted-custom text-center py-3">No hay grados disponibles</p>
                         )}
                     </div>
-                    <small className="text-muted d-block mt-2">
+                    <small className="text-muted-custom d-block mt-2 fw-medium">
                         {selectedGrades.length} grado(s) seleccionado(s)
                     </small>
                 </div>
@@ -219,20 +205,13 @@ const AsignarEspecialidadGradosModal = ({
                     variant="ghost"
                     onClick={onClose}
                     disabled={loading}
-                    className="px-4"
-                    style={{ borderRadius: '12px' }}
+                    className="px-4 rounded-3 text-muted-custom fw-bold"
                 >
                     Cancelar
                 </CButton>
                 <CButton
-                    className="px-4 text-white border-0"
-                    style={{
-                        background: 'linear-gradient(145deg, #E07A00, #C66900)',
-                        borderRadius: '12px',
-                        minWidth: '120px'
-                    }}
-                    onMouseEnter={(e) => e.target.style.background = 'linear-gradient(145deg, #C66900, #B05A00)'}
-                    onMouseLeave={(e) => e.target.style.background = 'linear-gradient(145deg, #E07A00, #C66900)'}
+                    className="px-4 text-white border-0 docente-btn-primary"
+                    style={{ borderRadius: '12px', minWidth: '120px' }}
                     onClick={handleSubmit}
                     disabled={loading}
                 >
@@ -242,15 +221,6 @@ const AsignarEspecialidadGradosModal = ({
                     {loading ? 'Guardando...' : 'Guardar Asignaciones'}
                 </CButton>
             </CModalFooter>
-
-            <style>{`
-                .bg-orange {
-                    background-color: #E07A00 !important;
-                }
-                .shadow-orange-sm {
-                    box-shadow: 0 4px 8px rgba(224, 122, 0, 0.2);
-                }
-            `}</style>
         </CModal>
     )
 }

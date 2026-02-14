@@ -43,21 +43,28 @@ const WelcomeHeader = ({
                             </div>
 
                             {/* SELECTOR DE PROFESOR */}
-                            <div className="bg-glass-premium p-2 px-3 rounded-pill border border-light-custom hover-shadow-sm transition-all shadow-sm w-100 d-flex justify-content-center" style={{ cursor: 'pointer' }}>
-                                <CDropdown className="w-100 text-center">
-                                    <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                            <div className="bg-glass-premium p-2 px-3 rounded-pill border border-light-custom hover-shadow-sm transition-all shadow-sm w-100 w-md-auto d-flex justify-content-center align-items-center" style={{ minWidth: 'fit-content' }}>
+                                {JSON.parse(localStorage.getItem('user') || '{}').rol === 'docente' ? (
+                                    <div className="fw-bold text-primary py-1 d-flex align-items-center text-nowrap">
                                         <CIcon icon={cilUser} className="me-2 opacity-50" />
-                                        {selectedTeacher || 'Seleccionar'}
-                                        <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
-                                    </CDropdownToggle>
-                                    <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll w-100" style={{ minWidth: '220px' }}>
-                                        {fullTeachersList.map(t => (
-                                            <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
-                                                {t}
-                                            </CDropdownItem>
-                                        ))}
-                                    </CDropdownMenu>
-                                </CDropdown>
+                                        {selectedTeacher}
+                                    </div>
+                                ) : (
+                                    <CDropdown className="w-100 text-center">
+                                        <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                                            <CIcon icon={cilUser} className="me-2 opacity-50" />
+                                            {selectedTeacher || 'Seleccionar'}
+                                            <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
+                                        </CDropdownToggle>
+                                        <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll w-100" style={{ minWidth: '220px' }}>
+                                            {fullTeachersList.map(t => (
+                                                <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
+                                                    {t}
+                                                </CDropdownItem>
+                                            ))}
+                                        </CDropdownMenu>
+                                    </CDropdown>
+                                )}
                             </div>
                         </div>
 
