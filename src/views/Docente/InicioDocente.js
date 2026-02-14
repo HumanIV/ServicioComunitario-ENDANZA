@@ -3,7 +3,7 @@ import { CContainer, CRow, CCol, CSpinner } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilSchool } from '@coreui/icons'
 import { listSections, getAvailableYears } from 'src/services/schedules'
-import { listStudents } from 'src/services/students'
+import { listStudents } from 'src/services/studentsService'
 
 // Components
 import WelcomeHeader from './components/inicio/WelcomeHeader'
