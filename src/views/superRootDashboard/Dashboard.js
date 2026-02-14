@@ -23,6 +23,12 @@ import StatsWidgets from './components/widgets/statsWidgets'
 import TeacherSectionsList from './components/TeacherSectionsList'
 import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal'
 import SubidaNotasModal from './components/modals/subidaNotasModal'
+<<<<<<< Updated upstream
+=======
+import ValidacionNotasModal from './components/modals/validacionNotasModal'
+import ControlBoletinesModal from './components/modals/controlBoletinesModal'
+import CrearAnioModal from './components/modals/CrearAnioModal'
+>>>>>>> Stashed changes
 import SystemMessageModal from '../../components/SystemMessageModal'
 
 // Hook y servicios
@@ -42,10 +48,29 @@ export const SuperRootDashboard = () => {
     students,
     sections,
     loading,
+<<<<<<< Updated upstream
+=======
+
+    // Nuevos datos
+    notasPendientes,
+    boletines,
+    teachers, // ✅ AGREGADO - AHORA ESTÁ DEFINIDO
+
+    // Estados de modales
+>>>>>>> Stashed changes
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
     visibleSubidaNotas,
     setVisibleSubidaNotas,
+<<<<<<< Updated upstream
+=======
+    visibleValidacionNotas,
+    setVisibleValidacionNotas,
+    visibleControlBoletines,
+    setVisibleControlBoletines,
+
+    // Acciones
+>>>>>>> Stashed changes
     guardarPeriodoInscripcion,
     guardarPeriodoSubidaNotas
   } = useSuperRootData()
@@ -66,76 +91,100 @@ export const SuperRootDashboard = () => {
   const fetchYears = async () => {
     try {
       const years = await getAvailableYears()
-      setAvailableYears(years)
-      if (years.length > 0 && !currentYear) setCurrentYear(years[0])
+      console.log("Años recibidos:", years)
+      setAvailableYears(Array.isArray(years) ? years : [])
+
+      // Seleccionar el primer año por defecto, o el activo si existe
+      if (years.length > 0 && !currentYear) {
+        // Buscar el año 2024-2025 primero si existe
+        const year2025 = years.find(y => y.name === '2024-2025')
+        const activeYear = years.find(y => y.active === true)
+        setCurrentYear(year2025 || activeYear || years[0])
+      }
     } catch (error) {
       console.error("Error fetching years:", error)
     }
   }
 
-  const checkCanCreateYear = () => {
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentCalendarYear = now.getFullYear()
-
-    if (currentMonth !== 8) {
-      return {
-        allowed: false,
-        reason: 'La apertura de nuevos ciclos académicos solo está permitida durante el mes de Septiembre.'
-      }
-    }
-
-    const lastCreated = localStorage.getItem('last_academic_year_creation_calendar_year')
-    if (lastCreated === currentCalendarYear.toString()) {
-      return {
-        allowed: false,
-        reason: 'El ciclo académico para este periodo ya ha sido aperturado previamente.'
-      }
-    }
-    return { allowed: true }
-  }
-
-  const confirmCreateYear = async () => {
-    closeMessageModal()
-    if (!currentYear) return
-
-    const [start, end] = currentYear.split('-').map(Number);
-    const nextYear = `${start + 1}-${end + 1}`;
-
+  const confirmCreateYear = async (nuevoAnio) => {
     try {
-      await addAcademicYear(nextYear)
-      localStorage.setItem('last_academic_year_creation_calendar_year', new Date().getFullYear().toString())
-      await fetchYears()
+      const response = await addAcademicYear(nuevoAnio)
 
-      setTimeout(() => {
-        showSystemMessage('¡Éxito!', `Ciclo ${nextYear} creado y aperturado correctamente.`, 'success')
-      }, 300)
+      if (response.ok) {
+        await fetchYears() // Recargar la lista
+
+        // Mostrar mensaje de éxito
+        showSystemMessage('¡Éxito!', `Ciclo ${nuevoAnio} creado y aperturado correctamente.`, 'success')
+
+        return true
+      } else {
+        throw new Error(response.msg || 'No se pudo crear el ciclo')
+      }
     } catch (e) {
-      setTimeout(() => {
-        showSystemMessage('Error', 'No se pudo crear el ciclo: ' + e.message, 'error')
-      }, 300)
+      showSystemMessage('Error', 'No se pudo crear el ciclo: ' + e.message, 'error')
+      return false
     }
   }
 
   const handleCreateNextYear = () => {
-    const validation = checkCanCreateYear()
-    if (!validation.allowed) {
-      showSystemMessage('Apertura Bloqueada', validation.reason, 'warning')
+    setVisibleCrearAnio(true)
+  }
+
+  const handleAprobarNota = async (notaId) => {
+    const success = await aprobarNotaPendiente(notaId)
+    if (success) {
+      showSystemMessage('Éxito', 'Nota aprobada correctamente', 'success')
+    } else {
+      showSystemMessage('Error', 'No se pudo aprobar la nota', 'error')
+    }
+  }
+
+  const handleRechazarNota = async (notaId) => {
+    const success = await rechazarNotaPendiente(notaId)
+    if (success) {
+      showSystemMessage('Éxito', 'Nota rechazada correctamente', 'success')
+    } else {
+      showSystemMessage('Error', 'No se pudo rechazar la nota', 'error')
+    }
+  }
+
+  const handleAprobarTodasNotas = async () => {
+    const success = await aprobarTodasNotasPendientes()
+    if (success) {
+      showSystemMessage('Éxito', 'Todas las notas fueron aprobadas', 'success')
+      setVisibleValidacionNotas(false)
+    } else {
+      showSystemMessage('Error', 'No se pudieron aprobar todas las notas', 'error')
+    }
+  }
+
+  const handleToggleBoletin = async (id) => {
+    const boletin = boletines.find(b => b.id === id)
+    const success = await toggleBoletin(id, !boletin.disponible)
+    if (success) {
+      showSystemMessage('Éxito', `Boletín ${!boletin.disponible ? 'habilitado' : 'deshabilitado'}`, 'success')
+    } else {
+      showSystemMessage('Error', 'No se pudo cambiar el estado del boletín', 'error')
+    }
+  }
+
+  const handleHabilitarTodosBoletines = async () => {
+    if (notasPendientes.length > 0) {
+      showSystemMessage(
+        'Validación requerida',
+        'No se pueden habilitar los boletines porque hay notas pendientes de validación.',
+        'warning'
+      )
       return
     }
 
-    if (!currentYear) return
-
-    const [start, end] = currentYear.split('-').map(Number);
-    const nextYear = `${start + 1}-${end + 1}`;
-
-    showSystemMessage(
-      'Confirmar Nuevo Ciclo',
-      `¿Desea aperturar oficialmente el nuevo Ciclo Académico ${nextYear}? Esta acción preparará el sistema para el nuevo periodo.`,
-      'info',
-      'confirm',
-      confirmCreateYear
-    )
+    const success = await habilitarTodosBoletinesDelAnio()
+    if (success) {
+      showSystemMessage('Éxito', 'Todos los boletines fueron habilitados', 'success')
+      setVisibleControlBoletines(false)
+    } else {
+      showSystemMessage('Error', 'No se pudieron habilitar todos los boletines', 'error')
+    }
   }
 
   const closeMessageModal = () => {
@@ -228,63 +277,98 @@ export const SuperRootDashboard = () => {
 
         <CRow className="gy-4">
           <CCol xs={12} lg={8}>
-            <TeacherSectionsList sections={sections} />
-          </CCol>
+<<<<<<< Updated upstream
+  <TeacherSectionsList sections={sections} />
+=======
+            <TeacherSectionsList
+              sections={sections || []}
+              teachers={teachers || []}  // ✅ AHORA teachers ESTÁ DEFINIDO
+              currentYear={currentYear}
+              loading={loading}
+            />
+>>>>>>> Stashed changes
+          </CCol >
 
-          <CCol xs={12} lg={4}>
-            {/* PANEL DE USUARIOS REFINADO */}
-            <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
-              <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
-                <div className="d-flex align-items-center justify-content-between mb-2">
-                  <h5 className="fw-bold header-title-custom d-flex align-items-center mb-0">
-                    <CIcon icon={cilUser} className="me-2 text-primary" />
-                    Accesos
-                  </h5>
-                  <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1">
-                    {usuarios.length} TOTAL
-                  </CBadge>
-                </div>
-              </CCardHeader>
-              <CCardBody className="px-4 py-4">
-                <div className="d-flex flex-column gap-2 mb-4">
-                  {usuarios.slice(0, 5).map(u => (
+  <CCol xs={12} lg={4}>
+    {/* PANEL DE USUARIOS REFINADO */}
+    <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
+      <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
+        <div className="d-flex align-items-center justify-content-between mb-2">
+          <h5 className="fw-bold header-title-custom d-flex align-items-center mb-0">
+            <CIcon icon={cilUser} className="me-2 text-primary" />
+            Accesos
+          </h5>
+          <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1">
+            {usuarios.length} TOTAL
+          </CBadge>
+        </div>
+      </CCardHeader>
+      <CCardBody className="px-4 py-4">
+        <div className="d-flex flex-column gap-2 mb-4">
+<<<<<<< Updated upstream
+{
+  usuarios.slice(0, 5).map(u => (
                     <div key={u.id} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
                       <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" style={{ width: '40px', height: '40px' }}>
                         {u.nombre[0]}
+=======
+                  {usuarios && usuarios.length > 0 ? (
+          usuarios.slice(0, 5).map(u => (
+                      <div key={u?.id || Math.random()} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
+                        <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0"
+                          style={{ width: '40px', height: '40px' }}>
+                          {u?.nombre ? u.nombre[0] : '?'}
+                        </div>
+                        <div className="flex-grow-1 overflow-hidden">
+                          <div className="fw-bold header-title-custom text-truncate small">
+                            {u?.nombre || 'Sin nombre'}
+                          </div>
+                          <div className="text-muted-custom text-truncate" style={{ fontSize: '0.7rem' }}>
+                            {u?.rol?.toUpperCase() || 'SIN ROL'}
+                          </div>
+                        </div>
+                        {u?.activo ? (
+                          <span className="badge-dot bg-success"></span>
+                        ) : (
+                          <span className="badge-dot bg-danger"></span>
+                        )}
+>>>>>>> Stashed changes
                       </div>
                       <div className="flex-grow-1 overflow-hidden">
                         <div className="fw-bold header-title-custom text-truncate small">{u.nombre}</div>
                         <div className="text-muted-custom text-truncate" style={{ fontSize: '0.7rem' }}>{u.rol.toUpperCase()}</div>
                       </div>
-                      {u.activo ? (
-                        <span className="badge-dot bg-success"></span>
-                      ) : (
-                        <span className="badge-dot bg-danger"></span>
-                      )}
+                      {
+              u.activo ? (
+                <span className="badge-dot bg-success"></span>
+              ) : (
+                <span className="badge-dot bg-danger"></span>
+              )
+            }
                     </div>
                   ))}
-                </div>
+    </div>
 
-                <CButton
-                  className="w-100 rounded-pill fw-bold py-3 btn-orange-outline d-flex align-items-center justify-content-center"
-                  onClick={() => navigate('/users')}
-                >
-                  GESTIONAR TODOS LOS USUARIOS
-                  <CIcon icon={cilExternalLink} className="ms-2" size="sm" />
-                </CButton>
-              </CCardBody>
-            </CCard>
-          </CCol>
-        </CRow>
-      </div>
+    <CButton
+      className="w-100 rounded-pill fw-bold py-3 btn-orange-outline d-flex align-items-center justify-content-center"
+      onClick={() => navigate('/users')}
+    >
+      GESTIONAR TODOS LOS USUARIOS
+      <CIcon icon={cilExternalLink} className="ms-2" size="sm" />
+    </CButton>
+              </CCardBody >
+            </CCard >
+          </CCol >
+        </CRow >
+      </div >
 
-      {/* MODALES */}
-      <PeriodoInscripcionModal
-        visible={visiblePeriodoInscripcion}
-        onClose={() => setVisiblePeriodoInscripcion(false)}
-        periodoInscripcion={periodoInscripcion}
-        onSave={guardarPeriodoInscripcion}
-      />
+    {/* MODALES */ }
+    < PeriodoInscripcionModal
+        visible = { visiblePeriodoInscripcion }
+        onClose = {() => setVisiblePeriodoInscripcion(false)}
+periodoInscripcion = { periodoInscripcion }
+onSave = { guardarPeriodoInscripcion }
+  />
 
       <SubidaNotasModal
         visible={visibleSubidaNotas}
