@@ -1,4 +1,4 @@
-// src/hooks/useUserRole.js - VERSIÓN DEFINITIVA CORREGIDA
+// src/hooks/useUserRole.js - VERSIÓN QUE FUNCIONABA
 import { useState, useEffect, useCallback } from 'react'
 import { userAPI } from '../api/user.api.js'
 
@@ -16,35 +16,10 @@ const useUserRole = () => {
     4: 'representante'
   }
 
-  const spanishToEnglishRole = {
-    'Administrador': 'admin',
-    'administrador': 'admin',
-    'Docente': 'docente',
-    'docente': 'docente',
-    'Estudiante': 'estudiante',
-    'estudiante': 'estudiante',
-    'Representante': 'representante',
-    'representante': 'representante'
-  }
-
-  const validateUserData = useCallback((userData) => {
-    const requiredFields = ['id', 'Id_rol']
-    
-    for (const field of requiredFields) {
-      if (!userData[field]) {
-        console.warn(`⚠️ Campo requerido faltante: ${field}`)
-        return false
-      }
-    }
-    return true
-  }, [])
-
   const fetchUserFromBackend = useCallback(async () => {
     try {
       const token = localStorage.getItem('accessToken')
-      if (!token) {
-        return null
-      }
+      if (!token) return null
 
       console.log('🔍 useUserRole - Obteniendo datos del usuario desde backend...')
       
@@ -60,11 +35,8 @@ const useUserRole = () => {
         throw new Error(`Error del servidor: ${response._status}`)
       }
 
-      if (!response.user) {
-        throw new Error('Respuesta inválida del servidor')
-      }
+      if (!response.user) throw new Error('Respuesta inválida del servidor')
 
-      // ✅ Obtener rol por ID (el método MÁS confiable)
       const roleId = response.user.Id_rol
       const roleName = roleMap[roleId] || 'estudiante'
       
@@ -72,7 +44,7 @@ const useUserRole = () => {
       
       const completeUserData = {
         ...response.user,
-        rol: roleName,              // ✅ AHORA SÍ TIENE VALOR!
+        rol: roleName,
         Id_rol: roleId,
         esAdmin: roleName === 'admin',
         esDocente: roleName === 'docente',
@@ -80,7 +52,6 @@ const useUserRole = () => {
         esRepresentante: roleName === 'representante'
       }
 
-      // ✅ GUARDAR INMEDIATAMENTE en localStorage
       localStorage.setItem('user', JSON.stringify(completeUserData))
       
       return completeUserData
@@ -93,13 +64,11 @@ const useUserRole = () => {
 
   const getUserData = useCallback(async (forceRefresh = false) => {
     try {
-      // SIEMPRE obtener datos frescos si hay token (temporal para limpiar cache)
       if (localStorage.getItem('accessToken')) {
         console.log('🔄 useUserRole - Forzando obtención de datos frescos')
         return await fetchUserFromBackend()
       }
       
-      // Fallback a cache solo si no hay token
       const cachedUser = localStorage.getItem('user')
       if (cachedUser) {
         const parsedUser = JSON.parse(cachedUser)
@@ -121,16 +90,16 @@ const useUserRole = () => {
       try {
         if (isMounted) setIsLoading(true)
         
-        const userData = await getUserData(true) // ✅ SIEMPRE forceRefresh = true
+        const userData = await getUserData(true)
         
         if (isMounted && userData) {
           setUserData(userData)
-          setUserRole(userData.rol)  // ✅ AHORA userData.rol TIENE VALOR!
+          setUserRole(userData.rol)
           setUserId(userData.id)
           
           console.log('✅ useUserRole - Datos cargados exitosamente:', {
             id: userData.id,
-            rol: userData.rol,  // ✅ Ya no será undefined
+            rol: userData.rol,
             tipo_rol: userData.tipo_rol
           })
         }

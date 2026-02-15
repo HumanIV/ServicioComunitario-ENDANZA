@@ -12,34 +12,58 @@ const SummaryItem = ({ icon, label, value }) => (
             </div>
             <span className="summary-label small fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>{label}</span>
         </div>
-        <div className="fw-bold summary-value">{value}</div>
+        <div className="fw-bold summary-value">{value || 'N/A'}</div>
     </div>
 )
 
 const ProfileSummary = ({ student }) => {
+    // Calcular edad desde fecha de nacimiento
+    const calcularEdad = (fechaNacimiento) => {
+        if (!fechaNacimiento) return 'N/A'
+        const hoy = new Date()
+        const nacimiento = new Date(fechaNacimiento)
+        let edad = hoy.getFullYear() - nacimiento.getFullYear()
+        const mes = hoy.getMonth() - nacimiento.getMonth()
+        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+            edad--
+        }
+        return `${edad} años`
+    }
+
     const StatusBadge = ({ status }) => {
+        // Mapear estados del backend a colores
         const colorMap = {
+            "active": "success",
             "Activo": "success",
+            "inactive": "secondary",
             "Inactivo": "secondary",
+            "graduated": "info",
             "Graduado": "info",
+            "retired": "danger",
             "Retirado": "danger"
         }
-        const color = colorMap[status] || "primary";
+        const statusValue = status || 'Activo'
+        const color = colorMap[statusValue] || "primary"
 
         return (
             <CBadge
                 color={color}
                 className="rounded-pill px-4 py-2 bg-opacity-10 shadow-sm"
                 style={{
-                    color: `var(--cui-${color}) !important`,
+                    color: `var(--cui-${color})`,
                     border: `1px solid var(--cui-${color})33`,
                     letterSpacing: '1px'
                 }}
             >
-                {status?.toUpperCase() || "N/A"}
+                {statusValue?.toUpperCase()}
             </CBadge>
         )
     }
+
+    // Obtener la primera sección si existe
+    const seccionActual = student.sections && student.sections.length > 0 
+        ? student.sections[0].section_name 
+        : 'Sin asignar'
 
     return (
         <CCard className="h-100 premium-card border-0 shadow-sm overflow-hidden animate__animated animate__fadeIn">
@@ -48,22 +72,42 @@ const ProfileSummary = ({ student }) => {
                 <div className="pt-5 px-4 pb-4">
                     <div className="avatar-circle-xl bg-avatar-frame p-1 rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm position-relative">
                         <div className="w-100 h-100 bg-orange-soft rounded-circle d-flex align-items-center justify-content-center text-warning fs-1 fw-bold summary-avatar-border">
-                            {(student.NombreEstudiante || student.name || "?").charAt(0)}{(student.ApellidoEstudiante || student.lastName || "?").charAt(0)}
+                            {student.first_name?.charAt(0) || '?'}{student.last_name?.charAt(0) || '?'}
                         </div>
                         <div className="position-absolute bottom-0 end-0 p-2 bg-success summary-status-border rounded-circle shadow-sm"></div>
                     </div>
 
-                    <h4 className="mb-1 fw-bold summary-title">{student.NombreEstudiante || student.name || "N/A"} {student.ApellidoEstudiante || student.lastName || ""}</h4>
+                    <h4 className="mb-1 fw-bold summary-title">{student.first_name || ''} {student.last_name || ''}</h4>
                     <p className="summary-subtitle small mb-3 text-uppercase ls-1">Expediente Académico #{student.id}</p>
-                    <StatusBadge status={student.Estatus || student.status} />
+                    <StatusBadge status={student.status} />
                 </div>
 
                 <div className="p-4 pt-2">
-                    <SummaryItem icon={cilSchool} label="Grado / Año" value={`${student.Grado || student.gradeLevel || "N/A"} - ${student.Seccion || student.section || ""}`} />
-                    <SummaryItem icon={cilCalendar} label="Fecha Nacimiento" value={student.FechaNacimiento || student.birthDate || "N/A"} />
-                    <SummaryItem icon={cilUser} label="Edad Cronológica" value={`${student.Edad || student.age || "N/A"}`} />
-                    <SummaryItem icon={cilUser} label="Representante" value={student.RepresentanteParentesco || "No definido"} />
-                    <SummaryItem icon={cilDrop} label="Factor Sanguíneo" value={student.TipoSangre || student.bloodType || "N/A"} />
+                    <SummaryItem 
+                        icon={cilSchool} 
+                        label="Grado / Sección" 
+                        value={`${student.grade_level_name || 'N/A'} - ${seccionActual}`} 
+                    />
+                    <SummaryItem 
+                        icon={cilCalendar} 
+                        label="Fecha Nacimiento" 
+                        value={student.birth_date || 'N/A'} 
+                    />
+                    <SummaryItem 
+                        icon={cilUser} 
+                        label="Edad Cronológica" 
+                        value={calcularEdad(student.birth_date)} 
+                    />
+                    <SummaryItem 
+                        icon={cilUser} 
+                        label="Representante" 
+                        value={student.representative || 'No definido'} 
+                    />
+                    <SummaryItem 
+                        icon={cilDrop} 
+                        label="Factor Sanguíneo" 
+                        value={student.blood_type || 'N/A'} 
+                    />
                 </div>
             </CCardBody>
             <style>{`

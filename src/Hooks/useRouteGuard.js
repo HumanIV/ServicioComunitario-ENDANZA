@@ -7,6 +7,7 @@ import useUserRole from './useUserRole'
 const routePermissions = {
   '/dashboard': ['admin'],
   '/students': ['admin'],
+  '/students/:id': ['admin'],
   '/inscripcion': ['admin'],
   '/aulas': ['admin'],
   '/notas': ['admin'],
@@ -15,10 +16,10 @@ const routePermissions = {
   '/docente/inicio': ['docente'],
   '/docente/horario': ['docente'],
   '/inicio': ['representante'],
-  '/profile': ['representante','admin','docente'],
+  '/profile': ['representante', 'admin', 'docente'],
   '/boletin-estudiante': ['representante'],
   '/horario-estudiante': ['representante'],
-  '/perfil': ['admin', 'docente', 'representante']
+  '/perfil': ['admin', 'docente', 'representante'],
 }
 
 const useRouteGuard = () => {
@@ -27,16 +28,48 @@ const useRouteGuard = () => {
   const { userRole, isLoading } = useUserRole()
 
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading) {
+      console.log('⏳ RouteGuard: Esperando carga del rol...')
+      return
+    }
+
+    const token = localStorage.getItem('accessToken')
+    if (!token) {
+      console.warn('🚫 RouteGuard: No hay token, redirigiendo a login')
+      navigate('/login', { replace: true })
+      return
+    }
+
+    if (!userRole) {
+      console.warn('⚠️ RouteGuard: userRole es null pero hay token.')
+      return
+    }
     
     const path = location.pathname
-    const allowedRoles = routePermissions[path] || []
+    console.log(`🔍 RouteGuard - Verificando acceso a: ${path}`)
+    console.log(`👤 Rol del usuario: ${userRole}`)
     
-    // Si la ruta tiene restricciones y el usuario no tiene permiso
-    if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-      console.warn(`🚨 Intento de acceso no autorizado a ${path} por rol ${userRole}`)
+    // Buscar coincidencia exacta
+    let allowedRoles = routePermissions[path]
+    
+    // Si no hay coincidencia exacta, buscar rutas con parámetros
+    if (!allowedRoles) {
+      if (path.startsWith('/students/') && path.split('/').length === 3) {
+        allowedRoles = routePermissions['/students/:id']
+        console.log(`🎯 Ruta dinámica detectada: /students/:id → ${path}`)
+      }
+    }
+    
+    // Si la ruta no tiene restricciones, permitir acceso
+    if (!allowedRoles) {
+      console.log(`✅ Ruta sin restricciones: ${path}`)
+      return
+    }
+    
+    // Verificar si el usuario tiene permiso
+    if (!allowedRoles.includes(userRole)) {
+      console.warn(`🚨 Acceso denegado a ${path} para rol ${userRole}`)
       
-      // Redirigir según el rol
       switch(userRole) {
         case 'admin':
           navigate('/dashboard', { replace: true })
@@ -50,6 +83,8 @@ const useRouteGuard = () => {
         default:
           navigate('/login', { replace: true })
       }
+    } else {
+      console.log(`✅ Acceso permitido a ${path} para rol ${userRole}`)
     }
   }, [location.pathname, userRole, isLoading, navigate])
 }

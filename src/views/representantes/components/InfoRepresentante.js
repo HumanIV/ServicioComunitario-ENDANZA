@@ -93,10 +93,21 @@ const InfoRepresentante = ({ visible, onClose, representative }) => {
                                                     <CIcon icon={cilChild} />
                                                 </div>
                                                 <div className="overflow-hidden">
-                                                    <div className="fw-bold text-contrast text-truncate small leading-tight mb-1">{student.fullName}</div>
+                                                    {/* CAMBIO 1: Usar first_name y last_name en lugar de fullName */}
+                                                    <div className="fw-bold text-contrast text-truncate small leading-tight mb-1">
+                                                        {student.first_name} {student.last_name}
+                                                    </div>
                                                     <div className="d-flex gap-2">
-                                                        <CBadge color="info" className="bg-opacity-10 text-info px-2 border-0" style={{ fontSize: '0.6rem' }}>{student.gradeLevel}</CBadge>
-                                                        <CBadge color="success" className="bg-opacity-10 text-success px-2 border-0" style={{ fontSize: '0.6rem' }}>{student.status}</CBadge>
+                                                        {/* CAMBIO 2: Usar gradeLevel directamente */}
+                                                        {student.gradeLevel && (
+                                                            <CBadge color="info" className="bg-opacity-10 text-info px-2 border-0" style={{ fontSize: '0.6rem' }}>
+                                                                {student.gradeLevel}
+                                                            </CBadge>
+                                                        )}
+                                                        {/* CAMBIO 3: Status opcional con valor por defecto */}
+                                                        <CBadge color="success" className="bg-opacity-10 text-success px-2 border-0" style={{ fontSize: '0.6rem' }}>
+                                                            {student.status || 'Activo'}
+                                                        </CBadge>
                                                     </div>
                                                 </div>
                                             </CListGroupItem>

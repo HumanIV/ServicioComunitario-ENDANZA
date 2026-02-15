@@ -1,33 +1,56 @@
-import { helpFetch } from './helpFetch.js';
+// src/api/schedule.api.js
+import { helpFetch } from './helpFetch';
 
 const fetch = helpFetch();
 
 export const scheduleAPI = {
-    // ============ HORARIOS ============
-    listSchedules: () => 
-        fetch.get('/api/schedules'),
+    // ========== SECCIONES ==========
+    listSections: (academicYearId) => {
+        const url = academicYearId 
+            ? `/api/sections?academicYearId=${academicYearId}`
+            : '/api/sections';
+        return fetch.get(url);
+    },
     
-    getScheduleById: (id) => 
-        fetch.get(`/api/schedules/${id}`),
+    getSection: (id) => fetch.get(`/api/sections/${id}`),
     
-    createSchedule: (scheduleData) => 
-        fetch.post('/api/schedules', scheduleData),
+    createSection: (sectionData) => fetch.post('/api/sections', sectionData),
     
-    updateSchedule: (id, scheduleData) => 
-        fetch.put(`/api/schedules/${id}`, scheduleData),
+    updateSection: (id, sectionData) => fetch.put(`/api/sections/${id}`, sectionData),
     
-    deleteSchedule: (id) => 
-        fetch.delet(`/api/schedules/${id}`),
+    deleteSection: (id) => fetch.delete(`/api/sections/${id}`), // ← AHORA SÍ FUNCIONA
+
+    // ========== HORARIOS ==========
+    listSchedules: (filters = {}) => {
+        const params = new URLSearchParams();
+        Object.entries(filters).forEach(([key, value]) => {
+            if (value) params.append(key, value);
+        });
+        const queryString = params.toString();
+        return fetch.get(`/api/schedules${queryString ? `?${queryString}` : ''}`);
+    },
     
-    // ============ POR DOCENTE ============
-    getByTeacher: (teacherId) => 
-        fetch.get(`/api/teachers/${teacherId}/schedules`),
+    addSchedule: (sectionId, scheduleData) => 
+        fetch.post(`/api/sections/${sectionId}/schedules`, scheduleData),
     
-    // ============ POR SECCIÓN ============
-    getBySection: (sectionId) => 
-        fetch.get(`/api/sections/${sectionId}/schedules`),
+    updateSchedule: (scheduleId, scheduleData) => 
+        fetch.put(`/api/schedules/${scheduleId}`, scheduleData),
     
-    // ============ DISPONIBILIDAD ============
-    checkAvailability: (teacherId, day, block) => 
-        fetch.get(`/api/schedules/check?teacher=${teacherId}&day=${day}&block=${block}`)
+    deleteSchedule: (scheduleId) => fetch.delete(`/api/schedules/${scheduleId}`),
+
+    // ========== VALIDACIÓN ==========
+    checkAvailability: (params) => {
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+            if (value) queryParams.append(key, value);
+        });
+        return fetch.get(`/api/schedules/check-availability?${queryParams.toString()}`);
+    },
+
+    // ========== CATÁLOGOS ==========
+    getClassrooms: () => fetch.get('/api/classrooms'),
+    
+    getDays: () => fetch.get('/api/days'),
+    
+    getBlocks: () => fetch.get('/api/blocks'),
 };

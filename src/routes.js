@@ -77,8 +77,8 @@ const routes = [
 
   // Dashboard
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  // Competencias (Nuevo Módulo)
-  { path: '/competencias', name: 'Competencias', element: React.lazy(() => import('./views/competencias/CompetenciasManager')) },
+
+
 
   // Preinscripcion
   { path: '/preinscripcion', name: 'Preinscripción', element: Preinscripcion },
@@ -108,7 +108,7 @@ const routes = [
   { path: '/horario', name: 'Horario', element: Horario }, // Horario
   { path: '/aulas', name: 'Aulas', element: Aulas }, // Aulas
   { path: '/students', name: 'Students', element: Students }, // Students
-  { path: '/perfil-students/:id', name: 'PerfilStudents', element: PerfilStudents }, // Perfil Students
+  { path: '/students/:id', name: 'PerfilStudents', element: PerfilStudents }, // Perfil Students
 
 
   //USERS

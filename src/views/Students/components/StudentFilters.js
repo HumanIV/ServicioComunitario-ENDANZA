@@ -1,3 +1,4 @@
+// StudentFilters.jsx
 import React from 'react'
 import {
     CRow,
@@ -9,7 +10,8 @@ import {
     CDropdown,
     CDropdownToggle,
     CDropdownMenu,
-    CDropdownItem
+    CDropdownItem,
+    CSpinner
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
@@ -32,13 +34,28 @@ const StudentFilters = ({
     setFilterGrade,
     filterSection,
     setFilterSection,
+    gradosDisponibles = [],
+    seccionesDisponibles = [],
     clearFilters,
     showAdvancedFilters,
     setShowAdvancedFilters,
     setLoading,
     selectedCount,
-    onOpenDeleteMultiple
+    onOpenDeleteMultiple,
+    onRefresh
 }) => {
+    const [refreshing, setRefreshing] = React.useState(false)
+
+    const handleRefresh = async () => {
+        setRefreshing(true)
+        setLoading(true)
+        await onRefresh()
+        setTimeout(() => {
+            setRefreshing(false)
+            setLoading(false)
+        }, 500)
+    }
+
     return (
         <div className="filters-row-container z-high">
             <CRow className="g-3 align-items-center">
@@ -61,7 +78,10 @@ const StudentFilters = ({
                 <CCol xs={6} md={3} lg={2}>
                     <div className="filter-pill-container shadow-sm border rounded-pill p-1 px-3 d-flex align-items-center w-100 h-100 bg-glass-premium">
                         <CDropdown className="w-100">
-                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100" style={{ whiteSpace: 'nowrap' }}>
+                            <CDropdownToggle 
+                                caret={false} 
+                                className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100"
+                            >
                                 <div className="d-flex align-items-center text-truncate">
                                     <CIcon icon={cilSchool} className="me-2 opacity-50 flex-shrink-0" />
                                     <span className="small text-truncate">
@@ -71,17 +91,23 @@ const StudentFilters = ({
                                 <CIcon icon={cilChevronBottom} size="sm" className="ms-1 opacity-50 flex-shrink-0" />
                             </CDropdownToggle>
                             <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll">
-                                <CDropdownItem onClick={() => setFilterGrade("")} active={filterGrade === ""} className="py-2 px-3 dropdown-item-premium">
+                                <CDropdownItem 
+                                    onClick={() => setFilterGrade("")} 
+                                    active={filterGrade === ""} 
+                                    className="py-2 px-3 dropdown-item-premium"
+                                >
                                     Todos los grados
                                 </CDropdownItem>
-                                {[...Array(8)].map((_, i) => {
-                                    const grade = `${i + 1}er Grado`
-                                    return (
-                                        <CDropdownItem key={i} onClick={() => setFilterGrade(grade)} active={filterGrade === grade} className="py-2 px-3 dropdown-item-premium">
-                                            {grade}
-                                        </CDropdownItem>
-                                    )
-                                })}
+                                {gradosDisponibles.map((grado, index) => (
+                                    <CDropdownItem 
+                                        key={index} 
+                                        onClick={() => setFilterGrade(grado)} 
+                                        active={filterGrade === grado} 
+                                        className="py-2 px-3 dropdown-item-premium"
+                                    >
+                                        {grado}
+                                    </CDropdownItem>
+                                ))}
                             </CDropdownMenu>
                         </CDropdown>
                     </div>
@@ -91,7 +117,10 @@ const StudentFilters = ({
                 <CCol xs={6} md={3} lg={2}>
                     <div className="filter-pill-container shadow-sm border rounded-pill p-1 px-3 d-flex align-items-center w-100 h-100 bg-glass-premium">
                         <CDropdown className="w-100">
-                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100" style={{ whiteSpace: 'nowrap' }}>
+                            <CDropdownToggle 
+                                caret={false} 
+                                className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100"
+                            >
                                 <div className="d-flex align-items-center text-truncate">
                                     <CIcon icon={cilLayers} className="me-2 opacity-50 flex-shrink-0" />
                                     <span className="small text-truncate">
@@ -101,12 +130,21 @@ const StudentFilters = ({
                                 <CIcon icon={cilChevronBottom} size="sm" className="ms-1 opacity-50 flex-shrink-0" />
                             </CDropdownToggle>
                             <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll">
-                                <CDropdownItem onClick={() => setFilterSection("")} active={filterSection === ""} className="py-2 px-3 dropdown-item-premium">
+                                <CDropdownItem 
+                                    onClick={() => setFilterSection("")} 
+                                    active={filterSection === ""} 
+                                    className="py-2 px-3 dropdown-item-premium"
+                                >
                                     Todas las secciones
                                 </CDropdownItem>
-                                {['Danza A', 'Danza B', 'Danza C', 'Danza D'].map((sec) => (
-                                    <CDropdownItem key={sec} onClick={() => setFilterSection(sec)} active={filterSection === sec} className="py-2 px-3 dropdown-item-premium">
-                                        {sec}
+                                {seccionesDisponibles.map((seccion, index) => (
+                                    <CDropdownItem 
+                                        key={index} 
+                                        onClick={() => setFilterSection(seccion)} 
+                                        active={filterSection === seccion} 
+                                        className="py-2 px-3 dropdown-item-premium"
+                                    >
+                                        {seccion}
                                     </CDropdownItem>
                                 ))}
                             </CDropdownMenu>
@@ -129,7 +167,9 @@ const StudentFilters = ({
                     <CButton
                         color="light"
                         variant="outline"
-                        className={`border-2 rounded-pill fw-bold px-4 flex-grow-1 flex-md-grow-0 shadow-sm ${showAdvancedFilters ? 'bg-orange-soft text-primary' : 'filter-btn-secondary'}`}
+                        className={`border-2 rounded-pill fw-bold px-4 flex-grow-1 flex-md-grow-0 shadow-sm ${
+                            showAdvancedFilters ? 'bg-orange-soft text-primary' : 'filter-btn-secondary'
+                        }`}
                         onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                     >
                         <CIcon icon={cilOptions} className="me-2" />
@@ -140,12 +180,10 @@ const StudentFilters = ({
                         color="light"
                         variant="outline"
                         className="border-2 rounded-pill text-primary p-2 px-3 shadow-sm filter-btn-secondary"
-                        onClick={() => {
-                            setLoading(true)
-                            setTimeout(() => setLoading(false), 500)
-                        }}
+                        onClick={handleRefresh}
+                        disabled={refreshing}
                     >
-                        <CIcon icon={cilReload} />
+                        {refreshing ? <CSpinner size="sm" /> : <CIcon icon={cilReload} />}
                     </CButton>
                 </CCol>
             </CRow>
@@ -155,27 +193,42 @@ const StudentFilters = ({
                 <div className="mt-4 pt-4 border-top animate__animated animate__fadeIn border-light-custom">
                     <CRow className="g-4">
                         <CCol xs={12} md={4}>
-                            <label className="form-label label-micro text-muted-custom ms-2">ESTADO DE MATRÍCULA</label>
+                            <label className="form-label label-micro text-muted-custom ms-2">
+                                ESTADO DE MATRÍCULA
+                            </label>
                             <div className="filter-pill-container border rounded-pill p-1 px-3 d-flex align-items-center">
                                 <CDropdown className="w-100">
-                                    <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100">
+                                    <CDropdownToggle 
+                                        caret={false} 
+                                        className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-between w-100"
+                                    >
                                         Todos los estados
                                         <CIcon icon={cilChevronBottom} size="sm" className="opacity-50" />
                                     </CDropdownToggle>
                                     <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 w-100">
-                                        <CDropdownItem className="dropdown-item-premium">Todos los estados</CDropdownItem>
-                                        <CDropdownItem className="dropdown-item-premium">Activo</CDropdownItem>
-                                        <CDropdownItem className="dropdown-item-premium">Inactivo</CDropdownItem>
+                                        <CDropdownItem className="dropdown-item-premium">
+                                            Todos los estados
+                                        </CDropdownItem>
+                                        <CDropdownItem className="dropdown-item-premium">
+                                            Activo
+                                        </CDropdownItem>
+                                        <CDropdownItem className="dropdown-item-premium">
+                                            Inactivo
+                                        </CDropdownItem>
                                     </CDropdownMenu>
                                 </CDropdown>
                             </div>
                         </CCol>
                         <CCol xs={12} md={4}>
-                            <label className="form-label label-micro text-muted-custom ms-2">INSCRIPCIÓN DESDE</label>
+                            <label className="form-label label-micro text-muted-custom ms-2">
+                                INSCRIPCIÓN DESDE
+                            </label>
                             <CFormInput type="date" className="input-premium rounded-pill" />
                         </CCol>
                         <CCol xs={12} md={4}>
-                            <label className="form-label label-micro text-muted-custom ms-2">INSCRIPCIÓN HASTA</label>
+                            <label className="form-label label-micro text-muted-custom ms-2">
+                                INSCRIPCIÓN HASTA
+                            </label>
                             <CFormInput type="date" className="input-premium rounded-pill" />
                         </CCol>
                     </CRow>
@@ -189,7 +242,9 @@ const StudentFilters = ({
                         <div className="bg-primary text-white rounded-pill px-3 py-1 me-3 fw-bold shadow-sm">
                             {selectedCount}
                         </div>
-                        <span className="fw-bold header-title-custom text-truncate">Seleccionados para acción grupal</span>
+                        <span className="fw-bold header-title-custom text-truncate">
+                            Seleccionados para acción grupal
+                        </span>
                     </div>
                     <div className="d-flex gap-2 pe-2 flex-shrink-0">
                         <CButton
@@ -211,7 +266,6 @@ const StudentFilters = ({
                     </div>
                 </div>
             )}
-
         </div>
     )
 }
@@ -223,12 +277,15 @@ StudentFilters.propTypes = {
     setFilterGrade: PropTypes.func,
     filterSection: PropTypes.string,
     setFilterSection: PropTypes.func,
+    gradosDisponibles: PropTypes.array,
+    seccionesDisponibles: PropTypes.array,
     clearFilters: PropTypes.func,
     showAdvancedFilters: PropTypes.bool,
     setShowAdvancedFilters: PropTypes.func,
     setLoading: PropTypes.func,
     selectedCount: PropTypes.number,
     onOpenDeleteMultiple: PropTypes.func,
+    onRefresh: PropTypes.func
 }
 
 export default StudentFilters

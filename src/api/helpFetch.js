@@ -1,4 +1,4 @@
-// helpFetch.js - Servicio base que NO debe modificarse para nuevos endpoints
+// helpFetch.js - Versión corregida
 export const helpFetch = () => {
   const URL = 'http://localhost:3001'
 
@@ -67,9 +67,9 @@ export const helpFetch = () => {
   const get = (endpoint, options = {}) => customFetch(endpoint, { ...options, method: 'GET' })
   const post = (endpoint, body, options = {}) => customFetch(endpoint, { ...options, method: 'POST', body })
   const put = (endpoint, body, options = {}) => customFetch(endpoint, { ...options, method: 'PUT', body })
-  const delet = (endpoint, id, options = {}) => {
-    const url = id ? `${endpoint}/${id}` : endpoint
-    return customFetch(url, { ...options, method: 'DELETE' })
+  const del = (endpoint, options = {}) => {
+    // Si endpoint ya incluye el ID, no agregar más
+    return customFetch(endpoint, { ...options, method: 'DELETE' })
   }
 
   const checkConnection = async () => {
@@ -87,5 +87,13 @@ export const helpFetch = () => {
     }
   }
 
-  return { get, post, put, delet, customFetch, checkConnection, URL }
+  return { 
+    get, 
+    post, 
+    put, 
+    delete: del,  // ← Exportar como 'delete'
+    customFetch, 
+    checkConnection, 
+    URL 
+  }
 }

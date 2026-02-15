@@ -4,7 +4,15 @@ import CIcon from '@coreui/icons-react'
 import { cilChartLine } from '@coreui/icons'
 import PropTypes from 'prop-types'
 
-const ProfileStatsCards = ({ student }) => {
+const ProfileStatsCards = ({ student, progreso }) => {
+    // Calcular promedio ponderado (ejemplo)
+    const promedio = student.average_grade || '0.0'
+    
+    // Determinar año académico actual
+    const añoActual = student.sections && student.sections.length > 0
+        ? student.sections[0].academic_year
+        : '2024 - 2025'
+
     return (
         <CRow className="g-4 mb-4 animate__animated animate__fadeIn">
             <CCol xs={12}>
@@ -17,7 +25,7 @@ const ProfileStatsCards = ({ student }) => {
                                 </div>
                                 <h6 className="stat-label mb-1 small fw-bold text-uppercase ls-1">Promedio General</h6>
                                 <h2 className="mb-0 fw-black display-3 stat-value text-warning" style={{ letterSpacing: '-2px' }}>
-                                    {student.PromedioGeneral || "0.0"}
+                                    {promedio}
                                 </h2>
                             </CCol>
                             <CCol md={8} className="p-4 d-flex flex-column justify-content-center">
@@ -33,12 +41,12 @@ const ProfileStatsCards = ({ student }) => {
                                         <div className="small fw-bold text-muted-custom text-uppercase ls-1 mb-1" style={{ fontSize: '0.6rem' }}>Estado Académico</div>
                                         <div className="fw-bold text-success d-flex align-items-center">
                                             <div className="badge-dot bg-success me-2"></div>
-                                            Regular
+                                            {student.status === 'active' ? 'Regular' : 'Inactivo'}
                                         </div>
                                     </div>
                                     <div className="flex-grow-1 p-3 rounded-4 bg-light-custom bg-opacity-10 border border-light-custom">
                                         <div className="small fw-bold text-muted-custom text-uppercase ls-1 mb-1" style={{ fontSize: '0.6rem' }}>Ciclo Lectivo</div>
-                                        <div className="fw-bold stat-value">2024 - 2025</div>
+                                        <div className="fw-bold stat-value">{añoActual}</div>
                                     </div>
                                 </div>
                             </CCol>
@@ -66,6 +74,7 @@ const ProfileStatsCards = ({ student }) => {
 
 ProfileStatsCards.propTypes = {
     student: PropTypes.object.isRequired,
+    progreso: PropTypes.object
 }
 
 export default ProfileStatsCards
