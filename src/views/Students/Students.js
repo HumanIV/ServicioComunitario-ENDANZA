@@ -26,6 +26,8 @@ import StudentFilters from "./components/StudentFilters"
 import StudentTable from "./components/StudentTable"
 import StudentModals from "./components/StudentModals"
 
+import { listStudents } from "../../services/students"
+
 const Students = () => {
   // ---------------------- ESTADOS ---------------------- //
   const [students, setStudents] = useState([])
@@ -37,14 +39,6 @@ const Students = () => {
   const [selectedStudents, setSelectedStudents] = useState([])
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'ascending' })
-
-  // ---------------------- DATOS ESTÁTICOS (Simulación) ---------------------- //
-  const staticStudents = [
-    { id: 1, Grado: "1er Grado", Seccion: "Danza A", NombreEstudiante: "María", ApellidoEstudiante: "González", RepresentanteNombre: "Ana", RepresentanteApellido: "González", RepresentanteCedula: "V-12345678", Estatus: "Activo", FechaInscripcion: "2024-01-15", Telefono: "0412-5551234", Email: "maria.gonzalez@example.com" },
-    { id: 2, Grado: "2do Grado", Seccion: "Danza B", NombreEstudiante: "Carlos", ApellidoEstudiante: "Pérez", RepresentanteNombre: "José", RepresentanteApellido: "Pérez", RepresentanteCedula: "V-98765432", Estatus: "Activo", FechaInscripcion: "2024-01-10", Telefono: "0414-5555678", Email: "carlos.perez@example.com" },
-    { id: 3, Grado: "3er Grado", Seccion: "Danza A", NombreEstudiante: "Lucía", ApellidoEstudiante: "Ramírez", RepresentanteNombre: "Carmen", RepresentanteApellido: "Ramírez", RepresentanteCedula: "V-56789123", Estatus: "Inactivo", FechaInscripcion: "2024-01-05", Telefono: "0424-5559101", Email: "lucia.ramirez@example.com" },
-    { id: 4, Grado: "1er Grado", Seccion: "Danza C", NombreEstudiante: "Juan", ApellidoEstudiante: "Martínez", RepresentanteNombre: "Pedro", RepresentanteApellido: "Martínez", RepresentanteCedula: "V-23456789", Estatus: "Activo", FechaInscripcion: "2024-01-20", Telefono: "0416-5551122", Email: "juan.martinez@example.com" }
-  ]
 
   // ---------------------- TOAST ---------------------- //
   const [toasts, setToasts] = useState([])
@@ -59,11 +53,39 @@ const Students = () => {
 
   // ---------------------- EFECTOS ---------------------- //
   useEffect(() => {
-    setTimeout(() => {
-      setStudents(staticStudents)
-      setLoading(false)
-    }, 800)
+    fetchStudents()
   }, [])
+
+  const fetchStudents = async () => {
+    setLoading(true)
+    try {
+      const data = await listStudents()
+      // Adaptamos el formato del backend al que usa el componente (o viceversa)
+      // El backend devuelve: id, first_name, last_name, full_name, dni, birth_date, gender, grade_level, dance_level, school, insurance, representative, representative_phone, representative_email
+
+      const adaptedData = data.map(s => ({
+        id: s.id,
+        Grado: s.grade_level || "No asignado",
+        Seccion: "Única", // O s.section_name si el backend lo incluyera
+        NombreEstudiante: s.name || s.first_name || s.NombreEstudiante || "Sin Nombre",
+        ApellidoEstudiante: s.lastName || s.last_name || s.ApellidoEstudiante || "",
+        RepresentanteNombre: s.RepresentanteNombre || (s.representative ? s.representative.split(' ')[0] : "N/A"),
+        RepresentanteApellido: s.RepresentanteApellido || (s.representative ? s.representative.split(' ').slice(1).join(' ') : ""),
+        RepresentanteCedula: s.RepresentanteCedula || "V-00000000",
+        Estatus: s.status || s.Estatus || "Activo",
+        FechaInscripcion: s.entryDate || s.FechaInscripcion || "2024-01-01",
+        Telefono: s.Telelfono || s.representative_phone || "N/A",
+        Email: s.Email || s.representative_email || "N/A"
+      }))
+
+      setStudents(adaptedData)
+    } catch (error) {
+      console.error("Error fetching students:", error)
+      showToast("danger", "Error", "No se pudieron cargar los estudiantes")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // ---------------------- LOGICA DE FILTRADO Y ORDENACIÓN ---------------------- //
   const handleSort = (key) => {
@@ -107,10 +129,21 @@ const Students = () => {
     setModalVisible(true)
   }
 
-  const deleteItem = () => {
-    setStudents(students.filter((s) => s.id !== selectedItem.id))
-    showToast("success", "Éxito", "Estudiante eliminado correctamente")
-    setModalVisible(false)
+  const deleteItem = async () => {
+    try {
+      const response = await deleteStudent(selectedItem.id)
+      if (response && response.ok) {
+        setStudents(prev => prev.filter((s) => s.id !== selectedItem.id))
+        showToast("success", "Éxito", "Estudiante eliminado correctamente")
+      } else {
+        throw new Error(response?.msg || "Error al eliminar")
+      }
+    } catch (error) {
+      console.error("Error deleting student:", error)
+      showToast("danger", "Error", "No se pudo eliminar al estudiante")
+    } finally {
+      setModalVisible(false)
+    }
   }
 
   const handleSelectStudent = (id) => {

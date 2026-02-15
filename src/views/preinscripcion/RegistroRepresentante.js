@@ -13,12 +13,10 @@ import {
     CListGroupItem
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilSave, cilUser, cilEnvelopeClosed, cilPhone, cilBadge, cilArrowRight, cilSearch, cilArrowLeft } from '@coreui/icons';
+import { cilSave, cilUser, cilEnvelopeClosed, cilPhone, cilBadge, cilArrowRight, cilSearch } from '@coreui/icons';
+import { listUsers } from '../../services/userService';
 
-
-
-
-const RegistroRepresentante = ({ onNext, onBack, initialData = {} }) => {
+const RegistroRepresentante = ({ onNext, initialData = {} }) => {
     const [formData, setFormData] = useState({
         dni: initialData?.dni || 'V-',
         first_name: initialData?.first_name || '',
@@ -184,7 +182,7 @@ const RegistroRepresentante = ({ onNext, onBack, initialData = {} }) => {
                                     type="button"
                                     color={formData.parentesco === option ? 'warning' : 'light'}
                                     variant={formData.parentesco === option ? 'solid' : 'ghost'}
-                                    className={`flex-fill py-2 fw-bold border-2 parentesco-btn ${formData.parentesco === option ? 'text-white shadow-sm' : 'text-muted-custom border-light-custom'}`}
+                                    className={`flex-fill py-2 fw-bold border-2 ${formData.parentesco === option ? 'text-white shadow-sm' : 'text-muted-custom border-light-custom'}`}
                                     onClick={() => setFormData({ ...formData, parentesco: option })}
                                     style={{ borderRadius: '12px' }}
                                 >
@@ -271,21 +269,10 @@ const RegistroRepresentante = ({ onNext, onBack, initialData = {} }) => {
                             )}
                         </CRow>
 
-                        <div className="d-flex justify-content-between mt-5 pt-4 border-top border-light-custom">
-                            {onBack && (
-                                <CButton
-                                    type="button"
-                                    color="light"
-                                    variant="ghost"
-                                    className="rounded-pill px-4 fw-bold text-muted-custom"
-                                    onClick={onBack}
-                                >
-                                    <CIcon icon={cilArrowLeft} className="me-2" /> VOLVER AL INICIO
-                                </CButton>
-                            )}
+                        <div className="d-flex justify-content-end mt-5 pt-4 border-top border-light-custom">
                             <CButton
                                 type="submit"
-                                className="btn-premium px-5 d-flex align-items-center fw-bold ms-auto"
+                                className="btn-premium px-5 d-flex align-items-center fw-bold"
                             >
                                 CONTINUAR A ESTUDIANTE
                                 <CIcon icon={cilArrowRight} className="ms-2" />
@@ -318,17 +305,6 @@ const RegistroRepresentante = ({ onNext, onBack, initialData = {} }) => {
 
                 [data-coreui-theme="dark"] .list-group-item:hover {
                     background-color: rgba(245, 185, 55, 0.1);
-                }
-
-                .parentesco-btn:hover {
-                    background-color: rgba(245, 185, 55, 0.1) !important;
-                    color: #F28C0F !important;
-                    border-color: rgba(245, 185, 55, 0.2) !important;
-                }
-
-                [data-coreui-theme="dark"] .parentesco-btn:hover {
-                    background-color: rgba(245, 185, 55, 0.15) !important;
-                    color: white !important;
                 }
 
                 [data-coreui-theme="dark"] .list-group-item .text-contrast {

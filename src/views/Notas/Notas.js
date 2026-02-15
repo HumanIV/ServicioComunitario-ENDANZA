@@ -1,77 +1,132 @@
 import React, { useState, useEffect } from "react"
-import { CContainer, CToaster, CToast, CToastBody } from "@coreui/react"
+import { useLocation } from "react-router-dom"
+import { CContainer, CToaster, CToast, CToastBody, CFormSelect } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
-import { cilNotes } from "@coreui/icons"
+import { cilNotes, cilWarning } from "@coreui/icons"
 
 // Componentes extraídos
-import GradeCards from "./components/GradeCards"
-import SubjectCards from "./components/SubjectCards"
-import EvaluationTable from "./components/EvaluationTable"
+import DocenteGradeCards from "./components/DocenteGradeCards"
+import AdminGradeCards from "./components/AdminGradeCards"
+import DocenteSubjectCards from "./components/DocenteSubjectCards"
+import AdminSubjectCards from "./components/AdminSubjectCards"
+import DocenteEvaluationTable from "./components/DocenteEvaluationTable"
+import AdminEvaluationTable from "./components/AdminEvaluationTable"
 import EvaluationSummary from "./components/EvaluationSummary"
 import SendConfirmationModal from "./components/SendConfirmationModal"
 
+import useUserRole from "../../Hooks/useUserRole"
+import { SUBJECTS, getAvailableYears, listSections } from '../../services/schedules'
+
+const COMPETENCIES_KEY = 'competencies_config_v1'
+
 const SistemaEvaluacionDanza = () => {
-    // ---------------------- DATOS (Simulación mejorada) ---------------------- //
-    const data = [
-        { grado: "1er Grado", materias: [{ id: "DAN-101", nombre: "Ballet Básico I", horario: "Lunes y Miércoles 8:00-10:00", estudiantes: [{ id: 1, nombre: "Ana López", codigo: "END-101", edad: 6, asistencia: 95 }, { id: 2, nombre: "Carlos Pérez", codigo: "END-102", edad: 7, asistencia: 92 }, { id: 3, nombre: "María González", codigo: "END-103", edad: 6, asistencia: 88 }] }, { id: "DAN-102", nombre: "Ritmo y Movimiento", horario: "Martes y Jueves 8:00-10:00", estudiantes: [{ id: 4, nombre: "Juan Rodríguez", codigo: "END-104", edad: 7, asistencia: 90 }, { id: 5, nombre: "Laura Martínez", codigo: "END-105", edad: 6, asistencia: 85 }] }] },
-        { grado: "2do Grado", materias: [{ id: "DAN-201", nombre: "Ballet Básico II", horario: "Lunes y Miércoles 10:00-12:00", estudiantes: [{ id: 6, nombre: "Pedro Sánchez", codigo: "END-201", edad: 8, asistencia: 98 }, { id: 7, nombre: "Sofía Ramírez", codigo: "END-202", edad: 7, asistencia: 94 }] }, { id: "DAN-202", nombre: "Expresión Corporal I", horario: "Martes y Jueves 10:00-12:00", estudiantes: [{ id: 8, nombre: "Diego Herrera", codigo: "END-203", edad: 8, asistencia: 89 }, { id: 9, nombre: "Valeria Castro", codigo: "END-204", edad: 9, asistencia: 91 }] }] },
-        { grado: "3er Grado", materias: [{ id: "DAN-301", nombre: "Ballet Intermedio I", horario: "Lunes y Miércoles 14:00-16:00", estudiantes: [{ id: 10, nombre: "Elena Vargas", codigo: "END-301", edad: 9, asistencia: 99 }, { id: 11, nombre: "Fernando Castro", codigo: "END-302", edad: 10, asistencia: 97 }, { id: 12, nombre: "Gabriela Ortiz", codigo: "END-303", edad: 9, asistencia: 93 }] }, { id: "DAN-302", nombre: "Danza Folklórica", horario: "Martes y Jueves 14:00-16:00", estudiantes: [{ id: 13, nombre: "Ricardo Méndez", codigo: "END-304", edad: 10, asistencia: 96 }, { id: 14, nombre: "Carmen Ruiz", codigo: "END-305", edad: 9, asistencia: 92 }] }] }
-    ]
+    const { isAdmin, isDocente } = useUserRole()
+    const isReadOnly = isAdmin && !isDocente // El admin solo ve, el docente carga
 
     // ---------------------- ESTADOS PRINCIPALES ---------------------- //
     const [gradoSeleccionado, setGradoSeleccionado] = useState(null)
     const [materiaSeleccionada, setMateriaSeleccionada] = useState(null)
+    const [selectedLapso, setSelectedLapso] = useState(1)
+    const [selectedYear, setSelectedYear] = useState('2025-2026')
     const [notas, setNotas] = useState({})
     const [modalVisible, setModalVisible] = useState(false)
     const [enviando, setEnviando] = useState(false)
     const [toasts, setToasts] = useState([])
-    const [currentUser, setCurrentUser] = useState(null)
-    const [currentCompetencies, setCurrentCompetencies] = useState([])
-    const [academicYear, setAcademicYear] = useState('2025-2026') // Default or from context
+    const [availableYears, setAvailableYears] = useState([])
+    const [competencies, setCompetencies] = useState([])
+    const [sectionsData, setSectionsData] = useState([])
 
+    // Cargar datos iniciales
     useEffect(() => {
-        const notasGuardadas = localStorage.getItem('notasEndanza')
-        if (notasGuardadas) setNotas(JSON.parse(notasGuardadas))
+        const fetchInitialData = async () => {
+            const years = await getAvailableYears()
+            setAvailableYears(years)
+            if (years.length > 0) setSelectedYear(years[0])
 
-        const userStr = localStorage.getItem('user')
-        if (userStr) setCurrentUser(JSON.parse(userStr))
-    }, [])
+            const allSections = await listSections()
+            const grouped = {}
 
-    // Cargar competencias cuando se selecciona una materia
-    useEffect(() => {
-        if (materiaSeleccionada) {
-            const competenciesKey = 'competencies_config_v1'
-            const stored = localStorage.getItem(competenciesKey)
-            if (stored) {
-                const configData = JSON.parse(stored)
-                // Usamos el academicYear actual (podría venir de un selector o configuración global)
-                const yearConfig = configData[academicYear] || {}
-                const subjectConfig = yearConfig[materiaSeleccionada.id] || yearConfig[materiaSeleccionada.nombre]
-
-                if (subjectConfig && subjectConfig.lapsos) {
-                    // Por simplicidad, tomamos el lapso 1 o el actualmente activo si hubiera un selector
-                    // En este prototipo usamos el lapso 1 por defecto
-                    setCurrentCompetencies(subjectConfig.lapsos[1]?.evaluations || [])
-                } else {
-                    setCurrentCompetencies([])
+            allSections.forEach(s => {
+                if (!grouped[s.gradeLevel]) {
+                    grouped[s.gradeLevel] = { grado: s.gradeLevel, materias: [] }
                 }
-            } else {
-                setCurrentCompetencies([])
-            }
-        }
-    }, [materiaSeleccionada, academicYear])
+                s.schedules.forEach(sch => {
+                    grouped[s.gradeLevel].materias.push({
+                        id: `${s.id}-${sch.id}`,
+                        nombre: sch.subject,
+                        horario: `${sch.dayOfWeek} ${sch.startTime}-${sch.endTime}`,
+                        sectionId: s.id,
+                        subjectName: sch.subject,
+                        estudiantes: []
+                    })
+                })
+            })
+            const sectionsList = Object.values(grouped)
+            setSectionsData(sectionsList)
 
-    const isAdmin = currentUser?.rol === 'admin'
-    const isDocente = currentUser?.rol === 'docente'
-    const canEdit = isDocente // Según requerimiento: solo profesores montan notas
+            // Auto-selección si viene del dashboard
+            if (location.state?.autoSelect) {
+                const auto = location.state.autoSelect
+                const gradeMatch = sectionsList.find(g => g.grado === auto.gradeLevel)
+                if (gradeMatch) {
+                    setGradoSeleccionado(gradeMatch)
+                    const subjectMatch = gradeMatch.materias.find(m =>
+                        auto.schedules.some(s => s.subject === m.subjectName)
+                    )
+                    if (subjectMatch) setMateriaSeleccionada(subjectMatch)
+                }
+            }
+
+            const notasGuardadas = localStorage.getItem('notasEndanza')
+            if (notasGuardadas) setNotas(JSON.parse(notasGuardadas))
+        }
+        fetchInitialData()
+    }, [location.state])
+
+    // Cargar Competencias cuando cambia la materia o lapso
+    useEffect(() => {
+        if (materiaSeleccionada && selectedYear) {
+            const stored = localStorage.getItem(COMPETENCIES_KEY)
+            let loadedCompetencies = []
+
+            if (stored) {
+                const config = JSON.parse(stored)
+                const subjectConfig = config[selectedYear]?.[materiaSeleccionada.subjectName]
+                if (subjectConfig && subjectConfig.lapsos[selectedLapso]) {
+                    loadedCompetencies = subjectConfig.lapsos[selectedLapso].evaluations || []
+                }
+            }
+
+            // Si no hay competencias configuradas, cargamos las "tradicionales" por defecto
+            if (loadedCompetencies.length === 0) {
+                loadedCompetencies = [
+                    { id: 'c1', name: 'Evaluación 1', weight: 25 },
+                    { id: 'c2', name: 'Evaluación 2', weight: 25 },
+                    { id: 'c3', name: 'Evaluación 3', weight: 25 },
+                    { id: 'c4', name: 'Evaluación 4', weight: 25 }
+                ]
+            }
+
+            setCompetencies(loadedCompetencies)
+        }
+    }, [materiaSeleccionada, selectedLapso, selectedYear])
 
     // ---------------------- FUNCIONES DE LOGICA ---------------------- //
-    const manejarNotaChange = (estudianteId, numeroNota, valor) => {
+    const manejarNotaChange = (estudianteId, compId, valor) => {
+        if (isReadOnly) return
+
         const valorNumerico = parseFloat(valor)
         if ((valor === "" || (valorNumerico >= 0 && valorNumerico <= 20)) && valor.length <= 4) {
             const nuevoValor = valor === "" ? "" : Math.min(20, Math.max(0, valorNumerico)).toString()
             setNotas(prev => {
-                const nuevasNotas = { ...prev, [estudianteId]: { ...(prev[estudianteId] || { n1: "", n2: "", n3: "", n4: "" }), [`n${numeroNota}`]: nuevoValor } }
+                const studentGrades = prev[estudianteId] || {}
+                const nuevasNotas = {
+                    ...prev,
+                    [estudianteId]: {
+                        ...studentGrades,
+                        [`lapso${selectedLapso}_comp${compId}`]: nuevoValor
+                    }
+                }
                 localStorage.setItem('notasEndanza', JSON.stringify(nuevasNotas))
                 return nuevasNotas
             })
@@ -79,25 +134,24 @@ const SistemaEvaluacionDanza = () => {
     }
 
     const calcularPromedio = (estudianteId) => {
-        const notasEstudiante = notas[estudianteId]
-        if (!notasEstudiante || currentCompetencies.length === 0) return null
+        const notasEstudiante = notas[estudianteId] || {}
+        if (competencies.length === 0) return null
 
-        let totalPonderado = 0
-        let totalPeso = 0
+        let totalPoints = 0
+        let totalWeight = 0
 
-        currentCompetencies.forEach((comp, idx) => {
-            const nota = notasEstudiante[`n${idx + 1}`]
+        competencies.forEach(comp => {
+            const nota = notasEstudiante[`lapso${selectedLapso}_comp${comp.id}`]
             if (nota !== "" && !isNaN(parseFloat(nota))) {
-                const peso = parseFloat(comp.weight) / 100
-                totalPonderado += parseFloat(nota) * peso
-                totalPeso += comp.weight
+                totalPoints += parseFloat(nota) * (comp.weight / 100)
+                totalWeight += comp.weight
             }
         })
 
-        if (totalPeso === 0) return null
-        // Si no se han llenado todas, podemos promediar lo que hay o esperar al 100%
-        // Aquí promediamos según el peso relativo de lo completado
-        return (totalPonderado / (totalPeso / 100)).toFixed(1)
+        if (totalWeight === 0) return null
+        // Si no se han llenado todas las notas, el promedio es parcial o sobre el total?
+        // Usualmente es acumulativo. Pero si queremos el promedio real:
+        return (totalPoints * (100 / totalWeight)).toFixed(1)
     }
 
     const determinarEstado = (promedio) => promedio === null ? "Pendiente" : (parseFloat(promedio) >= 10 ? "Aprobado" : "Reprobado")
@@ -120,84 +174,174 @@ const SistemaEvaluacionDanza = () => {
 
     // ---------------------- ACCIONES ---------------------- //
     const prepararEnvio = () => {
+        if (isReadOnly) return
         if (!materiaSeleccionada) return
-        const estudiantesSinNotas = materiaSeleccionada.estudiantes.filter(est => !notas[est.id] || Object.values(notas[est.id]).every(n => n === ""))
-        if (estudiantesSinNotas.length > 0) return showToast("warning", `Hay ${estudiantesSinNotas.length} estudiantes sin notas`)
+        const estudiantesSinNotas = materiaSeleccionada.estudiantes.filter(est => {
+            const notasEst = notas[est.id] || {}
+            return !competencies.some(c => notasEst[`lapso${selectedLapso}_comp${c.id}`])
+        })
+        if (estudiantesSinNotas.length > 0) return showToast("warning", `Hay ${estudiantesSinNotas.length} estudiantes sin notas en este lapso`)
         setModalVisible(true)
     }
 
     const enviarNotasSecretaria = () => {
+        if (isReadOnly) return
         setEnviando(true)
         setTimeout(() => {
             setEnviando(false); setModalVisible(false)
-            setNotas(prev => {
-                const nuevas = { ...prev }; materiaSeleccionada.estudiantes.forEach(est => delete nuevas[est.id])
-                localStorage.setItem('notasEndanza', JSON.stringify(nuevas)); return nuevas
-            })
             showToast("success", "✅ Notas enviadas a la secretaría correctamente")
+            // Aquí podríamos marcar como "Enviado" en una DB real
         }, 1500)
     }
 
     const limpiarNotasMateria = () => {
-        if (window.confirm("¿Está seguro de limpiar todas las notas de esta materia?")) {
+        if (isReadOnly) return
+        if (window.confirm("¿Está seguro de limpiar las notas de este lapso para esta materia?")) {
             setNotas(prev => {
-                const nuevas = { ...prev }; materiaSeleccionada.estudiantes.forEach(est => delete nuevas[est.id])
+                const nuevas = { ...prev };
+                materiaSeleccionada.estudiantes.forEach(est => {
+                    const studentGrades = { ...nuevas[est.id] || {} }
+                    competencies.forEach(c => delete studentGrades[`lapso${selectedLapso}_comp${c.id}`])
+                    nuevas[est.id] = studentGrades
+                })
                 localStorage.setItem('notasEndanza', JSON.stringify(nuevas)); return nuevas
             })
-            showToast("info", "Notas limpiadas correctamente")
+            showToast("info", "Notas del lapso limpiadas")
         }
     }
 
+    // Mock de estudiantes por materia si no hay reales vinculados
+    const currentMateria = materiaSeleccionada ? {
+        ...materiaSeleccionada,
+        estudiantes: materiaSeleccionada.estudiantes.length > 0 ? materiaSeleccionada.estudiantes : [
+            { id: 1, nombre: "Ana López", codigo: "END-101" },
+            { id: 2, nombre: "Carlos Pérez", codigo: "END-102" },
+            { id: 3, nombre: "María González", codigo: "END-103" }
+        ]
+    } : null
+
     return (
-        <CContainer fluid className="py-4 profile-container pb-5">
-            <header className="mb-5 no-print">
-                <div className="d-flex align-items-center gap-3">
-                    <div className="p-3 bg-primary rounded-circle shadow-sm">
-                        <CIcon icon={cilNotes} size="xl" className="text-white" />
+        <CContainer fluid className="py-2 py-md-4 profile-container pb-5">
+            <header className="mb-3 mb-md-4 no-print">
+                <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-glass-premium p-3 p-md-4 rounded-4 border border-light-custom border-opacity-10 shadow-sm">
+                    <div className="d-flex align-items-center gap-2 gap-md-3">
+                        <div className="p-2 p-md-3 bg-primary rounded-circle shadow-premium-sm">
+                            <CIcon icon={cilNotes} size="xl" className="text-white" />
+                        </div>
+                        <div>
+                            <h2 className="mb-0 fw-black header-title-custom text-uppercase ls-tight fs-5 fs-md-2">Centro de Calificaciones</h2>
+                            <p className="text-muted-custom small mb-0 text-uppercase ls-1 d-none d-sm-block">
+                                {isReadOnly ? 'Panel de Visualización Académica' : 'Gestión y Carga de Notas por Competencias'}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="mb-0 fw-bold header-title-custom text-uppercase ls-1">Centro de Calificaciones</h2>
-                        <p className="text-muted-custom small mb-0 text-uppercase ls-1">Gestión académica de la Escuela Nacional de Danza</p>
+
+                    {/* Selector de Lapso y Año (Control Bar) */}
+                    <div className="d-flex gap-3 align-items-center bg-light-custom p-2 rounded-pill border border-light-custom grades-header-actions">
+                        <div className="px-3 border-end border-light-custom d-none d-md-block">
+                            <span className="small fw-bold text-muted-custom text-uppercase ls-1">Configuración:</span>
+                        </div>
+                        <CFormSelect
+                            size="sm"
+                            value={selectedLapso}
+                            onChange={(e) => setSelectedLapso(parseInt(e.target.value))}
+                            className="border-0 bg-transparent fw-bold text-primary rounded-pill"
+                        >
+                            <option value={1}>I LAPSO</option>
+                            <option value={2}>II LAPSO</option>
+                            <option value={3}>III LAPSO</option>
+                        </CFormSelect>
+                        <CFormSelect
+                            size="sm"
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                            className="border-0 bg-transparent fw-bold text-muted-custom rounded-pill"
+                        >
+                            {availableYears.map(year => (
+                                <option key={year} value={year}>{year}</option>
+                            ))}
+                        </CFormSelect>
                     </div>
                 </div>
             </header>
 
-            {!gradoSeleccionado && <GradeCards data={data} onSelectGrade={setGradoSeleccionado} />}
+            {!gradoSeleccionado && (
+                <div className="animate__animated animate__fadeIn">
+                    {sectionsData.length > 0 ? (
+                        isReadOnly ? (
+                            <AdminGradeCards data={sectionsData} onSelectGrade={setGradoSeleccionado} />
+                        ) : (
+                            <DocenteGradeCards data={sectionsData} onSelectGrade={setGradoSeleccionado} />
+                        )
+                    ) : (
+                        <div className="text-center py-5 bg-glass-premium rounded-4 border border-light-custom border-opacity-10">
+                            <CIcon icon={cilWarning} size="3xl" className="text-warning mb-3 opacity-50" />
+                            <h4 className="text-muted-custom fw-bold">No hay secciones registradas</h4>
+                            <p className="text-muted-custom small mt-2">Por favor, registre secciones en el módulo de Aulas o Estudiantes.</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {gradoSeleccionado && !materiaSeleccionada && (
-                <SubjectCards
-                    grade={gradoSeleccionado}
-                    onBack={() => setGradoSeleccionado(null)}
-                    onSelectSubject={setMateriaSeleccionada}
-                    calculatePromedio={calcularPromedio}
-                    getColorEstado={getColorEstado}
-                    determinarEstado={determinarEstado}
-                />
+                isReadOnly ? (
+                    <AdminSubjectCards
+                        grade={gradoSeleccionado}
+                        onBack={() => setGradoSeleccionado(null)}
+                        onSelectSubject={setMateriaSeleccionada}
+                        calculatePromedio={calcularPromedio}
+                        getColorEstado={getColorEstado}
+                        determinarEstado={determinarEstado}
+                    />
+                ) : (
+                    <DocenteSubjectCards
+                        grade={gradoSeleccionado}
+                        onBack={() => setGradoSeleccionado(null)}
+                        onSelectSubject={setMateriaSeleccionada}
+                        calculatePromedio={calcularPromedio}
+                        getColorEstado={getColorEstado}
+                        determinarEstado={determinarEstado}
+                    />
+                )
             )}
 
             {gradoSeleccionado && materiaSeleccionada && (
                 <>
                     <EvaluationSummary
-                        subject={materiaSeleccionada}
+                        subject={currentMateria}
                         notas={notas}
                         calculatePromedio={calcularPromedio}
                     />
                     <div className="mt-4">
-                        <EvaluationTable
-                            grade={gradoSeleccionado}
-                            subject={materiaSeleccionada}
-                            onBack={() => setMateriaSeleccionada(null)}
-                            onClear={limpiarNotasMateria}
-                            onPrepareSend={prepararEnvio}
-                            notas={notas}
-                            onNotaChange={manejarNotaChange}
-                            calculatePromedio={calcularPromedio}
-                            determinarEstado={determinarEstado}
-                            getColorNota={getColorNota}
-                            getColorEstado={getColorEstado}
-                            competencies={currentCompetencies}
-                            canEdit={canEdit}
-                        />
+                        {isReadOnly ? (
+                            <AdminEvaluationTable
+                                grade={gradoSeleccionado}
+                                subject={currentMateria}
+                                onBack={() => setMateriaSeleccionada(null)}
+                                notas={notas}
+                                calculatePromedio={calcularPromedio}
+                                determinarEstado={determinarEstado}
+                                getColorNota={getColorNota}
+                                getColorEstado={getColorEstado}
+                                competencies={competencies}
+                                selectedLapso={selectedLapso}
+                            />
+                        ) : (
+                            <DocenteEvaluationTable
+                                grade={gradoSeleccionado}
+                                subject={currentMateria}
+                                onBack={() => setMateriaSeleccionada(null)}
+                                onClear={limpiarNotasMateria}
+                                onPrepareSend={prepararEnvio}
+                                notas={notas}
+                                onNotaChange={manejarNotaChange}
+                                calculatePromedio={calcularPromedio}
+                                determinarEstado={determinarEstado}
+                                getColorEstado={getColorEstado}
+                                competencies={competencies}
+                                selectedLapso={selectedLapso}
+                            />
+                        )}
                     </div>
                 </>
             )}
@@ -206,7 +350,7 @@ const SistemaEvaluacionDanza = () => {
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 enviando={enviando}
-                subject={materiaSeleccionada}
+                subject={currentMateria}
                 grade={gradoSeleccionado}
                 calculatePromedio={calcularPromedio}
                 determinarEstado={determinarEstado}
