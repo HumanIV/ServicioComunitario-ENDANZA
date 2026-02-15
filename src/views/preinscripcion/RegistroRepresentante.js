@@ -8,15 +8,15 @@ import {
     CRow,
     CCol,
     CSpinner,
-    CAlert,
     CListGroup,
-    CListGroupItem
+    CListGroupItem,
+    CAlert
 } from '@coreui/react';
 import CIcon from '@coreui/icons-react';
-import { cilSave, cilUser, cilEnvelopeClosed, cilPhone, cilBadge, cilArrowRight, cilSearch } from '@coreui/icons';
+import { cilUser, cilArrowRight, cilWarning, cilLockLocked } from '@coreui/icons';
 
-
-
+// Importar servicio
+import { searchRepresentantes } from '../../services/representanteService';
 
 const RegistroRepresentante = ({ onNext, initialData = {} }) => {
     const [formData, setFormData] = useState({
@@ -25,47 +25,44 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
         last_name: initialData?.last_name || '',
         phone: initialData?.phone || '',
         email: initialData?.email || '',
-        password: initialData?.password || '1234',
-        role: 'representante',
-        status: 'active',
+        password: '', // Campo de contraseña
         parentesco: initialData?.parentesco || 'Madre',
-        parentesco_otro: initialData?.parentesco_otro || ''
+        parentesco_otro: initialData?.parentesco_otro || '',
+        id_representante: initialData?.id_representante || null
     });
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [existingReps, setExistingReps] = useState([]);
     const [filteredReps, setFilteredReps] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [errors, setErrors] = useState({});
-    const [loadingReps, setLoadingReps] = useState(false);
+    const [searching, setSearching] = useState(false);
+    const [representanteSeleccionado, setRepresentanteSeleccionado] = useState(null);
 
+    // Si hay initialData con id_representante, mostrar alerta
     useEffect(() => {
-        fetchReps();
-    }, []);
-
-    const fetchReps = async () => {
-        setLoadingReps(true);
-        try {
-            const users = await listUsers();
-            const reps = users.filter(u => u.role === 'representante');
-            setExistingReps(reps);
-        } catch (error) {
-            console.error("Error fetching representatives:", error);
-        } finally {
-            setLoadingReps(false);
+        if (formData.id_representante) {
+            setRepresentanteSeleccionado({
+                first_name: formData.first_name,
+                last_name: formData.last_name,
+                dni: formData.dni
+            });
         }
-    };
+    }, [formData.id_representante]);
 
-    const handleSearch = (term) => {
+    const handleSearch = async (term) => {
         setSearchTerm(term);
         if (term.trim().length > 1) {
-            const filtered = existingReps.filter(rep =>
-                `${rep.first_name} ${rep.last_name}`.toLowerCase().includes(term.toLowerCase()) ||
-                rep.dni.includes(term) ||
-                rep.email.toLowerCase().includes(term.toLowerCase())
-            );
-            setFilteredReps(filtered);
-            setShowSuggestions(true);
+            setSearching(true);
+            try {
+                const results = await searchRepresentantes(term);
+                setFilteredReps(results);
+                setShowSuggestions(true);
+            } catch (error) {
+                console.error("Error searching representatives:", error);
+                setFilteredReps([]);
+            } finally {
+                setSearching(false);
+            }
         } else {
             setShowSuggestions(false);
         }
@@ -73,19 +70,41 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
 
     const selectRep = (rep) => {
         setFormData({
-            ...formData,
-            id: rep.id,
             dni: rep.dni,
             first_name: rep.first_name,
             last_name: rep.last_name,
-            phone: rep.phone,
+            phone: rep.phone || '',
             email: rep.email,
-            password: '****',
-            parentesco: rep.parentesco || 'Madre',
-            parentesco_otro: rep.parentesco_otro || ''
+            password: '', // Limpiar contraseña al seleccionar existente
+            parentesco: 'Madre', // Valor por defecto
+            parentesco_otro: '',
+            id_representante: rep.id_representante
         });
+        
+        setRepresentanteSeleccionado({
+            first_name: rep.first_name,
+            last_name: rep.last_name,
+            dni: rep.dni
+        });
+        
         setSearchTerm(`${rep.first_name} ${rep.last_name}`);
         setShowSuggestions(false);
+    };
+
+    const limpiarSeleccion = () => {
+        setFormData({
+            dni: 'V-',
+            first_name: '',
+            last_name: '',
+            phone: '',
+            email: '',
+            password: '',
+            parentesco: 'Madre',
+            parentesco_otro: '',
+            id_representante: null
+        });
+        setRepresentanteSeleccionado(null);
+        setSearchTerm('');
     };
 
     const handleDniChange = (e) => {
@@ -105,7 +124,17 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
         if (!formData.last_name.trim()) newErrors.last_name = 'El apellido es obligatorio';
         if (!formData.dni.trim() || formData.dni.trim() === 'V-') newErrors.dni = 'La cédula es obligatoria';
         if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Email inválido';
-        if (formData.parentesco === 'Otro' && !formData.parentesco_otro.trim()) newErrors.parentesco_otro = 'Especifique el parentesco';
+        
+        // Validar contraseña solo si es nuevo representante
+        if (!representanteSeleccionado && !formData.password.trim()) {
+            newErrors.password = 'La contraseña es obligatoria para nuevos representantes';
+        } else if (!representanteSeleccionado && formData.password.trim().length < 4) {
+            newErrors.password = 'La contraseña debe tener al menos 4 caracteres';
+        }
+        
+        if (formData.parentesco === 'Otro' && !formData.parentesco_otro.trim()) {
+            newErrors.parentesco_otro = 'Especifique el parentesco';
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -114,6 +143,8 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
+        
+        // Pasar los datos al componente padre
         onNext(formData);
     };
 
@@ -143,12 +174,17 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                             onFocus={() => searchTerm.length > 1 && setShowSuggestions(true)}
                             className="input-premium py-2"
                         />
+                        {searching && (
+                            <div className="position-absolute end-0 top-0 mt-2 me-3">
+                                <CSpinner size="sm" color="warning" />
+                            </div>
+                        )}
                         {showSuggestions && (
-                            <CListGroup className="position-absolute w-100 shadow-lg mt-1 search-suggestions-list" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+                            <CListGroup className="position-absolute w-100 shadow-lg mt-1 search-suggestions-list" style={{ maxHeight: '250px', overflowY: 'auto', zIndex: 9999 }}>
                                 {filteredReps.length > 0 ? (
                                     filteredReps.map(rep => (
                                         <CListGroupItem
-                                            key={rep.id}
+                                            key={rep.id_representante || rep.id_usuario}
                                             component="button"
                                             onClick={() => selectRep(rep)}
                                             className="d-flex justify-content-between align-items-center list-group-item-action border-light-custom"
@@ -168,6 +204,31 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                             </CListGroup>
                         )}
                     </div>
+
+                    {/* Alerta cuando se selecciona un representante existente */}
+                    {representanteSeleccionado && (
+                        <CAlert color="info" className="mt-3 mb-0">
+                            <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <CIcon icon={cilWarning} className="me-2" />
+                                    <strong>Representante seleccionado:</strong>{' '}
+                                    {representanteSeleccionado.first_name} {representanteSeleccionado.last_name} - {representanteSeleccionado.dni}
+                                    <br />
+                                    <small className="text-muted">
+                                        Se agregarán nuevos estudiantes a este representante existente.
+                                        La contraseña NO será modificada.
+                                    </small>
+                                </div>
+                                <CButton
+                                    color="light"
+                                    size="sm"
+                                    onClick={limpiarSeleccion}
+                                >
+                                    Cambiar
+                                </CButton>
+                            </div>
+                        </CAlert>
+                    )}
                 </CCardBody>
             </CCard>
 
@@ -196,53 +257,75 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
 
                     <div className="mb-4 d-flex align-items-center">
                         <div className="flex-grow-1 border-bottom border-light-custom"></div>
-                        <span className="px-3 small fw-bold text-uppercase opacity-50">Complete los datos del {formData.parentesco.toLowerCase()}</span>
+                        <span className="px-3 small fw-bold text-uppercase opacity-50">
+                            {representanteSeleccionado 
+                                ? 'Datos del representante existente (no modificables)' 
+                                : 'Complete los datos del nuevo representante'}
+                        </span>
                         <div className="flex-grow-1 border-bottom border-light-custom"></div>
                     </div>
 
                     <CForm onSubmit={handleSubmit}>
                         <CRow className="g-4">
                             <CCol md={6}>
-                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Nombre(s) <span className="text-danger">*</span></label>
+                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">
+                                    Nombre(s) <span className="text-danger">*</span>
+                                </label>
                                 <CFormInput
                                     placeholder="Ej: Carlos Eduardo"
                                     value={formData.first_name}
                                     onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                                     className="input-premium py-2"
                                     invalid={!!errors.first_name}
+                                    readOnly={!!representanteSeleccionado}
+                                    disabled={!!representanteSeleccionado}
                                 />
                             </CCol>
                             <CCol md={6}>
-                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Apellido(s) <span className="text-danger">*</span></label>
+                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">
+                                    Apellido(s) <span className="text-danger">*</span>
+                                </label>
                                 <CFormInput
                                     placeholder="Ej: Rodríguez"
                                     value={formData.last_name}
                                     onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                                     className="input-premium py-2"
                                     invalid={!!errors.last_name}
+                                    readOnly={!!representanteSeleccionado}
+                                    disabled={!!representanteSeleccionado}
                                 />
                             </CCol>
                             <CCol md={6}>
-                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Cédula de Identidad <span className="text-danger">*</span></label>
+                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">
+                                    Cédula de Identidad <span className="text-danger">*</span>
+                                </label>
                                 <CFormInput
                                     placeholder="V-12345678"
                                     value={formData.dni}
                                     onChange={handleDniChange}
                                     className="input-premium py-2"
                                     invalid={!!errors.dni}
+                                    readOnly={!!representanteSeleccionado}
+                                    disabled={!!representanteSeleccionado}
                                 />
                             </CCol>
                             <CCol md={6}>
-                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Teléfono Principal <span className="text-danger">*</span></label>
+                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">
+                                    Teléfono Principal
+                                </label>
                                 <CFormInput
                                     placeholder="04XX-XXXXXXX"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     className="input-premium py-2"
+                                    readOnly={!!representanteSeleccionado}
+                                    disabled={!!representanteSeleccionado}
                                 />
                             </CCol>
                             <CCol md={12}>
-                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">Correo Electrónico <span className="text-danger">*</span></label>
+                                <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">
+                                    Correo Electrónico <span className="text-danger">*</span>
+                                </label>
                                 <CFormInput
                                     type="email"
                                     placeholder="ejemplo@correo.com"
@@ -250,14 +333,49 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                     className="input-premium py-2"
                                     invalid={!!errors.email}
+                                    readOnly={!!representanteSeleccionado}
+                                    disabled={!!representanteSeleccionado}
                                 />
-                                <div className="form-text mt-2 opacity-50">Se utilizará para el acceso al sistema {formData.id ? '(Usuario existente)' : '(Contraseña por defecto: 1234)'}</div>
                             </CCol>
+
+                            {/* Campo de contraseña - SOLO para nuevos representantes */}
+                            {!representanteSeleccionado && (
+                                <CCol md={12}>
+                                    <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1">
+                                        Contraseña <span className="text-danger">*</span>
+                                    </label>
+                                    <CFormInput
+                                        type="password"
+                                        placeholder="Mínimo 4 caracteres"
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                        className="input-premium py-2"
+                                        invalid={!!errors.password}
+                                    />
+                                    <div className="form-text mt-2 opacity-50">
+                                        El representante usará esta contraseña para acceder al sistema.
+                                    </div>
+                                    {errors.password && <div className="text-danger small mt-1">{errors.password}</div>}
+                                </CCol>
+                            )}
+
+                            {representanteSeleccionado && (
+                                <CCol md={12}>
+                                    <div className="p-3 rounded-4 bg-info bg-opacity-10 border border-info border-opacity-25">
+                                        <CIcon icon={cilLockLocked} className="me-2 text-info" />
+                                        <span className="text-info">
+                                            La contraseña del representante existente NO será modificada.
+                                        </span>
+                                    </div>
+                                </CCol>
+                            )}
 
                             {formData.parentesco === 'Otro' && (
                                 <CCol md={12} className="animate-fade-in">
                                     <div className="p-3 rounded-4 bg-warning bg-opacity-10 border border-warning border-opacity-10">
-                                        <label className="form-label small fw-bold text-uppercase text-warning ls-1">Parentesco / Relación con el alumno <span className="text-danger">*</span></label>
+                                        <label className="form-label small fw-bold text-uppercase text-warning ls-1">
+                                            Parentesco / Relación con el alumno <span className="text-danger">*</span>
+                                        </label>
                                         <CFormInput
                                             placeholder="Ej: Tío, Abuela, Tutor Legal..."
                                             value={formData.parentesco_otro}
@@ -276,7 +394,7 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                                 type="submit"
                                 className="btn-premium px-5 d-flex align-items-center fw-bold"
                             >
-                                CONTINUAR A ESTUDIANTE
+                                {representanteSeleccionado ? 'CONTINUAR PARA AGREGAR ESTUDIANTES' : 'CONTINUAR A ESTUDIANTE'}
                                 <CIcon icon={cilArrowRight} className="ms-2" />
                             </CButton>
                         </div>
@@ -309,10 +427,6 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                     background-color: rgba(245, 185, 55, 0.1);
                 }
 
-                [data-coreui-theme="dark"] .list-group-item .text-contrast {
-                    color: #fff;
-                }
-
                 .border-light-custom {
                     border-color: rgba(0,0,0,0.05) !important;
                 }
@@ -321,16 +435,19 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                     border-color: rgba(255,255,255,0.05) !important;
                 }
 
-                [data-coreui-theme="dark"] .premium-card[style*="backgroundColor"] {
-                    background-color: rgba(245, 185, 55, 0.05) !important;
-                }
-
                 .opacity-50 {
                     opacity: 0.6 !important;
                 }
 
-                [data-coreui-theme="dark"] .opacity-50 {
-                    color: rgba(255, 255, 255, 0.5);
+                input:read-only, input:disabled {
+                    background-color: #f8f9fa !important;
+                    opacity: 0.8;
+                    cursor: not-allowed;
+                }
+                
+                [data-coreui-theme="dark"] input:read-only,
+                [data-coreui-theme="dark"] input:disabled {
+                    background-color: #2a2a3a !important;
                 }
             `}</style>
         </div>

@@ -1,3 +1,4 @@
+// EvaluationTable.jsx - Versión actualizada con modo lectura
 import React from 'react'
 import {
     CCard,
@@ -18,7 +19,7 @@ import {
     CProgress
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilTrash, cilSend, cilWarning, cilArrowLeft, cilUser, cilCheckCircle, cilClock, cilBook } from '@coreui/icons'
+import { cilTrash, cilSend, cilWarning, cilArrowLeft, cilUser, cilCheckCircle, cilClock, cilBook, cilCircle} from '@coreui/icons'
 import PropTypes from 'prop-types'
 
 const EvaluationTable = ({
@@ -32,7 +33,9 @@ const EvaluationTable = ({
     calculatePromedio,
     determinarEstado,
     getColorNota,
-    getColorEstado
+    getColorEstado,
+    modoLectura = false,      // ← NUEVA PROP: true para admin (solo lectura)
+    hayCambios = false        // ← NUEVA PROP: indica si hay cambios sin guardar
 }) => {
     return (
         <div className="animate__animated animate__fadeIn">
@@ -48,28 +51,40 @@ const EvaluationTable = ({
                     </CButton>
                     <div>
                         <h3 className="mb-0 fw-bold header-title-custom fs-4 fs-md-3">{subject.nombre}</h3>
-                        <p className="text-muted-custom small mb-0 text-uppercase ls-1 d-none d-sm-block">Carga de calificaciones trimestrales</p>
+                        <p className="text-muted-custom small mb-0 text-uppercase ls-1 d-none d-sm-block">
+                            {modoLectura ? 'Visualización de calificaciones' : 'Carga de calificaciones trimestrales'}
+                        </p>
+                        {modoLectura && (
+                            <CBadge color="info" className="mt-1 rounded-pill px-3 py-1">
+                                <CIcon icon={cilCircle} className="me-1" size="sm" />
+                                MODO CONSULTA
+                            </CBadge>
+                        )}
                     </div>
                 </div>
-                <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto mt-2 mt-md-0">
-                    <CButton
-                        color="light"
-                        variant="outline"
-                        className="rounded-pill px-4 py-2 border-2 fw-bold text-muted-custom hover-orange shadow-sm w-100 w-sm-auto"
-                        onClick={onClear}
-                    >
-                        <CIcon icon={cilTrash} className="me-2 text-danger" />
-                        <span className="d-sm-none d-md-inline">Limpiar Todo</span>
-                        <span className="d-none d-sm-inline d-md-none">Limpiar</span>
-                    </CButton>
-                    <CButton
-                        className="btn-premium rounded-pill px-4 py-2 shadow-sm d-flex align-items-center justify-content-center w-100 w-sm-auto"
-                        onClick={onPrepareSend}
-                    >
-                        <CIcon icon={cilSend} className="me-2" />
-                        <span className="d-md-inline">ENVIAR</span>
-                    </CButton>
-                </div>
+                
+                {/* SOLO MOSTRAR BOTONES DE ACCIÓN SI NO ESTÁ EN MODO LECTURA */}
+                {!modoLectura && (
+                    <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto mt-2 mt-md-0">
+                        <CButton
+                            color="light"
+                            variant="outline"
+                            className="rounded-pill px-4 py-2 border-2 fw-bold text-muted-custom hover-orange shadow-sm w-100 w-sm-auto"
+                            onClick={onClear}
+                        >
+                            <CIcon icon={cilTrash} className="me-2 text-danger" />
+                            <span className="d-sm-none d-md-inline">Limpiar Todo</span>
+                            <span className="d-none d-sm-inline d-md-none">Limpiar</span>
+                        </CButton>
+                        <CButton
+                            className="btn-premium rounded-pill px-4 py-2 shadow-sm d-flex align-items-center justify-content-center w-100 w-sm-auto"
+                            onClick={onPrepareSend}
+                        >
+                            <CIcon icon={cilSend} className="me-2" />
+                            <span className="d-md-inline">ENVIAR</span>
+                        </CButton>
+                    </div>
+                )}
             </div>
 
             <CCard className="premium-card border-0 overflow-hidden shadow-lg mb-5">
@@ -153,6 +168,7 @@ const EvaluationTable = ({
                                                         value={notasEst[`n${num}`] || ""}
                                                         onChange={(e) => onNotaChange(estudiante.id, num, e.target.value)}
                                                         className={`text-center fw-bold evaluation-input rounded-3 shadow-sm ${notasEst[`n${num}`] ? 'bg-white' : 'bg-light-custom bg-opacity-50 border-dashed'}`}
+                                                        disabled={modoLectura} // ← DESHABILITADO EN MODO LECTURA
                                                     />
                                                     <div className="text-muted-custom mt-1" style={{ fontSize: '0.6rem' }}>C{num}</div>
                                                 </CTableDataCell>
@@ -196,20 +212,24 @@ const EvaluationTable = ({
                                 <strong className="header-title-custom">IMPORTANTE:</strong> Ingrese valores entre <strong>0 y 20</strong> siguiendo la escala institucional.
                             </small>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
-                            <CProgress
-                                value={(subject.estudiantes.filter(est => calculatePromedio(est.id)).length / subject.estudiantes.length) * 100}
-                                color="success"
-                                className="progress-bg-custom progress-thin me-3 d-none d-lg-flex"
-                                style={{ width: '100px', height: '6px' }}
-                            />
-                            <CButton
-                                className="btn-premium rounded-pill px-5 py-2 shadow-sm"
-                                onClick={onPrepareSend}
-                            >
-                                <CIcon icon={cilSend} className="me-2" /> ENVIAR NOTAS
-                            </CButton>
-                        </div>
+                        
+                        {/* SOLO MOSTRAR PROGRESO Y BOTÓN SI NO ESTÁ EN MODO LECTURA */}
+                        {!modoLectura && (
+                            <div className="d-flex align-items-center gap-2">
+                                <CProgress
+                                    value={(subject.estudiantes.filter(est => calculatePromedio(est.id)).length / subject.estudiantes.length) * 100}
+                                    color="success"
+                                    className="progress-bg-custom progress-thin me-3 d-none d-lg-flex"
+                                    style={{ width: '100px', height: '6px' }}
+                                />
+                                <CButton
+                                    className="btn-premium rounded-pill px-5 py-2 shadow-sm"
+                                    onClick={onPrepareSend}
+                                >
+                                    <CIcon icon={cilSend} className="me-2" /> ENVIAR NOTAS
+                                </CButton>
+                            </div>
+                        )}
                     </div>
                 </CCardFooter>
             </CCard>
@@ -222,14 +242,25 @@ EvaluationTable.propTypes = {
     grade: PropTypes.object.isRequired,
     subject: PropTypes.object.isRequired,
     onBack: PropTypes.func.isRequired,
-    onClear: PropTypes.func.isRequired,
-    onPrepareSend: PropTypes.func.isRequired,
+    onClear: PropTypes.func,
+    onPrepareSend: PropTypes.func,
     notas: PropTypes.object.isRequired,
-    onNotaChange: PropTypes.func.isRequired,
+    onNotaChange: PropTypes.func,
     calculatePromedio: PropTypes.func.isRequired,
     determinarEstado: PropTypes.func.isRequired,
     getColorNota: PropTypes.func.isRequired,
     getColorEstado: PropTypes.func.isRequired,
+    modoLectura: PropTypes.bool,      // ← NUEVO PROP
+    hayCambios: PropTypes.bool        // ← NUEVO PROP
+}
+
+// Valores por defecto
+EvaluationTable.defaultProps = {
+    onClear: null,
+    onPrepareSend: null,
+    onNotaChange: null,
+    modoLectura: false,
+    hayCambios: false
 }
 
 export default EvaluationTable

@@ -7,15 +7,15 @@ import {
     CCardBody,
     CSpinner
 } from '@coreui/react';
-import { cilEducation, cilUser, cilPeople, cilCheckCircle } from '@coreui/icons';
+import { cilEducation, cilUser, cilPeople } from '@coreui/icons';
 import CIcon from '@coreui/icons-react';
 import WelcomeBanner from '../Inicio/components/WelcomeBanner';
 import RegistroRepresentante from './RegistroRepresentante';
 import RegistroEstudiante from './RegistroEstudiante';
 
-
-
-import { createStudent, listStudents } from '../../services/studentsService';
+// Importar servicios
+import { createRepresentanteConEstudiantes } from '../../services/representanteService';
+import { listStudents } from '../../services/studentsService';
 import SystemMessageModal from '../../components/SystemMessageModal';
 
 const Preinscripcion = () => {
@@ -29,14 +29,16 @@ const Preinscripcion = () => {
     const handleRepresentativeNext = async (data) => {
         setLoading(true);
         setRepresentativeData(data);
+        console.log("📥 Datos recibidos del representante:", data); // Verifica que incluya password
         try {
             // Si el representante ya tiene ID, buscamos sus estudiantes
-            if (data.id || data.dni) {
+            if (data.id_representante || data.dni) {
                 const allStudents = await listStudents();
-                const filtered = allStudents.filter(s =>
-                    s.RepresentanteId === data.id ||
-                    s.RepresentanteCedula === data.dni
-                );
+                // Adaptar según la estructura de tu API de estudiantes
+                const filtered = allStudents.data?.filter(s =>
+                    s.representative_id === data.id_representante ||
+                    s.representative_dni === data.dni
+                ) || [];
                 setExistingStudents(filtered);
             } else {
                 setExistingStudents([]);
@@ -45,6 +47,8 @@ const Preinscripcion = () => {
             window.scrollTo(0, 0);
         } catch (error) {
             console.error("Error fetching students:", error);
+            setExistingStudents([]);
+            setStep(2);
         } finally {
             setLoading(false);
         }
@@ -58,76 +62,130 @@ const Preinscripcion = () => {
     const handleFinalSave = async (studentsList) => {
         setLoading(true);
         try {
-            let rep;
+            // Preparar payload para el backend
+            const payload = {
+                dni: representativeData.dni,
+                first_name: representativeData.first_name,
+                last_name: representativeData.last_name,
+                phone: representativeData.phone || '',
+                email: representativeData.email,
+                password: representativeData.password || '', // 🔑 CONTRASEÑA INCLUIDA
+                parentesco: representativeData.parentesco,
+                parentesco_otro: representativeData.parentesco_otro || '',
+                direccion: '', // Opcional
+                estudiantes: studentsList.filter(s => s.name.trim() !== '').map(s => ({
+                    name: s.name,
+                    lastName: s.lastName,
+                    gradeLevel: s.gradeLevel,
+                    section: s.section || 'A',
+                    birthDate: s.birthDate,
+                    gender: s.gender
+                }))
+            };
 
-            // 1. Crear o actualizar el usuario representante
-            if (representativeData.id) {
-                // Si ya existe, actualizamos datos sin tocar la contraseña si es '****'
-                const { password, ...payloadWithoutPassword } = representativeData;
-                const updatePayload = password === '****' ? payloadWithoutPassword : representativeData;
-                rep = await updateUser(representativeData.id, updatePayload);
-            } else {
-                // Si es nuevo, lo creamos
-                rep = await createUser(representativeData);
+            // Si ya tenemos id_representante, incluirlo (para representantes existentes)
+            if (representativeData.id_representante) {
+                payload.id_representante = representativeData.id_representante;
             }
 
-            // 2. Crear los estudiantes
-            for (const student of studentsList) {
-                const relationship = representativeData.parentesco === 'Otro'
-                    ? representativeData.parentesco_otro
-                    : representativeData.parentesco;
+            console.log("📤 Enviando preinscripción:", payload);
 
-                const studentPayload = {
-                    ...student,
-                    representative: `${rep.first_name} ${rep.last_name}`,
-                    RepresentanteNombre: rep.first_name,
-                    RepresentanteApellido: rep.last_name,
-                    RepresentanteCedula: rep.dni,
-                    RepresentanteId: rep.id,
-                    RepresentanteParentesco: relationship,
-                    status: 'Preinscrito',
-                    academicYear: '2024-2025'
-                };
+            // Llamar al servicio
+            const response = await createRepresentanteConEstudiantes(payload);
 
-                // Si el representante es Madre o Padre, inyectamos sus datos en los campos específicos
-                if (representativeData.parentesco === 'Madre') {
-                    studentPayload.MadreNombre = rep.first_name;
-                    studentPayload.MadreApellido = rep.last_name;
-                    studentPayload.MadreCedula = rep.dni;
-                    studentPayload.MadreTelefono = rep.phone;
-                    studentPayload.MadreEmail = rep.email;
-                    studentPayload.MadreParentesco = 'Madre';
-                } else if (representativeData.parentesco === 'Padre') {
-                    studentPayload.PadreNombre = rep.first_name;
-                    studentPayload.PadreApellido = rep.last_name;
-                    studentPayload.PadreCedula = rep.dni;
-                    studentPayload.PadreTelefono = rep.phone;
-                    studentPayload.PadreEmail = rep.email;
-                    studentPayload.PadreParentesco = 'Padre';
-                }
-
-                await createStudent(studentPayload);
+            if (response?.ok) {
+                // Determinar si es nuevo representante (tiene credenciales)
+                const esNuevo = response.representante?.credenciales ? true : false;
+                
+                setModalConfig({
+                    type: 'success',
+                    title: esNuevo ? '✅ NUEVO REPRESENTANTE REGISTRADO' : '✅ ESTUDIANTES AGREGADOS',
+                    message: (
+                        <div style={{ textAlign: 'left' }}>
+                            <div style={{ marginBottom: '10px' }}>
+                                <strong>Representante:</strong> {response.representante.first_name} {response.representante.last_name}
+                            </div>
+                            <div style={{ marginBottom: '10px' }}>
+                                <strong>Email:</strong> {response.representante.email}
+                            </div>
+                            
+                            {esNuevo && (
+                                <>
+                                    <div style={{ marginBottom: '10px' }}>
+                                        <strong>Contraseña:</strong>{' '}
+                                        <span style={{ color: '#f9b115', fontWeight: 'bold' }}>
+                                            {response.representante.credenciales.password}
+                                        </span>
+                                    </div>
+                                    <div style={{ color: '#dc3545', marginBottom: '10px' }}>
+                                        ⚠️ GUARDA ESTA CONTRASEÑA. Solo se muestra una vez.
+                                    </div>
+                                </>
+                            )}
+                            
+                            {!esNuevo && (
+                                <div style={{ color: '#28a745', marginBottom: '10px' }}>
+                                    ℹ️ Las credenciales existentes no han sido modificadas.
+                                    El representante puede seguir usando su contraseña actual.
+                                </div>
+                            )}
+                            
+                            <hr style={{ margin: '15px 0' }} />
+                            
+                            <div style={{ marginBottom: '10px' }}>
+                                <strong>Estudiantes registrados en esta sesión:</strong> {response.estudiantes?.length || 0}
+                            </div>
+                            
+                            {response.estudiantes?.length > 0 ? (
+                                <ul style={{ marginTop: '5px', paddingLeft: '20px' }}>
+                                    {response.estudiantes.map((e, i) => (
+                                        <li key={i}>
+                                            {e.first_name} {e.last_name} 
+                                            {e.gradeLevel && ` - ${e.gradeLevel}`}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div className="text-muted">No se registraron estudiantes nuevos</div>
+                            )}
+                        </div>
+                    ),
+                    confirmText: 'ENTENDIDO',
+                    onConfirm: () => {
+                        setModalVisible(false);
+                        setStep(1);
+                        setRepresentativeData(null);
+                    }
+                });
+                setModalVisible(true);
             }
 
-            setModalConfig({
-                type: 'success',
-                title: 'REGISTRO COMPLETADO',
-                message: `El representante ${rep.first_name} ${rep.last_name} y ${studentsList.length} estudiante(s) han sido registrados exitosamente.`,
-                confirmText: 'ENTENDIDO',
-                onConfirm: () => {
-                    setModalVisible(false);
-                    setStep(1);
-                    setRepresentativeData(null);
-                }
-            });
-            setModalVisible(true);
         } catch (error) {
-            console.error("Error in preinscripcion:", error);
+            console.error("❌ Error en preinscripción:", error);
+            
+            // Manejar error específico de representante existente
+            let errorMessage = error.message || 'Ocurrió un error al intentar guardar los datos.';
+            
+            // Si el error es porque ya existe, mostrar opción de buscar
+            if (error.message?.includes('Ya existe un representante')) {
+                errorMessage = (
+                    <div>
+                        <p>⚠️ {error.message}</p>
+                        <p className="mt-2">Puedes:</p>
+                        <ul>
+                            <li>Buscar al representante existente usando el buscador</li>
+                            <li>Agregar nuevos estudiantes a su cuenta</li>
+                        </ul>
+                    </div>
+                );
+            }
+            
             setModalConfig({
                 type: 'error',
                 title: 'ERROR EN EL REGISTRO',
-                message: 'Ocurrió un error al intentar guardar los datos. Por favor reintente.',
-                confirmText: 'CERRAR'
+                message: errorMessage,
+                confirmText: 'CERRAR',
+                onConfirm: () => setModalVisible(false)
             });
             setModalVisible(true);
         } finally {

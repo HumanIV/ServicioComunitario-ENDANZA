@@ -1,15 +1,14 @@
+// src/services/students.js
 import { helpFetch } from '../api/helpFetch';
 
 const fetch = helpFetch();
 
 // ============================================
-// ESTUDIANTES
+// ESTUDIANTES - Versión final con estructura del backend
 // ============================================
 
 /**
  * Obtiene todos los estudiantes
- * @param {Object} filters - { academicYearId, sectionId, etc }
- * @returns {Promise<Array>}
  */
 export const listStudents = async (filters = {}) => {
   try {
@@ -24,8 +23,9 @@ export const listStudents = async (filters = {}) => {
     }
     
     const response = await fetch.get(endpoint);
+    
     if (response.ok && response.data) {
-      return response.data;
+      return response.data; // Devolvemos exactamente lo que viene del backend
     }
     return [];
   } catch (error) {
@@ -36,8 +36,6 @@ export const listStudents = async (filters = {}) => {
 
 /**
  * Obtiene un estudiante por ID
- * @param {number} id 
- * @returns {Promise<Object|null>}
  */
 export const getStudent = async (id) => {
   try {
@@ -54,8 +52,6 @@ export const getStudent = async (id) => {
 
 /**
  * Crea un nuevo estudiante
- * @param {Object} studentData 
- * @returns {Promise<Object>}
  */
 export const createStudent = async (studentData) => {
   try {
@@ -69,9 +65,6 @@ export const createStudent = async (studentData) => {
 
 /**
  * Actualiza un estudiante
- * @param {number} id 
- * @param {Object} studentData 
- * @returns {Promise<Object>}
  */
 export const updateStudent = async (id, studentData) => {
   try {
@@ -85,12 +78,10 @@ export const updateStudent = async (id, studentData) => {
 
 /**
  * Elimina un estudiante
- * @param {number} id 
- * @returns {Promise<Object>}
  */
 export const deleteStudent = async (id) => {
   try {
-    const response = await fetch.delet(`/api/students`, id);
+    const response = await fetch.delet(`/api/students/${id}`);
     return response;
   } catch (error) {
     console.error("Error en deleteStudent:", error);
@@ -100,10 +91,6 @@ export const deleteStudent = async (id) => {
 
 /**
  * Inscribe un estudiante en una sección
- * @param {number} studentId 
- * @param {number} sectionId 
- * @param {number} academicYearId 
- * @returns {Promise<Object>}
  */
 export const enrollStudent = async (studentId, sectionId, academicYearId) => {
   try {
@@ -116,5 +103,21 @@ export const enrollStudent = async (studentId, sectionId, academicYearId) => {
   } catch (error) {
     console.error("Error en enrollStudent:", error);
     throw error;
+  }
+};
+
+/**
+ * Busca estudiantes
+ */
+export const searchStudents = async (query) => {
+  try {
+    const response = await fetch.get(`/api/students/search?q=${encodeURIComponent(query)}`);
+    if (response.ok && response.data) {
+      return response.data;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error en searchStudents:", error);
+    return [];
   }
 };

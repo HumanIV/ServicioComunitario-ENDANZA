@@ -11,13 +11,26 @@ const InfoItem = ({ icon, label, value, subValue }) => (
         </div>
         <div>
             <div className="personal-info-label text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>{label}</div>
-            <div className="fw-bold personal-info-value fs-6 mt-1">{value}</div>
+            <div className="fw-bold personal-info-value fs-6 mt-1">{value || 'N/A'}</div>
             {subValue && <div className="personal-info-label small">{subValue}</div>}
         </div>
     </div>
 )
 
 const PersonalInfoTab = ({ student }) => {
+    // Calcular edad desde fecha de nacimiento
+    const calcularEdad = (fechaNacimiento) => {
+        if (!fechaNacimiento) return 'N/A'
+        const hoy = new Date()
+        const nacimiento = new Date(fechaNacimiento)
+        let edad = hoy.getFullYear() - nacimiento.getFullYear()
+        const mes = hoy.getMonth() - nacimiento.getMonth()
+        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+            edad--
+        }
+        return `${edad} años`
+    }
+
     return (
         <div className="mt-4 animate__animated animate__fadeIn">
             <CRow className="g-4">
@@ -34,27 +47,27 @@ const PersonalInfoTab = ({ student }) => {
                                 <InfoItem
                                     icon={cilUser}
                                     label="Nombre Completo"
-                                    value={`${student.NombreEstudiante || student.name || "N/A"} ${student.ApellidoEstudiante || student.lastName || ""}`}
+                                    value={`${student.first_name || ''} ${student.last_name || ''}`.trim() || 'N/A'}
                                 />
                                 <InfoItem
                                     icon={cilCalendar}
                                     label="Fecha de Nacimiento"
-                                    value={student.FechaNacimiento || student.birthDate || "N/A"}
+                                    value={student.birth_date || 'N/A'}
                                 />
                                 <InfoItem
                                     icon={cilBraille}
                                     label="Edad Registrada"
-                                    value={student.Edad || student.age || "N/A"}
+                                    value={calcularEdad(student.birth_date)}
                                 />
                                 <InfoItem
                                     icon={cilUser}
                                     label="Género"
-                                    value={student.Sexo || student.gender || "N/A"}
+                                    value={student.gender || 'N/A'}
                                 />
                                 <InfoItem
                                     icon={cilHeart}
                                     label="Factor Sanguíneo"
-                                    value={student.TipoSangre || student.bloodType || "N/A"}
+                                    value={student.blood_type || 'N/A'}
                                 />
                             </div>
                         </CCardBody>
@@ -74,18 +87,18 @@ const PersonalInfoTab = ({ student }) => {
                                 <InfoItem
                                     icon={cilHome}
                                     label="Dirección de Habitación"
-                                    value={student.Direccion || student.address || "N/A"}
-                                    subValue={`${student.Ciudad || ""} ${student.Estado || ""}`}
+                                    value={student.address || 'N/A'}
+                                    subValue={student.city ? `${student.city} ${student.state || ''}`.trim() : ''}
                                 />
                                 <InfoItem
                                     icon={cilPhone}
                                     label="Teléfono de Contacto"
-                                    value={student.Telefono || "N/A"}
+                                    value={student.phone || student.representative_phone || 'N/A'}
                                 />
                                 <InfoItem
                                     icon={cilEnvelopeClosed}
                                     label="Correo Electrónico"
-                                    value={student.Email || "N/A"}
+                                    value={student.email || student.representative_email || 'N/A'}
                                 />
                             </div>
                         </CCardBody>

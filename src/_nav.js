@@ -208,14 +208,6 @@ const _nav = [
     ],
   },
 
-    // COMPETENCIAS (Solo admin)
-  {
-    component: CNavItem,
-    name: 'COMPETENCIAS',
-    to: '/competencias',
-    icon: <CIcon icon={cilList} customClassName="nav-icon" />,
-    roles: ['admin']
-  },
 
   {
     component: CNavItem,
