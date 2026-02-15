@@ -1,3 +1,4 @@
+// src/views/horarios/components/ScheduleCard.jsx - VERSIÓN CORREGIDA
 import React from 'react'
 import { CCol, CCard, CCardBody, CCardTitle, CBadge, CButton } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
@@ -5,8 +6,23 @@ import { cilGroup, cilCalendar, cilClock, cilInfo, cilPencil, cilTrash, cilSchoo
 import PropTypes from 'prop-types'
 
 const ScheduleCard = ({ section, onShowInfo, onEdit, onDelete }) => {
-    const teachers = [...new Set(section.schedules?.map(s => s.teacherName) || [])]
-    const subjects = [...new Set(section.schedules?.map(s => s.subject) || [])]
+    // ============================================
+    // VALORES POR DEFECTO PARA EVITAR ERRORES
+    // ============================================
+    const safeSection = {
+        id: section.id || 'N/A',
+        sectionName: section.sectionName || section.section_name || 'Sin nombre',
+        gradeLevel: section.gradeLevel || section.subject_name || 'Sin nivel',
+        academicYear: section.academicYear || section.academic_year_name || 'Año no especificado',
+        totalHoursPerWeek: section.totalHoursPerWeek || section.total_hours || 0,
+        schedules: Array.isArray(section.schedules) ? section.schedules : []
+    };
+
+    const teachers = [...new Set(safeSection.schedules?.map(s => s.teacherName) || [])]
+    const subjects = [...new Set(safeSection.schedules?.map(s => s.subject) || [])]
+
+    // Obtener la primera letra para el avatar (usando el grado)
+    const firstLetter = safeSection.gradeLevel.charAt(0) || '?';
 
     return (
         <CCol lg={4} md={6}>
@@ -27,7 +43,7 @@ const ScheduleCard = ({ section, onShowInfo, onEdit, onDelete }) => {
                                         border: '2px solid rgba(242, 140, 15, 0.3)'
                                     }}
                                 >
-                                    <span className="fw-bold text-primary" style={{ fontSize: '1.5rem' }}>{section.sectionName.charAt(0)}</span>
+                                    <span className="fw-bold text-primary" style={{ fontSize: '1.5rem' }}>{firstLetter}</span>
                                 </div>
                                 <div
                                     className="position-absolute bottom-0 end-0 bg-primary rounded-circle d-flex align-items-center justify-content-center shadow-lg"
@@ -37,10 +53,14 @@ const ScheduleCard = ({ section, onShowInfo, onEdit, onDelete }) => {
                                 </div>
                             </div>
                             <div className="ms-3">
-                                <CCardTitle className="mb-1 fw-bold header-title-custom" style={{ fontSize: '1.25rem' }}>{section.sectionName}</CCardTitle>
+                                {/* CAMBIO AQUÍ: Usar gradeLevel en lugar de sectionName */}
+                                <CCardTitle className="mb-1 fw-bold header-title-custom" style={{ fontSize: '1.25rem' }}>
+                                    {safeSection.gradeLevel}
+                                </CCardTitle>
                                 <div className="d-flex align-items-center gap-2">
-                                    <span className="badge bg-light-custom text-muted-custom border border-light-custom fw-normal" style={{ fontSize: '0.7rem' }}>ID #{section.id}</span>
-                                    <span className="badge bg-primary-soft text-primary fw-bold" style={{ fontSize: '0.7rem' }}>{section.gradeLevel}</span>
+                                    <span className="badge bg-light-custom text-muted-custom border border-light-custom fw-normal" style={{ fontSize: '0.7rem' }}>
+                                        {safeSection.sectionName} • ID #{safeSection.id}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -50,7 +70,7 @@ const ScheduleCard = ({ section, onShowInfo, onEdit, onDelete }) => {
                     <div className="mb-4">
                         <div className="d-inline-flex align-items-center gap-2 px-3 py-2 bg-light-custom rounded-pill border border-light-custom shadow-sm">
                             <CIcon icon={cilCalendar} className="text-primary" size="sm" />
-                            <span className="fw-bold header-title-custom small">Ciclo {section.academicYear}</span>
+                            <span className="fw-bold header-title-custom small">Ciclo {safeSection.academicYear}</span>
                         </div>
                     </div>
 
@@ -59,14 +79,14 @@ const ScheduleCard = ({ section, onShowInfo, onEdit, onDelete }) => {
                         <div className="col-6">
                             <div className="p-3 rounded-4 text-center h-100 border border-light-custom bg-light-custom bg-opacity-10 shadow-sm">
                                 <CIcon icon={cilBook} className="text-primary mb-2" size="lg" />
-                                <div className="fw-bold header-title-custom h4 mb-0">{section.schedules?.length || 0}</div>
+                                <div className="fw-bold header-title-custom h4 mb-0">{safeSection.schedules?.length || 0}</div>
                                 <div className="text-muted-custom small fw-bold text-uppercase ls-1" style={{ fontSize: '0.6rem' }}>Clases</div>
                             </div>
                         </div>
                         <div className="col-6">
                             <div className="p-3 rounded-4 text-center h-100 border border-light-custom bg-light-custom bg-opacity-10 shadow-sm">
                                 <CIcon icon={cilClock} className="text-primary mb-2" size="lg" />
-                                <div className="fw-bold header-title-custom h4 mb-0">{section.totalHoursPerWeek || 0}</div>
+                                <div className="fw-bold header-title-custom h4 mb-0">{safeSection.totalHoursPerWeek || 0}</div>
                                 <div className="text-muted-custom small fw-bold text-uppercase ls-1" style={{ fontSize: '0.6rem' }}>Horas/Sem</div>
                             </div>
                         </div>
@@ -115,7 +135,7 @@ const ScheduleCard = ({ section, onShowInfo, onEdit, onDelete }) => {
                         <CButton
                             size="sm"
                             className="bg-light-custom text-danger border-light-custom px-3 hover-lift shadow-sm"
-                            onClick={() => onDelete(section.id, section.sectionName)}
+                            onClick={() => onDelete(safeSection.id, safeSection.sectionName)}
                             title="Eliminar"
                         >
                             <CIcon icon={cilTrash} />

@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react'
+// src/views/horarios/Horarios.jsx
+import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import {
     CButton,
     CCard,
@@ -12,34 +13,50 @@ import {
     CDropdownToggle,
     CDropdownMenu,
     CDropdownItem,
-    CDropdownDivider
+    CToaster,
+    CToast,
+    CToastBody
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilPlus, cilCalendar, cilSchool, cilChevronBottom } from '@coreui/icons'
+import { cilPlus, cilCalendar, cilSchool, cilChevronBottom, cilArrowLeft } from '@coreui/icons'
+import { useNavigate } from 'react-router-dom'
 
-// Componentes y servicios del dominio
+// Servicios reales
+import { 
+    getAllSections, 
+    deleteSection, 
+    adaptSectionFromDB,
+    createSection,  // ← IMPORTANTE: Ahora espera 2 parámetros
+    updateSection    // ← IMPORTANTE: Para editar
+} from '../../services/scheduleService'
+import { getAvailableYears } from '../../services/configService'
+
+// Componentes
 import HorarioForm from './HorarioForm'
 import InfoHorario from './InfoHorario'
-import {
-    listSections,
-    createSection,
-    updateSection,
-    deleteSection,
-    getAvailableYears,
-    GRADE_LEVELS
-} from 'src/services/schedules'
-
-// Componentes comunes
-import SystemMessageModal from 'src/components/SystemMessageModal'
-import Pagination from 'src/components/Pagination'
-
-// Componentes extraídos
+import SystemMessageModal from '../../components/SystemMessageModal'
+import Pagination from '../../components/Pagination'
 import ScheduleCard from './components/ScheduleCard'
 import ScheduleFilters from './components/ScheduleFilters'
 
+// Constantes
+const GRADE_LEVELS = [
+    { value: 'Preparatorio', label: 'Preparatorio' },
+    { value: '1er Grado', label: '1er Grado' },
+    { value: '2do Grado', label: '2do Grado' },
+    { value: '3er Grado', label: '3er Grado' },
+    { value: '4to Grado', label: '4to Grado' },
+    { value: '5to Grado', label: '5to Grado' },
+    { value: '6to Grado', label: '6to Grado' },
+    { value: '7mo Grado', label: '7mo Grado' },
+    { value: '8vo Grado', label: '8vo Grado' }
+]
+
 const Horarios = () => {
+    const navigate = useNavigate()
+    
     // ---------------------- ESTADOS ---------------------- //
-    const [data, setData] = useState([])
+    const [sections, setSections] = useState([])
     const [loading, setLoading] = useState(true)
     const [showForm, setShowForm] = useState(false)
     const [showInfo, setShowInfo] = useState(false)
@@ -48,11 +65,11 @@ const Horarios = () => {
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage] = useState(9)
     const [searchTerm, setSearchTerm] = useState('')
-    const DEFAULT_YEAR = "2025-2026"
-    const [currentAcademicYear, setCurrentAcademicYear] = useState(DEFAULT_YEAR)
-    const [availableYears, setAvailableYears] = useState([DEFAULT_YEAR])
-    const [filters, setFilters] = useState({ gradeLevel: '', academicYear: DEFAULT_YEAR })
+    const [availableYears, setAvailableYears] = useState([])
+    const [currentYear, setCurrentYear] = useState(null)
+    const [filters, setFilters] = useState({ gradeLevel: '' })
     const [deleteModal, setDeleteModal] = useState({ visible: false, sectionId: null, sectionName: '' })
+    const [toasts, setToasts] = useState([])
 
     // ---------------------- EFECTOS ---------------------- //
     useEffect(() => {
@@ -60,45 +77,79 @@ const Horarios = () => {
     }, [])
 
     useEffect(() => {
-        setFilters(prev => ({ ...prev, academicYear: currentAcademicYear }))
-    }, [currentAcademicYear])
+        if (currentYear) {
+            fetchSections()
+        }
+    }, [currentYear, filters])
 
-    useEffect(() => {
-        fetchData()
-    }, [filters])
-
-    // ---------------------- LOGICA DE DATOS ---------------------- //
-    const loadInitialData = async () => {
-        try {
-            const years = await getAvailableYears()
-            setAvailableYears(years)
-            if (years.length > 0) setCurrentAcademicYear(years[0])
-        } catch (error) { console.error("Error loading initial data:", error) }
+    // ---------------------- FUNCIONES AUXILIARES ---------------------- //
+    const showToast = (message, color = 'success') => {
+        setToasts(prev => [...prev, { id: Date.now(), message, color }])
     }
 
-    const fetchData = async () => {
+    // ---------------------- CARGA DE DATOS ---------------------- //
+    const loadInitialData = async () => {
+        try {
+            // Cargar años académicos desde configService
+            const years = await getAvailableYears()
+            console.log('📅 Años cargados:', years)
+            setAvailableYears(Array.isArray(years) ? years : [])
+            
+            if (years.length > 0) {
+                // Buscar año activo o usar el primero
+                const activeYear = years.find(y => y.active === true)
+                setCurrentYear(activeYear || years[0])
+            }
+        } catch (error) {
+            console.error("Error loading initial data:", error)
+            showToast('Error al cargar datos iniciales', 'danger')
+        }
+    }
+
+    const fetchSections = async () => {
+        if (!currentYear) return
+        
         setLoading(true)
         try {
-            const res = await listSections(filters)
-            setData(res || [])
+            console.log(`📥 Cargando secciones para año ${currentYear.id}...`)
+            const data = await getAllSections(currentYear.id)
+            console.log('📋 Secciones recibidas:', data)
+            
+            // Adaptar datos de BD al formato del frontend
+            const adaptedData = data.map(section => adaptSectionFromDB(section))
+            setSections(adaptedData)
         } catch (error) {
             console.error('Error fetching sections:', error)
-            setData([])
-        } finally { setLoading(false) }
+            showToast('Error al cargar secciones', 'danger')
+            setSections([])
+        } finally {
+            setLoading(false)
+        }
     }
 
     // ---------------------- FILTRADO Y PAGINACIÓN ---------------------- //
     const filteredSections = useMemo(() => {
-        return data.filter(section => {
-            if (!searchTerm) return true
-            const searchLower = searchTerm.toLowerCase()
-            return (
-                section.id?.toString().includes(searchTerm) ||
-                section.sectionName?.toLowerCase().includes(searchLower) ||
-                section.gradeLevel?.toLowerCase().includes(searchLower)
-            )
+        return sections.filter(section => {
+            // Filtro por búsqueda
+            let matchesSearch = true
+            if (searchTerm) {
+                const searchLower = searchTerm.toLowerCase()
+                matchesSearch = (
+                    section.sectionName?.toLowerCase().includes(searchLower) ||
+                    section.gradeLevel?.toLowerCase().includes(searchLower) ||
+                    section.id?.toString().includes(searchTerm)
+                )
+            }
+            
+            // Filtro por nivel/grado
+            let matchesGrade = true
+            if (filters.gradeLevel) {
+                matchesGrade = section.gradeLevel === filters.gradeLevel
+            }
+            
+            return matchesSearch && matchesGrade
         })
-    }, [data, searchTerm])
+    }, [sections, searchTerm, filters])
 
     const currentPageData = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage
@@ -107,151 +158,254 @@ const Horarios = () => {
 
     const totalPages = Math.ceil(filteredSections.length / itemsPerPage)
 
-    // ---------------------- ACCIONES ---------------------- //
-    const handleSave = async (payload) => {
-        try {
-            if (editing && editing.id) await updateSection(editing.id, payload)
-            else await createSection(payload)
-            setShowForm(false); setEditing(null); fetchData()
-        } catch (error) { alert('Error al guardar: ' + error.message) }
+    // ---------------------- ACCIONES CRUD - VERSIÓN CORREGIDA ---------------------- //
+    // src/views/horarios/Horarios.jsx - handleSave CORREGIDO
+const handleSave = useCallback(async (newSection) => {
+    try {
+        // newSection ya viene creada desde HorarioForm
+        console.log('✅ Sección recibida del formulario:', newSection);
+        
+        // Solo recargar la lista
+        await fetchSections();
+        
+        showToast('Operación completada exitosamente');
+        
+    } catch (error) {
+        console.error('❌ Error en handleSave:', error);
+        showToast(error.message || 'Error al guardar', 'danger');
     }
+}, [fetchSections]);
 
-    const handleDelete = async (id) => {
-        try { await deleteSection(id); fetchData() }
-        catch (error) { alert('Error al eliminar: ' + error.message) }
-    }
+   // src/views/horarios/Horarios.jsx - handleDelete MEJORADO
 
-    const confirmDelete = () => {
-        if (deleteModal.sectionId) handleDelete(deleteModal.sectionId)
+const handleDelete = async () => {
+    try {
+        await deleteSection(deleteModal.sectionId)
+        showToast('Sección eliminada correctamente', 'success')
+        setDeleteModal({ visible: false, sectionId: null, sectionName: '' })
+        fetchSections()
+    } catch (error) {
+        console.error('Error deleting section:', error)
+        
+        // Mensaje más específico según el error
+        if (error.message.includes('viola la llave foránea') || 
+            error.message.includes('estudiantes asociados')) {
+            showToast(
+                `No se puede eliminar "${deleteModal.sectionName}" porque tiene estudiantes inscritos.`,
+                'warning'
+            )
+        } else {
+            showToast(error.message || 'Error al eliminar sección', 'danger')
+        }
+        
         setDeleteModal({ visible: false, sectionId: null, sectionName: '' })
     }
+}
 
+    const confirmDelete = () => {
+        if (deleteModal.sectionId) handleDelete()
+    }
 
+    // Función para abrir el formulario de edición
+    const handleEdit = (section) => {
+        console.log('📝 Editando sección:', section)
+        setEditing(section)
+        setShowForm(true)
+    }
 
+    // ---------------------- RENDER ---------------------- //
     return (
-        <CContainer fluid>
-            <CRow>
-                <CCol>
-                    <CCard className="shadow-sm border-0 mb-4 overflow-hidden premium-card" style={{ borderRadius: '16px' }}>
-                        <div className="bg-primary" style={{ height: '6px' }}></div>
-                        <CCardHeader className="border-bottom-0 pt-4 pb-3 px-4 bg-light-custom">
-                            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-                                <div>
-                                    <h4 className="mb-1 fw-bold header-title-custom d-flex align-items-center">
-                                        <CIcon icon={cilCalendar} className="me-2 text-primary" />
-                                        Gestión de Horarios
-                                    </h4>
-                                    <p className="text-muted-custom mb-0 small fw-medium">Administración de Secciones y Cargas Horarias</p>
-                                </div>
-
-                                <div className="d-flex align-items-center gap-2 bg-light-custom p-1 px-3 rounded-pill border hover-shadow-sm transition-all shadow-sm" style={{ cursor: 'pointer' }}>
-                                    <CIcon icon={cilSchool} className="text-secondary opacity-75" />
-                                    <CDropdown variant="nav-item">
-                                        <CDropdownToggle
-                                            caret={false}
-                                            className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center"
-                                        >
-                                            Ciclo {currentAcademicYear}
-                                            <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
-                                        </CDropdownToggle>
-                                        <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll" style={{ minWidth: '180px' }}>
-                                            <div className="px-3 py-2 text-muted-custom small fw-bold text-uppercase ls-1">Seleccionar Periodo</div>
-                                            {availableYears.map(year => (
-                                                <CDropdownItem
-                                                    key={year}
-                                                    onClick={() => setCurrentAcademicYear(year)}
-                                                    active={currentAcademicYear === year}
-                                                    className="py-2 px-3 fw-medium dropdown-item-premium"
-                                                >
-                                                    Ciclo {year}
-                                                </CDropdownItem>
-                                            ))}
-
-                                        </CDropdownMenu>
-                                    </CDropdown>
-                                </div>
+        <CContainer fluid className="mt-4 pb-5">
+            {/* Botón de regreso y selector de año */}
+            <div className="mb-4">
+                <CRow className="align-items-center">
+                    <CCol xs={12} md={6}>
+                        <div className="d-flex align-items-center">
+                            <CButton
+                                className="rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm border-0"
+                                style={{ 
+                                    width: '48px', 
+                                    height: '48px', 
+                                    background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                    color: 'white'
+                                }}
+                                onClick={() => navigate('/dashboard')}
+                            >
+                                <CIcon icon={cilArrowLeft} size="lg" />
+                            </CButton>
+                            <div>
+                                <h5 className="fw-bold mb-0 d-flex align-items-center" style={{ color: '#1e293b' }}>
+                                    <CIcon icon={cilCalendar} className="me-2" style={{ color: '#E07A00' }} size="sm" />
+                                    Dashboard / <span style={{ color: '#E07A00' }}>Gestión de Horarios</span>
+                                </h5>
                             </div>
-                        </CCardHeader>
+                        </div>
+                    </CCol>
+                    <CCol xs={12} md={6} className="d-flex justify-content-md-end mt-3 mt-md-0">
+                        <CDropdown>
+                            <CDropdownToggle
+                                className="d-flex align-items-center px-3 py-2 rounded-pill"
+                                style={{
+                                    background: 'white',
+                                    border: '1px solid rgba(224,122,0,0.2)',
+                                    color: '#E07A00'
+                                }}
+                            >
+                                <CIcon icon={cilSchool} className="me-2" />
+                                <span>CICLO {currentYear?.name || 'CARGANDO...'}</span>
+                                <CIcon icon={cilChevronBottom} className="ms-2" size="sm" />
+                            </CDropdownToggle>
+                            <CDropdownMenu>
+                                {availableYears.map(year => (
+                                    <CDropdownItem
+                                        key={year.id}
+                                        onClick={() => {
+                                            setCurrentYear(year)
+                                            setCurrentPage(1)
+                                        }}
+                                        active={currentYear?.id === year.id}
+                                    >
+                                        Período {year.name}
+                                    </CDropdownItem>
+                                ))}
+                            </CDropdownMenu>
+                        </CDropdown>
+                    </CCol>
+                </CRow>
+            </div>
 
-                        <CCardBody className="px-4 pb-4">
-                            {loading ? (
-                                <div className="text-center py-5">
-                                    <CSpinner color="primary" variant="grow" />
-                                    <div className="mt-3 text-muted fw-medium">Cargando datos académicos...</div>
+            <CCard className="shadow-lg border-0" style={{ borderRadius: '24px' }}>
+                <div style={{ 
+                    height: '8px', 
+                    borderTopLeftRadius: '24px', 
+                    borderTopRightRadius: '24px',
+                    background: 'linear-gradient(90deg, #E07A00, #F39C12, #E07A00)'
+                }}></div>
+                
+                <CCardHeader className="bg-transparent border-0 pt-4 px-4">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                        <div>
+                            <h3 className="fw-bold mb-1 d-flex align-items-center" style={{ color: '#1e293b' }}>
+                                <div style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                    borderRadius: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginRight: '16px'
+                                }}>
+                                    <CIcon icon={cilCalendar} className="text-white" size="lg" />
                                 </div>
-                            ) : (
-                                <>
-                                    <ScheduleFilters
-                                        searchTerm={searchTerm}
-                                        onSearch={(val) => { setSearchTerm(val); setCurrentPage(1) }}
-                                        gradeLevel={filters.gradeLevel}
-                                        onFilterChange={(name, val) => { setFilters(prev => ({ ...prev, [name]: val })); setCurrentPage(1) }}
-                                        gradeLevels={GRADE_LEVELS}
-                                        onClear={() => { setFilters({ gradeLevel: '', academicYear: currentAcademicYear }); setSearchTerm(''); setCurrentPage(1) }}
-                                        activeFilters={{ totalResults: filteredSections.length }}
-                                        extraAction={
-                                            <CButton
-                                                onClick={() => { setEditing(null); setShowForm(true) }}
-                                                className="btn-premium px-4 py-2 shadow-sm d-flex align-items-center"
-                                            >
-                                                <CIcon icon={cilPlus} className="me-2" />
-                                                NUEVA SECCIÓN
-                                            </CButton>
-                                        }
-                                    />
+                                Gestión de Horarios
+                            </h3>
+                            <p className="mb-0 small" style={{ color: '#64748b', marginLeft: '64px' }}>
+                                Administración de secciones y cargas horarias por período
+                            </p>
+                        </div>
+                    </div>
+                </CCardHeader>
 
-                                    {currentPageData.length > 0 ? (
-                                        <>
-                                            <div className="mb-3 text-muted-custom small fw-bold text-uppercase ls-1">
-                                                Mostrando horarios del Ciclo {currentAcademicYear}
-                                            </div>
-                                            <CRow className="g-4">
-                                                {currentPageData.map(section => (
-                                                    <ScheduleCard
-                                                        key={section.id}
-                                                        section={section}
-                                                        onShowInfo={(s) => { setSelectedSection(s); setShowInfo(true) }}
-                                                        onEdit={(s) => { setEditing(s); setShowForm(true) }}
-                                                        onDelete={(id, name) => setDeleteModal({ visible: true, sectionId: id, sectionName: name })}
-                                                    />
-                                                ))}
-                                            </CRow>
-                                            {totalPages > 1 && (
-                                                <div className="mt-5 d-flex justify-content-center">
-                                                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className="text-center py-5 border border-dashed rounded-4 bg-light-custom bg-opacity-10 text-muted-custom mt-4">
-                                            <CIcon icon={cilCalendar} size="4xl" className="mb-3 text-secondary opacity-25" />
-                                            <h5 className="header-title-custom">No existen secciones para el ciclo {currentAcademicYear}</h5>
-                                            <p className="mb-4">Comienza creando una nueva sección para este período escolar.</p>
-                                            <CButton className="btn-premium" variant="outline" onClick={() => { setEditing(null); setShowForm(true) }}>
-                                                <CIcon icon={cilPlus} className="me-2" />
-                                                Crear Primera Sección
-                                            </CButton>
+                <CCardBody className="p-4">
+                    {loading ? (
+                        <div className="text-center py-5">
+                            <CSpinner style={{ color: '#E07A00' }} />
+                            <p className="mt-3 text-muted">Cargando horarios...</p>
+                        </div>
+                    ) : (
+                        <>
+                            <ScheduleFilters
+                                searchTerm={searchTerm}
+                                onSearch={(val) => { setSearchTerm(val); setCurrentPage(1) }}
+                                gradeLevel={filters.gradeLevel}
+                                onFilterChange={(name, val) => { setFilters(prev => ({ ...prev, [name]: val })); setCurrentPage(1) }}
+                                gradeLevels={GRADE_LEVELS}
+                                onClear={() => { setFilters({ gradeLevel: '' }); setSearchTerm(''); setCurrentPage(1) }}
+                                activeFilters={{ totalResults: filteredSections.length }}
+                                extraAction={
+                                    <CButton
+                                        onClick={() => { setEditing(null); setShowForm(true) }}
+                                        className="px-4 py-2 d-flex align-items-center border-0"
+                                        style={{
+                                            background: 'linear-gradient(145deg, #E07A00, #C66900)',
+                                            color: 'white',
+                                            borderRadius: '14px',
+                                            fontWeight: '600'
+                                        }}
+                                    >
+                                        <CIcon icon={cilPlus} className="me-2" />
+                                        NUEVA SECCIÓN
+                                    </CButton>
+                                }
+                            />
+
+                            {currentPageData.length > 0 ? (
+                                <>
+                                    <div className="mb-3 text-muted small fw-bold">
+                                        Mostrando horarios del {currentYear?.name}
+                                    </div>
+                                    <CRow className="g-4">
+                                        {currentPageData.map(section => (
+                                            <ScheduleCard
+                                                key={section.id}
+                                                section={section}
+                                                onShowInfo={(s) => { setSelectedSection(s); setShowInfo(true) }}
+                                                onEdit={handleEdit}
+                                                onDelete={(id, name) => setDeleteModal({ visible: true, sectionId: id, sectionName: name })}
+                                            />
+                                        ))}
+                                    </CRow>
+                                    {totalPages > 1 && (
+                                        <div className="mt-5 d-flex justify-content-center">
+                                            <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                                         </div>
                                     )}
                                 </>
+                            ) : (
+                                <div className="text-center py-5">
+                                    <div style={{
+                                        width: '80px',
+                                        height: '80px',
+                                        background: 'rgba(224,122,0,0.1)',
+                                        borderRadius: '50%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        margin: '0 auto 20px'
+                                    }}>
+                                        <CIcon icon={cilCalendar} size="3xl" style={{ color: '#E07A00', opacity: 0.5 }} />
+                                    </div>
+                                    <h5 style={{ color: '#1e293b', fontWeight: '600' }}>
+                                        {searchTerm || filters.gradeLevel ? 'No se encontraron secciones' : 'No hay secciones registradas'}
+                                    </h5>
+                                    {currentYear && (
+                                        <p className="text-muted small">
+                                            Para el período {currentYear.name}
+                                        </p>
+                                    )}
+                                </div>
                             )}
-                        </CCardBody>
-                    </CCard>
-                </CCol>
-            </CRow>
+                        </>
+                    )}
+                </CCardBody>
+            </CCard>
 
+            {/* MODALES */}
             <HorarioForm
                 visible={showForm}
                 onClose={() => { setShowForm(false); setEditing(null) }}
                 onSave={handleSave}
                 initial={editing}
-                academicYear={currentAcademicYear}
+                academicYear={currentYear}
             />
+
             <InfoHorario
                 visible={showInfo}
                 onClose={() => { setShowInfo(false); setSelectedSection(null) }}
                 section={selectedSection}
             />
+
             <SystemMessageModal
                 visible={deleteModal.visible}
                 onClose={() => setDeleteModal({ visible: false, sectionId: null, sectionName: '' })}
@@ -259,24 +413,17 @@ const Horarios = () => {
                 variant="confirm"
                 type="error"
                 title="Eliminar Sección"
-                message={`¿Estás seguro de eliminar "${deleteModal.sectionName}"? Esta acción no se puede deshacer.`}
-                confirmText="Sí, Eliminar"
+                message={`¿Eliminar la sección "${deleteModal.sectionName}"?`}
+                confirmText="ELIMINAR"
             />
-            <style>{`
-                .btn-premium {
-                    background: #E07B00;
-                    border: none;
-                    color: white;
-                    transition: all 0.3s ease;
-                }
-                .btn-premium:hover { 
-                    background: #F28C0F !important;
-                    color: white !important;
-                    transform: translateY(-2px); 
-                    box-shadow: 0 4px 12px rgba(242, 140, 15, 0.3); 
-                }
-                .ls-1 { letter-spacing: 1px; }
-            `}</style>
+
+            <CToaster placement="top-end">
+                {toasts.map(t => (
+                    <CToast key={t.id} autohide={true} visible={true} color={t.color} className="text-white">
+                        <CToastBody>{t.message}</CToastBody>
+                    </CToast>
+                ))}
+            </CToaster>
         </CContainer>
     )
 }

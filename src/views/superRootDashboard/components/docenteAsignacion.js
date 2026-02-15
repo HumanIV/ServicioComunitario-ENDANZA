@@ -266,7 +266,8 @@ const TeacherManagement = () => {
                         return { 
                             ...teacher, 
                             // Actualizar specialty (para el badge) con la nueva especialidad si existe
-                            specialty: updatedSpecialty?.name || teacher.specialty,
+                            // NOTA: teacher.specialty se mantiene como legacy, pero NO lo usamos para mostrar
+                            specialty: teacher.specialty, // Mantener el valor legacy
                             // Actualizar specialties (array completo)
                             specialties: updatedSpecialty 
                                 ? [...otherYearSpecialties, updatedSpecialty]
@@ -320,17 +321,16 @@ const TeacherManagement = () => {
     }
 
     // ============================================
-    // RENDERIZADO DE BADGES (ACTUALIZADO)
+    // RENDERIZADO DE BADGES (CORREGIDO)
     // ============================================
     const getSpecialtyBadge = (teacher) => {
-        // Buscar la especialidad del año actual
+        // Buscar SOLAMENTE en specialties del año actual
         const currentYearSpecialty = currentYear && teacher.specialties
             ? teacher.specialties.find(s => s.academicYearId === currentYear.id)
             : null
         
-        const specialtyName = currentYearSpecialty?.name || teacher.specialty || null
-
-        if (!specialtyName) {
+        // ✅ SOLO usar la especialidad del año actual, NUNCA teacher.specialty como fallback
+        if (!currentYearSpecialty) {
             return (
                 <CBadge className="rounded-pill px-3 py-2" style={{ 
                     background: 'rgba(108, 117, 125, 0.1)',
@@ -342,6 +342,7 @@ const TeacherManagement = () => {
                 </CBadge>
             )
         }
+        
         return (
             <CBadge className="rounded-pill px-3 py-2" style={{ 
                 background: 'linear-gradient(145deg, #E07A00, #C66900)',
@@ -350,7 +351,7 @@ const TeacherManagement = () => {
                 boxShadow: '0 4px 8px rgba(224,122,0,0.2)'
             }}>
                 <CIcon icon={cilStar} className="me-1" size="sm" />
-                {specialtyName.toUpperCase()}
+                {currentYearSpecialty.name.toUpperCase()}
             </CBadge>
         )
     }
@@ -363,7 +364,7 @@ const TeacherManagement = () => {
                 </span>
             )
         }
-
+        
         // Filtrar grados por año actual
         const filteredGrades = currentYear 
             ? grades.filter(g => g.academicYearId === currentYear.id)
@@ -379,9 +380,9 @@ const TeacherManagement = () => {
 
         return (
             <div className="d-flex gap-1 flex-wrap">
-                {filteredGrades.slice(0, 3).map(grade => (
+                {filteredGrades.slice(0, 3).map((grade) => (
                     <CBadge 
-                        key={grade.id} 
+                        key={`${grade.id}-${grade.academicYearId}`} // ✅ KEY ÚNICA combinando id + año
                         className="rounded-pill px-2 py-1 fw-normal"
                         style={{ 
                             background: 'rgba(224,122,0,0.08)',
@@ -394,6 +395,7 @@ const TeacherManagement = () => {
                 ))}
                 {filteredGrades.length > 3 && (
                     <CBadge 
+                        key={`more-${filteredGrades.length}-${currentYear?.id}`} // ✅ KEY ÚNICA
                         className="rounded-pill px-2 py-1"
                         style={{ 
                             background: 'rgba(0,0,0,0.03)',
