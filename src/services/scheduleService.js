@@ -154,42 +154,61 @@ export const adaptSectionFromDB = (dbSection) => {
     if (!dbSection) return null;
     
     console.log('🔄 adaptSectionFromDB - Datos de BD:', dbSection);
+    console.log('   section_name recibido:', dbSection.section_name);
+    console.log('   grade_level recibido:', dbSection.grade_level);
+    console.log('   schedules originales:', dbSection.schedules);
     
     // Adaptar los horarios individuales
-    const schedules = (dbSection.schedules || []).map(s => ({
-        id: s.id,
-        subject: s.subject_name || 'Sin materia',
-        teacherName: s.teacher_name || 'Sin asignar',
-        teacherId: s.teacher_user_id,
-        dayOfWeek: s.day_name?.toUpperCase() || 'LUNES',
-        startTime: s.start_time?.substring(0, 5) || '00:00',
-        endTime: s.end_time?.substring(0, 5) || '00:00',
-        classroom: s.classroom_name || 'Sin aula',
-        dayId: s.day_id,
-        blockId: s.block_id,
-        classroomId: s.classroom_id
-    }));
+    const schedules = (dbSection.schedules || []).map(s => {
+        console.log('   → Procesando horario:', s);
+        console.log('      classroom_id en BD:', s.classroom_id);
+        console.log('      classroom_name en BD:', s.classroom_name);
+        console.log('      type of classroom_id:', typeof s.classroom_id);
+        
+        return {
+            id: s.id,
+            subject: s.subject_name || 'Sin materia',
+            teacherName: s.teacher_name || 'Sin asignar',
+            teacherId: s.teacher_user_id,
+            dayOfWeek: s.day_name?.toUpperCase() || 'LUNES',
+            startTime: s.start_time?.substring(0, 5) || '00:00',
+            endTime: s.end_time?.substring(0, 5) || '00:00',
+            classroom: s.classroom_name || 'Sin aula',
+            dayId: s.day_id,
+            blockId: s.block_id,
+            classroomId: s.classroom_id  // ← ESTO ES CRÍTICO PARA AULAS
+        };
+    });
+    
+    console.log('   schedules mapeados:', schedules);
+    console.log('   schedules con classroomId:', schedules.map(s => ({ 
+        classroomId: s.classroomId, 
+        classroom: s.classroom,
+        type: typeof s.classroomId
+    })));
     
     // Extraer elementos únicos para los resúmenes
     const uniqueSubjects = [...new Set(schedules.map(s => s.subject))];
     const uniqueTeachers = [...new Set(schedules.map(s => s.teacherName))];
     const uniqueClassrooms = [...new Set(schedules.map(s => s.classroom))];
     
-    // Determinar el nivel académico desde grade_level o usar el valor por defecto
+    // Determinar el nivel académico
     const gradeLevel = dbSection.grade_level || 'Sin materia';
     
-    // Construir el nombre completo de la sección si tiene sección_letter
-    let sectionName = dbSection.section_name;
+    // Construir el nombre completo de la sección
+    let sectionName = dbSection.section_name || 'Sin nombre';
     if (dbSection.section_letter && !sectionName.includes(dbSection.section_letter)) {
         sectionName = `${sectionName} ${dbSection.section_letter}`;
     }
+    
+    console.log('   sectionName final:', sectionName);
     
     return {
         // Para ScheduleCard e InfoHorario
         id: dbSection.id,
         sectionName: sectionName,
-        gradeLevel: gradeLevel,  // ← AHORA USA grade_level DE LA BD
-        section: dbSection.section_letter || dbSection.section_name?.split(' ').pop() || '',
+        gradeLevel: gradeLevel,
+        section: dbSection.section_letter || '',
         status: 'Active',
         academicYear: dbSection.academic_year_name || 'Desconocido',
         academicYearId: dbSection.academic_year_id,
@@ -205,7 +224,7 @@ export const adaptSectionFromDB = (dbSection) => {
         
         // Mantener originales para compatibilidad
         section_name: sectionName,
-        subject_name: gradeLevel,  // ← AHORA USA grade_level EN VEZ DE subject_name
+        subject_name: gradeLevel,
         academic_year_name: dbSection.academic_year_name,
         total_hours: dbSection.total_hours
     };

@@ -25,7 +25,7 @@ import {
     cilWarning,
     cilSchool
 } from '@coreui/icons'
-import { SUBJECTS, getAvailableYears } from '../../services/schedules'
+import { SUBJECTS, getAvailableYears } from '../../services/scheduleService'
 
 // Components
 import CompetencyEvaluationPlan from './components/CompetencyEvaluationPlan'
