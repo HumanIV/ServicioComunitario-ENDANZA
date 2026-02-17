@@ -1,7 +1,33 @@
-// src/components/ProtectedRoute.js - VERSIÓN MEJORADA
+// src/components/ProtectedRoute.js
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { CSpinner, CAlert } from '@coreui/react'
+
+// Mapa de rutas permitidas por rol
+const routePermissions = {
+  // Rutas de admin
+  '/dashboard': ['admin'],
+  '/students': ['admin'],
+  '/students/*': ['admin'],
+  '/inscripcion': ['representante'],
+  '/aulas': ['admin'],
+  '/notas': ['admin'],
+  '/boletin': ['admin'],
+  '/horario': ['admin'],
+  
+  // Rutas de docente
+  '/docente/*': ['docente'],
+  
+  // Rutas de representante
+  '/inicio': ['representante'],
+  '/perfilRepresentanteEstudiante/*': ['representante'], // 👈 AGREGADA
+  '/boletin-estudiante/*': ['representante'],
+  '/horario-estudiante/*': ['representante'],
+  
+  // Rutas compartidas
+  '/profile': ['representante', 'admin', 'docente'],
+  '/perfil': ['admin', 'docente', 'representante'],
+}
 
 const ProtectedRoute = ({ 
   children, 
@@ -14,7 +40,6 @@ const ProtectedRoute = ({
   const [userRole, setUserRole] = React.useState('')
 
   React.useEffect(() => {
-    // Simular carga de datos del usuario
     const loadUserData = () => {
       try {
         const user = JSON.parse(localStorage.getItem('user') || '{}')
@@ -25,7 +50,6 @@ const ProtectedRoute = ({
         setIsLoading(false)
       }
     }
-
     loadUserData()
   }, [])
 
@@ -45,8 +69,40 @@ const ProtectedRoute = ({
     return <Navigate to="/login" replace />
   }
 
-  // Verificar permisos si se especifican roles
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+  // Determinar los roles permitidos para esta ruta
+  let allowedRolesForRoute = allowedRoles
+  
+  // Si no se especificaron roles, usar el mapa de rutas
+  if (allowedRolesForRoute.length === 0) {
+    const path = location.pathname
+    
+    // Buscar coincidencia exacta primero
+    allowedRolesForRoute = routePermissions[path] || []
+    
+    // Si no hay coincidencia exacta, buscar por patrón
+    if (allowedRolesForRoute.length === 0) {
+      // Rutas de admin con parámetros
+      if (path.startsWith('/students/')) {
+        allowedRolesForRoute = routePermissions['/students/*'] || []
+      }
+      // Rutas de representante con parámetros
+      else if (path.startsWith('/perfilRepresentanteEstudiante/')) {
+        allowedRolesForRoute = routePermissions['/perfilRepresentanteEstudiante/*'] || []
+      }
+      else if (path.startsWith('/boletin-estudiante/')) {
+        allowedRolesForRoute = routePermissions['/boletin-estudiante/*'] || []
+      }
+      else if (path.startsWith('/horario-estudiante/')) {
+        allowedRolesForRoute = routePermissions['/horario-estudiante/*'] || []
+      }
+      else if (path.startsWith('/docente/')) {
+        allowedRolesForRoute = routePermissions['/docente/*'] || []
+      }
+    }
+  }
+
+  // Verificar permisos
+  if (allowedRolesForRoute.length > 0 && !allowedRolesForRoute.includes(userRole)) {
     return (
       <div className="container py-5">
         <CAlert color="danger">
@@ -54,7 +110,7 @@ const ProtectedRoute = ({
           <p>No tienes permisos para acceder a esta sección.</p>
           <p><strong>Ruta:</strong> {location.pathname}</p>
           <p><strong>Tu rol:</strong> {userRole || 'No definido'}</p>
-          <p><strong>Roles requeridos:</strong> {allowedRoles.join(', ')}</p>
+          <p><strong>Roles requeridos:</strong> {allowedRolesForRoute.join(', ')}</p>
           <div className="mt-3">
             <button 
               className="btn btn-primary"

@@ -13,6 +13,10 @@ const profile = React.lazy(() => import('./views/profile/Profile'))
 
 
 
+const perfilRepresentanteEstudiante = React.lazy(()=> import('./views/profile/perfilRepresentanteEstudiante'))
+
+
+
 
 
 
@@ -90,12 +94,20 @@ const routes = [
   { path: '/login', name: 'Login', element: Login },
   //RUTA
 
+
+
+
+
+{ path: '/perfilRepresentanteEstudiante/:id', name: 'PerfilRepresentanteEstudiante', element: perfilRepresentanteEstudiante },
+
+
   //Users
   { path: '/users', name: 'Users', element: Users },
 
   //RUTAS
   { path: '/inicio', name: 'Inicio', element: Inicio },
-  { path: '/inicio-notas', name: 'Inicio Notas', element: InicioNotas },
+
+  
   { path: '/inicio-boletines', name: 'Inicio Boletines', element: InicioBoletines },
   { path: '/inicio-horarios', name: 'Inicio Horarios', element: InicioHorarios },
 
@@ -113,7 +125,7 @@ const routes = [
 
   //USERS
   { path: '/profile', name: 'Profile', element: profile }, // Profile
-  { path: '/boletin-estudiante', name: 'BoletinEstudiante', element: boletinEstudiante },// Boletín Estudiante
+  { path: '/boletin-estudiante/:id', name: 'BoletinEstudiante', element: boletinEstudiante },// Boletín Estudiante
   { path: '/notas-estudiante', name: 'NotasEstudiante', element: NotasEstudiante },// Notas Estudiante
   { path: '/boletinEstudiante', name: 'BoletinEstudianteAlias', element: boletinEstudiante },// Alias
   { path: '/horario-estudiante', name: 'HorarioEstudiante', element: horarioEstudiante },// Horario Estudiante

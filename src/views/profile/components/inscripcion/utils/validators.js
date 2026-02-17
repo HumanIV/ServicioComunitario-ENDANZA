@@ -51,11 +51,26 @@ export const validarFormularioCompleto = (formData) => {
   if (!formData.nombres?.trim()) errores.nombres = "Nombres del estudiante requeridos";
   if (!formData.apellidos?.trim()) errores.apellidos = "Apellidos del estudiante requeridos";
   if (!formData.grado) errores.grado = "Seleccione un grado";
-  if (!formData.Telefono_Celular?.trim()) errores.Telefono_Celular = "Teléfono del estudiante requerido";
   
-  // Validar datos del representante
-  if (!formData.nombres_Representante?.trim()) errores.nombres_Representante = "Nombre del representante requerido";
-  if (!formData.telefono_Rep?.trim()) errores.telefono_Rep = "Teléfono del representante requerido";
+  // Validar datos del representante según la selección
+  if (!formData.quien_es_representante) {
+    errores.quien_es_representante = "Debe seleccionar quién será el representante";
+  } else {
+    if (formData.quien_es_representante === 'Madre') {
+      if (!formData.telefono_Madre?.trim()) {
+        errores.telefono_Madre = "Debe proporcionar un teléfono de contacto para la madre";
+      }
+    } else if (formData.quien_es_representante === 'Padre') {
+      if (!formData.telefono_Padre?.trim()) {
+        errores.telefono_Padre = "Debe proporcionar un teléfono de contacto para el padre";
+      }
+    } else if (formData.quien_es_representante === 'Otro') {
+      if (!formData.nombres_Representante?.trim()) errores.nombres_Representante = "Nombre del representante requerido";
+      if (!formData.apellidos_Representante?.trim()) errores.apellidos_Representante = "Apellidos del representante requerido";
+      if (!formData.parentesco_Otro?.trim()) errores.parentesco_Otro = "Parentesco requerido";
+      if (!formData.telefono_Rep?.trim()) errores.telefono_Rep = "Teléfono del representante requerido";
+    }
+  }
   
   // Validar email si se proporciona
   if (formData.email_representante && !validarEmail(formData.email_representante)) {
@@ -69,6 +84,14 @@ export const validarFormularioCompleto = (formData) => {
   
   if (formData.intolerancia === "Si" && !formData.textIntolerancia?.trim()) {
     errores.textIntolerancia = "Describa las intolerancias";
+  }
+  
+  if (formData.medicacion === "Si" && !formData.textMedicacion?.trim()) {
+    errores.textMedicacion = "Describa la medicación";
+  }
+  
+  if (formData.operaciones === "Si" && !formData.textOperaciones?.trim()) {
+    errores.textOperaciones = "Describa las operaciones";
   }
   
   return {

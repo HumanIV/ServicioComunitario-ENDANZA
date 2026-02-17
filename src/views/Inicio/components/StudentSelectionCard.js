@@ -5,15 +5,17 @@ import { cilCalendarCheck, cilArrowRight } from '@coreui/icons'
 import PropTypes from 'prop-types'
 
 const StudentSelectionCard = ({ child, colorClass, buttonText, onClick }) => {
-    // Determinar la clase de fondo suave basada en el systema 'soft' de global.css
-    // Mapeo simple: success -> green-soft, info -> blue-soft, indigo -> purple-soft, primary/warning -> orange-soft
-    // Determinar la clase de fondo suave basada en el systema 'soft' de global.css
-    // Mapeo simple: success -> green-soft, info -> blue-soft, indigo -> purple-soft, primary/warning -> orange-soft
+    // Determinar la clase de fondo suave
     let bgSoftClass = 'bg-orange-soft';
     if (colorClass === 'success') bgSoftClass = 'bg-green-soft';
     if (colorClass === 'info') bgSoftClass = 'bg-blue-soft';
-    if (colorClass === 'indigo') bgSoftClass = 'bg-purple-soft'; // Fix: indigo maps to purple-soft
+    if (colorClass === 'indigo') bgSoftClass = 'bg-purple-soft';
     if (colorClass === 'warning') bgSoftClass = 'bg-orange-soft';
+
+    // ✅ Valores por defecto para evitar errores
+    const firstInitial = child.first_name ? child.first_name[0] : '';
+    const lastInitial = child.last_name ? child.last_name[0] : '';
+    const initials = firstInitial + lastInitial || '?';
 
     return (
         <CCard className={`premium-card student-card h-100 border-0 border-start border-4 border-${colorClass}`} style={{ borderRadius: '16px' }}>
@@ -24,20 +26,22 @@ const StudentSelectionCard = ({ child, colorClass, buttonText, onClick }) => {
                             className={`rounded-circle d-flex align-items-center justify-content-center text-${colorClass} fw-bold shadow-sm student-avatar ${bgSoftClass}`}
                             style={{ width: '90px', height: '90px', fontSize: '1.8rem', letterSpacing: '1px' }}
                         >
-                            {child.name[0]}{child.lastName[0]}
+                            {initials}
                         </div>
                     </div>
                     <div className="flex-grow-1">
                         <div className="d-flex justify-content-between align-items-start">
                             <div>
-                                <h4 className="fw-bold child-name mb-1">{child.fullName}</h4>
+                                <h4 className="fw-bold child-name mb-1">{child.full_name || child.fullName}</h4>
                                 <div className="d-flex align-items-center child-id small fw-bold text-uppercase ls-1">
                                     <CIcon icon={cilCalendarCheck} className="me-1" size="sm" />
-                                    ID: {child.code}
+                                    {/* ✅ Mostrar cédula en lugar de code que no existe */}
+                                    ID: {child.dni || child.id}
                                 </div>
                             </div>
                             <CBadge className="px-3 py-2 rounded-pill fw-bold bg-green-soft" style={{ fontSize: '0.75rem', border: 'none' }}>
-                                {child.status}
+                                {/* ✅ Estado por defecto si no existe */}
+                                {child.status || 'Activo'}
                             </CBadge>
                         </div>
                     </div>
@@ -46,11 +50,11 @@ const StudentSelectionCard = ({ child, colorClass, buttonText, onClick }) => {
                 <div className="p-3 child-info-box rounded-3 mb-4">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <span className="child-info-label small fw-bold text-uppercase">Grado y Programa</span>
-                        <span className={`fw-bold text-${colorClass} text-end`}>{child.gradeLevel}</span>
+                        <span className={`fw-bold text-${colorClass} text-end`}>{child.grade_level || child.gradeLevel}</span>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
                         <span className="child-info-label small fw-bold text-uppercase">Periodo Actual</span>
-                        <span className="fw-medium child-info-value">{child.academicYear}</span>
+                        <span className="fw-medium child-info-value">{child.academicYear || '2024-2025'}</span>
                     </div>
                 </div>
 
@@ -91,7 +95,18 @@ const StudentSelectionCard = ({ child, colorClass, buttonText, onClick }) => {
 }
 
 StudentSelectionCard.propTypes = {
-    child: PropTypes.object.isRequired,
+    child: PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+        first_name: PropTypes.string,
+        last_name: PropTypes.string,
+        full_name: PropTypes.string,
+        fullName: PropTypes.string,
+        dni: PropTypes.string,
+        grade_level: PropTypes.string,
+        gradeLevel: PropTypes.string,
+        status: PropTypes.string,
+        academicYear: PropTypes.string
+    }).isRequired,
     colorClass: PropTypes.string.isRequired,
     buttonText: PropTypes.string.isRequired,
     onClick: PropTypes.func.isRequired

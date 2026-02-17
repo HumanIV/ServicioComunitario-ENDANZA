@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'
 import {
     CCol,
     CContainer,
     CRow,
     CSpinner
-} from '@coreui/react'
+} from '@coreui/react';
 import CIcon from '@coreui/icons-react'
 import { cilSchool, cilPeople } from '@coreui/icons'
-import { listStudents } from 'src/services/studentsService'
+import { getMyStudents } from 'src/services/studentsService'
 
 // Importar los nuevos componentes
 import WelcomeBanner from './components/WelcomeBanner'
@@ -26,9 +26,8 @@ const InicioParent = () => {
     const fetchChildren = async () => {
         setLoading(true)
         try {
-            // En un sistema real, filtraríamos por representativeId. 
-            // Aquí traemos los que tenemos en el mock.
-            const data = await listStudents()
+            const data = await getMyStudents()
+            console.log("📥 Estudiantes del representante:", data)
             setChildren(data)
         } catch (error) {
             console.error("Error loading children:", error)
@@ -38,7 +37,11 @@ const InicioParent = () => {
     }
 
     const handleViewProfile = (studentId) => {
-        navigate(`/perfil-students/${studentId}`);
+        console.log("🔍 Navegando a:", `/perfilRepresentanteEstudiante/${studentId}`)
+        // 👇 PASAR LA LISTA COMPLETA DE ESTUDIANTES
+        navigate(`/perfilRepresentanteEstudiante/${studentId}`, {
+            state: { studentsList: children }
+        })
     }
 
     return (
@@ -60,17 +63,26 @@ const InicioParent = () => {
 
                     <CRow className="g-4">
                         {loading ? (
-                            <CCol className="text-center py-5"><CSpinner color="warning" /></CCol>
-                        ) : children.map((child) => (
-                            <CCol key={child.id} lg={6}>
-                                <StudentSelectionCard
-                                    child={child}
-                                    colorClass="warning"
-                                    buttonText="VER PERFIL ACADÉMICO"
-                                    onClick={handleViewProfile}
-                                />
+                            <CCol className="text-center py-5">
+                                <CSpinner color="warning" />
+                                <p className="mt-3">Cargando estudiantes...</p>
                             </CCol>
-                        ))}
+                        ) : children.length > 0 ? (
+                            children.map((child) => (
+                                <CCol key={child.id} lg={6}>
+                                    <StudentSelectionCard
+                                        child={child}
+                                        colorClass="warning"
+                                        buttonText="VER PERFIL ACADÉMICO"
+                                        onClick={handleViewProfile}
+                                    />
+                                </CCol>
+                            ))
+                        ) : (
+                            <CCol className="text-center py-5">
+                                <p className="text-muted">No tiene estudiantes registrados</p>
+                            </CCol>
+                        )}
                     </CRow>
                 </CCol>
             </CRow>

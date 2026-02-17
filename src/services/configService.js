@@ -133,3 +133,46 @@ export const updateGradesPeriod = async (yearId, periodData) => {
     throw error;
   }
 };
+
+
+
+
+
+/**
+ * Obtiene el año académico activo actual (para representantes)
+ * @returns {Promise<Object|null>} Objeto { id, name } o null
+ */
+export const getActiveYearPublic = async () => {
+  try {
+    const response = await fetch.get('/api/config/academic-years/active/public');
+    if (response.ok && response.data) {
+      return response.data;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error en getActiveYearPublic:", error);
+    return null;
+  }
+};
+
+
+
+
+
+/**
+ * Obtiene la configuración del período de inscripción para un año (versión pública para representantes)
+ * @param {number|string} yearId - ID del año académico
+ * @returns {Promise<Object>} Objeto { fechaInicio, fechaFin, activo }
+ */
+export const getEnrollmentPeriodPublic = async (yearId) => {
+  try {
+    const response = await fetch.get(`/api/config/enrollment-period/${yearId}/public`);
+    if (response.ok && response.data) {
+      return response.data;
+    }
+    return { fechaInicio: '', fechaFin: '', activo: false };
+  } catch (error) {
+    console.error("Error en getEnrollmentPeriodPublic:", error);
+    return { fechaInicio: '', fechaFin: '', activo: false };
+  }
+};

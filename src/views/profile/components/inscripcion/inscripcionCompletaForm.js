@@ -3,7 +3,7 @@ import {
   CCard, CCardBody, CCardHeader, CCardFooter,
   CContainer, CButton, CRow, CCol,
   CAlert, CBadge, CProgress, CProgressBar,
-  CNav, CNavItem, CNavLink, CTabContent, CTabPane
+  CNav, CNavItem, CNavLink, CTabContent, CTabPane, CSpinner
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import {
@@ -18,22 +18,26 @@ import DatosSalud from "./steps/datosSalud";
 import ConfirmacionInscripcion from "./steps/confirmacionInscripcion";
 import { generarCodigoInscripcion, validarFormularioCompleto } from "./utils/validators";
 import { generarPlanillaHTML } from "./utils/pdfGenerator";
+import { inscribirEstudiante } from "../../../../services/inscripcionService";
 import "./styles/inscripcion.css";
 
-const InscripcionCompletaForm = ({ onVolver, student }) => {
+const InscripcionCompletaForm = ({ onVolver, student, studentsList, activeYear }) => {
   const [step, setStep] = useState(1);
   const [inscripcionEnviada, setInscripcionEnviada] = useState(false);
   const [codigoInscripcion, setCodigoInscripcion] = useState("");
   const [errores, setErrores] = useState({});
+  const [enviando, setEnviando] = useState(false);
 
+  // Estado inicial LIMPIO - sin teléfono de estudiante
   const [formData, setFormData] = useState({
     // Datos del estudiante
-    nombres: student?.name || "",
-    apellidos: student?.lastName || "",
-    fecha_nac: "",
+    id_estudiante: student?.id || null,
+    nombres: student?.first_name || student?.name || "",
+    apellidos: student?.last_name || student?.lastName || "",
+    fecha_nac: student?.birth_date || "",
     direccion_Habitacion: "",
-    Telefono_Celular: "",
-    grado: student?.gradeLevel || "",
+    // 👇 TELÉFONO DEL ESTUDIANTE ELIMINADO COMPLETAMENTE
+    grado: student?.grade_level || student?.gradeLevel || "",
     especialidad: "",
     convivencia: "",
     escuela: "",
@@ -58,10 +62,10 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
     telefono_Padre: "",
 
     // Elección del representante
-    quien_es_representante: "Madre", // Madre, Padre, Otro
+    quien_es_representante: "Madre",
     parentesco_Otro: "",
 
-    // Datos del representante (Solo si no es Madre o Padre)
+    // Datos del representante - INICIALMENTE VACÍOS
     nombres_Representante: "",
     apellidos_Representante: "",
     telefono_Rep: "",
@@ -86,19 +90,38 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
     alergias: "",
     textAlergia: "",
     nacimiento: "",
-    antecedentesFamiliares: ""
+    antecedentesFamiliares: "",
+
+    // Metadatos
+    id_ano_academico: activeYear?.id || null
   });
 
+  // Limpiar errores cuando cambias de paso
+  useEffect(() => {
+    setErrores({});
+  }, [step]);
+
+  // Cargar datos del estudiante
   useEffect(() => {
     if (student) {
       setFormData(prev => ({
         ...prev,
-        nombres: student.name || "",
-        apellidos: student.lastName || "",
-        grado: student.gradeLevel || ""
+        id_estudiante: student.id,
+        nombres: student.first_name || student.name || "",
+        apellidos: student.last_name || student.lastName || "",
+        fecha_nac: student.birth_date || "",
+        grado: student.grade_level || student.gradeLevel || "",
+        // NO cargamos datos del representante aquí
       }));
     }
   }, [student]);
+
+  useEffect(() => {
+    // Actualizar año académico si cambia
+    if (activeYear) {
+      setFormData(prev => ({ ...prev, id_ano_academico: activeYear.id }));
+    }
+  }, [activeYear]);
 
   const calculateAge = (birthDate) => {
     if (!birthDate) return "";
@@ -115,7 +138,6 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Si cambia la fecha de nacimiento, calcular la edad automáticamente
     if (name === "fecha_nac") {
       const calculatedAge = calculateAge(value);
       setFormData(prev => ({
@@ -127,7 +149,6 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
 
-    // Limpiar error del campo al editar
     if (errores[name]) {
       setErrores(prev => ({ ...prev, [name]: null }));
     }
@@ -138,23 +159,57 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
 
     switch (pasoActual) {
       case 1:
-        if (!formData.nombres.trim()) nuevosErrores.nombres = "Nombres requeridos";
-        if (!formData.apellidos.trim()) nuevosErrores.apellidos = "Apellidos requeridos";
+        if (!formData.nombres?.trim()) nuevosErrores.nombres = "Nombres requeridos";
+        if (!formData.apellidos?.trim()) nuevosErrores.apellidos = "Apellidos requeridos";
+        if (!formData.fecha_nac) nuevosErrores.fecha_nac = "Fecha de nacimiento requerida";
         if (!formData.grado) nuevosErrores.grado = "Seleccione un grado";
-        if (!formData.Telefono_Celular.trim()) nuevosErrores.Telefono_Celular = "Teléfono requerido";
+        // 👇 TELÉFONO DEL ESTUDIANTE ELIMINADO DE VALIDACIÓN
         break;
 
       case 2:
-        if (!formData.nombres_Representante.trim()) nuevosErrores.nombres_Representante = "Nombre del representante requerido";
-        if (!formData.telefono_Rep.trim()) nuevosErrores.telefono_Rep = "Teléfono del representante requerido";
+        if (!formData.quien_es_representante) {
+          nuevosErrores.quien_es_representante = "Debe seleccionar quién será el representante";
+        } else {
+          // Validar según la selección
+          if (formData.quien_es_representante === 'Madre') {
+            // Solo validamos que tenga al menos un teléfono de contacto
+            if (!formData.telefono_Madre?.trim()) {
+              nuevosErrores.telefono_Madre = "Debe proporcionar un teléfono de contacto para la madre";
+            }
+            // NO validamos campos de representante (son opcionales)
+          }
+          else if (formData.quien_es_representante === 'Padre') {
+            // Solo validamos que tenga al menos un teléfono de contacto
+            if (!formData.telefono_Padre?.trim()) {
+              nuevosErrores.telefono_Padre = "Debe proporcionar un teléfono de contacto para el padre";
+            }
+            // NO validamos campos de representante (son opcionales)
+          }
+          else if (formData.quien_es_representante === 'Otro') {
+            // Validar TODOS los campos del representante (son obligatorios)
+            if (!formData.nombres_Representante?.trim()) nuevosErrores.nombres_Representante = "Nombre del representante requerido";
+            if (!formData.apellidos_Representante?.trim()) nuevosErrores.apellidos_Representante = "Apellidos del representante requerido";
+            if (!formData.parentesco_Otro?.trim()) nuevosErrores.parentesco_Otro = "Parentesco requerido";
+            if (!formData.telefono_Rep?.trim()) nuevosErrores.telefono_Rep = "Teléfono del representante requerido";
+          }
+        }
         break;
 
       case 3:
-        // Validaciones opcionales
-        if (formData.alergias === "Si" && !formData.textAlergia.trim()) {
+        if (formData.alergias === "Si" && !formData.textAlergia?.trim()) {
           nuevosErrores.textAlergia = "Describa las alergias";
         }
+        if (formData.intolerancia === "Si" && !formData.textIntolerancia?.trim()) {
+          nuevosErrores.textIntolerancia = "Describa las intolerancias";
+        }
+        if (formData.medicacion === "Si" && !formData.textMedicacion?.trim()) {
+          nuevosErrores.textMedicacion = "Describa la medicación";
+        }
+        if (formData.operaciones === "Si" && !formData.textOperaciones?.trim()) {
+          nuevosErrores.textOperaciones = "Describa las operaciones";
+        }
         break;
+        
       default:
         break;
     }
@@ -165,11 +220,11 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
 
   const handleNextStep = () => {
     if (!validarPaso(step)) {
-      window.scrollTo(0, 0); // Ir al inicio para ver los errores
+      window.scrollTo(0, 0);
       return;
     }
     setStep(step + 1);
-    window.scrollTo(0, 0); // Ir al inicio del siguiente paso
+    window.scrollTo(0, 0);
   };
 
   const handlePrevStep = () => {
@@ -178,21 +233,51 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
   };
 
   const handleSubmit = async () => {
-    const valido = validarFormularioCompleto(formData);
+    // Crear una copia del formData sin el campo Telefono_Celular (por si acaso)
+    const { Telefono_Celular, ...datosParaEnviar } = formData;
+    
+    const valido = validarFormularioCompleto(datosParaEnviar);
 
     if (!valido.esValido) {
       setErrores(valido.errores);
+      window.scrollTo(0, 0);
       return;
     }
 
+    // Verificar que tenemos el ID del estudiante
+    if (!formData.id_estudiante) {
+      alert("Error: No se ha identificado al estudiante.");
+      return;
+    }
+
+    // Limpiar formato de teléfonos (quitar guiones, espacios, etc.)
+    const datosLimpios = {
+      ...datosParaEnviar,
+      telefono_Madre: formData.telefono_Madre?.replace(/[^\d]/g, '').slice(0, 11) || null,
+      telefono_Padre: formData.telefono_Padre?.replace(/[^\d]/g, '').slice(0, 11) || null,
+      telefono_Rep: formData.telefono_Rep?.replace(/[^\d]/g, '').slice(0, 11) || null,
+      telefonofijo_Rep: formData.telefonofijo_Rep?.replace(/[^\d]/g, '').slice(0, 11) || null,
+    };
+
+    setEnviando(true);
+    
     try {
-      const codigo = generarCodigoInscripcion();
+      const resultado = await inscribirEstudiante({
+        id_estudiante: formData.id_estudiante,
+        id_ano_academico: formData.id_ano_academico,
+        datos_completos: datosLimpios
+      });
+      
+      const codigo = resultado.codigo || generarCodigoInscripcion();
       setCodigoInscripcion(codigo);
       setInscripcionEnviada(true);
       setStep(4);
 
     } catch (error) {
       console.error("Error al enviar inscripción:", error);
+      alert("Ocurrió un error al procesar la inscripción. Por favor, intente nuevamente.");
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -201,11 +286,6 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
   };
 
   const handleFinalizar = () => {
-    Object.keys(formData).forEach(key => {
-      formData[key] = "";
-    });
-    setStep(1);
-    setInscripcionEnviada(false);
     onVolver();
   };
 
@@ -226,8 +306,15 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
                     {step === 4 ? 'CONFIRMACIÓN EXITOSA' : 'REGISTRO DE ASPIRANTE'}
                   </h4>
                   <p className="mb-0 inscripcion-header-subtitle small fw-bold text-uppercase ls-1">
-                    {step === 4 ? 'Proceso finalizado correctamente' : 'CICLO ACADÉMICO 2024-2025'}
+                    {step === 4 
+                      ? 'Proceso finalizado correctamente' 
+                      : `ESTUDIANTE: ${formData.nombres} ${formData.apellidos}`}
                   </p>
+                  {activeYear && step !== 4 && (
+                    <small className="d-block mt-1 text-white-50">
+                      Año Académico: {activeYear.name}
+                    </small>
+                  )}
                 </div>
               </div>
             </CCol>
@@ -240,7 +327,7 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
         </CCardHeader>
 
         <CCardBody className="p-4 p-md-5">
-          {/* Barra de progreso Premium */}
+          {/* Barra de progreso */}
           <div className="mb-5">
             <div className="d-flex justify-content-between mb-2">
               <small className="inscripcion-header-subtitle fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>AVANCE DEL FORMULARIO</small>
@@ -255,7 +342,7 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
             </CProgress>
           </div>
 
-          {/* Navegación por Tabs tipo Pills */}
+          {/* Navegación por Tabs */}
           {step !== 4 && (
             <CNav variant="pills" className="mb-5 bg-nav-pill p-2 rounded-pill d-inline-flex w-100 justify-content-between">
               <CNavItem className="flex-fill text-center">
@@ -307,10 +394,36 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
 
           <div className="step-content mb-5">
             <CTabContent>
-              <CTabPane visible={step === 1}><DatosEstudiante formData={formData} onChange={handleChange} errores={errores} mode="completo" /></CTabPane>
-              <CTabPane visible={step === 2}><DatosRepresentante formData={formData} onChange={handleChange} errores={errores} /></CTabPane>
-              <CTabPane visible={step === 3}><DatosSalud formData={formData} onChange={handleChange} errores={errores} /></CTabPane>
-              <CTabPane visible={step === 4}><ConfirmacionInscripcion formData={formData} codigoInscripcion={codigoInscripcion} onDescargar={handleDescargarPlanilla} /></CTabPane>
+              <CTabPane visible={step === 1}>
+                <DatosEstudiante 
+                  formData={formData} 
+                  onChange={handleChange} 
+                  errores={errores} 
+                  mode="completo"
+                />
+              </CTabPane>
+              <CTabPane visible={step === 2}>
+                <DatosRepresentante 
+                  formData={formData} 
+                  onChange={handleChange} 
+                  errores={errores} 
+                  setErrores={setErrores}
+                />
+              </CTabPane>
+              <CTabPane visible={step === 3}>
+                <DatosSalud 
+                  formData={formData} 
+                  onChange={handleChange} 
+                  errores={errores} 
+                />
+              </CTabPane>
+              <CTabPane visible={step === 4}>
+                <ConfirmacionInscripcion 
+                  formData={formData} 
+                  codigoInscripcion={codigoInscripcion} 
+                  onDescargar={handleDescargarPlanilla} 
+                />
+              </CTabPane>
             </CTabContent>
           </div>
 
@@ -320,6 +433,7 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
                 <CButton
                   onClick={handlePrevStep}
                   className="rounded-pill px-4 border-2 fw-bold inscripcion-back-btn hover-orange"
+                  disabled={enviando}
                 >
                   <CIcon icon={cilArrowLeft} className="me-2" /> ATRÁS
                 </CButton>
@@ -327,6 +441,7 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
                 <CButton
                   onClick={onVolver}
                   className="rounded-pill px-4 border-2 fw-bold inscripcion-cancel-btn hover-danger transition-all"
+                  disabled={enviando}
                 >
                   CANCELAR PROCESO
                 </CButton>
@@ -338,6 +453,7 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
                 <CButton
                   className="btn-premium rounded-pill px-5 shadow-sm"
                   onClick={handleNextStep}
+                  disabled={enviando}
                 >
                   SIGUIENTE PASO <CIcon icon={cilArrowRight} className="ms-2" />
                 </CButton>
@@ -346,9 +462,19 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
                   color="success"
                   className="rounded-pill px-5 text-white fw-bold shadow-sm bg-success border-0"
                   onClick={handleSubmit}
+                  disabled={enviando}
                   style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
                 >
-                  <CIcon icon={cilCheckCircle} className="me-2" /> FINALIZAR INSCRIPCIÓN
+                  {enviando ? (
+                    <>
+                      <CSpinner component="span" size="sm" className="me-2" />
+                      PROCESANDO...
+                    </>
+                  ) : (
+                    <>
+                      <CIcon icon={cilCheckCircle} className="me-2" /> FINALIZAR INSCRIPCIÓN
+                    </>
+                  )}
                 </CButton>
               ) : step === 4 ? (
                 <CButton
@@ -366,11 +492,10 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
           <small className="inscripcion-footer-text fw-bold text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>
             {step === 4
               ? `REGISTRO OFICIAL ID: ${codigoInscripcion} • ${new Date().toLocaleDateString('es-ES')}`
-              : 'TODOS LOS CAMPOS MARCADOS CON (*) SON OBLIGATORIOS'}
+              : `INSCRIPCIÓN PARA: ${formData.nombres} ${formData.apellidos} • TODOS LOS CAMPOS MARCADOS CON (*) SON OBLIGATORIOS`}
           </small>
         </CCardFooter>
       </CCard>
-
     </CContainer>
   );
 };

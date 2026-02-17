@@ -1,4 +1,43 @@
 export const generarPlanillaHTML = (formData, codigoInscripcion) => {
+  // Función para determinar qué datos del representante mostrar
+  const obtenerDatosRepresentante = () => {
+    // Si el representante es la Madre
+    if (formData.quien_es_representante === 'Madre') {
+      return {
+        nombreCompleto: `${formData.nombre_Madre || ''} ${formData.apellido_Madre || ''}`.trim() || 'No especificado',
+        telefono: formData.telefono_Madre || 'No especificado',
+        profesion: formData.ocupacion_Madre || 'No especificado',
+        trabajo: formData.trabajo_Madre || 'No especificado',
+        direccionTrabajo: formData.direccion_Trabajo_Madre || 'No especificado',
+        relacion: 'Madre'
+      };
+    }
+    // Si el representante es el Padre
+    else if (formData.quien_es_representante === 'Padre') {
+      return {
+        nombreCompleto: `${formData.nombre_Padre || ''} ${formData.apellido_Padre || ''}`.trim() || 'No especificado',
+        telefono: formData.telefono_Padre || 'No especificado',
+        profesion: formData.ocupacion_Padre || 'No especificado',
+        trabajo: formData.trabajo_Padre || 'No especificado',
+        direccionTrabajo: formData.direccion_Trabajo_Padre || 'No especificado',
+        relacion: 'Padre'
+      };
+    }
+    // Si el representante es Otro
+    else {
+      return {
+        nombreCompleto: `${formData.nombres_Representante || ''} ${formData.apellidos_Representante || ''}`.trim() || 'No especificado',
+        telefono: formData.telefono_Rep || 'No especificado',
+        profesion: formData.profesion_Rep || formData.profesion || 'No especificado',
+        trabajo: formData.trabajo_Rep || formData.trabajo || 'No especificado',
+        direccionTrabajo: formData.direccion_Trabajo_Rep || formData.direccion_Trabajo || 'No especificado',
+        relacion: formData.parentesco_Otro || 'Representante Legal'
+      };
+    }
+  };
+
+  const datosRep = obtenerDatosRepresentante();
+
   // Crear contenido HTML para la planilla
   const contenido = `
     <!DOCTYPE html>
@@ -291,13 +330,6 @@ export const generarPlanillaHTML = (formData, codigoInscripcion) => {
             </div>
             
             <div class="info-item">
-              <span class="label">Teléfono celular:</span>
-              <div class="value ${!formData.Telefono_Celular ? 'empty' : ''}">
-                ${formData.Telefono_Celular || 'No especificado'}
-              </div>
-            </div>
-            
-            <div class="info-item">
               <span class="label">Dirección:</span>
               <div class="value ${!formData.direccion_Habitacion ? 'empty' : ''}">
                 ${formData.direccion_Habitacion || 'No especificado'}
@@ -348,56 +380,45 @@ export const generarPlanillaHTML = (formData, codigoInscripcion) => {
           <h3>👨‍👩‍👧‍👦 DATOS DEL REPRESENTANTE</h3>
           <div class="info-grid">
             <div class="info-item">
+              <span class="label">Representante designado:</span>
+              <div class="value">${formData.quien_es_representante || 'No especificado'}</div>
+            </div>
+            
+            <div class="info-item">
               <span class="label">Nombre completo:</span>
-              <div class="value">${formData.nombres_Representante} ${formData.apellidos_Representante}</div>
+              <div class="value">${datosRep.nombreCompleto}</div>
             </div>
             
             <div class="info-item">
-              <span class="label">Teléfono móvil:</span>
-              <div class="value ${!formData.telefono_Rep ? 'empty' : ''}">
-                ${formData.telefono_Rep || 'No especificado'}
+              <span class="label">Relación con estudiante:</span>
+              <div class="value">${datosRep.relacion}</div>
+            </div>
+            
+            <div class="info-item">
+              <span class="label">Teléfono de contacto:</span>
+              <div class="value ${datosRep.telefono === 'No especificado' ? 'empty' : ''}">
+                ${datosRep.telefono}
               </div>
             </div>
             
             <div class="info-item">
-              <span class="label">Teléfono fijo:</span>
-              <div class="value ${!formData.telefonofijo_Rep ? 'empty' : ''}">
-                ${formData.telefonofijo_Rep || 'No especificado'}
-              </div>
-            </div>
-            
-            <div class="info-item">
-              <span class="label">Correo electrónico:</span>
-              <div class="value ${!formData.email_representante ? 'empty' : ''}">
-                ${formData.email_representante || 'No especificado'}
-              </div>
-            </div>
-            
-            <div class="info-item">
-              <span class="label">Profesión:</span>
-              <div class="value ${!formData.profesion ? 'empty' : ''}">
-                ${formData.profesion || 'No especificado'}
+              <span class="label">Profesión/Ocupación:</span>
+              <div class="value ${datosRep.profesion === 'No especificado' ? 'empty' : ''}">
+                ${datosRep.profesion}
               </div>
             </div>
             
             <div class="info-item">
               <span class="label">Lugar de trabajo:</span>
-              <div class="value ${!formData.trabajo ? 'empty' : ''}">
-                ${formData.trabajo || 'No especificado'}
+              <div class="value ${datosRep.trabajo === 'No especificado' ? 'empty' : ''}">
+                ${datosRep.trabajo}
               </div>
             </div>
             
             <div class="info-item">
               <span class="label">Dirección trabajo:</span>
-              <div class="value ${!formData.direccion_Trabajo ? 'empty' : ''}">
-                ${formData.direccion_Trabajo || 'No especificado'}
-              </div>
-            </div>
-            
-            <div class="info-item">
-              <span class="label">Relación con estudiante:</span>
-              <div class="value ${!formData.relacion ? 'empty' : ''}">
-                ${formData.relacion || 'No especificado'}
+              <div class="value ${datosRep.direccionTrabajo === 'No especificado' ? 'empty' : ''}">
+                ${datosRep.direccionTrabajo}
               </div>
             </div>
           </div>
@@ -485,37 +506,6 @@ export const generarPlanillaHTML = (formData, codigoInscripcion) => {
                 ` : ''}
               </tbody>
             </table>
-          </div>
-        </div>
-        
-        <!-- Información adicional -->
-        <div class="section">
-          <h3>📝 INFORMACIÓN ADICIONAL</h3>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="label">Uso de lentes:</span>
-              <div class="value">
-                ${formData.usa_lentes === 'si' ? 'Sí' : 
-                  formData.usa_lentes === 'no' ? 'No' : 
-                  formData.usa_lentes === 'a_veces' ? 'A veces' : 'No especificado'}
-              </div>
-            </div>
-            
-            <div class="info-item">
-              <span class="label">Médico tratante:</span>
-              <div class="value ${!formData.medico_tratante ? 'empty' : ''}">
-                ${formData.medico_tratante || 'No especificado'}
-              </div>
-            </div>
-            
-            <div class="info-item">
-              <span class="label">Nivel de estudios representante:</span>
-              <div class="value ${!formData.nivel_estudios ? 'empty' : ''}">
-                ${formData.nivel_estudios ? 
-                  formData.nivel_estudios.charAt(0).toUpperCase() + formData.nivel_estudios.slice(1) : 
-                  'No especificado'}
-              </div>
-            </div>
           </div>
         </div>
         

@@ -121,3 +121,83 @@ export const searchStudents = async (query) => {
     return [];
   }
 };
+
+
+
+/**
+ * Obtiene los estudiantes del representante autenticado
+ * @returns {Promise<Array>} Lista de estudiantes del representante
+ */
+export const getMyStudents = async () => {
+  try {
+    const response = await fetch.get('/api/students/mis-estudiantes');
+    
+    if (response.ok && response.data) {
+      return response.data; // Array de estudiantes
+    }
+    
+    console.log("📥 getMyStudents - Respuesta:", response);
+    return [];
+  } catch (error) {
+    console.error("❌ Error en getMyStudents:", error);
+    return [];
+  }
+};
+
+
+
+
+
+/**
+ * Obtiene el perfil de un estudiante (para representantes)
+ * @param {number} studentId - ID del estudiante
+ * @returns {Promise<Object>}
+ */
+export const getStudentProfile = async (studentId) => {
+  try {
+    // ✅ USAR EL MISMO FORMATO QUE LOS OTROS SERVICIOS
+    const response = await fetch.get(`/api/students/${studentId}/representante`);
+    
+    if (response.ok && response.data) {
+      return response.data;
+    }
+    
+    console.log("📥 getStudentProfile - Respuesta:", response);
+    return null;
+  } catch (error) {
+    console.error("❌ Error en getStudentProfile:", error);
+    throw error;
+  }
+};
+
+
+
+
+
+
+/**
+ * Obtiene los boletines de un estudiante
+ * @param {number} studentId - ID del estudiante
+ * @param {number} academicYearId - ID del año académico (opcional)
+ * @returns {Promise<Object>}
+ */
+export const getStudentBoletines = async (studentId, academicYearId = null) => {
+  try {
+    let url = `/api/students/${studentId}/boletines`;
+    if (academicYearId) {
+      url += `?academicYearId=${academicYearId}`;
+    }
+    
+    const response = await fetch.get(url);
+    
+    if (response.ok && response.data) {
+      return response.data;
+    }
+    
+    console.log("📥 getStudentBoletines - Respuesta:", response);
+    return [];
+  } catch (error) {
+    console.error("❌ Error en getStudentBoletines:", error);
+    throw error;
+  }
+};

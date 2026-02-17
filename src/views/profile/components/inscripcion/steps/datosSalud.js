@@ -18,14 +18,12 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
         </h5>
       </div>
 
-
-
       <CForm>
         <CRow className="g-4">
           <CCol md={12}>
             <h6 className="fw-bold step-label text-uppercase small ls-1 border-bottom pb-2 mb-3">Antropometría Básica</h6>
           </CCol>
-          <CCol md={3}>
+          <CCol md={4}>
             <CFormInput
               label={
                 <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
@@ -42,7 +40,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
               className="input-premium py-2"
             />
           </CCol>
-          <CCol md={3}>
+          <CCol md={4}>
             <CFormInput
               label={
                 <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
@@ -59,8 +57,8 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
               className="input-premium py-2"
             />
           </CCol>
-          <CCol md={3}>
-            <CFormInput
+          <CCol md={4}>
+            <CFormSelect
               label={
                 <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
                   Tipo de Sangre
@@ -69,26 +67,18 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
               name="tipo_sangre"
               value={formData.tipo_sangre || ""}
               onChange={onChange}
-              placeholder="Ej: O+"
-              className="input-premium py-2"
-            />
-          </CCol>
-          <CCol md={3}>
-            <CFormSelect
-              label={
-                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
-                  Uso de Lentes Correctivos
-                </span>
-              }
-              name="usa_lentes"
-              value={formData.usa_lentes || ""}
-              onChange={onChange}
               className="input-premium py-2"
             >
-              <option value="">Seleccione</option>
-              <option value="si">Sí</option>
-              <option value="no">No</option>
-              <option value="a_veces">A veces</option>
+              <option value="">Seleccione tipo de sangre...</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+              <option value="Desconocido">No sabe / No recuerda</option>
             </CFormSelect>
           </CCol>
         </CRow>
@@ -206,7 +196,7 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
             <CFormSelect
               label={
                 <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
-                  ¿Ha tenidos Intervenciones Quirúrgicas?
+                  ¿Ha tenido Intervenciones Quirúrgicas?
                 </span>
               }
               name="operaciones"
@@ -298,20 +288,6 @@ const DatosSalud = ({ formData, onChange, errores = {} }) => {
               <option value="no">No</option>
               <option value="consulta_medica">Requiere consulta médica</option>
             </CFormSelect>
-          </CCol>
-          <CCol md={6}>
-            <CFormInput
-              label={
-                <span className="fw-bold step-label text-uppercase ls-1 small mb-1">
-                  Médico Tratante / Cabecera
-                </span>
-              }
-              name="medico_tratante"
-              value={formData.medico_tratante || ""}
-              onChange={onChange}
-              placeholder="Nombre del médico de cabecera"
-              className="input-premium py-2"
-            />
           </CCol>
         </CRow>
 

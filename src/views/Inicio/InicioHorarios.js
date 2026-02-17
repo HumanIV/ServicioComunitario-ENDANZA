@@ -8,7 +8,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilClock, cilPeople } from '@coreui/icons'
-import { listStudents } from 'src/services/studentsService'
+import { getMyStudents } from 'src/services/studentsService' // 👈 CAMBIO AQUÍ
 
 // Importar los nuevos componentes
 import WelcomeBanner from './components/WelcomeBanner'
@@ -26,7 +26,8 @@ const InicioHorarios = () => {
     const fetchChildren = async () => {
         setLoading(true)
         try {
-            const data = await listStudents()
+            // ✅ Usar getMyStudents
+            const data = await getMyStudents()
             setChildren(data)
         } catch (error) {
             console.error("Error loading children:", error)
@@ -36,7 +37,7 @@ const InicioHorarios = () => {
     }
 
     const handleViewHorario = (studentId) => {
-        navigate(`/horario-estudiante`);
+        navigate(`/horario-estudiante/${studentId}`); // 👈 MEJOR: pasar el ID
     }
 
     return (
@@ -59,16 +60,22 @@ const InicioHorarios = () => {
                     <CRow className="g-4">
                         {loading ? (
                             <CCol className="text-center py-5"><CSpinner color="warning" /></CCol>
-                        ) : children.map((child) => (
-                            <CCol key={child.id} lg={6}>
-                                <StudentSelectionCard
-                                    child={child}
-                                    colorClass="warning"
-                                    buttonText="VER HORARIO"
-                                    onClick={handleViewHorario}
-                                />
+                        ) : children.length > 0 ? (
+                            children.map((child) => (
+                                <CCol key={child.id} lg={6}>
+                                    <StudentSelectionCard
+                                        child={child}
+                                        colorClass="warning"
+                                        buttonText="VER HORARIO"
+                                        onClick={handleViewHorario}
+                                    />
+                                </CCol>
+                            ))
+                        ) : (
+                            <CCol className="text-center py-5">
+                                <p className="text-muted">No tiene estudiantes registrados</p>
                             </CCol>
-                        ))}
+                        )}
                     </CRow>
                 </CCol>
             </CRow>

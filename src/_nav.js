@@ -57,12 +57,6 @@ const _nav = [
     items: [
       {
         component: CNavItem,
-        name: 'Notas',
-        to: '/inicio-notas',
-        roles: ['representante']
-      },
-      {
-        component: CNavItem,
         name: 'Boletines',
         to: '/inicio-boletines',
         roles: ['representante']
