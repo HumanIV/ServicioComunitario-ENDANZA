@@ -12,60 +12,104 @@ const fetch = helpFetch();
  * @param {number} academicYearId - Año académico (OBLIGATORIO para filtrar)
  * @returns {Promise<Array>} - Secciones formateadas para el módulo de notas
  */
+
+/**
+ * Obtiene todas las secciones con su estructura para notas (ADMIN)
+ * @param {number} academicYearId - Año académico (OBLIGATORIO para filtrar)
+ * @returns {Promise<Array>} - Secciones formateadas para el módulo de notas
+ */
 export const getSectionsForGrades = async (academicYearId) => {
     try {
-        // ✅ VALIDACIÓN: Año académico es obligatorio
         if (!academicYearId) {
             console.warn('⚠️ No se proporcionó academicYearId - No se pueden cargar secciones');
             return [];
         }
-        
-        // ✅ Construir endpoint con filtro de año
+
         const endpoint = `/api/sections?academicYearId=${academicYearId}`;
-        console.log(`📡 Solicitando secciones para año: ${academicYearId}`);
-        
         const response = await fetch.get(endpoint);
-        
+
         if (response.ok && response.sections) {
-            console.log(`📥 Secciones recibidas para año ${academicYearId}:`, response.sections.length);
-            
-            // ✅ Transformar al formato que espera el módulo de notas
-            const transformed = await Promise.all(response.sections.map(async (section) => {
-                // Obtener estudiantes de esta sección (filtrados por el mismo año)
-                const estudiantes = await getStudentsBySection(section.id);
-                
-                // Obtener estructura de evaluaciones
-                const evaluaciones = await getEvaluationStructure(section.id);
-                
-                return {
-                    id: section.id,
-                    grado: section.grade_level || section.nivel_academico || 'Sin grado',
-                    nombre: section.section_name,
-                    academicYearId: section.academic_year_id, // ← Mantener año para referencia
-                    materias: [{
-                        id: section.id,
-                        nombre: section.subject_name || 'Materia',
-                        horario: formatHorario(section.schedules || []),
-                        estudiantes: estudiantes,
-                        evaluaciones: evaluaciones
-                    }]
-                };
-            }));
-            
-            // ✅ Agrupar por grado para mantener la estructura original
-            const grouped = groupByGrade(transformed);
-            console.log(`📊 Secciones agrupadas: ${grouped.length} grados encontrados`);
-            return grouped;
+            return processSectionsResponse(response.sections);
         }
-        
-        console.warn(`⚠️ No se encontraron secciones para el año ${academicYearId}`);
         return [];
-        
     } catch (error) {
         console.error('❌ Error en getSectionsForGrades:', error);
         return [];
     }
 };
+
+/**
+ * Obtiene la carga académica del docente para notas
+ * @param {number} academicYearId - Año académico
+ * @returns {Promise<Array>} - Secciones formateadas
+ */
+export const getTeacherSections = async (academicYearId) => {
+    try {
+        if (!academicYearId) {
+            console.warn('⚠️ No se proporcionó academicYearId');
+            return [];
+        }
+
+        const endpoint = `/api/notas/docente/carga-academica?academicYearId=${academicYearId}`;
+        const response = await fetch.get(endpoint);
+
+        if (response.ok && response.data) {
+            // El backend devuelve lista plana: { id, section_name, subject, subject_id, ... }
+            // Necesitamos transformarlo al formato esperado por el frontend (agrupado por grado)
+
+            // Mapeo de respuesta backend a formato frontend
+            const sections = response.data.map(item => ({
+                id: item.id,
+                grade_level: item.section_name.split(' ')[0] + ' ' + item.section_name.split(' ')[1], // Aprox
+                section_name: item.section_name,
+                academic_year_id: academicYearId,
+                subject_name: item.subject,
+                subject_id: item.subject_id
+            }));
+
+            return processSectionsResponse(sections);
+        }
+        return [];
+
+    } catch (error) {
+        console.error('❌ Error en getTeacherSections:', error);
+        return [];
+    }
+}
+
+
+// Función auxiliar para procesar y agrupar secciones (reutilizada)
+const processSectionsResponse = async (sectionsList) => {
+    const transformed = await Promise.all(sectionsList.map(async (section) => {
+        // Obtener estudiantes
+        // Si es docente usamos el endpoint de docente, si es admin el de admin?
+        // Por simplicidad, intentaremos detectar o usar un endpoint compatible
+        // TODO: Optimizar esto para usar el endpoint correcto según rol. 
+        // Por ahora getStudentsBySection usa /api/sections/:id/students
+        const estudiantes = await getStudentsBySection(section.id);
+
+        const evaluaciones = await getEvaluationStructure(section.id);
+
+        return {
+            id: section.id,
+            grado: section.grade_level || section.nivel_academico || 'Sin Grado',
+            nombre: section.section_name,
+            academicYearId: section.academic_year_id,
+            materias: [{
+                // REFACTORIZACIÓN: Usando identificadores explícitos
+                sectionId: section.id,     // ID único de la sección (Grupo + Materia)
+                subjectId: section.subject_id, // ID de la materia (Matemáticas, Danza, etc.)
+                nombre: section.subject_name || section.nombre || 'Materia',
+                horario: formatHorario(section.schedules || []),
+                estudiantes: estudiantes,
+                evaluaciones: evaluaciones
+            }]
+        };
+    }));
+
+    return groupByGrade(transformed);
+};
+
 
 /**
  * Obtiene estudiantes de una sección
@@ -78,9 +122,9 @@ export const getStudentsBySection = async (sectionId) => {
             console.warn('⚠️ No se proporcionó sectionId');
             return [];
         }
-        
+
         const response = await fetch.get(`/api/sections/${sectionId}/students`);
-        
+
         if (response.ok && response.data) {
             return response.data.map(est => ({
                 id: est.id,
@@ -107,17 +151,17 @@ export const getEvaluationStructure = async (sectionId) => {
             console.warn('⚠️ No se proporcionó sectionId para evaluaciones');
             return getDefaultEvaluationStructure();
         }
-        
+
         const response = await fetch.get(`/api/sections/${sectionId}/evaluations`);
-        
+
         if (response.ok && response.data) {
             return response.data;
         }
-        
+
         // ✅ Si no hay estructura configurada, usar valores por defecto
         console.log(`📝 Usando estructura por defecto para sección ${sectionId}`);
         return getDefaultEvaluationStructure();
-        
+
     } catch (error) {
         console.error('❌ Error obteniendo estructura:', error);
         return getDefaultEvaluationStructure();
@@ -138,14 +182,14 @@ export const saveGrades = async (data) => {
         if (!data.grades) {
             throw new Error('grades es requerido');
         }
-        
+
         console.log(`💾 Guardando notas para sección ${data.sectionId}...`);
         const response = await fetch.post('/api/grades', data);
-        
+
         if (response.ok) {
             console.log('✅ Notas guardadas exitosamente');
         }
-        
+
         return response;
     } catch (error) {
         console.error('❌ Error guardando notas:', error);
@@ -158,19 +202,43 @@ export const saveGrades = async (data) => {
  * @param {number} sectionId - ID de la sección
  * @returns {Promise<Object>} - Objeto con notas por estudiante
  */
+/**
+ * Obtiene las notas de un estudiante específico (para vista de perfil/representante)
+ * @param {number} studentId - ID del estudiante
+ * @returns {Promise<Array>} - Lista de notas detalladas
+ */
+export const getStudentGrades = async (studentId) => {
+    try {
+        if (!studentId) {
+            console.warn('⚠️ No se proporcionó studentId');
+            return [];
+        }
+
+        const response = await fetch.get(`/api/grades/student/${studentId}`);
+
+        if (response.ok && response.data) {
+            return response.data;
+        }
+        return [];
+    } catch (error) {
+        console.error('❌ Error obteniendo notas del estudiante:', error);
+        return [];
+    }
+};
+
 export const getGradesForSection = async (sectionId) => {
     try {
         if (!sectionId) {
             console.warn('⚠️ No se proporcionó sectionId para notas');
             return {};
         }
-        
+
         const response = await fetch.get(`/api/grades/section/${sectionId}`);
-        
+
         if (response.ok && response.data) {
             // ✅ Transformar al formato del frontend { studentId: { n1, n2, n3, n4 } }
             const notas = {};
-            
+
             response.data.forEach(nota => {
                 if (!notas[nota.student_id]) {
                     notas[nota.student_id] = { n1: '', n2: '', n3: '', n4: '' };
@@ -181,11 +249,11 @@ export const getGradesForSection = async (sectionId) => {
                     notas[nota.student_id][`n${evalNum}`] = nota.score.toString();
                 }
             });
-            
+
             console.log(`📥 Notas cargadas para ${Object.keys(notas).length} estudiantes`);
             return notas;
         }
-        
+
         return {};
     } catch (error) {
         console.error('❌ Error obteniendo notas:', error);
@@ -217,7 +285,7 @@ const getDefaultEvaluationStructure = () => {
  */
 const formatHorario = (schedules) => {
     if (!schedules || schedules.length === 0) return 'Horario no asignado';
-    
+
     const diasMap = {
         'LUNES': 'Lunes',
         'MARTES': 'Martes',
@@ -226,9 +294,9 @@ const formatHorario = (schedules) => {
         'VIERNES': 'Viernes',
         'SÁBADO': 'Sábado'
     };
-    
-    return schedules.map(s => 
-        `${diasMap[s.day_name] || s.day_name} ${s.start_time?.substring(0,5) || '00:00'}-${s.end_time?.substring(0,5) || '00:00'}`
+
+    return schedules.map(s =>
+        `${diasMap[s.day_name] || s.day_name} ${s.start_time?.substring(0, 5) || '00:00'}-${s.end_time?.substring(0, 5) || '00:00'}`
     ).join(', ');
 };
 
@@ -239,16 +307,16 @@ const formatHorario = (schedules) => {
  */
 const calcularEdad = (fechaNacimiento) => {
     if (!fechaNacimiento) return 0;
-    
+
     const hoy = new Date();
     const nacimiento = new Date(fechaNacimiento);
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
-    
+
     if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
         edad--;
     }
-    
+
     return edad;
 };
 
@@ -259,7 +327,7 @@ const calcularEdad = (fechaNacimiento) => {
  */
 const groupByGrade = (sections) => {
     const grupos = {};
-    
+
     sections.forEach(section => {
         if (!grupos[section.grado]) {
             grupos[section.grado] = {
@@ -269,7 +337,7 @@ const groupByGrade = (sections) => {
         }
         grupos[section.grado].materias.push(...section.materias);
     });
-    
+
     return Object.values(grupos);
 };
 
@@ -281,5 +349,6 @@ export default {
     getStudentsBySection,
     getEvaluationStructure,
     saveGrades,
-    getGradesForSection
+    getGradesForSection,
+    getTeacherSections
 };

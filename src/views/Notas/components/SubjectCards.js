@@ -24,7 +24,7 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
 
             <CRow className="g-4">
                 {grade.materias.map((materia, i) => (
-                    <CCol md={6} key={i}>
+                    <CCol md={6} key={materia.sectionId}>
                         <CCard className="premium-card border-0 h-100 overflow-hidden shadow-sm hover-lift-sm">
                             <CCardHeader className="bg-orange-soft border-0 py-3 d-flex justify-content-between align-items-center">
                                 <div className="d-flex align-items-center">
@@ -50,9 +50,9 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
                                     <CCol xs={12} sm={6}>
                                         <div className="p-3 rounded-4 bg-light-custom h-100 border border-light-custom">
                                             <div className="text-muted-custom small text-uppercase fw-bold ls-1 mb-2" style={{ fontSize: '0.6rem' }}>
-                                                <CIcon icon={cilBadge} className="me-1 text-primary" /> Código
+                                                <CIcon icon={cilBadge} className="me-1 text-primary" /> Sección ID
                                             </div>
-                                            <div className="fw-bold text-primary font-monospace small">{materia.id}</div>
+                                            <div className="fw-bold text-primary font-monospace small">{materia.sectionId}</div>
                                         </div>
                                     </CCol>
                                 </CRow>

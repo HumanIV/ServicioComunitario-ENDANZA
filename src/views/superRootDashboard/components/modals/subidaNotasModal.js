@@ -11,9 +11,10 @@ import {
     CButton,
     CRow,
     CCol,
+    CSpinner
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilCloudUpload, cilClock, cilSave, cilWarning, cilCalendar, cilPowerStandby, cilCheckCircle} from '@coreui/icons'
+import { cilCloudUpload, cilClock, cilSave, cilWarning, cilCalendar, cilPowerStandby, cilCheckCircle } from '@coreui/icons'
 
 const SubidaNotasModal = ({
     visible,
@@ -27,16 +28,67 @@ const SubidaNotasModal = ({
         activo: false
     })
 
+    const [loading, setLoading] = useState(false)
+
+    const handleSave = async () => {
+        if (!localData.fechaInicio || !localData.fechaFin) {
+            alert('Por favor complete ambas fechas')
+            return
+        }
+        setLoading(true)
+        try {
+            await onSave(localData)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    // Normalizar fecha para el input type="date" (YYYY-MM-DD)
+    const normalizeDate = (dateStr) => {
+        if (!dateStr) return ''
+        // Si ya es YYYY-MM-DD, devolverlo tal cual (evita desfases UTC)
+        if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+            return dateStr.split('T')[0]
+        }
+        try {
+            const date = new Date(dateStr)
+            if (isNaN(date.getTime())) return ''
+            // Para objetos Date, usargetFullYear/Month/Date para evitar shift UTC
+            const y = date.getFullYear()
+            const m = String(date.getMonth() + 1).padStart(2, '0')
+            const d = String(date.getDate()).padStart(2, '0')
+            return `${y}-${m}-${d}`
+        } catch (e) {
+            return ''
+        }
+    }
+
     useEffect(() => {
-        if (periodoSubida) {
-            setLocalData(periodoSubida)
+        if (periodoSubida && visible) {
+            setLocalData({
+                fechaInicio: normalizeDate(periodoSubida.fechaInicio),
+                fechaFin: normalizeDate(periodoSubida.fechaFin),
+                activo: periodoSubida.activo || false
+            })
         }
     }, [periodoSubida, visible])
 
     const formatDateDisplay = (dateStr) => {
         if (!dateStr) return '---'
-        const parts = dateStr.split('-')
-        return `${parts[2]}/${parts[1]}/${parts[0]}`
+        try {
+            // Priorizar parseo manual para evitar desfase de zona horaria (UTC shifts)
+            const s = String(dateStr).split('T')[0]
+            const parts = s.split('-')
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`
+            }
+
+            const date = new Date(dateStr)
+            if (isNaN(date.getTime())) return '---'
+            return date.toLocaleDateString('es-ES')
+        } catch (e) {
+            return '---'
+        }
     }
 
     const getStatus = () => {
@@ -48,12 +100,12 @@ const SubidaNotasModal = ({
 
         // ✅ PRIMERO: Verificar si está activo
         if (localData.activo) {
-            return { 
-                type: 'active', 
-                message: 'Carga Habilitada', 
-                detail: `Los docentes pueden subir notas hasta el ${formatDateDisplay(localData.fechaFin)}`, 
-                icon: cilCheckCircle, 
-                color: 'success' 
+            return {
+                type: 'active',
+                message: 'Carga Habilitada',
+                detail: `Los docentes pueden subir notas hasta el ${formatDateDisplay(localData.fechaFin)}`,
+                icon: cilCheckCircle,
+                color: 'success'
             }
         }
 
@@ -150,9 +202,17 @@ const SubidaNotasModal = ({
                 <CButton variant="ghost" className="px-4 fw-bold text-muted-custom hover-lift shadow-none border-0" onClick={onClose}>
                     CANCELAR
                 </CButton>
-                <CButton onClick={() => onSave(localData)} className="btn-premium px-5 py-3 rounded-pill fw-bold ms-auto shadow-sm text-white bg-info border-0">
-                    <CIcon icon={cilSave} className="me-2" />
-                    ACTUALIZAR PERIODO
+                <CButton
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="btn-premium px-5 py-3 rounded-pill fw-bold ms-auto shadow-sm text-white bg-info border-0"
+                >
+                    {loading ? (
+                        <CSpinner size="sm" className="me-2" />
+                    ) : (
+                        <CIcon icon={cilSave} className="me-2" />
+                    )}
+                    {loading ? 'GUARDANDO...' : 'ACTUALIZAR PERIODO'}
                 </CButton>
             </CModalFooter>
 

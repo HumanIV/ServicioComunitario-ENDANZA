@@ -2,25 +2,25 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { listUsers } from '../../../services/userService';
-import { 
-  getEnrollmentPeriod, 
-  updateEnrollmentPeriod, 
-  getGradesPeriod, 
-  updateGradesPeriod 
+import {
+  getEnrollmentPeriod,
+  updateEnrollmentPeriod,
+  getGradesPeriod,
+  updateGradesPeriod
 } from '../../../services/configService';
 import { listSections } from '../../../services/sectionsService';
 import { listStudents } from '../../../services/studentsService';
-import { 
-  getNotasPendientes, 
-  aprobarNota, 
+import {
+  getNotasPendientes,
+  aprobarNota,
   rechazarNota,
-  aprobarTodasNotas 
+  aprobarTodasNotas
 } from '../../../services/notasService';
-import { 
-  getBoletines, 
-  toggleBoletinDisponible, 
+import {
+  getBoletines,
+  toggleBoletinDisponible,
   habilitarTodosBoletines,
-  verificarNotasPendientes 
+  verificarNotasPendientes
 } from '../../../services/boletinesService';
 // ✅ IMPORTAR SERVICIO DE DOCENTES
 import * as TeacherService from '../../../services/teacherService';
@@ -35,23 +35,23 @@ export const useDashboardData = (selectedYearId) => {
   // ✅ NUEVO: Estado para docentes
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Estados para modales
   const [visiblePeriodoInscripcion, setVisiblePeriodoInscripcion] = useState(false);
   const [visibleSubidaNotas, setVisibleSubidaNotas] = useState(false);
   const [visibleValidacionNotas, setVisibleValidacionNotas] = useState(false);
   const [visibleControlBoletines, setVisibleControlBoletines] = useState(false);
 
-  const [periodoInscripcion, setPeriodoInscripcion] = useState({ 
-    fechaInicio: '', 
-    fechaFin: '', 
-    activo: false 
+  const [periodoInscripcion, setPeriodoInscripcion] = useState({
+    fechaInicio: '',
+    fechaFin: '',
+    activo: false
   });
-  
-  const [periodoSubidaNotas, setPeriodoSubidaNotas] = useState({ 
-    fechaInicio: '', 
-    fechaFin: '', 
-    activo: false 
+
+  const [periodoSubidaNotas, setPeriodoSubidaNotas] = useState({
+    fechaInicio: '',
+    fechaFin: '',
+    activo: false
   });
 
   // 📌 Función para cargar todos los datos
@@ -64,12 +64,12 @@ export const useDashboardData = (selectedYearId) => {
 
     setLoading(true);
     console.log(`📊 Cargando datos para año ID: ${selectedYearId}`);
-    
+
     try {
       // 1. Cargar usuarios
       const usersData = await listUsers();
       const users = Array.isArray(usersData) ? usersData : [];
-      
+
       const usuariosTransformados = users
         .filter(u => u?.role !== 'representante')
         .map(u => ({
@@ -78,7 +78,7 @@ export const useDashboardData = (selectedYearId) => {
           rol: u.role || 'sin rol',
           activo: u.status === 'active'
         }));
-      
+
       setUsuarios(usuariosTransformados);
       setRepsCount(users.filter(u => u?.role === 'representante').length);
 
@@ -119,13 +119,13 @@ export const useDashboardData = (selectedYearId) => {
   // 📌 Función para copiar asignaciones del año anterior
   const copyTeacherAssignmentsFromPreviousYear = useCallback(async () => {
     if (!selectedYearId) return false;
-    
+
     try {
       // Obtener el año anterior (asumiendo que los IDs son consecutivos)
       const previousYearId = selectedYearId - 1;
-      
+
       const response = await TeacherService.copyTeacherAssignments(previousYearId, selectedYearId);
-      
+
       if (response.ok) {
         console.log(`✅ Asignaciones copiadas: ${response.copied || 0}`);
         await fetchAllData(); // Recargar datos
@@ -160,16 +160,37 @@ export const useDashboardData = (selectedYearId) => {
 
   // 📌 Guardar período de subida de notas
   const guardarPeriodoSubidaNotas = async (data) => {
-    if (!selectedYearId) return;
+    if (!selectedYearId) {
+      alert("No hay un año académico seleccionado.");
+      return;
+    }
+
     try {
-      const response = await updateGradesPeriod(selectedYearId, data);
-      if (response.ok) {
+      console.log(`💾 Guardando periodo de notas para año ${selectedYearId}:`, data);
+
+      const response = await updateGradesPeriod(selectedYearId, {
+        fechaInicio: data.fechaInicio,
+        fechaFin: data.fechaFin,
+        activo: Boolean(data.activo)
+      });
+
+      if (response && (response.ok || response._ok)) {
+        console.log("✅ Periodo de notas guardado correctamente");
+        alert("¡Periodo actualizado con éxito!");
         setPeriodoSubidaNotas(data);
         setVisibleSubidaNotas(false);
         await fetchAllData();
+        return true;
+      } else {
+        const msg = response.msg || response.message || "Error desconocido del servidor";
+        console.error("❌ Error del servidor:", msg);
+        alert(`No se pudo guardar: ${msg}`);
+        return false;
       }
     } catch (error) {
       console.error("❌ Error guardando período de notas:", error);
+      alert("Error de red al intentar guardar los cambios.");
+      return false;
     }
   };
 
@@ -236,14 +257,14 @@ export const useDashboardData = (selectedYearId) => {
   // 📌 Habilitar todos los boletines
   const habilitarTodosBoletinesDelAnio = async () => {
     if (!selectedYearId) return false;
-    
+
     // Verificar si hay notas pendientes
     const hayPendientes = await verificarNotasPendientes(selectedYearId);
     if (hayPendientes) {
       alert("No se pueden habilitar los boletines porque hay notas pendientes de validación.");
       return false;
     }
-    
+
     try {
       const response = await habilitarTodosBoletines(selectedYearId);
       if (response.ok) {
@@ -269,7 +290,7 @@ export const useDashboardData = (selectedYearId) => {
     boletines,
     teachers, // ✅ DOCENTES FILTRADOS POR AÑO
     loading,
-    
+
     // Estados de modales
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
@@ -279,7 +300,7 @@ export const useDashboardData = (selectedYearId) => {
     setVisibleValidacionNotas,
     visibleControlBoletines,
     setVisibleControlBoletines,
-    
+
     // Acciones
     guardarPeriodoInscripcion,
     guardarPeriodoSubidaNotas,

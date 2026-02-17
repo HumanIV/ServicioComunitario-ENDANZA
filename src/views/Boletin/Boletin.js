@@ -4,7 +4,6 @@ import {
   CCard,
   CCardBody,
   CButton,
-  CProgress
 } from "@coreui/react";
 import CIcon from "@coreui/icons-react";
 import {
@@ -13,7 +12,12 @@ import {
   cilArrowLeft
 } from "@coreui/icons";
 
-// Importar utilidades y hooks que vamos a crear
+// Servicios
+import { getAvailableYears, getActiveYear } from '../../services/configService';
+import { getSectionsForGrades, getGradesForSection } from '../../services/gradeService';
+import { generarBoletines } from '../../services/boletinesService';
+
+// Importar utilidades y hooks
 import { obtenerEstudiantesUnicos, normalizarDatos } from './utils/helpers';
 import { useToast } from './hooks/useToast';
 import { useCalculos } from './hooks/useCalculos';
@@ -29,77 +33,11 @@ import { ResumenSeccion } from "./components/resumenSeccion";
 
 const SistemaBoletinesDanza = () => {
 
-  // Normalizar datos iniciales
-  const dataNormalizada = useMemo(() => normalizarDatos([
-    {
-      id: 1,
-      grado: "1er Grado",
-      materias: [
-        {
-          id: "DAN-101",
-          nombre: "Ballet Básico I",
-          horario: "Lunes y Miércoles 8:00-10:00",
-          estudiantes: [
-            { id: 1, nombre: "Ana López", codigo: "END-101", edad: 6 },
-            { id: 2, nombre: "Carlos Pérez", codigo: "END-102", edad: 7 },
-            { id: 3, nombre: "María González", codigo: "END-103", edad: 6 }
-          ]
-        },
-        {
-          id: "DAN-102",
-          nombre: "Ritmo y Movimiento",
-          horario: "Martes y Miércoles 8:00-10:00",
-          estudiantes: [
-            { id: 4, nombre: "Juan Rodríguez", codigo: "END-104", edad: 7 },
-            { id: 5, nombre: "Laura Martínez", codigo: "END-105", edad: 6 }
-          ]
-        },
-        {
-          id: "DAN-103",
-          nombre: "Expresión Corporal Básica",
-          horario: "Viernes 8:00-10:00",
-          estudiantes: [
-            { id: 1, nombre: "Ana López", codigo: "END-101", edad: 6 },
-            { id: 2, nombre: "Carlos Pérez", codigo: "END-102", edad: 7 },
-            { id: 3, nombre: "María González", codigo: "END-103", edad: 6 }
-          ]
-        }
-      ]
-    },
-    {
-      id: 2,
-      grado: "2do Grado",
-      materias: [
-        {
-          id: "DAN-201",
-          nombre: "Ballet Básico II",
-          horario: "Lunes y Miércoles 10:00-12:00",
-          estudiantes: [
-            { id: 6, nombre: "Pedro Sánchez", codigo: "END-201", edad: 8 },
-            { id: 7, nombre: "Sofía Ramírez", codigo: "END-202", edad: 7 }
-          ]
-        },
-        {
-          id: "DAN-202",
-          nombre: "Expresión Corporal I",
-          horario: "Martes y Jueves 10:00-12:00",
-          estudiantes: [
-            { id: 8, nombre: "Diego Herrera", codigo: "END-203", edad: 8 },
-            { id: 9, nombre: "Valeria Castro", codigo: "END-204", edad: 9 }
-          ]
-        },
-        {
-          id: "DAN-203",
-          nombre: "Danza Folklórica Básica",
-          horario: "Viernes 10:00-12:00",
-          estudiantes: [
-            { id: 6, nombre: "Pedro Sánchez", codigo: "END-201", edad: 8 },
-            { id: 7, nombre: "Sofía Ramírez", codigo: "END-202", edad: 7 }
-          ]
-        }
-      ]
-    }
-  ]), []);
+  // Estados para datos reales
+  const [dashboardData, setDashboardData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [years, setYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
 
   // Estado con reducer
   const [state, dispatch] = useReducer(estadoReducer, estadoInicial);
@@ -114,38 +52,98 @@ const SistemaBoletinesDanza = () => {
     enviando
   } = state;
 
-  // Cargar datos de notas desde localStorage
+  // Cargar años académicos
   useEffect(() => {
-    const notasGuardadas = localStorage.getItem('notasEndanza');
-    if (notasGuardadas) {
-      dispatch({ type: 'CARGAR_NOTAS', payload: JSON.parse(notasGuardadas) });
-    }
+    const fetchYears = async () => {
+      try {
+        const yearsData = await getAvailableYears();
+        setYears(yearsData);
+        const active = await getActiveYear();
+        if (active) setSelectedYear(active);
+        else if (yearsData.length > 0) setSelectedYear(yearsData[0]);
+      } catch (error) {
+        console.error("Error loading years:", error);
+      }
+    };
+    fetchYears();
   }, []);
+
+  // Cargar estructura de grados/secciones cuando cambia el año
+  useEffect(() => {
+    if (!selectedYear) return;
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const sectionsData = await getSectionsForGrades(selectedYear.id);
+        const normalized = normalizarDatos(sectionsData);
+        setDashboardData(normalized);
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedYear]);
+
+  // Cargar notas de todas las materias cargadas
+  useEffect(() => {
+    if (dashboardData.length === 0) return;
+
+    const fetchAllGrades = async () => {
+      const notasAcumuladas = {};
+
+      for (const grado of dashboardData) {
+        for (const materia of grado.materias) {
+          try {
+            const notasMateria = await getGradesForSection(materia.sectionId || materia.id);
+
+            Object.keys(notasMateria).forEach(studentId => {
+              if (!notasAcumuladas[studentId]) notasAcumuladas[studentId] = {};
+
+              const notas = notasMateria[studentId];
+
+              // Calcular definitiva
+              const valores = [notas.n1, notas.n2, notas.n3, notas.n4].filter(n => n && !isNaN(parseFloat(n)));
+              const final = valores.length > 0
+                ? (valores.reduce((a, b) => a + parseFloat(b), 0) / valores.length).toFixed(1)
+                : "";
+
+              notasAcumuladas[studentId][materia.id] = {
+                t1: notas.n1,
+                t2: notas.n2,
+                t3: notas.n3,
+                t4: notas.n4,
+                final: final,
+                ...notas
+              };
+            });
+          } catch (err) {
+            console.error(`Error cargando notas para materia ${materia.id}:`, err);
+          }
+        }
+      }
+
+      dispatch({ type: 'CARGAR_NOTAS', payload: notasAcumuladas });
+    };
+
+    fetchAllGrades();
+  }, [dashboardData]);
 
   // Hooks personalizados
   const { showToast } = useToast(dispatch);
   const calculos = useCalculos(notasCargadas);
 
   // Datos derivados
+  const dataParaVista = useMemo(() => dashboardData, [dashboardData]);
+
+  // Datos derivados del reducer
   const estudiantesUnicos = useMemo(() =>
     obtenerEstudiantesUnicos(gradoSeleccionado),
     [gradoSeleccionado]
   );
-
-  const estadisticas = useMemo(() => {
-    const conNotas = estudiantesUnicos.filter(e => calculos.calcularPromedioEstudiante(e.id));
-    const aprobados = conNotas.filter(e => {
-      const promedio = calculos.calcularPromedioEstudiante(e.id);
-      return promedio && parseFloat(promedio) >= 10;
-    });
-
-    return {
-      total: estudiantesUnicos.length,
-      conNotas: conNotas.length,
-      aprobados: aprobados.length,
-      pendientes: estudiantesUnicos.length - conNotas.length
-    };
-  }, [estudiantesUnicos, calculos]);
 
   // Mapas para acceso rápido
   const mapaEstudiantes = useMemo(() => {
@@ -164,7 +162,8 @@ const SistemaBoletinesDanza = () => {
     return cache;
   }, [estudiantesUnicos, calculos]);
 
-  // Función para generar boletín individual
+
+  // Función para generar boletín individual (visualización)
   const generarBoletinIndividual = useCallback((estudiante) => {
     if (!gradoSeleccionado) return;
 
@@ -218,33 +217,37 @@ const SistemaBoletinesDanza = () => {
     dispatch({ type: 'MOSTRAR_BOLETIN', payload: boletin });
   }, [gradoSeleccionado, notasCargadas, calculos]);
 
-  // Función para generar boletines en lote
-  const generarBoletinesLote = useCallback(() => {
+  // Función para generar boletines (Backend)
+  const generarBoletinesLote = useCallback(async () => {
     if (estudiantesSeleccionados.size === 0) {
       showToast("warning", "Seleccione al menos un estudiante");
       return;
     }
 
+    if (!selectedYear) {
+      showToast("error", "No hay año académico seleccionado");
+      return;
+    }
+
     dispatch({ type: 'INICIAR_ENVIO' });
 
-    // Simular generación de boletines
-    setTimeout(() => {
-      const boletinesGenerados = Array.from(estudiantesSeleccionados).map(id => {
-        const estudiante = mapaEstudiantes[id];
-        const promedio = promediosCache[id];
-        return {
-          estudiante,
-          promedio,
-          estado: calculos.determinarPromocion(promedio)
-        };
-      });
+    try {
+      const studentIds = Array.from(estudiantesSeleccionados);
+      const response = await generarBoletines(studentIds, selectedYear.id);
 
-      console.log("Boletines generados:", boletinesGenerados);
+      if (response && response.ok) {
+        showToast("success", `✅ ${studentIds.length} boletines generados y habilitados correctamente`);
+        dispatch({ type: 'OCULTAR_MODAL' }); // Cerrar modal si éxito
+      } else {
+        showToast("error", response?.msg || "Error generando boletines");
+      }
+    } catch (error) {
+      console.error("Error generando boletines:", error);
+      showToast("error", "Error de conexión al generar boletines");
+    } finally {
       dispatch({ type: 'FINALIZAR_ENVIO' });
-
-      showToast("success", `✅ ${boletinesGenerados.length} boletines generados correctamente`);
-    }, 2000);
-  }, [estudiantesSeleccionados, mapaEstudiantes, promediosCache, calculos, showToast]);
+    }
+  }, [estudiantesSeleccionados, selectedYear, showToast]);
 
   // Handlers
   const handleToggleSeleccion = useCallback((estudianteId) => {
@@ -260,7 +263,7 @@ const SistemaBoletinesDanza = () => {
     showToast("info", `${estudiante.nombre} añadido a la lista de boletines`);
   }, [dispatch, showToast]);
 
-  // Renderizar vista actual - VERSIÓN MODIFICADA CON RESUMEN DE SECCIÓN
+  // Render
   const renderVistaActual = () => {
     switch (vistaActual) {
       case 'estudiantes':
@@ -306,7 +309,6 @@ const SistemaBoletinesDanza = () => {
               </div>
             </div>
 
-            {/* =========== RESUMEN DE SECCIÓN =========== */}
             <ResumenSeccion
               gradoSeleccionado={gradoSeleccionado}
               estudiantesUnicos={estudiantesUnicos}
@@ -314,7 +316,6 @@ const SistemaBoletinesDanza = () => {
               calculos={calculos}
               estudiantesSeleccionados={estudiantesSeleccionados}
             />
-            {/* =========== FIN RESUMEN =========== */}
 
             <CCard className="premium-card border-0 shadow-sm overflow-hidden mb-5">
               <div className="px-4 py-3 border-bottom bg-light-custom d-flex justify-content-between align-items-center border-opacity-10">
@@ -336,20 +337,19 @@ const SistemaBoletinesDanza = () => {
                   onAgregarBoletin={handleAgregarBoletin}
                 />
               </CCardBody>
-              {/* Barra de progreso eliminada según solicitud */}
             </CCard>
           </div>
         );
 
       case 'boletin':
-        return <VistaBoletin boletinData={boletinActual} calculos={calculos} dispatch={dispatch} />;
+        return <VistaBoletin boletinData={boletinActual} calculos={calculos} dispatch={dispatch} academicYear={selectedYear?.name} />;
 
       default:
-        return <VistaGrados data={dataNormalizada} onSeleccionarGrado={(grado) => dispatch({ type: 'SELECCIONAR_GRADO', payload: grado })} />;
+        return <VistaGrados data={dataParaVista} onSeleccionarGrado={(grado) => dispatch({ type: 'SELECCIONAR_GRADO', payload: grado })} />;
     }
   };
 
-  if (!vistaActual) return null; // Evitar renderizado si no hay estado
+  if (!vistaActual) return null;
 
   return (
     <CContainer className="py-4">
@@ -362,7 +362,7 @@ const SistemaBoletinesDanza = () => {
             Sistema de Boletines
           </h2>
           <p className="text-muted-custom small text-uppercase ls-1 fw-bold">
-            Ciclo Académico 2024 - 2025
+            Ciclo Académico {selectedYear?.name || "Cargando..."}
           </p>
         </header>
       )}
@@ -381,8 +381,6 @@ const SistemaBoletinesDanza = () => {
       />
 
       <ToastContainer toasts={toasts} dispatch={dispatch} />
-
-
     </CContainer>
   );
 };

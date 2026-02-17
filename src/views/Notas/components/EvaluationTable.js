@@ -19,7 +19,7 @@ import {
     CProgress
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilTrash, cilSend, cilWarning, cilArrowLeft, cilUser, cilCheckCircle, cilClock, cilBook, cilCircle} from '@coreui/icons'
+import { cilTrash, cilSend, cilWarning, cilArrowLeft, cilUser, cilCheckCircle, cilClock, cilBook, cilCircle } from '@coreui/icons'
 import PropTypes from 'prop-types'
 
 const EvaluationTable = ({
@@ -62,7 +62,7 @@ const EvaluationTable = ({
                         )}
                     </div>
                 </div>
-                
+
                 {/* SOLO MOSTRAR BOTONES DE ACCIÓN SI NO ESTÁ EN MODO LECTURA */}
                 {!modoLectura && (
                     <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto mt-2 mt-md-0">
@@ -105,7 +105,7 @@ const EvaluationTable = ({
                                             <CIcon icon={cilClock} className="me-1" /> {subject.horario}
                                         </small>
                                         <small className="text-muted-custom d-flex align-items-center">
-                                            <CIcon icon={cilCheckCircle} className="me-1" /> Código: {subject.id}
+                                            <CIcon icon={cilCheckCircle} className="me-1" /> Sección: {subject.sectionId}
                                         </small>
                                     </div>
                                 </div>
@@ -212,7 +212,7 @@ const EvaluationTable = ({
                                 <strong className="header-title-custom">IMPORTANTE:</strong> Ingrese valores entre <strong>0 y 20</strong> siguiendo la escala institucional.
                             </small>
                         </div>
-                        
+
                         {/* SOLO MOSTRAR PROGRESO Y BOTÓN SI NO ESTÁ EN MODO LECTURA */}
                         {!modoLectura && (
                             <div className="d-flex align-items-center gap-2">

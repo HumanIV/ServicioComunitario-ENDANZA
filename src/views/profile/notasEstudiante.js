@@ -13,7 +13,12 @@ import {
     CToaster,
     CToast,
     CToastHeader,
-    CToastBody
+    CToastBody,
+    CSpinner,
+    CDropdown,
+    CDropdownToggle,
+    CDropdownMenu,
+    CDropdownItem
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import {
@@ -26,56 +31,20 @@ import AcademicHeader from "./components/common/AcademicHeader"
 import StudentInfoCard from "./components/common/StudentInfoCard"
 import {
     cilLockLocked,
-    cilNotes
+    cilNotes,
+    cilPeople
 } from "@coreui/icons"
-
-// Simulación de datos (Reutilizamos la estructura de notas)
-const notasData = {
-    estudiante: {
-        nombre: "Ana López Rodríguez",
-        codigo: "END-2024-001",
-        grado: "4to Grado",
-        seccion: "A",
-        representante: "María Rodríguez Pérez",
-        dni: "87654321",
-        fechaNacimiento: "15/03/2015",
-        direccion: "Av. Principal #123"
-    },
-    periodos: {
-        1: {
-            nombre: "Primer Período",
-            notas: [
-                { materia: "Ballet Clásico I", codigo: "DAN-101", nota: 18, creditos: 4, observacion: "Excelente técnica", docente: "Prof. García" },
-                { materia: "Ritmo y Movimiento", codigo: "DAN-102", nota: 16, creditos: 3, observacion: "Buen desempeño", docente: "Prof. Martínez" },
-                { materia: "Expresión Corporal", codigo: "DAN-103", nota: 14, creditos: 3, observacion: "Participación activa", docente: "Prof. López" }
-            ],
-            estadoSecretaria: 'aprobado',
-            fechaAprobacion: '15/04/2024',
-            aprobadoPor: 'Secretaría Académica'
-        },
-        2: {
-            nombre: "Segundo Período",
-            notas: [
-                { materia: "Ballet Clásico I", codigo: "DAN-101", nota: 17, creditos: 4, observacion: "Muy buen progreso", docente: "Prof. García" },
-                { materia: "Ritmo y Movimiento", codigo: "DAN-102", nota: 15, creditos: 3, observacion: "Aplica correcciones", docente: "Prof. Martínez" },
-                { materia: "Expresión Corporal", codigo: "DAN-103", nota: 13, creditos: 3, observacion: "Participación regular", docente: "Prof. López" }
-            ],
-            estadoSecretaria: 'pendiente', // En notas, quizás mostramos todo? Depende de la lógica. Asumo igual que boletín por ahora.
-            fechaAprobacion: null,
-            aprobadoPor: null
-        }
-    }
-}
+import { getStudentGrades } from "../../services/gradeService"
+import { getRepresentanteConEstudiantes } from "../../services/representanteService"
 
 const NotasView = () => {
-    const [activeKey, setActiveKey] = useState(null)
+    const [activeKey, setActiveKey] = useState(1)
     const [toasts, setToasts] = useState([])
-
-    useEffect(() => {
-        // Seleccionar el primer periodo por defecto
-        const primerPeriodo = Object.keys(notasData.periodos)[0];
-        if (primerPeriodo) setActiveKey(parseInt(primerPeriodo));
-    }, [])
+    const [notasData, setNotasData] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [myStudents, setMyStudents] = useState([])
+    const [selectedStudentId, setSelectedStudentId] = useState(null)
+    const [userRole, setUserRole] = useState(null)
 
     const showToast = useCallback((type, message) => {
         const id = Date.now()
@@ -86,12 +55,169 @@ const NotasView = () => {
         }, 4000)
     }, [])
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            setLoading(true);
+            try {
+                // Obtener usuario del localStorage
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    showToast('warning', 'No se encontró sesión activa');
+                    setLoading(false);
+                    return;
+                }
+                const user = JSON.parse(userStr);
+                setUserRole(user.role);
+
+                let studentIdToFetch = null;
+
+                if (user.role === 'representante') {
+                    // Buscar representante y sus estudiantes
+                    // Asumimos que user.id es el ID del usuario representante, necesitamos su ID de representante
+                    // O el endpoint /api/representantes/me o similar. 
+                    // Por ahora usamos getRepresentanteConEstudiantes asumiendo que tenemos el ID del representante en el token o user
+                    // Si user tiene associatedId (id_representante)
+
+                    if (user.associatedId) {
+                        const response = await getRepresentanteConEstudiantes(user.associatedId);
+                        if (response && response.ok && response.estudiantes) {
+                            setMyStudents(response.estudiantes);
+                            if (response.estudiantes.length > 0) {
+                                // Si ya había seleccionado uno, mantenerlo, si no, seleccionar el primero
+                                if (!selectedStudentId) {
+                                    studentIdToFetch = response.estudiantes[0].id;
+                                    setSelectedStudentId(studentIdToFetch);
+                                } else {
+                                    studentIdToFetch = selectedStudentId; // Refetch del actual
+                                }
+                            }
+                        }
+                    } else {
+                        // Fallback o error ? 
+                        // Intentar buscar por userID si el associatedId no está
+                        // Por ahora simulamos que no hay estudiantes si no hay associatedId
+                    }
+
+                } else if (user.role === 'estudiante') {
+                    studentIdToFetch = user.associatedId;
+                    setSelectedStudentId(studentIdToFetch);
+                }
+
+                if (studentIdToFetch) {
+                    await loadGrades(studentIdToFetch);
+                } else {
+                    setLoading(false);
+                }
+
+            } catch (error) {
+                console.error("Error cargando datos de usuario:", error);
+                showToast('error', 'Error al cargar perfil');
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, [selectedStudentId, showToast]); // Re-run if selectedStudentId changes manually (dropdown)
+
+    const loadGrades = async (studentId) => {
+        setLoading(true);
+        try {
+            const grades = await getStudentGrades(studentId);
+            const transformedData = transformGradesData(grades, studentId);
+            setNotasData(transformedData);
+        } catch (error) {
+            console.error("Error cargando notas:", error);
+            showToast('error', 'Error al cargar calificaciones');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const transformGradesData = (grades, studentId) => {
+        // Encontrar estudiante en myStudents si es rep, o construirlo básico
+        let estudianteInfo = {
+            nombre: "Estudiante",
+            codigo: `EST-${studentId}`,
+            grado: "N/A",
+            seccion: "N/A"
+        };
+
+        if (myStudents.length > 0) {
+            const found = myStudents.find(s => s.id === studentId);
+            if (found) {
+                estudianteInfo = {
+                    nombre: `${found.first_name} ${found.last_name}`,
+                    codigo: found.dni,
+                    grado: found.gradeLevel || "N/A", // Si viene del back
+                    seccion: "A" // TODO: Esto debería venir del endpoint de estudiantes de repre
+                }
+            }
+        }
+
+        // Agrupar por corte (1, 2, 3)
+        // La estructura de evaluaciones son cortes 1, 2, 3, 4
+        // PeriodoTab espera: { 1: { nombre: "Primer Período", notas: [...] } }
+        const periodos = {};
+
+        // Inicializar periodos por defecto
+        [1, 2, 3].forEach(p => {
+            periodos[p] = {
+                nombre: `${p}° Corte`,
+                notas: [],
+                estadoSecretaria: 'pendiente', // Default
+                fechaAprobacion: null,
+                aprobadoPor: null
+            };
+        });
+
+        grades.forEach(g => {
+            const corte = g.evaluation_number;
+            if (periodos[corte]) {
+                periodos[corte].notas.push({
+                    materia: g.subject_name || "Materia desconocida",
+                    codigo: g.subject_name?.substring(0, 3).toUpperCase() + '-101' || 'COD', // Mock code
+                    nota: g.score,
+                    creditos: 3, // Mock
+                    observacion: g.score >= 10 ? "Aprobado" : "Reprobado",
+                    docente: "Docente" // Falta en endpoint
+                });
+            }
+        });
+
+        return {
+            estudiante: estudianteInfo,
+            periodos
+        };
+    };
+
+    const handleStudentChange = (id) => {
+        setSelectedStudentId(id);
+    };
+
     const handleDescargarNotas = useCallback((periodo) => {
-        showToast('info', `📥 Descargando reporte de notas del ${periodo}° período...`)
+        showToast('info', `📥 Descargando reporte de notas del ${periodo}° corte...`)
         setTimeout(() => {
-            showToast('success', `✅ Reporte del ${periodo}° período descargado`)
+            showToast('success', `✅ Reporte descargado`)
         }, 2000)
     }, [showToast])
+
+    if (loading) {
+        return (
+            <div className="text-center py-5">
+                <CSpinner color="warning" />
+                <div className="mt-3 text-muted">Cargando boletín de notas...</div>
+            </div>
+        );
+    }
+
+    if (!notasData && !loading) {
+        return (
+            <div className="text-center py-5">
+                <h4 className="text-muted">No se encontró información académica.</h4>
+                <p className="text-muted small">Si es representante, asegúrese de tener estudiantes vinculados.</p>
+            </div>
+        )
+    }
 
     const { estudiante } = notasData
     const periodosKeys = Object.keys(notasData.periodos);
@@ -100,13 +226,39 @@ const NotasView = () => {
         <CContainer className="py-4 animate__animated animate__fadeIn">
             <CCard className="premium-card border-0 overflow-hidden shadow-lg pb-4">
 
-                <AcademicHeader
-                    title="Registro de Calificaciones"
-                    subtitle="Consulta de Notas Parciales"
-                    studentCode={estudiante.codigo}
-                    icon={cilNotes}
-                    colorClass="warning"
-                />
+                <div className="d-flex justify-content-between align-items-center pe-4">
+                    <AcademicHeader
+                        title="Registro de Calificaciones"
+                        subtitle="Consulta de Notas Parciales"
+                        studentCode={estudiante.codigo}
+                        icon={cilNotes}
+                        colorClass="warning"
+                    />
+
+                    {/* Selector de estudiante para representantes */}
+                    {userRole === 'representante' && myStudents.length > 1 && (
+                        <div className="mb-3">
+                            <CDropdown>
+                                <CDropdownToggle color="warning" className="text-white">
+                                    <CIcon icon={cilPeople} className="me-2" />
+                                    Cambiar Estudiante
+                                </CDropdownToggle>
+                                <CDropdownMenu>
+                                    {myStudents.map(student => (
+                                        <CDropdownItem
+                                            key={student.id}
+                                            active={selectedStudentId === student.id}
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => handleStudentChange(student.id)}
+                                        >
+                                            {student.first_name} {student.last_name}
+                                        </CDropdownItem>
+                                    ))}
+                                </CDropdownMenu>
+                            </CDropdown>
+                        </div>
+                    )}
+                </div>
 
                 <CCardBody className="p-3 p-md-5">
                     <CRow className="mb-4 mb-md-5 g-3 g-md-4">
@@ -126,7 +278,7 @@ const NotasView = () => {
                                 </div>
                                 <div className="text-center py-2">
                                     <div className="notas-label small text-uppercase fw-bold ls-1 mb-1">Cortes Registrados</div>
-                                    <h2 className="mb-0 fw-bold notas-value">{periodosKeys.length} / 3</h2>
+                                    <h2 className="mb-0 fw-bold notas-value">3 / 3</h2>
                                 </div>
                             </div>
                         </CCol>

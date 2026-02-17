@@ -17,7 +17,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilPrint, cilArrowLeft, cilEducation, cilUser, cilCalendar, cilCheckCircle, cilInfo } from "@coreui/icons";
 
-export const VistaBoletin = ({ boletinData, calculos, dispatch }) => {
+export const VistaBoletin = ({ boletinData, calculos, dispatch, academicYear }) => {
   if (!boletinData) return null;
 
   return (
@@ -51,7 +51,7 @@ export const VistaBoletin = ({ boletinData, calculos, dispatch }) => {
               <div>
                 <h2 className="mb-1 fw-bold header-title-custom text-uppercase ls-1">Boletín Oficial</h2>
                 <p className="text-muted-custom mb-0 fw-medium ls-1 text-uppercase small">Escuela Nacional de Danza (ENDANZA)</p>
-                <small className="text-muted-custom opacity-75">Año Académico 2024 - 2025</small>
+                <small className="text-muted-custom opacity-75">Año Académico {academicYear || "2024 - 2025"}</small>
               </div>
             </div>
             <div className="text-end">
