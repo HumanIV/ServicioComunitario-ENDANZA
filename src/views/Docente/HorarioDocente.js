@@ -36,7 +36,6 @@ import ListaClasesDocente from './components/horario/ListaClasesDocente'
 import VistaSemanalDocente from './components/horario/VistaSemanalDocente'
 
 const HorarioDocente = () => {
-    const [currentUser, setCurrentUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [sections, setSections] = useState([])
     const [academicYears, setAcademicYears] = useState([])
@@ -65,15 +64,6 @@ const HorarioDocente = () => {
     }
 
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
-        setCurrentUser(storedUser)
-
-        const fullName = `${storedUser.nombre || ''} ${storedUser.apellido || ''}`.trim()
-
-        if (storedUser.rol === 'docente') {
-            setSelectedTeacher(fullName || storedUser.username)
-        }
-
         loadData()
     }, [])
 
@@ -99,12 +89,7 @@ const HorarioDocente = () => {
 
             // Si hay profesores, seleccionar el primero por defecto si no hay uno seleccionado
             const allTeachers = extractTeachers(data)
-
-            const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
-            if (storedUser.rol === 'docente') {
-                const fullName = `${storedUser.nombre || ''} ${storedUser.apellido || ''}`.trim()
-                setSelectedTeacher(fullName || storedUser.username)
-            } else if (allTeachers.length > 0 && !selectedTeacher) {
+            if (allTeachers.length > 0 && !selectedTeacher) {
                 setSelectedTeacher(allTeachers[0])
             }
         } catch (error) {
@@ -155,15 +140,6 @@ const HorarioDocente = () => {
         return Object.values(teacherSchedules).reduce((acc, dayClases) => acc + dayClases.length, 0)
     }, [teacherSchedules])
 
-    const teachersList = useMemo(() => {
-        const allTeachers = extractTeachers(sections)
-        const user = JSON.parse(localStorage.getItem('user') || '{}')
-        if (user.rol === 'docente') {
-            return [selectedTeacher]
-        }
-        return allTeachers
-    }, [sections, selectedTeacher])
-
     if (loading && sections.length === 0) {
         return (
             <CContainer className="py-5 text-center">
@@ -172,6 +148,8 @@ const HorarioDocente = () => {
             </CContainer>
         )
     }
+
+    const teachersList = extractTeachers(sections)
 
     return (
         <CContainer fluid className="pb-5">
@@ -220,28 +198,21 @@ const HorarioDocente = () => {
                                                 {selectedTeacher ? selectedTeacher.charAt(0) : '?'}
                                             </div>
                                             <div>
-                                                <div className="bg-glass-premium p-1 px-3 rounded-pill border border-primary border-opacity-10 shadow-sm d-inline-flex align-items-center mb-2" style={{ width: 'fit-content' }}>
-                                                    {currentUser?.rol === 'docente' ? (
-                                                        <div className="fw-bold text-primary py-1 d-flex align-items-center text-nowrap">
+                                                <div className="bg-glass-premium p-1 px-3 rounded-pill border border-primary border-opacity-10 shadow-sm d-inline-flex align-items-center mb-2">
+                                                    <CDropdown className="w-100">
+                                                        <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
                                                             <CIcon icon={cilUser} size="sm" className="me-2 opacity-50" />
-                                                            {selectedTeacher}
-                                                        </div>
-                                                    ) : (
-                                                        <CDropdown className="w-100">
-                                                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
-                                                                <CIcon icon={cilUser} size="sm" className="me-2 opacity-50" />
-                                                                {selectedTeacher || 'Seleccionar Docente'}
-                                                                <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
-                                                            </CDropdownToggle>
-                                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll" style={{ maxHeight: '300px', width: '250px' }}>
-                                                                {teachersList.map(t => (
-                                                                    <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
-                                                                        {t}
-                                                                    </CDropdownItem>
-                                                                ))}
-                                                            </CDropdownMenu>
-                                                        </CDropdown>
-                                                    )}
+                                                            {selectedTeacher || 'Seleccionar Docente'}
+                                                            <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
+                                                        </CDropdownToggle>
+                                                        <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll" style={{ maxHeight: '300px', width: '250px' }}>
+                                                            {teachersList.map(t => (
+                                                                <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
+                                                                    {t}
+                                                                </CDropdownItem>
+                                                            ))}
+                                                        </CDropdownMenu>
+                                                    </CDropdown>
                                                 </div>
                                                 <div className="d-block">
                                                     <CBadge className="bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 border border-success border-opacity-10 small fw-bold">ESTADO: ACTIVO</CBadge>

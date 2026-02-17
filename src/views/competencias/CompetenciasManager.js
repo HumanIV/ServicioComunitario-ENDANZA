@@ -29,7 +29,6 @@ import { SUBJECTS, getAvailableYears } from '../../services/scheduleService'
 
 // Components
 import CompetencyEvaluationPlan from './components/CompetencyEvaluationPlan'
-import CompetenciasInicio from './CompetenciasInicio'
 
 const COMPETENCIES_KEY = 'competencies_config_v1'
 
@@ -111,33 +110,18 @@ const CompetenciasManager = () => {
         )
     }
 
-    const handleBackToStart = () => {
-        setSelectedSubject('')
-        window.scrollTo(0, 0)
-    }
-
     return (
         <CContainer fluid className="px-4 pb-5">
             {/* Header Section */}
             <div className="mb-4 mt-4">
-                <div className="d-flex align-items-center justify-content-between mb-3">
-                    <div className="d-flex align-items-center">
-                        <div className="bg-primary rounded-4 me-3 d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style={{ width: '56px', height: '56px' }}>
-                            <CIcon icon={cilList} className="text-white" size="xl" />
-                        </div>
-                        <div>
-                            <h2 className="fw-bold mb-0 text-uppercase ls-tight">Gestión de Competencias</h2>
-                            <div className="text-muted small fw-medium">Configuración del Plan de Evaluación por Materia y Lapso</div>
-                        </div>
+                <div className="d-flex align-items-center mb-3">
+                    <div className="bg-primary rounded-4 me-3 d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style={{ width: '56px', height: '56px' }}>
+                        <CIcon icon={cilList} className="text-white" size="xl" />
                     </div>
-                    {selectedSubject && (
-                        <CButton
-                            className="btn-back-custom rounded-pill px-4 fw-bold d-flex align-items-center"
-                            onClick={handleBackToStart}
-                        >
-                            <CIcon icon={cilList} className="me-2" /> VOLVER AL PANEL
-                        </CButton>
-                    )}
+                    <div>
+                        <h2 className="fw-bold mb-0 text-uppercase ls-tight">Gestión de Competencias</h2>
+                        <div className="text-muted small fw-medium">Configuración del Plan de Evaluación por Materia y Lapso</div>
+                    </div>
                 </div>
             </div>
 
@@ -266,40 +250,18 @@ const CompetenciasManager = () => {
                     </CCard>
                 </div>
             ) : (
-                <CompetenciasInicio
-                    onSelectSubject={setSelectedSubject}
-                    configData={configData}
-                    currentYear={currentYear}
-                />
+                <div className="text-center py-5 my-5 opacity-50">
+                    <div className="mb-4">
+                        <CIcon icon={cilSchool} size="5xl" className="text-body-secondary" />
+                    </div>
+                    <h4>Seleccione una materia para comenzar</h4>
+                    <p className="text-body-secondary">Debe configurar las competencias para cada materia del ciclo escolar.</p>
+                </div>
             )}
 
             <style>{`
-                .ls-tight { letter-spacing: -0.5px; }
-                .border-end-lg { border-right: 1px solid var(--cui-border-color) !important; }
-                
-                .btn-back-custom {
-                    background: transparent;
-                    color: var(--neutral-600);
-                    border: 1px solid var(--neutral-200);
-                    transition: all 0.2s ease;
-                }
-
-                .btn-back-custom:hover {
-                    background: var(--neutral-100);
-                    color: var(--primary-500);
-                    border-color: var(--primary-200);
-                }
-
-                [data-coreui-theme="dark"] .btn-back-custom {
-                    color: rgba(255, 255, 255, 0.6);
-                    border-color: rgba(255, 255, 255, 0.1);
-                }
-
-                [data-coreui-theme="dark"] .btn-back-custom:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    color: white;
-                    border-color: rgba(255, 255, 255, 0.2);
-                }
+        .ls-tight { letter-spacing: -0.5px; }
+        .border-end-lg { border-right: 1px solid var(--cui-border-color) !important; }
         
         /* Save Button Responsive */
         .save-text-short { display: none; }

@@ -9,11 +9,12 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
         <div className="animate__animated animate__fadeIn">
             <div className="d-flex align-items-center mb-5 px-2">
                 <CButton
-                    className="btn-back-custom me-3 rounded-pill border-2 shadow-sm d-flex align-items-center header-title-custom py-2 px-4 text-uppercase fw-bold"
+                    color="light"
+                    className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent"
                     onClick={onBack}
                 >
                     <CIcon icon={cilArrowLeft} className="me-2" />
-                    VOLVER
+                    Volver
                 </CButton>
                 <div>
                     <h3 className="mb-0 fw-bold header-title-custom">{grade.grado}</h3>
@@ -23,7 +24,7 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
 
             <CRow className="g-4">
                 {grade.materias.map((materia, i) => (
-                    <CCol md={6} key={i}>
+                    <CCol md={6} key={materia.sectionId}>
                         <CCard className="premium-card border-0 h-100 overflow-hidden shadow-sm hover-lift-sm">
                             <CCardHeader className="bg-orange-soft border-0 py-3 d-flex justify-content-between align-items-center">
                                 <div className="d-flex align-items-center">
@@ -49,9 +50,9 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
                                     <CCol xs={12} sm={6}>
                                         <div className="p-3 rounded-4 bg-light-custom h-100 border border-light-custom">
                                             <div className="text-muted-custom small text-uppercase fw-bold ls-1 mb-2" style={{ fontSize: '0.6rem' }}>
-                                                <CIcon icon={cilBadge} className="me-1 text-primary" /> Código
+                                                <CIcon icon={cilBadge} className="me-1 text-primary" /> Sección ID
                                             </div>
-                                            <div className="fw-bold text-primary font-monospace small">{materia.id}</div>
+                                            <div className="fw-bold text-primary font-monospace small">{materia.sectionId}</div>
                                         </div>
                                     </CCol>
                                 </CRow>
@@ -99,31 +100,6 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
                     </CCol>
                 ))}
             </CRow>
-            <style>{`
-                .btn-back-custom {
-                    background: transparent;
-                    color: var(--neutral-600);
-                    border: 1px solid var(--neutral-200);
-                    transition: all 0.2s ease;
-                }
-
-                .btn-back-custom:hover {
-                    background: var(--neutral-100);
-                    color: var(--primary-500);
-                    border-color: var(--primary-200);
-                }
-
-                [data-coreui-theme="dark"] .btn-back-custom {
-                    color: rgba(255, 255, 255, 0.6);
-                    border-color: rgba(255, 255, 255, 0.1);
-                }
-
-                [data-coreui-theme="dark"] .btn-back-custom:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    color: white;
-                    border-color: rgba(255, 255, 255, 0.2);
-                }
-            `}</style>
         </div>
     )
 }

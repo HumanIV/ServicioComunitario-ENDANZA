@@ -39,7 +39,11 @@ export const VistaGrados = ({ data, onSeleccionarGrado }) => {
                 </div>
 
                 <div className="mb-4">
-                  <h4 className="fw-bold header-title-custom mb-1">{grado.grado}</h4>
+                  <h4 className="fw-bold header-title-custom mb-1">
+                    {grado.materias && grado.materias.length > 0
+                      ? grado.materias.map(m => m.nombre).join(', ')
+                      : grado.grado}
+                  </h4>
                   <small className="text-muted-custom text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>Ciclo 2024</small>
                 </div>
 

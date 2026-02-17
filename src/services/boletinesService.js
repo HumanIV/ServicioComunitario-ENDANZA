@@ -45,6 +45,22 @@ export const toggleBoletinDisponible = async (boletinId, disponible) => {
 };
 
 /**
+ * Genera boletines para estudiantes seleccionados
+ * @param {Array} studentIds - Lista de IDs de estudiantes
+ * @param {number} academicYearId - ID del año académico
+ * @returns {Promise<Object>}
+ */
+export const generarBoletines = async (studentIds, academicYearId) => {
+  try {
+    const response = await fetch.post('/api/boletines/generar', { studentIds, academicYearId });
+    return response;
+  } catch (error) {
+    console.error("Error en generarBoletines:", error);
+    throw error;
+  }
+};
+
+/**
  * Activa todos los boletines del año
  * @param {number} academicYearId - ID del año académico
  * @returns {Promise<Object>}

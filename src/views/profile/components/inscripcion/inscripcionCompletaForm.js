@@ -12,7 +12,6 @@ import {
   cilFile, cilArrowRight
 } from "@coreui/icons";
 
-import { createStudent, enrollStudent } from "../../../../services/students";
 import DatosEstudiante from "./steps/datosEstudiante";
 import DatosRepresentante from "./steps/datosRepresentante";
 import DatosSalud from "./steps/datosSalud";
@@ -183,41 +182,17 @@ const InscripcionCompletaForm = ({ onVolver, student }) => {
 
     if (!valido.esValido) {
       setErrores(valido.errores);
-      window.scrollTo(0, 0);
       return;
     }
 
     try {
-      // Mapeo de campos del formulario (Frontend) -> Backend
-      const payload = {
-        name: formData.nombres,
-        lastName: formData.apellidos,
-        gradeLevel: formData.grado,
-        section: "A", // Default section
-        status: "Inscrito",
-        academicYear: "2024-2025",
-        birthDate: formData.fecha_nac,
-        gender: formData.convivencia === "Masculino" ? "Masculino" : "Femenino",
-        representative: `${formData.nombres_Representante} ${formData.apellidos_Representante}`.trim() || `${formData.nombre_Madre} ${formData.apellido_Madre}`.trim(),
-        RepresentanteNombre: formData.nombres_Representante || formData.nombre_Madre,
-        RepresentanteApellido: formData.apellidos_Representante || formData.apellido_Madre,
-        RepresentanteCedula: "V-", // Pending proper capture
-        entryDate: new Date().toISOString().split('T')[0]
-      };
-
-      const newStudent = await createStudent(payload);
-
-      if (newStudent) {
-        setCodigoInscripcion(newStudent.code || `END-${newStudent.id}`);
-        setInscripcionEnviada(true);
-        setStep(4);
-      } else {
-        throw new Error("No se pudo crear el estudiante");
-      }
+      const codigo = generarCodigoInscripcion();
+      setCodigoInscripcion(codigo);
+      setInscripcionEnviada(true);
+      setStep(4);
 
     } catch (error) {
       console.error("Error al enviar inscripción:", error);
-      setErrores({ global: "No se pudo completar la inscripción. Intente de nuevo." });
     }
   };
 

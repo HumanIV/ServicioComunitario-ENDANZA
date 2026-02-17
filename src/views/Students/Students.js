@@ -1,3 +1,4 @@
+// Students.jsx
 import React, { useEffect, useState, useMemo } from "react"
 import {
   CContainer,
@@ -18,18 +19,21 @@ import {
   cilPlus,
   cilPeople
 } from "@coreui/icons"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 
-// Componentes extraídos
+// Servicios
+import { listStudents, deleteStudent } from 'src/services/studentsService'
+
+// Componentes
 import StudentStats from "./components/StudentStats"
 import StudentFilters from "./components/StudentFilters"
 import StudentTable from "./components/StudentTable"
 import StudentModals from "./components/StudentModals"
 
-import { listStudents } from "../../services/students"
-
 const Students = () => {
-  // ---------------------- ESTADOS ---------------------- //
+  const navigate = useNavigate()
+  
+  // Estados
   const [students, setStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchText, setSearchText] = useState("")
@@ -40,18 +44,18 @@ const Students = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [sortConfig, setSortConfig] = useState({ key: 'id', direction: 'ascending' })
 
-  // ---------------------- TOAST ---------------------- //
+  // Toast
   const [toasts, setToasts] = useState([])
   const showToast = (type, title, message) => {
     setToasts((prev) => [...prev, { id: Date.now(), type, title, message, delay: 3000 }])
   }
 
-  // ---------------------- MODAL ---------------------- //
+  // Modal
   const [modalVisible, setModalVisible] = useState(false)
   const [modalType, setModalType] = useState(null)
   const [selectedItem, setSelectedItem] = useState(null)
 
-  // ---------------------- EFECTOS ---------------------- //
+  // Cargar datos
   useEffect(() => {
     fetchStudents()
   }, [])
@@ -60,34 +64,15 @@ const Students = () => {
     setLoading(true)
     try {
       const data = await listStudents()
-      // Adaptamos el formato del backend al que usa el componente (o viceversa)
-      // El backend devuelve: id, first_name, last_name, full_name, dni, birth_date, gender, grade_level, dance_level, school, insurance, representative, representative_phone, representative_email
-
-      const adaptedData = data.map(s => ({
-        id: s.id,
-        Grado: s.grade_level || "No asignado",
-        Seccion: "Única", // O s.section_name si el backend lo incluyera
-        NombreEstudiante: s.name || s.first_name || s.NombreEstudiante || "Sin Nombre",
-        ApellidoEstudiante: s.lastName || s.last_name || s.ApellidoEstudiante || "",
-        RepresentanteNombre: s.RepresentanteNombre || (s.representative ? s.representative.split(' ')[0] : "N/A"),
-        RepresentanteApellido: s.RepresentanteApellido || (s.representative ? s.representative.split(' ').slice(1).join(' ') : ""),
-        RepresentanteCedula: s.RepresentanteCedula || "V-00000000",
-        Estatus: s.status || s.Estatus || "Activo",
-        FechaInscripcion: s.entryDate || s.FechaInscripcion || "2024-01-01",
-        Telefono: s.Telelfono || s.representative_phone || "N/A",
-        Email: s.Email || s.representative_email || "N/A"
-      }))
-
-      setStudents(adaptedData)
+      setStudents(data)
     } catch (error) {
-      console.error("Error fetching students:", error)
       showToast("danger", "Error", "No se pudieron cargar los estudiantes")
     } finally {
       setLoading(false)
     }
   }
 
-  // ---------------------- LOGICA DE FILTRADO Y ORDENACIÓN ---------------------- //
+  // Ordenamiento
   const handleSort = (key) => {
     let direction = 'ascending'
     if (sortConfig.key === key && sortConfig.direction === 'ascending') {
@@ -100,66 +85,98 @@ const Students = () => {
     const sortableItems = [...students]
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'ascending' ? -1 : 1
-        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'ascending' ? 1 : -1
+        let aValue = a[sortConfig.key]
+        let bValue = b[sortConfig.key]
+        
+        // Manejar campos anidados
+        if (sortConfig.key === 'representative') {
+          aValue = a.representative || ''
+          bValue = b.representative || ''
+        }
+        
+        if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1
+        if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1
         return 0
       })
     }
     return sortableItems
   }, [students, sortConfig])
 
+  // Filtrado
   const filteredStudents = sortedStudents.filter((s) => {
-    const matchSearch = `${s.NombreEstudiante} ${s.ApellidoEstudiante} ${s.RepresentanteNombre} ${s.RepresentanteApellido} ${s.RepresentanteCedula}`
-      .toLowerCase().includes(searchText.toLowerCase())
-    const matchGrade = filterGrade ? s.Grado === filterGrade : true
-    const matchSection = filterSection ? s.Seccion === filterSection : true
+    const searchLower = searchText.toLowerCase()
+    
+    const fullText = `
+      ${s.first_name || ''} 
+      ${s.last_name || ''} 
+      ${s.representative || ''} 
+      ${s.dni || ''} 
+      ${s.representative_phone || ''}
+    `.toLowerCase()
+    
+    const matchSearch = searchText === '' || fullText.includes(searchLower)
+    
+    const matchGrade = filterGrade ? s.grade_level === filterGrade : true
+    const matchSection = filterSection ? 
+      s.sections?.some(sec => sec.section_name === filterSection) : true
+    
     return matchSearch && matchGrade && matchSection
   })
 
-  // ---------------------- PAGINACIÓN ---------------------- //
+  // Paginación
   const itemsPerPage = 10
   const totalPages = Math.ceil(filteredStudents.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedStudents = filteredStudents.slice(startIndex, startIndex + itemsPerPage)
 
-  // ---------------------- FUNCIONES DE ACCIÓN ---------------------- //
+  // Acciones
   const openModal = (type, item = null) => {
     setModalType(type)
     setSelectedItem(item)
     setModalVisible(true)
   }
 
+  const viewStudent = (id) => {
+    navigate(`/students/${id}`)
+  }
+
   const deleteItem = async () => {
     try {
-      const response = await deleteStudent(selectedItem.id)
-      if (response && response.ok) {
-        setStudents(prev => prev.filter((s) => s.id !== selectedItem.id))
-        showToast("success", "Éxito", "Estudiante eliminado correctamente")
-      } else {
-        throw new Error(response?.msg || "Error al eliminar")
-      }
-    } catch (error) {
-      console.error("Error deleting student:", error)
-      showToast("danger", "Error", "No se pudo eliminar al estudiante")
-    } finally {
+      await deleteStudent(selectedItem.id)
+      setStudents(students.filter((s) => s.id !== selectedItem.id))
+      showToast("success", "Éxito", "Estudiante eliminado correctamente")
       setModalVisible(false)
+    } catch (error) {
+      showToast("danger", "Error", "No se pudo eliminar el estudiante")
+    }
+  }
+
+  const handleDeleteSelected = async () => {
+    try {
+      for (const id of selectedStudents) {
+        await deleteStudent(id)
+      }
+      setStudents(students.filter(s => !selectedStudents.includes(s.id)))
+      setSelectedStudents([])
+      showToast("success", "Éxito", `${selectedStudents.length} estudiantes eliminados`)
+      setModalVisible(false)
+    } catch (error) {
+      showToast("danger", "Error", "Error al eliminar estudiantes")
     }
   }
 
   const handleSelectStudent = (id) => {
-    setSelectedStudents(prev => prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id])
+    setSelectedStudents(prev => 
+      prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
+    )
   }
 
   const handleSelectAll = () => {
-    if (selectedStudents.length === paginatedStudents.length && paginatedStudents.length > 0) setSelectedStudents([])
-    else setSelectedStudents(paginatedStudents.map(s => s.id))
-  }
-
-  const handleDeleteSelected = () => {
-    setStudents(students.filter(s => !selectedStudents.includes(s.id)))
-    setSelectedStudents([])
-    showToast("success", "Éxito", `${selectedStudents.length} estudiantes eliminados`)
-    setModalVisible(false)
+    if (selectedStudents.length === paginatedStudents.length && paginatedStudents.length > 0) {
+      setSelectedStudents([])
+    } else {
+      setSelectedStudents(paginatedStudents.map(s => s.id))
+    }
   }
 
   const clearFilters = () => {
@@ -170,9 +187,18 @@ const Students = () => {
     showToast("info", "Filtros", "Filtros limpiados")
   }
 
+  // Datos para filtros
+  const gradosUnicos = [...new Set(students.map(s => s.grade_level).filter(Boolean))]
+  const seccionesUnicas = [...new Set(
+    students.flatMap(s => s.sections?.map(sec => sec.section_name) || [])
+  )].filter(Boolean)
+
+  // Estadísticas
+  const estudiantesActivos = students.filter(s => s.status === 'active' || s.status === 'Activo').length
+
   return (
     <CContainer fluid className="py-4 profile-container pb-5">
-      {/* Encabezado de Página */}
+      {/* Header */}
       <CRow className="mb-4 align-items-center no-print">
         <CCol xs={12} md={6}>
           <div className="d-flex align-items-center gap-3">
@@ -181,16 +207,28 @@ const Students = () => {
             </div>
             <div>
               <h2 className="mb-0 fw-bold header-title-custom">Gestión de Estudiantes</h2>
-              <p className="text-muted-custom small mb-0 text-uppercase ls-1">Centro de Administración Académica</p>
+              <p className="text-muted-custom small mb-0 text-uppercase ls-1">
+                Centro de Administración Académica
+              </p>
             </div>
           </div>
         </CCol>
         <CCol xs={12} md={6} className="text-md-end mt-3 mt-md-0">
           <div className="d-flex justify-content-md-end gap-2">
-            <CButton color="light" variant="outline" className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" onClick={() => window.print()}>
+            <CButton 
+              color="light" 
+              variant="outline" 
+              className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" 
+              onClick={() => window.print()}
+            >
               <CIcon icon={cilPrint} className="me-2 text-primary" />Imprimir
             </CButton>
-            <CButton color="light" variant="outline" className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" onClick={() => showToast("info", "Exportar", "Generando reporte...")}>
+            <CButton 
+              color="light" 
+              variant="outline" 
+              className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" 
+              onClick={() => showToast("info", "Exportar", "Generando reporte...")}
+            >
               <CIcon icon={cilCloudDownload} className="me-2 text-primary" />Exportar
             </CButton>
             <Link to="/inscripcion">
@@ -202,38 +240,47 @@ const Students = () => {
         </CCol>
       </CRow>
 
-      {/* Tarjetas de Estadísticas */}
+      {/* Stats */}
       <StudentStats
         total={students.length}
-        actives={students.filter(s => s.Estatus === 'Activo').length}
+        actives={estudiantesActivos}
         filtered={filteredStudents.length}
         selected={selectedStudents.length}
       />
 
-      {/* Tarjeta Unificada: Filtros + Tabla */}
+      {/* Filtros + Tabla */}
       <CCard className="premium-card border-0 mb-4 shadow-sm overflow-hidden unified-dashboard-card">
         <div className="card-filters-area p-4 border-bottom">
           <StudentFilters
-            searchText={searchText} setSearchText={setSearchText}
-            filterGrade={filterGrade} setFilterGrade={setFilterGrade}
-            filterSection={filterSection} setFilterSection={setFilterSection}
+            searchText={searchText}
+            setSearchText={setSearchText}
+            filterGrade={filterGrade}
+            setFilterGrade={setFilterGrade}
+            filterSection={filterSection}
+            setFilterSection={setFilterSection}
+            gradosDisponibles={gradosUnicos}
+            seccionesDisponibles={seccionesUnicas}
             clearFilters={clearFilters}
-            showAdvancedFilters={showAdvancedFilters} setShowAdvancedFilters={setShowAdvancedFilters}
+            showAdvancedFilters={showAdvancedFilters}
+            setShowAdvancedFilters={setShowAdvancedFilters}
             setLoading={setLoading}
             selectedCount={selectedStudents.length}
             onOpenDeleteMultiple={() => openModal('delete-multiple')}
+            onRefresh={fetchStudents}
           />
         </div>
         <CCardBody className="p-0">
           <StudentTable
             loading={loading}
-            paginatedStudents={paginatedStudents}
+            students={paginatedStudents}
             selectedStudents={selectedStudents}
             handleSelectAll={handleSelectAll}
             handleSelectStudent={handleSelectStudent}
             handleSort={handleSort}
             sortConfig={sortConfig}
-            openModal={openModal}
+            onView={viewStudent}
+            onEdit={(student) => openModal('edit', student)}
+            onDelete={(student) => openModal('delete', student)}
             totalPages={totalPages}
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
@@ -245,6 +292,7 @@ const Students = () => {
         </CCardBody>
       </CCard>
 
+      {/* Modales */}
       <StudentModals
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -253,8 +301,10 @@ const Students = () => {
         selectedCount={selectedStudents.length}
         onDelete={deleteItem}
         onDeleteMultiple={handleDeleteSelected}
+        onView={viewStudent}
       />
 
+      {/* Toaster */}
       <CToaster placement="top-end">
         {toasts.map((t) => (
           <CToast key={t.id} autohide delay={t.delay} color={t.type} visible className="border-0 shadow-lg">

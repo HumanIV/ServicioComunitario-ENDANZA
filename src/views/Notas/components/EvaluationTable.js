@@ -1,3 +1,4 @@
+// EvaluationTable.jsx - Versión actualizada con modo lectura
 import React from 'react'
 import {
     CCard,
@@ -15,12 +16,10 @@ import {
     CCardFooter,
     CRow,
     CCol,
-    CProgress,
-    CTooltip,
-    CAlert
+    CProgress
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilTrash, cilSend, cilWarning, cilArrowLeft, cilUser, cilCheckCircle, cilClock, cilBook } from '@coreui/icons'
+import { cilTrash, cilSend, cilWarning, cilArrowLeft, cilUser, cilCheckCircle, cilClock, cilBook, cilCircle } from '@coreui/icons'
 import PropTypes from 'prop-types'
 
 const EvaluationTable = ({
@@ -35,36 +34,47 @@ const EvaluationTable = ({
     determinarEstado,
     getColorNota,
     getColorEstado,
-    competencies = [],
-    canEdit = false
+    modoLectura = false,      // ← NUEVA PROP: true para admin (solo lectura)
+    hayCambios = false        // ← NUEVA PROP: indica si hay cambios sin guardar
 }) => {
     return (
         <div className="animate__animated animate__fadeIn">
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-5 no-print px-2 gap-3">
                 <div className="d-flex align-items-center justify-content-center justify-content-md-start">
                     <CButton
-                        className="btn-back-custom me-3 rounded-pill border-2 shadow-sm d-flex align-items-center header-title-custom p-2 p-md-2 px-md-3"
+                        color="light"
+                        className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent p-2 p-md-3"
                         onClick={onBack}
                     >
                         <CIcon icon={cilArrowLeft} className="me-md-2" />
-                        <span className="d-none d-md-inline">VOLVER</span>
+                        <span className="d-none d-md-inline">Retroceder</span>
                     </CButton>
                     <div>
                         <h3 className="mb-0 fw-bold header-title-custom fs-4 fs-md-3">{subject.nombre}</h3>
                         <p className="text-muted-custom small mb-0 text-uppercase ls-1 d-none d-sm-block">
-                            {canEdit ? 'Carga de calificaciones trimestrales' : 'Vista de consulta de calificaciones'}
+                            {modoLectura ? 'Visualización de calificaciones' : 'Carga de calificaciones trimestrales'}
                         </p>
+                        {modoLectura && (
+                            <CBadge color="info" className="mt-1 rounded-pill px-3 py-1">
+                                <CIcon icon={cilCircle} className="me-1" size="sm" />
+                                MODO CONSULTA
+                            </CBadge>
+                        )}
                     </div>
                 </div>
-                {canEdit && (
+
+                {/* SOLO MOSTRAR BOTONES DE ACCIÓN SI NO ESTÁ EN MODO LECTURA */}
+                {!modoLectura && (
                     <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto mt-2 mt-md-0">
                         <CButton
-                            className="btn-clear-custom rounded-pill px-4 py-2 border-2 fw-bold shadow-sm w-100 w-sm-auto d-flex align-items-center justify-content-center"
+                            color="light"
+                            variant="outline"
+                            className="rounded-pill px-4 py-2 border-2 fw-bold text-muted-custom hover-orange shadow-sm w-100 w-sm-auto"
                             onClick={onClear}
                         >
                             <CIcon icon={cilTrash} className="me-2 text-danger" />
-                            <span className="d-sm-none d-md-inline">LIMPIAR TODO</span>
-                            <span className="d-none d-sm-inline d-md-none">LIMPIAR</span>
+                            <span className="d-sm-none d-md-inline">Limpiar Todo</span>
+                            <span className="d-none d-sm-inline d-md-none">Limpiar</span>
                         </CButton>
                         <CButton
                             className="btn-premium rounded-pill px-4 py-2 shadow-sm d-flex align-items-center justify-content-center w-100 w-sm-auto"
@@ -76,16 +86,6 @@ const EvaluationTable = ({
                     </div>
                 )}
             </div>
-
-            {competencies.length === 0 && (
-                <CAlert color="warning" className="border-0 shadow-sm rounded-4 mb-4 d-flex align-items-center p-4">
-                    <CIcon icon={cilWarning} size="xl" className="me-3" />
-                    <div>
-                        <strong className="d-block">Sin Competencias Configuradas</strong>
-                        <span>Esta materia aún no tiene un plan de evaluación definido para este ciclo. Configure las competencias primero.</span>
-                    </div>
-                </CAlert>
-            )}
 
             <CCard className="premium-card border-0 overflow-hidden shadow-lg mb-5">
                 <CCardHeader className="bg-orange-soft border-0 py-4 px-4 overflow-hidden position-relative">
@@ -105,7 +105,7 @@ const EvaluationTable = ({
                                             <CIcon icon={cilClock} className="me-1" /> {subject.horario}
                                         </small>
                                         <small className="text-muted-custom d-flex align-items-center">
-                                            <CIcon icon={cilCheckCircle} className="me-1" /> Código: {subject.id}
+                                            <CIcon icon={cilCheckCircle} className="me-1" /> Sección: {subject.sectionId}
                                         </small>
                                     </div>
                                 </div>
@@ -125,13 +125,8 @@ const EvaluationTable = ({
                                 <CTableRow>
                                     <CTableHeaderCell className="ps-4 py-3 text-muted-custom small fw-bold text-uppercase ls-1" style={{ minWidth: '160px' }}>Estudiante</CTableHeaderCell>
                                     <CTableHeaderCell className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1 d-mobile-none">Reg.</CTableHeaderCell>
-                                    {competencies.map((comp, idx) => (
-                                        <CTableHeaderCell key={idx} className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1" style={{ minWidth: '85px' }}>
-                                            <div title={comp.name} className="cursor-help">
-                                                C{idx + 1}
-                                                <div className="text-primary mt-1" style={{ fontSize: '0.65rem' }}>{comp.weight}%</div>
-                                            </div>
-                                        </CTableHeaderCell>
+                                    {[1, 2, 3, 4].map(num => (
+                                        <CTableHeaderCell key={num} className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1" style={{ minWidth: '70px' }}>C{num}</CTableHeaderCell>
                                     ))}
                                     <CTableHeaderCell className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1 pe-4" style={{ minWidth: '100px' }}>PROMEDIO</CTableHeaderCell>
                                 </CTableRow>
@@ -162,25 +157,22 @@ const EvaluationTable = ({
                                                 </CBadge>
                                             </CTableDataCell>
 
-                                            {competencies.map((comp, idx) => {
-                                                const num = idx + 1
-                                                return (
-                                                    <CTableDataCell key={idx} className="text-center border-bottom-light">
-                                                        <CFormInput
-                                                            type="number"
-                                                            min="0"
-                                                            max="20"
-                                                            step="0.1"
-                                                            placeholder={`C${num}`}
-                                                            value={notasEst[`n${num}`] || ""}
-                                                            onChange={(e) => onNotaChange(estudiante.id, num, e.target.value)}
-                                                            disabled={!canEdit}
-                                                            className={`text-center fw-bold evaluation-input rounded-3 shadow-sm ${notasEst[`n${num}`] ? 'bg-white' : 'bg-light-custom bg-opacity-50 border-dashed'}`}
-                                                        />
-                                                        <div className="text-muted-custom mt-1" style={{ fontSize: '0.6rem' }}>{comp.weight}%</div>
-                                                    </CTableDataCell>
-                                                )
-                                            })}
+                                            {[1, 2, 3, 4].map(num => (
+                                                <CTableDataCell key={num} className="text-center border-bottom-light">
+                                                    <CFormInput
+                                                        type="number"
+                                                        min="0"
+                                                        max="20"
+                                                        step="0.1"
+                                                        placeholder={`C${num}`}
+                                                        value={notasEst[`n${num}`] || ""}
+                                                        onChange={(e) => onNotaChange(estudiante.id, num, e.target.value)}
+                                                        className={`text-center fw-bold evaluation-input rounded-3 shadow-sm ${notasEst[`n${num}`] ? 'bg-white' : 'bg-light-custom bg-opacity-50 border-dashed'}`}
+                                                        disabled={modoLectura} // ← DESHABILITADO EN MODO LECTURA
+                                                    />
+                                                    <div className="text-muted-custom mt-1" style={{ fontSize: '0.6rem' }}>C{num}</div>
+                                                </CTableDataCell>
+                                            ))}
 
                                             <CTableDataCell className="text-center pe-4 border-bottom-light">
                                                 {promedio ? (
@@ -220,75 +212,28 @@ const EvaluationTable = ({
                                 <strong className="header-title-custom">IMPORTANTE:</strong> Ingrese valores entre <strong>0 y 20</strong> siguiendo la escala institucional.
                             </small>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
-                            <CProgress
-                                value={(subject.estudiantes.filter(est => calculatePromedio(est.id)).length / subject.estudiantes.length) * 100}
-                                color="success"
-                                className="progress-bg-custom progress-thin me-3 d-none d-lg-flex"
-                                style={{ width: '100px', height: '6px' }}
-                            />
-                            {canEdit && (
+
+                        {/* SOLO MOSTRAR PROGRESO Y BOTÓN SI NO ESTÁ EN MODO LECTURA */}
+                        {!modoLectura && (
+                            <div className="d-flex align-items-center gap-2">
+                                <CProgress
+                                    value={(subject.estudiantes.filter(est => calculatePromedio(est.id)).length / subject.estudiantes.length) * 100}
+                                    color="success"
+                                    className="progress-bg-custom progress-thin me-3 d-none d-lg-flex"
+                                    style={{ width: '100px', height: '6px' }}
+                                />
                                 <CButton
                                     className="btn-premium rounded-pill px-5 py-2 shadow-sm"
                                     onClick={onPrepareSend}
                                 >
                                     <CIcon icon={cilSend} className="me-2" /> ENVIAR NOTAS
                                 </CButton>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
                 </CCardFooter>
             </CCard>
 
-            <style>{`
-                .btn-back-custom {
-                    background: transparent;
-                    color: var(--neutral-600);
-                    border: 1px solid var(--neutral-200);
-                    transition: all 0.2s ease;
-                }
-
-                .btn-back-custom:hover {
-                    background: var(--neutral-100);
-                    color: var(--primary-500);
-                    border-color: var(--primary-200);
-                }
-
-                [data-coreui-theme="dark"] .btn-back-custom {
-                    color: rgba(255, 255, 255, 0.6);
-                    border-color: rgba(255, 255, 255, 0.1);
-                }
-
-                [data-coreui-theme="dark"] .btn-back-custom:hover {
-                    background: rgba(255, 255, 255, 0.05);
-                    color: white;
-                    border-color: rgba(255, 255, 255, 0.2);
-                }
-
-                .btn-clear-custom {
-                    background: transparent;
-                    color: var(--neutral-600);
-                    border: 1px solid var(--neutral-200);
-                    transition: all 0.2s ease;
-                }
-
-                .btn-clear-custom:hover {
-                    background: rgba(220, 53, 69, 0.05);
-                    color: #dc3545;
-                    border-color: rgba(220, 53, 69, 0.2);
-                }
-
-                [data-coreui-theme="dark"] .btn-clear-custom {
-                    color: rgba(255, 255, 255, 0.6);
-                    border-color: rgba(255, 255, 255, 0.1);
-                }
-
-                [data-coreui-theme="dark"] .btn-clear-custom:hover {
-                    background: rgba(220, 53, 69, 0.15);
-                    color: #ff4d5e;
-                    border-color: rgba(220, 53, 69, 0.3);
-                }
-            `}</style>
         </div>
     )
 }
@@ -297,14 +242,25 @@ EvaluationTable.propTypes = {
     grade: PropTypes.object.isRequired,
     subject: PropTypes.object.isRequired,
     onBack: PropTypes.func.isRequired,
-    onClear: PropTypes.func.isRequired,
-    onPrepareSend: PropTypes.func.isRequired,
+    onClear: PropTypes.func,
+    onPrepareSend: PropTypes.func,
     notas: PropTypes.object.isRequired,
-    onNotaChange: PropTypes.func.isRequired,
+    onNotaChange: PropTypes.func,
     calculatePromedio: PropTypes.func.isRequired,
     determinarEstado: PropTypes.func.isRequired,
     getColorNota: PropTypes.func.isRequired,
     getColorEstado: PropTypes.func.isRequired,
+    modoLectura: PropTypes.bool,      // ← NUEVO PROP
+    hayCambios: PropTypes.bool        // ← NUEVO PROP
+}
+
+// Valores por defecto
+EvaluationTable.defaultProps = {
+    onClear: null,
+    onPrepareSend: null,
+    onNotaChange: null,
+    modoLectura: false,
+    hayCambios: false
 }
 
 export default EvaluationTable

@@ -1,18 +1,17 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import {
     CCard, CCardBody, CCardHeader, CContainer, CRow, CCol,
-    CButton, CButtonGroup, CTable, CTableHead, CTableRow, CTableHeaderCell,
-    CTableBody, CTableDataCell, CBadge, CSpinner, CDropdown,
-    CDropdownToggle, CDropdownMenu, CDropdownItem, CDropdownDivider, CDropdownHeader,
+    CButton, CTable, CTableHead, CTableRow, CTableHeaderCell,
+    CTableBody, CTableDataCell, CBadge, CSpinner,
     CToaster, CToast, CToastHeader, CToastBody
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
-    cilPeople, cilInfo, cilSearch, cilCheckCircle, cilWarning, cilUser, cilChild, cilEnvelopeClosed, cilPhone, cilBadge, cilOptions
+    cilPeople, cilInfo, cilSearch, cilCheckCircle, cilWarning, cilUser, cilChild, cilEnvelopeClosed, cilPhone, cilBadge
 } from '@coreui/icons'
 
-import * as UserService from '../../services/userService'
-import { listStudents } from 'src/services/students'
+// IMPORTAR EL SERVICIO ACTUALIZADO
+import { listRepresentantes, getRepresentanteConEstudiantes } from '../../services/representanteService';
 import AvatarLetter from 'src/components/AvatarLetter'
 import SearchInput from 'src/components/SearchInput'
 import Pagination from 'src/components/Pagination'
@@ -20,7 +19,6 @@ import InfoRepresentante from './components/InfoRepresentante'
 
 const Representantes = () => {
     const [representatives, setRepresentatives] = useState([])
-    const [students, setStudents] = useState([])
     const [loading, setLoading] = useState(true)
     const [showInfo, setShowInfo] = useState(false)
     const [selectedRep, setSelectedRep] = useState(null)
@@ -37,17 +35,19 @@ const Representantes = () => {
     async function fetchData() {
         setLoading(true)
         try {
-            const [usersRes, studentsRes] = await Promise.all([
-                UserService.listUsers(),
-                listStudents()
-            ])
-
-            // Solo usuarios con rol representante
-            const repsOnly = (usersRes || []).filter(u => u.role === 'representante')
-            setRepresentatives(repsOnly)
-            setStudents(studentsRes || [])
+            console.log("🔍 Cargando representantes...");
+            // Usar el nuevo servicio de listado
+            const reps = await listRepresentantes();
+            console.log("📥 Representantes recibidos:", reps);
+            
+            setRepresentatives(reps || []);
+            
+            if (reps.length === 0) {
+                showToast('No hay representantes registrados', 'info');
+            }
         } catch (error) {
-            console.error('Error fetching data:', error)
+            console.error('Error fetching representatives:', error);
+            showToast('Error al cargar representantes', 'danger');
         } finally {
             setLoading(false)
         }
@@ -57,60 +57,54 @@ const Representantes = () => {
         setToasts(prev => [...prev, { id: Date.now(), message, color }])
     }
 
-
-
-    // Lógica de vinculación y filtrado avanzado
+    // Filtrar representantes por término de búsqueda
     const filteredReps = useMemo(() => {
-        return representatives.filter(rep => {
-            const children = students.filter(s =>
-                s.RepresentanteId === rep.id ||
-                s.RepresentanteCedula === rep.dni
-            )
+        if (!searchTerm) return representatives;
+        
+        const searchLower = searchTerm.toLowerCase();
+        return representatives.filter(rep => 
+            rep.first_name?.toLowerCase().includes(searchLower) ||
+            rep.last_name?.toLowerCase().includes(searchLower) ||
+            rep.dni?.toLowerCase().includes(searchLower) ||
+            rep.email?.toLowerCase().includes(searchLower)
+        );
+    }, [representatives, searchTerm]);
 
-            if (!searchTerm) return true
-
-            const searchLower = searchTerm.toLowerCase()
-            const matchRep = (
-                rep.first_name?.toLowerCase().includes(searchLower) ||
-                rep.last_name?.toLowerCase().includes(searchLower) ||
-                rep.dni?.toLowerCase().includes(searchLower) ||
-                rep.email?.toLowerCase().includes(searchLower)
-            )
-
-            // Buscar por nombre de representado
-            const matchChild = children.some(child =>
-                child.fullName?.toLowerCase().includes(searchLower) ||
-                child.name?.toLowerCase().includes(searchLower) ||
-                child.lastName?.toLowerCase().includes(searchLower)
-            )
-
-            return matchRep || matchChild
-        })
-    }, [representatives, students, searchTerm])
-
-    // Estadísticas rápidas para el módulo
+    // Calcular representantes sin estudiantes
     const orphanReps = useMemo(() => {
-        return representatives.filter(rep => {
-            return !students.some(s =>
-                s.RepresentanteId === rep.id ||
-                s.RepresentanteCedula === rep.dni
-            )
-        }).length
-    }, [representatives, students])
+        // Esta información se podría calcular si tuviéramos los estudiantes
+        // Por ahora lo dejamos como 0
+        return 0;
+    }, []);
 
     const totalPages = Math.ceil(filteredReps.length / itemsPerPage)
     const currentPageData = filteredReps.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
-    const handleSeeDetails = (rep) => {
-        const repStudents = students.filter(s =>
-            s.RepresentanteId === rep.id ||
-            s.RepresentanteCedula === rep.dni
-        )
-        setSelectedRep({ ...rep, representados: repStudents })
-        setShowInfo(true)
-    }
-
-
+    const handleSeeDetails = async (rep) => {
+        try {
+            setLoading(true);
+            console.log("🔍 Obteniendo detalles para representante ID:", rep.id_representante);
+            
+            // Obtener representante con sus estudiantes usando el nuevo servicio
+            const data = await getRepresentanteConEstudiantes(rep.id_representante);
+            console.log("📥 Detalles recibidos:", data);
+            
+            if (data && data.ok) {
+                setSelectedRep({
+                    ...data.representante,
+                    representados: data.estudiantes || []
+                });
+                setShowInfo(true);
+            } else {
+                showToast('Error al cargar detalles del representante', 'danger');
+            }
+        } catch (error) {
+            console.error('Error fetching representative details:', error);
+            showToast('Error al cargar detalles', 'danger');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <CContainer fluid className="mt-4 pb-5">
@@ -142,7 +136,7 @@ const Representantes = () => {
                             <SearchInput
                                 value={searchTerm}
                                 onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-                                placeholder="Buscar por Rep., Estudiante, Cédula o Email..."
+                                placeholder="Buscar por nombre, cédula o email..."
                                 className="bg-transparent border border-light-custom border-opacity-25 text-contrast placeholder-opacity-50"
                             />
                         </div>
@@ -151,7 +145,7 @@ const Representantes = () => {
                     {loading ? (
                         <div className="text-center py-5">
                             <CSpinner color="warning" variant="grow" />
-                            <div className="mt-3 text-muted fw-medium">Sincronizando registros de familia...</div>
+                            <div className="mt-3 text-muted fw-medium">Cargando representantes...</div>
                         </div>
                     ) : currentPageData.length > 0 ? (
                         <>
@@ -165,61 +159,54 @@ const Representantes = () => {
                                         </CTableRow>
                                     </CTableHead>
                                     <CTableBody>
-                                        {currentPageData.map(rep => {
-                                            const repStudents = students.filter(s =>
-                                                s.RepresentanteId === rep.id ||
-                                                s.RepresentanteCedula === rep.dni
-                                            )
-
-                                            return (
-                                                <CTableRow key={rep.id} className="hover-row transition-all align-middle">
-                                                    <CTableDataCell className="ps-4 py-3 border-bottom-light">
-                                                        <div className="d-flex align-items-center">
-                                                            <div className="me-3 flex-shrink-0">
-                                                                <AvatarLetter
-                                                                    name={rep.first_name}
-                                                                    lastName={rep.last_name}
-                                                                    size="md"
-                                                                    className="shadow-sm border border-light"
-                                                                />
-                                                            </div>
-                                                            <div className="overflow-hidden">
-                                                                <div className="fw-bold header-title-custom text-truncate" style={{ maxWidth: '180px' }}>
-                                                                    {rep.first_name} {rep.last_name}
-                                                                </div>
-                                                                <div className="text-muted-custom small d-flex align-items-center">
-                                                                    <CIcon icon={cilBadge} size="sm" className="me-1 opacity-50" />
-                                                                    {rep.dni}
-                                                                </div>
-                                                            </div>
+                                        {currentPageData.map(rep => (
+                                            <CTableRow key={rep.id_representante || rep.id_usuario} className="hover-row transition-all align-middle">
+                                                <CTableDataCell className="ps-4 py-3 border-bottom-light">
+                                                    <div className="d-flex align-items-center">
+                                                        <div className="me-3 flex-shrink-0">
+                                                            <AvatarLetter
+                                                                name={rep.first_name}
+                                                                lastName={rep.last_name}
+                                                                size="md"
+                                                                className="shadow-sm border border-light"
+                                                            />
                                                         </div>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="border-bottom-light">
-                                                        <div className="d-flex flex-column gap-1">
-                                                            <div className="text-muted-custom small d-flex align-items-center">
-                                                                <CIcon icon={cilEnvelopeClosed} size="sm" className="me-2 text-warning opacity-75" />
-                                                                {rep.email}
+                                                        <div className="overflow-hidden">
+                                                            <div className="fw-bold header-title-custom text-truncate" style={{ maxWidth: '180px' }}>
+                                                                {rep.first_name} {rep.last_name}
                                                             </div>
                                                             <div className="text-muted-custom small d-flex align-items-center">
-                                                                <CIcon icon={cilPhone} size="sm" className="me-2 text-warning opacity-75" />
-                                                                {rep.phone || 'S/N'}
+                                                                <CIcon icon={cilBadge} size="sm" className="me-1 opacity-50" />
+                                                                {rep.dni}
                                                             </div>
                                                         </div>
-                                                    </CTableDataCell>
-                                                    <CTableDataCell className="text-end pe-4 border-bottom-light">
-                                                        <CButton
-                                                            color="light"
-                                                            size="sm"
-                                                            onClick={() => handleSeeDetails(rep)}
-                                                            className="px-2 px-md-3 rounded-pill fw-bold border-0 bg-info bg-opacity-10 text-info hover-lift shadow-sm d-inline-flex align-items-center"
-                                                        >
-                                                            <CIcon icon={cilInfo} className="me-0 me-md-2" />
-                                                            <span className="d-none d-md-inline">VER FICHA</span>
-                                                        </CButton>
-                                                    </CTableDataCell>
-                                                </CTableRow>
-                                            )
-                                        })}
+                                                    </div>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="border-bottom-light">
+                                                    <div className="d-flex flex-column gap-1">
+                                                        <div className="text-muted-custom small d-flex align-items-center">
+                                                            <CIcon icon={cilEnvelopeClosed} size="sm" className="me-2 text-warning opacity-75" />
+                                                            {rep.email}
+                                                        </div>
+                                                        <div className="text-muted-custom small d-flex align-items-center">
+                                                            <CIcon icon={cilPhone} size="sm" className="me-2 text-warning opacity-75" />
+                                                            {rep.phone || 'S/N'}
+                                                        </div>
+                                                    </div>
+                                                </CTableDataCell>
+                                                <CTableDataCell className="text-end pe-4 border-bottom-light">
+                                                    <CButton
+                                                        color="light"
+                                                        size="sm"
+                                                        onClick={() => handleSeeDetails(rep)}
+                                                        className="px-2 px-md-3 rounded-pill fw-bold border-0 bg-info bg-opacity-10 text-info hover-lift shadow-sm d-inline-flex align-items-center"
+                                                    >
+                                                        <CIcon icon={cilInfo} className="me-0 me-md-2" />
+                                                        <span className="d-none d-md-inline">VER FICHA</span>
+                                                    </CButton>
+                                                </CTableDataCell>
+                                            </CTableRow>
+                                        ))}
                                     </CTableBody>
                                 </CTable>
                             </div>
@@ -244,8 +231,6 @@ const Representantes = () => {
                 onClose={() => setShowInfo(false)}
                 representative={selectedRep}
             />
-
-
 
             <CToaster placement="top-end">
                 {toasts.map(t => (

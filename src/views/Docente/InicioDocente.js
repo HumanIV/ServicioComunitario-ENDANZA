@@ -11,12 +11,11 @@ import ClassGroupsList from './components/inicio/ClassGroupsList'
 import StudentListModal from './components/inicio/StudentListModal'
 
 const InicioDocente = () => {
-    const [currentUser, setCurrentUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [sections, setSections] = useState([])
     const [academicYears, setAcademicYears] = useState([])
     const [selectedYear, setSelectedYear] = useState('2025-2026')
-    const [selectedTeacher, setSelectedTeacher] = useState('')
+    const [selectedTeacher, setSelectedTeacher] = useState('Fiorella Márquez')
     const [fullTeachersList, setFullTeachersList] = useState([])
     const [selectedSection, setSelectedSection] = useState(null)
     const [students, setStudents] = useState([])
@@ -24,23 +23,11 @@ const InicioDocente = () => {
     const [loadingStudents, setLoadingStudents] = useState(false)
 
     useEffect(() => {
-        const storedUser = JSON.parse(localStorage.getItem('user') || '{}')
-        setCurrentUser(storedUser)
-
-        if (storedUser.rol === 'docente') {
-            const fullName = `${storedUser.nombre || ''} ${storedUser.apellido || ''}`.trim()
-            setSelectedTeacher(fullName || storedUser.username)
-        } else if (!selectedTeacher) {
-            setSelectedTeacher('Fiorella Márquez') // Default para admin si no hay nada
-        }
-
         loadInitialData()
     }, [])
 
     useEffect(() => {
-        if (selectedTeacher) {
-            fetchDashboardData()
-        }
+        fetchDashboardData()
     }, [selectedTeacher, selectedYear])
 
     const loadInitialData = async () => {
@@ -70,14 +57,7 @@ const InicioDocente = () => {
 
             // Poblar lista de profesores
             const teachers = extractTeachers(allSections)
-
-            // Si es docente, la lista solo lo contiene a él
-            const user = JSON.parse(localStorage.getItem('user') || '{}')
-            if (user.rol === 'docente') {
-                setFullTeachersList([selectedTeacher])
-            } else {
-                setFullTeachersList(teachers)
-            }
+            setFullTeachersList(teachers)
 
             // Filtrar secciones por año y docente
             const teacherGroups = allSections.filter(section =>

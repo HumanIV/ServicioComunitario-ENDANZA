@@ -21,12 +21,12 @@ import CIcon from '@coreui/icons-react'
 import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilExternalLink, cilChevronBottom } from '@coreui/icons'
 
 // Componentes
-import QuickActions from './components/widgets/quickActions'
+import StatsWidgets from './components/widgets/statsWidgets'
 import TeacherSectionsList from './components/TeacherSectionsList'
 import PeriodoInscripcionModal from './components/modals/periodoInscripcionModal'
 import SubidaNotasModal from './components/modals/subidaNotasModal'
-import ValidacionNotasModal from './components/modals/ValidacionNotasModal'
-import ControlBoletinesModal from './components/modals/ControlBoletinesModal'
+import ValidacionNotasModal from './components/modals/validacionNotasModal'
+import ControlBoletinesModal from './components/modals/controlBoletinesModal'
 import CrearAnioModal from './components/modals/CrearAnioModal'
 import SystemMessageModal from '../../components/SystemMessageModal'
 
@@ -50,12 +50,12 @@ export const SuperRootDashboard = () => {
     students,
     sections,
     loading,
-
+    
     // Nuevos datos
     notasPendientes,
     boletines,
     teachers, // ✅ AGREGADO - AHORA ESTÁ DEFINIDO
-
+    
     // Estados de modales
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
@@ -65,7 +65,7 @@ export const SuperRootDashboard = () => {
     setVisibleValidacionNotas,
     visibleControlBoletines,
     setVisibleControlBoletines,
-
+    
     // Acciones
     guardarPeriodoInscripcion,
     guardarPeriodoSubidaNotas,
@@ -96,7 +96,7 @@ export const SuperRootDashboard = () => {
       const years = await getAvailableYears()
       console.log("Años recibidos:", years)
       setAvailableYears(Array.isArray(years) ? years : [])
-
+      
       // Seleccionar el primer año por defecto, o el activo si existe
       if (years.length > 0 && !currentYear) {
         // Buscar el año 2024-2025 primero si existe
@@ -113,13 +113,13 @@ export const SuperRootDashboard = () => {
   const confirmCreateYear = async (nuevoAnio) => {
     try {
       const response = await addAcademicYear(nuevoAnio)
-
+      
       if (response.ok) {
         await fetchYears() // Recargar la lista
-
+        
         // Mostrar mensaje de éxito
         showSystemMessage('¡Éxito!', `Ciclo ${nuevoAnio} creado y aperturado correctamente.`, 'success')
-
+        
         return true
       } else {
         throw new Error(response.msg || 'No se pudo crear el ciclo')
@@ -175,13 +175,13 @@ export const SuperRootDashboard = () => {
   const handleHabilitarTodosBoletines = async () => {
     if (notasPendientes.length > 0) {
       showSystemMessage(
-        'Validación requerida',
-        'No se pueden habilitar los boletines porque hay notas pendientes de validación.',
+        'Validación requerida', 
+        'No se pueden habilitar los boletines porque hay notas pendientes de validación.', 
         'warning'
       )
       return
     }
-
+    
     const success = await habilitarTodosBoletinesDelAnio()
     if (success) {
       showSystemMessage('Éxito', 'Todos los boletines fueron habilitados', 'success')
@@ -273,21 +273,25 @@ export const SuperRootDashboard = () => {
       <div className="px-3 px-md-4">
 
         {/* WIDGETS DE ESTADÍSTICAS - Actualizado con notas y boletines */}
-        {/* ACCIONES RÁPIDAS */}
-        <QuickActions
-          periodoInscripcion={periodoInscripcion || {}} // Ensure object to avoid crash
+        <StatsWidgets
+          students={students || []}
+          repsCount={repsCount || 0}
+          periodoInscripcion={periodoInscripcion}
+          periodoSubidaNotas={periodoSubidaNotas}
+          notasPendientes={notasPendientes}
+          boletines={boletines}
           onOpenPeriodoInscripcion={() => setVisiblePeriodoInscripcion(true)}
+          onOpenSubidaNotas={() => setVisibleSubidaNotas(true)}
           onOpenValidacionNotas={() => setVisibleValidacionNotas(true)}
           onOpenControlBoletines={() => setVisibleControlBoletines(true)}
-          onOpenGestionAccesos={() => navigate('/users')}
         />
 
         <CRow className="gy-4">
           <CCol xs={12} lg={8}>
-            <TeacherSectionsList
-              sections={sections || []}
+            <TeacherSectionsList 
+              sections={sections || []} 
               teachers={teachers || []}  // ✅ AHORA teachers ESTÁ DEFINIDO
-              currentYear={currentYear}
+              currentYear={currentYear} 
               loading={loading}
             />
           </CCol>
@@ -311,8 +315,8 @@ export const SuperRootDashboard = () => {
                   {usuarios && usuarios.length > 0 ? (
                     usuarios.slice(0, 5).map(u => (
                       <div key={u?.id || Math.random()} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
-                        <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0"
-                          style={{ width: '40px', height: '40px' }}>
+                        <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" 
+                             style={{ width: '40px', height: '40px' }}>
                           {u?.nombre ? u.nombre[0] : '?'}
                         </div>
                         <div className="flex-grow-1 overflow-hidden">
