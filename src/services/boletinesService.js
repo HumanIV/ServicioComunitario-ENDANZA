@@ -50,9 +50,9 @@ export const toggleBoletinDisponible = async (boletinId, disponible) => {
  * @param {number} academicYearId - ID del año académico
  * @returns {Promise<Object>}
  */
-export const generarBoletines = async (studentIds, academicYearId) => {
+export const generarBoletines = async (studentIds, academicYearId, gradeId) => {
   try {
-    const response = await fetch.post('/api/boletines/generar', { studentIds, academicYearId });
+    const response = await fetch.post('/api/boletines/generar', { studentIds, academicYearId, gradeId });
     return response;
   } catch (error) {
     console.error("Error en generarBoletines:", error);

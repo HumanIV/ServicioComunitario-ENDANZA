@@ -28,8 +28,8 @@ export const getSectionsForGrades = async (academicYearId) => {
         const endpoint = `/api/sections?academicYearId=${academicYearId}`;
         const response = await fetch.get(endpoint);
 
-        if (response.ok && response.sections) {
-            return processSectionsResponse(response.sections);
+        if (response.ok && response.data) {
+            return processSectionsResponse(response.data);
         }
         return [];
     } catch (error) {
@@ -60,11 +60,14 @@ export const getTeacherSections = async (academicYearId) => {
             // Mapeo de respuesta backend a formato frontend
             const sections = response.data.map(item => ({
                 id: item.id,
-                grade_level: item.section_name.split(' ')[0] + ' ' + item.section_name.split(' ')[1], // Aprox
+                grade_level: item.grade_level || item.section_name,
                 section_name: item.section_name,
                 academic_year_id: academicYearId,
                 subject_name: item.subject,
-                subject_id: item.subject_id
+                subject_id: item.subject_id,
+                grade_id: item.grade_id,
+                grade_name: item.grade_name,
+                schedules: item.schedules || []
             }));
 
             return processSectionsResponse(sections);
@@ -82,17 +85,15 @@ export const getTeacherSections = async (academicYearId) => {
 const processSectionsResponse = async (sectionsList) => {
     const transformed = await Promise.all(sectionsList.map(async (section) => {
         // Obtener estudiantes
-        // Si es docente usamos el endpoint de docente, si es admin el de admin?
-        // Por simplicidad, intentaremos detectar o usar un endpoint compatible
-        // TODO: Optimizar esto para usar el endpoint correcto según rol. 
-        // Por ahora getStudentsBySection usa /api/sections/:id/students
         const estudiantes = await getStudentsBySection(section.id);
-
         const evaluaciones = await getEvaluationStructure(section.id);
+        const notasObj = await getGradesForSection(section.id);
+        const estudiantesCalificados = Object.keys(notasObj).length;
 
         return {
             id: section.id,
-            grado: section.grade_level || section.nivel_academico || 'Sin Grado',
+            grado: section.grade_name || section.grade_level || section.nivel_academico || 'Sin Grado',
+            gradeId: section.grade_id, // Capturar ID del grado
             nombre: section.section_name,
             academicYearId: section.academic_year_id,
             materias: [{
@@ -102,7 +103,11 @@ const processSectionsResponse = async (sectionsList) => {
                 nombre: section.subject_name || section.nombre || 'Materia',
                 horario: formatHorario(section.schedules || []),
                 estudiantes: estudiantes,
-                evaluaciones: evaluaciones
+                evaluaciones: evaluaciones,
+                stats: {
+                    total: estudiantes.length || parseInt(section.student_count || 0),
+                    calificados: estudiantesCalificados
+                }
             }]
         };
     }));
@@ -145,14 +150,18 @@ export const getStudentsBySection = async (sectionId) => {
  * @param {number} sectionId - ID de la sección
  * @returns {Promise<Array>} - Estructura de evaluaciones
  */
-export const getEvaluationStructure = async (sectionId) => {
+export const getEvaluationStructure = async (sectionId, lapsoId) => {
     try {
         if (!sectionId) {
             console.warn('⚠️ No se proporcionó sectionId para evaluaciones');
             return getDefaultEvaluationStructure();
         }
 
-        const response = await fetch.get(`/api/sections/${sectionId}/evaluations`);
+        const url = lapsoId
+            ? `/api/sections/${sectionId}/evaluations?lapsoId=${lapsoId}`
+            : `/api/sections/${sectionId}/evaluations`;
+
+        const response = await fetch.get(url);
 
         if (response.ok && response.data) {
             return response.data;
@@ -226,14 +235,18 @@ export const getStudentGrades = async (studentId) => {
     }
 };
 
-export const getGradesForSection = async (sectionId) => {
+export const getGradesForSection = async (sectionId, lapsoId) => {
     try {
         if (!sectionId) {
             console.warn('⚠️ No se proporcionó sectionId para notas');
             return {};
         }
 
-        const response = await fetch.get(`/api/grades/section/${sectionId}`);
+        const url = lapsoId
+            ? `/api/grades/section/${sectionId}?lapsoId=${lapsoId}`
+            : `/api/grades/section/${sectionId}`;
+
+        const response = await fetch.get(url);
 
         if (response.ok && response.data) {
             // ✅ Transformar al formato del frontend { studentId: { n1, n2, n3, n4 } }
@@ -295,9 +308,12 @@ const formatHorario = (schedules) => {
         'SÁBADO': 'Sábado'
     };
 
-    return schedules.map(s =>
-        `${diasMap[s.day_name] || s.day_name} ${s.start_time?.substring(0, 5) || '00:00'}-${s.end_time?.substring(0, 5) || '00:00'}`
-    ).join(', ');
+    return schedules.map(s => {
+        const d = (s.day_name || s.dayOfWeek || '').toUpperCase();
+        const start = (s.start_time || s.startTime || '00:00:00').substring(0, 5);
+        const end = (s.end_time || s.endTime || '00:00:00').substring(0, 5);
+        return `${diasMap[d] || d || 'S/D'} ${start}-${end}`;
+    }).join(', ');
 };
 
 /**
@@ -329,13 +345,18 @@ const groupByGrade = (sections) => {
     const grupos = {};
 
     sections.forEach(section => {
-        if (!grupos[section.grado]) {
-            grupos[section.grado] = {
+        // Usar gradeId como clave principal, o el nombre si no hay ID
+        const key = section.gradeId || section.grado;
+
+        if (!grupos[key]) {
+            grupos[key] = {
+                id: section.gradeId, // ID del Grado para el Frontend (puede ser null si no hay gradeId)
                 grado: section.grado,
+                academicYearId: section.academicYearId,
                 materias: []
             };
         }
-        grupos[section.grado].materias.push(...section.materias);
+        grupos[key].materias.push(...section.materias);
     });
 
     return Object.values(grupos);

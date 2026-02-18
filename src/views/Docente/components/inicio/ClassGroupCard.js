@@ -1,75 +1,92 @@
 import React from 'react'
-import { CCol, CCard, CCardBody, CBadge, CButton } from '@coreui/react'
+import { CCol, CCard, CCardHeader, CCardBody, CCardFooter, CBadge, CButton, CRow } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSchool, cilSearch } from '@coreui/icons'
+import { cilSchool, cilSearch, cilCalendar, cilClock } from '@coreui/icons'
 
-const ClassGroupCard = ({ section, selectedTeacher, onSeeStudents }) => {
+const ClassGroupCard = ({ section, selectedTeacher, onSeeStudents, currentUserId }) => {
+    // Función para verificar si un horario pertenece al profesor actual
+    const isTeacherSchedule = (sched) => {
+        const schedUserId = sched.teacherUserId ? Number(sched.teacherUserId) : null;
+        const schedTeacherName = (sched.teacherName || '').trim().toLowerCase();
+        const normalizedSelected = (selectedTeacher || '').trim().toLowerCase();
+
+        if (currentUserId && schedUserId) {
+            return Number(currentUserId) === schedUserId;
+        }
+        return schedTeacherName === normalizedSelected || schedTeacherName.includes(normalizedSelected);
+    };
+
+    const teacherSchedules = section.schedules?.filter(isTeacherSchedule) || [];
+
+    const subjectName = section.subjectName || [...new Set(teacherSchedules.map(s => s.subject))].join(' / ') || 'Sin Materia Asignada';
+    const horario = teacherSchedules.map(s => {
+        const dia = s.dayName || s.day_name || '';
+        const inicio = s.startTime?.substring(0, 5) || s.start_time?.substring(0, 5) || '';
+        const fin = s.endTime?.substring(0, 5) || s.end_time?.substring(0, 5) || '';
+        return `${dia} ${inicio}-${fin}`;
+    }).join(', ') || 'Sin Horario';
+
     return (
         <CCol lg={4} md={6}>
-            <CCard className="h-100 shadow-lg border-0 border-top border-4 border-warning hover-lift transition-all premium-card" style={{ borderRadius: '16px' }}>
-                <CCardBody className="p-3 p-xl-4 d-flex flex-column bg-light-custom">
-                    <div className="d-flex justify-content-between align-items-start mb-2 mb-md-3">
-                        <div className="bg-orange-soft p-2 rounded-3 text-primary d-flex align-items-center justify-content-center responsive-group-icon">
-                            <CIcon icon={cilSchool} size="lg" />
+            <CCard className="premium-card border-0 h-100 overflow-hidden shadow-sm hover-lift-sm">
+                <CCardHeader className="bg-orange-soft border-0 py-3 d-flex justify-content-between align-items-center">
+                    <div className="d-flex align-items-center overflow-hidden">
+                        <div className="p-2 bg-primary rounded-circle me-3 shadow-sm flex-shrink-0">
+                            <CIcon icon={cilSchool} size="sm" className="text-white" />
                         </div>
-                        <div className="bg-warning shadow-sm rounded-circle d-flex align-items-center justify-content-center fw-bold text-white responsive-id-badge">
-                            ID: {section.id}
+                        <strong className="header-title-custom fw-bold text-uppercase ls-1 text-truncate" style={{ fontSize: '0.85rem' }}>
+                            {subjectName}
+                        </strong>
+                    </div>
+                </CCardHeader>
+
+                <CCardBody className="p-4 d-flex flex-column">
+                    <CRow className="mb-3 g-3">
+                        <CCol xs={6}>
+                            <div className="p-3 rounded-4 bg-light-custom h-100 border border-light-custom">
+                                <div className="text-muted-custom small text-uppercase fw-bold ls-1 mb-2" style={{ fontSize: '0.6rem' }}>
+                                    <CIcon icon={cilSchool} className="me-1 text-primary" /> Sección
+                                </div>
+                                <div className="fw-bold header-title-custom small text-truncate">{section.sectionName}</div>
+                            </div>
+                        </CCol>
+                        <CCol xs={6}>
+                            <div className="p-3 rounded-4 bg-light-custom h-100 border border-light-custom">
+                                <div className="text-muted-custom small text-uppercase fw-bold ls-1 mb-2" style={{ fontSize: '0.6rem' }}>
+                                    <CIcon icon={cilCalendar} className="me-1 text-primary" /> ID
+                                </div>
+                                <div className="fw-bold text-primary font-monospace small">{section.id}</div>
+                            </div>
+                        </CCol>
+                    </CRow>
+
+                    <div className="p-3 rounded-4 bg-light-custom border border-light-custom mb-3">
+                        <div className="text-muted-custom small text-uppercase fw-bold ls-1 mb-2" style={{ fontSize: '0.6rem' }}>
+                            <CIcon icon={cilClock} className="me-1 text-primary" /> Horario
                         </div>
+                        <div className="fw-bold header-title-custom small">{horario}</div>
                     </div>
 
-                    <h5 className="fw-bold text-primary mb-1 text-uppercase ls-1 fs-6 fs-md-5 fs-xl-4 text-truncate-2">
-                        {[...new Set(section.schedules.filter(s => s.teacherName === selectedTeacher).map(s => s.subject))].join(' / ')}
-                    </h5>
-                    <div className="mb-2 mb-md-3 overflow-hidden">
-                        <small className="text-muted-custom fw-bold text-uppercase ls-1 text-truncate d-block" style={{ fontSize: '0.7rem' }}>{section.sectionName}</small>
+                    <div className="mt-auto d-flex align-items-center pt-2">
+                        <CBadge color="primary" className="rounded-pill px-3 py-2 bg-opacity-10 text-primary border border-primary border-opacity-10 shadow-sm">
+                            Nivel: {section.gradeLevel}
+                        </CBadge>
+                        <span className="ms-auto small text-muted fw-bold" style={{ fontSize: '0.7rem' }}>
+                            {teacherSchedules.length} Clases
+                        </span>
                     </div>
 
-                    <div className="bg-light-custom bg-opacity-25 p-2 p-md-3 rounded-4 mb-3 mb-md-4 border border-dashed border-light-custom shadow-sm">
-                        <div className="d-flex justify-content-between align-items-center mb-1 mb-md-2">
-                            <span className="small text-muted-custom fw-bold text-uppercase" style={{ fontSize: '0.65rem' }}>Carga Horaria</span>
-                            <CBadge color="primary" className="rounded-pill p-1 px-3 fw-bold small">
-                                {section.schedules.filter(s => s.teacherName === selectedTeacher).length} Clases
-                            </CBadge>
-                        </div>
-                        <div className="d-flex align-items-center pt-2 border-top border-light-custom border-opacity-10">
-                            <CIcon icon={cilSchool} size="sm" className="me-2 text-primary opacity-75" />
-                            <span className="small header-title-custom fw-bold" style={{ fontSize: '0.7rem' }}>Nivel: {section.gradeLevel}</span>
-                        </div>
-                    </div>
+                </CCardBody>
 
+                <CCardFooter className="bg-transparent border-0 p-4 pt-0">
                     <CButton
                         onClick={() => onSeeStudents(section)}
-                        className="mt-auto btn-premium py-2 fw-bold d-flex align-items-center justify-content-center shadow-sm w-100"
-                        style={{ fontSize: '0.8rem' }}
+                        className="btn-premium w-100 py-2 d-flex align-items-center justify-content-center shadow-sm"
                     >
                         <CIcon icon={cilSearch} className="me-2" />
                         VER ESTUDIANTES
                     </CButton>
-                </CCardBody>
-
-                <style>{`
-                    .responsive-group-icon {
-                        width: 45px;
-                        height: 45px;
-                    }
-                    .responsive-id-badge {
-                        width: 45px;
-                        height: 45px;
-                        font-size: 0.85rem;
-                        margin-top: -10px;
-                    }
-                    .text-truncate-2 {
-                        display: -webkit-box;
-                        -webkit-line-clamp: 2;
-                        -webkit-box-orient: vertical;
-                        overflow: hidden;
-                    }
-                    @media (min-width: 992px) and (max-width: 1400px) {
-                        .responsive-group-icon { width: 38px; height: 38px; }
-                        .responsive-id-badge { width: 38px; height: 38px; font-size: 0.75rem; margin-top: -8px; }
-                        .premium-card h5 { min-height: 2.8rem; }
-                    }
-                `}</style>
+                </CCardFooter>
             </CCard>
         </CCol>
     )

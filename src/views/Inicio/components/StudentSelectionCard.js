@@ -12,10 +12,18 @@ const StudentSelectionCard = ({ child, colorClass, buttonText, onClick }) => {
     if (colorClass === 'indigo') bgSoftClass = 'bg-purple-soft';
     if (colorClass === 'warning') bgSoftClass = 'bg-orange-soft';
 
-    // ✅ Valores por defecto para evitar errores
-    const firstInitial = child.first_name ? child.first_name[0] : '';
-    const lastInitial = child.last_name ? child.last_name[0] : '';
-    const initials = firstInitial + lastInitial || '?';
+    // Normalizar datos (soporte para camelCase y snake_case del backend)
+    const firstName = child.name || child.first_name || '';
+    const lastName = child.lastName || child.last_name || '';
+    const initial1 = firstName ? firstName[0] : '';
+    const initial2 = lastName ? lastName[0] : '';
+    const initials = initial1 + initial2 || '?';
+
+    const fullName = child.fullName || child.full_name || `${firstName} ${lastName}`.trim();
+    const code = child.code || child.dni || child.id || '';
+    const status = child.status || (child.is_active === false ? 'Inactivo' : 'Activo');
+    const gradeLevel = child.gradeLevel || child.grade_level || 'N/A';
+    const academicYear = child.academicYear || '2024-2025';
 
     return (
         <CCard className={`premium-card student-card h-100 border-0 border-start border-4 border-${colorClass}`} style={{ borderRadius: '16px' }}>
@@ -32,16 +40,14 @@ const StudentSelectionCard = ({ child, colorClass, buttonText, onClick }) => {
                     <div className="flex-grow-1">
                         <div className="d-flex justify-content-between align-items-start">
                             <div>
-                                <h4 className="fw-bold child-name mb-1">{child.full_name || child.fullName}</h4>
+                                <h4 className="fw-bold child-name mb-1">{fullName}</h4>
                                 <div className="d-flex align-items-center child-id small fw-bold text-uppercase ls-1">
                                     <CIcon icon={cilCalendarCheck} className="me-1" size="sm" />
-                                    {/* ✅ Mostrar cédula en lugar de code que no existe */}
-                                    ID: {child.dni || child.id}
+                                    ID: {code}
                                 </div>
                             </div>
                             <CBadge className="px-3 py-2 rounded-pill fw-bold bg-green-soft" style={{ fontSize: '0.75rem', border: 'none' }}>
-                                {/* ✅ Estado por defecto si no existe */}
-                                {child.status || 'Activo'}
+                                {status}
                             </CBadge>
                         </div>
                     </div>
@@ -50,11 +56,11 @@ const StudentSelectionCard = ({ child, colorClass, buttonText, onClick }) => {
                 <div className="p-3 child-info-box rounded-3 mb-4">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <span className="child-info-label small fw-bold text-uppercase">Grado y Programa</span>
-                        <span className={`fw-bold text-${colorClass} text-end`}>{child.grade_level || child.gradeLevel}</span>
+                        <span className={`fw-bold text-${colorClass} text-end`}>{gradeLevel}</span>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
                         <span className="child-info-label small fw-bold text-uppercase">Periodo Actual</span>
-                        <span className="fw-medium child-info-value">{child.academicYear || '2024-2025'}</span>
+                        <span className="fw-medium child-info-value">{academicYear}</span>
                     </div>
                 </div>
 

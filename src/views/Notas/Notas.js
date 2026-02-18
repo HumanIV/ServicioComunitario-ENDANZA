@@ -7,7 +7,8 @@ import useUserRole from '../../hooks/useUserRole'
 
 // Servicios
 import { getSectionsForGrades, getGradesForSection, saveGrades, getTeacherSections } from '../../services/gradeService'
-import { getAvailableYears, getActiveYear, getGradesPeriod } from '../../services/configService' // ← CORREGIDO
+
+import { getAvailableYears, getActiveYear, getGradesPeriod, getLapsosByYear } from '../../services/configService' // ← CORREGIDO
 
 // Componentes
 import GradeCards from "./components/GradeCards"
@@ -27,6 +28,9 @@ const SistemaEvaluacionDanza = () => {
     const [years, setYears] = useState([])
     const [selectedYear, setSelectedYear] = useState(null)
     const [loadingYears, setLoadingYears] = useState(true)
+
+    const [lapsos, setLapsos] = useState([])
+    const [selectedLapso, setSelectedLapso] = useState(null)
 
     const [gradoSeleccionado, setGradoSeleccionado] = useState(null)
     const [materiaSeleccionada, setMateriaSeleccionada] = useState(null)
@@ -48,10 +52,27 @@ const SistemaEvaluacionDanza = () => {
     // Cargar datos cuando cambie el año seleccionado
     useEffect(() => {
         if (selectedYear) {
+            cargarLapsos(selectedYear.id)
             cargarDatos(selectedYear.id)
             cargarPeriodoNotas(selectedYear.id)
         }
     }, [selectedYear])
+
+    const cargarLapsos = async (yearId) => {
+        try {
+            const lapsosData = await getLapsosByYear(yearId)
+            setLapsos(lapsosData)
+            if (lapsosData.length > 0) {
+                // Seleccionar el lapso activo o el primero
+                // Por ahora seleccionamos el primero si no hay lógica de activo
+                setSelectedLapso(lapsosData[0])
+            } else {
+                setSelectedLapso(null)
+            }
+        } catch (error) {
+            console.error("Error cargando lapsos:", error)
+        }
+    }
 
     const cargarPeriodoNotas = async (yearId) => {
         try {
@@ -115,6 +136,18 @@ const SistemaEvaluacionDanza = () => {
 
     const validarPeriodoNotas = () => {
         if (isAdmin) return true; // Admin siempre puede
+
+        // Validar fechas del Lapso
+        if (selectedLapso) {
+            const today = new Date().toISOString().split('T')[0];
+            const start = selectedLapso.start_date ? new Date(selectedLapso.start_date).toISOString().split('T')[0] : null;
+
+            if (start && today < start) {
+                showToast("warning", `El lapso "${selectedLapso.name}" aún no ha iniciado (${start})`);
+                return false;
+            }
+        }
+
         if (!gradesPeriod) return false;
 
         if (!gradesPeriod.abierto) {
@@ -159,15 +192,32 @@ const SistemaEvaluacionDanza = () => {
             if (isDocente) {
                 console.log('👨‍🏫 Modo DOCENTE: Cargando carga académica')
                 sections = await getTeacherSections(yearId)
+
+                // Unificar todas las materias en un solo grupo para vista directa
+                const todasLasMaterias = sections.flatMap(g => g.materias || []);
+                if (todasLasMaterias.length > 0) {
+                    const gradoUnificado = {
+                        grado: 'Mis Materias Asignadas',
+                        materias: todasLasMaterias
+                    };
+                    setGradoSeleccionado(gradoUnificado);
+                    setData([]); // Evitar renderizado de GradeCards
+                } else {
+                    setGradoSeleccionado(null);
+                    setData([]);
+                    showToast('info', 'No tienes carga académica asignada para este periodo.');
+                }
             } else {
                 console.log('👨‍💼 Modo ADMIN: Cargando todas las secciones')
                 sections = await getSectionsForGrades(yearId)
+                setData(sections)
+                // Limpiar selecciones al cambiar de año (solo para admin)
+                setGradoSeleccionado(null)
             }
 
             console.log('📊 Datos cargados:', sections)
-            setData(sections)
-            // Limpiar selecciones al cambiar de año
-            setGradoSeleccionado(null)
+            if (!isDocente) setData(sections)
+
             setMateriaSeleccionada(null)
         } catch (err) {
             console.error('❌ Error:', err)
@@ -180,14 +230,14 @@ const SistemaEvaluacionDanza = () => {
 
     // Cargar notas cuando se selecciona una materia
     useEffect(() => {
-        if (materiaSeleccionada) {
-            cargarNotasMateria(materiaSeleccionada.sectionId)
+        if (materiaSeleccionada && selectedLapso) {
+            cargarNotasMateria(materiaSeleccionada.sectionId, selectedLapso.id)
         }
-    }, [materiaSeleccionada])
+    }, [materiaSeleccionada, selectedLapso])
 
-    const cargarNotasMateria = async (sectionId) => {
+    const cargarNotasMateria = async (sectionId, lapsoId) => {
         try {
-            const notasGuardadas = await getGradesForSection(sectionId)
+            const notasGuardadas = await getGradesForSection(sectionId, lapsoId)
             setNotas(notasGuardadas)
             setNotasOriginales(JSON.parse(JSON.stringify(notasGuardadas)))
         } catch (err) {
@@ -283,15 +333,21 @@ const SistemaEvaluacionDanza = () => {
     const enviarNotasSecretaria = async () => {
         setEnviando(true)
         try {
-            await saveGrades({
+            const response = await saveGrades({
                 sectionId: materiaSeleccionada.sectionId,
                 grades: notas,
-                academicYearId: materiaSeleccionada.academicYearId || selectedYear?.id
+                academicYearId: materiaSeleccionada.academicYearId || selectedYear?.id,
+                lapsoId: selectedLapso?.id
             })
 
             setNotasOriginales(JSON.parse(JSON.stringify(notas)))
             setModalVisible(false)
-            showToast("success", "✅ Notas guardadas correctamente")
+
+            if (isDocente) {
+                showToast("success", "✅ Notas enviadas correctamente. Pendientes de aprobación por administración.")
+            } else {
+                showToast("success", "✅ Notas guardadas y formalizadas correctamente")
+            }
 
         } catch (error) {
             console.error('❌ Error al guardar:', error)
@@ -424,60 +480,86 @@ const SistemaEvaluacionDanza = () => {
                         )}
                     </div>
                 )}
+
+                {/* Selector de Lapso */}
+                {lapsos.length > 0 && (
+                    <div className="d-flex flex-column flex-md-row align-items-md-center mt-3 gap-3">
+                        <div className="d-flex align-items-center gap-2">
+                            <span className="text-muted-custom small fw-bold">Lapso:</span>
+                            <select
+                                className="form-select form-select-sm w-auto"
+                                value={selectedLapso?.id || ''}
+                                onChange={(e) => {
+                                    const lapso = lapsos.find(l => l.id === parseInt(e.target.value))
+                                    setSelectedLapso(lapso)
+                                }}
+                            >
+                                {lapsos.map(lapso => (
+                                    <option key={lapso.id} value={lapso.id}>
+                                        {lapso.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                )}
             </header>
 
-            {data.length === 0 && !loading ? (
-                <CAlert color="warning">
-                    No hay secciones disponibles para el año académico seleccionado.
-                </CAlert>
-            ) : (
-                <>
-                    {!gradoSeleccionado && (
-                        <GradeCards
-                            data={data}
-                            onSelectGrade={setGradoSeleccionado}
-                        />
-                    )}
-
-                    {gradoSeleccionado && !materiaSeleccionada && (
-                        <SubjectCards
-                            grade={gradoSeleccionado}
-                            onBack={() => setGradoSeleccionado(null)}
-                            onSelectSubject={setMateriaSeleccionada}
-                            calculatePromedio={calcularPromedio}
-                            getColorEstado={getColorEstado}
-                            determinarEstado={determinarEstado}
-                        />
-                    )}
-
-                    {gradoSeleccionado && materiaSeleccionada && (
-                        <>
-                            <EvaluationSummary
-                                subject={materiaSeleccionada}
-                                notas={notas}
-                                calculatePromedio={calcularPromedio}
+            {
+                data.length === 0 && !loading && !gradoSeleccionado ? (
+                    <CAlert color="warning">
+                        No hay secciones disponibles para el año académico seleccionado.
+                    </CAlert>
+                ) : (
+                    <>
+                        {!gradoSeleccionado && (
+                            <GradeCards
+                                data={data}
+                                onSelectGrade={setGradoSeleccionado}
                             />
-                            <div className="mt-4">
-                                <EvaluationTable
-                                    grade={gradoSeleccionado}
+                        )}
+
+                        {gradoSeleccionado && !materiaSeleccionada && (
+                            <SubjectCards
+                                grade={gradoSeleccionado}
+                                onBack={() => setGradoSeleccionado(null)}
+                                showBackButton={!isDocente}
+                                onSelectSubject={setMateriaSeleccionada}
+                                calculatePromedio={calcularPromedio}
+                                getColorEstado={getColorEstado}
+                                determinarEstado={determinarEstado}
+                            />
+                        )}
+
+                        {gradoSeleccionado && materiaSeleccionada && (
+                            <>
+                                <EvaluationSummary
                                     subject={materiaSeleccionada}
-                                    onBack={() => setMateriaSeleccionada(null)}
-                                    onClear={isDocente ? limpiarNotasMateria : null}
-                                    onPrepareSend={isDocente ? prepararEnvio : null}
                                     notas={notas}
-                                    onNotaChange={isDocente ? manejarNotaChange : null}
                                     calculatePromedio={calcularPromedio}
-                                    determinarEstado={determinarEstado}
-                                    getColorNota={getColorNota}
-                                    getColorEstado={getColorEstado}
-                                    modoLectura={isAdmin || (isDocente && gradesPeriod && !gradesPeriod.abierto)}
-                                    hayCambios={hayCambios()}
                                 />
-                            </div>
-                        </>
-                    )}
-                </>
-            )}
+                                <div className="mt-4">
+                                    <EvaluationTable
+                                        grade={gradoSeleccionado}
+                                        subject={materiaSeleccionada}
+                                        onBack={() => setMateriaSeleccionada(null)}
+                                        onClear={isDocente ? limpiarNotasMateria : null}
+                                        onPrepareSend={isDocente ? prepararEnvio : null}
+                                        notas={notas}
+                                        onNotaChange={isDocente ? manejarNotaChange : null}
+                                        calculatePromedio={calcularPromedio}
+                                        determinarEstado={determinarEstado}
+                                        getColorNota={getColorNota}
+                                        getColorEstado={getColorEstado}
+                                        modoLectura={isAdmin || (isDocente && gradesPeriod && !gradesPeriod.abierto)}
+                                        hayCambios={hayCambios()}
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </>
+                )
+            }
 
             <SendConfirmationModal
                 visible={modalVisible}
@@ -500,7 +582,7 @@ const SistemaEvaluacionDanza = () => {
                     </CToast>
                 ))}
             </CToaster>
-        </CContainer>
+        </CContainer >
     )
 }
 

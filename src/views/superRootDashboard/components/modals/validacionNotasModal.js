@@ -59,7 +59,7 @@ const ValidacionNotasModal = ({
                   </CTableDataCell>
                   <CTableDataCell className="border-0">
                     <div className="fw-semibold text-primary">{nota.curso}</div>
-                    <small className="text-muted-custom small text-uppercase" style={{ fontSize: '0.6rem' }}>Grado Final</small>
+                    <small className="text-muted-custom small text-uppercase" style={{ fontSize: '0.6rem' }}>{nota.seccion}</small>
                   </CTableDataCell>
                   <CTableDataCell className="text-center fw-bold header-title-custom border-0">{nota.estudiantes} Est.</CTableDataCell>
                   <CTableDataCell className="text-center border-0">

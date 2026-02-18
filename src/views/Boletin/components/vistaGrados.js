@@ -10,7 +10,7 @@ import {
 import CIcon from "@coreui/icons-react";
 import { cilUser, cilSchool, cilBook, cilArrowRight } from "@coreui/icons";
 
-export const VistaGrados = ({ data, onSeleccionarGrado }) => {
+export const VistaGrados = ({ data, onSeleccionarGrado, academicYear }) => {
   return (
     <div className="animate__animated animate__fadeIn">
       <div className="d-flex align-items-center mb-5">
@@ -40,11 +40,14 @@ export const VistaGrados = ({ data, onSeleccionarGrado }) => {
 
                 <div className="mb-4">
                   <h4 className="fw-bold header-title-custom mb-1">
-                    {grado.materias && grado.materias.length > 0
-                      ? grado.materias.map(m => m.nombre).join(', ')
-                      : grado.grado}
+                    {grado.grado}
                   </h4>
-                  <small className="text-muted-custom text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>Ciclo 2024</small>
+                  {grado.materias && grado.materias.length > 0 && (
+                    <p className="text-muted-custom small mb-0 mt-1" style={{ fontSize: '0.75rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {grado.materias.map(m => m.nombre).join(', ')}
+                    </p>
+                  )}
+                  <small className="text-muted-custom text-uppercase ls-1 fw-bold" style={{ fontSize: '0.65rem' }}>Ciclo {academicYear || '2024-2025'}</small>
                 </div>
 
                 <div className="d-flex gap-2 mb-4">

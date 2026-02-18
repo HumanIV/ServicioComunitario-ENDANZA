@@ -166,9 +166,9 @@ const EvaluationTable = ({
                                                         step="0.1"
                                                         placeholder={`C${num}`}
                                                         value={notasEst[`n${num}`] || ""}
-                                                        onChange={(e) => onNotaChange(estudiante.id, num, e.target.value)}
+                                                        onChange={(e) => onNotaChange && onNotaChange(estudiante.id, num, e.target.value)}
                                                         className={`text-center fw-bold evaluation-input rounded-3 shadow-sm ${notasEst[`n${num}`] ? 'bg-white' : 'bg-light-custom bg-opacity-50 border-dashed'}`}
-                                                        disabled={modoLectura} // ← DESHABILITADO EN MODO LECTURA
+                                                        disabled={modoLectura}
                                                     />
                                                     <div className="text-muted-custom mt-1" style={{ fontSize: '0.6rem' }}>C{num}</div>
                                                 </CTableDataCell>

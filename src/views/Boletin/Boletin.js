@@ -13,7 +13,7 @@ import {
 } from "@coreui/icons";
 
 // Servicios
-import { getAvailableYears, getActiveYear } from '../../services/configService';
+import { getAvailableYears, getActiveYear, getLapsosByYear } from '../../services/configService';
 import { getSectionsForGrades, getGradesForSection } from '../../services/gradeService';
 import { generarBoletines } from '../../services/boletinesService';
 
@@ -38,6 +38,8 @@ const SistemaBoletinesDanza = () => {
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState(null);
+  const [lapsos, setLapsos] = useState([]);
+  const [selectedLapso, setSelectedLapso] = useState(null);
 
   // Estado con reducer
   const [state, dispatch] = useReducer(estadoReducer, estadoInicial);
@@ -78,6 +80,16 @@ const SistemaBoletinesDanza = () => {
         const sectionsData = await getSectionsForGrades(selectedYear.id);
         const normalized = normalizarDatos(sectionsData);
         setDashboardData(normalized);
+
+        // Cargar Lapsos
+        const lapsosData = await getLapsosByYear(selectedYear.id);
+        setLapsos(lapsosData);
+        if (lapsosData.length > 0) {
+          setSelectedLapso(lapsosData[0]);
+        } else {
+          setSelectedLapso(null);
+        }
+
       } catch (error) {
         console.error("Error loading dashboard data:", error);
       } finally {
@@ -98,7 +110,10 @@ const SistemaBoletinesDanza = () => {
       for (const grado of dashboardData) {
         for (const materia of grado.materias) {
           try {
-            const notasMateria = await getGradesForSection(materia.sectionId || materia.id);
+            const notasMateria = await getGradesForSection(
+              materia.sectionId || materia.id,
+              selectedLapso ? selectedLapso.id : null
+            );
 
             Object.keys(notasMateria).forEach(studentId => {
               if (!notasAcumuladas[studentId]) notasAcumuladas[studentId] = {};
@@ -129,8 +144,10 @@ const SistemaBoletinesDanza = () => {
       dispatch({ type: 'CARGAR_NOTAS', payload: notasAcumuladas });
     };
 
-    fetchAllGrades();
-  }, [dashboardData]);
+    if (selectedLapso) {
+      fetchAllGrades();
+    }
+  }, [dashboardData, selectedLapso]);
 
   // Hooks personalizados
   const { showToast } = useToast(dispatch);
@@ -233,7 +250,13 @@ const SistemaBoletinesDanza = () => {
 
     try {
       const studentIds = Array.from(estudiantesSeleccionados);
-      const response = await generarBoletines(studentIds, selectedYear.id);
+      // Pasar el ID del grado seleccionado para filtrar materias
+      const response = await generarBoletines(
+        studentIds,
+        selectedYear.id,
+        gradoSeleccionado.id,
+        selectedLapso ? selectedLapso.id : null
+      );
 
       if (response && response.ok) {
         showToast("success", `✅ ${studentIds.length} boletines generados y habilitados correctamente`);
@@ -247,7 +270,7 @@ const SistemaBoletinesDanza = () => {
     } finally {
       dispatch({ type: 'FINALIZAR_ENVIO' });
     }
-  }, [estudiantesSeleccionados, selectedYear, showToast]);
+  }, [estudiantesSeleccionados, selectedYear, gradoSeleccionado, showToast, selectedLapso]);
 
   // Handlers
   const handleToggleSeleccion = useCallback((estudianteId) => {
@@ -345,7 +368,11 @@ const SistemaBoletinesDanza = () => {
         return <VistaBoletin boletinData={boletinActual} calculos={calculos} dispatch={dispatch} academicYear={selectedYear?.name} />;
 
       default:
-        return <VistaGrados data={dataParaVista} onSeleccionarGrado={(grado) => dispatch({ type: 'SELECCIONAR_GRADO', payload: grado })} />;
+        return <VistaGrados
+          data={dataParaVista}
+          onSeleccionarGrado={(grado) => dispatch({ type: 'SELECCIONAR_GRADO', payload: grado })}
+          academicYear={selectedYear?.name}
+        />;
     }
   };
 
@@ -364,6 +391,29 @@ const SistemaBoletinesDanza = () => {
           <p className="text-muted-custom small text-uppercase ls-1 fw-bold">
             Ciclo Académico {selectedYear?.name || "Cargando..."}
           </p>
+
+          {/* Selector de Lapso */}
+          {lapsos.length > 0 && (
+            <div className="d-flex justify-content-center mt-3">
+              <div className="d-flex align-items-center gap-2">
+                <span className="text-muted-custom small fw-bold">Lapso:</span>
+                <select
+                  className="form-select form-select-sm w-auto"
+                  value={selectedLapso?.id || ''}
+                  onChange={(e) => {
+                    const lapso = lapsos.find(l => l.id === parseInt(e.target.value))
+                    setSelectedLapso(lapso)
+                  }}
+                >
+                  {lapsos.map(lapso => (
+                    <option key={lapso.id} value={lapso.id}>
+                      {lapso.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </header>
       )}
 

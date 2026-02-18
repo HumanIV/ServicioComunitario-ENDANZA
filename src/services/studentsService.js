@@ -14,16 +14,16 @@ export const listStudents = async (filters = {}) => {
   try {
     let endpoint = '/api/students';
     const params = new URLSearchParams();
-    
+
     if (filters.academicYearId) params.append('academicYearId', filters.academicYearId);
     if (filters.sectionId) params.append('sectionId', filters.sectionId);
-    
+
     if (params.toString()) {
       endpoint += `?${params.toString()}`;
     }
-    
+
     const response = await fetch.get(endpoint);
-    
+
     if (response.ok && response.data) {
       return response.data; // Devolvemos exactamente lo que viene del backend
     }
@@ -81,7 +81,7 @@ export const updateStudent = async (id, studentData) => {
  */
 export const deleteStudent = async (id) => {
   try {
-    const response = await fetch.delet(`/api/students/${id}`);
+    const response = await fetch.delete(`/api/students/${id}`);
     return response;
   } catch (error) {
     console.error("Error en deleteStudent:", error);

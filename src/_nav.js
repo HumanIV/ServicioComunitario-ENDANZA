@@ -23,7 +23,7 @@ import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
 const _nav = [
   // INICIO (Solo para Representante)
 
-  
+
   {
     component: CNavItem,
     name: 'INICIO',
@@ -75,7 +75,7 @@ const _nav = [
       }
     ],
   },
-  
+
 
   // GESTIÓN DE ESTUDIANTES (Solo admin)
   {
@@ -111,13 +111,13 @@ const _nav = [
     name: 'Calificaciones',
     to: '/notas',
     icon: <CIcon icon={cilNotes} customClassName="nav-icon" />,
-    roles: ['admin'],
+    roles: ['admin', 'docente'],
     items: [
       {
         component: CNavItem,
         name: 'Gestión de Notas',
         to: '/notas',
-        roles: ['admin']
+        roles: ['admin', 'docente']
       }
     ],
   },

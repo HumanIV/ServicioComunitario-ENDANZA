@@ -4,7 +4,7 @@ import CIcon from '@coreui/icons-react'
 import { cilCalendar } from '@coreui/icons'
 import ClassGroupCard from './ClassGroupCard'
 
-const ClassGroupsList = ({ sections, selectedTeacher, onSeeStudents }) => {
+const ClassGroupsList = ({ sections, selectedTeacher, onSeeStudents, currentUserId }) => {
     if (sections.length === 0) {
         return (
             <CCol xs={12}>
@@ -25,6 +25,7 @@ const ClassGroupsList = ({ sections, selectedTeacher, onSeeStudents }) => {
                     section={section}
                     selectedTeacher={selectedTeacher}
                     onSeeStudents={onSeeStudents}
+                    currentUserId={currentUserId}
                 />
             ))}
         </CRow>

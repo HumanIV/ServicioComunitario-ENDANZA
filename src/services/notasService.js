@@ -29,13 +29,13 @@ export const getNotasPendientes = async (academicYearId) => {
 };
 
 /**
- * Aprueba una nota pendiente
- * @param {number} notaId - ID de la nota
+ * Aprueba todas las notas pendientes de una sección
+ * @param {number} sectionId - ID de la sección
  * @returns {Promise<Object>}
  */
-export const aprobarNota = async (notaId) => {
+export const aprobarNota = async (sectionId) => {
   try {
-    const response = await fetch.put(`/api/notas/${notaId}/aprobar`);
+    const response = await fetch.put(`/api/notas/${sectionId}/aprobar`);
     return response;
   } catch (error) {
     console.error("Error en aprobarNota:", error);
@@ -44,13 +44,13 @@ export const aprobarNota = async (notaId) => {
 };
 
 /**
- * Rechaza una nota pendiente
- * @param {number} notaId - ID de la nota
+ * Rechaza todas las notas pendientes de una sección
+ * @param {number} sectionId - ID de la sección
  * @returns {Promise<Object>}
  */
-export const rechazarNota = async (notaId) => {
+export const rechazarNota = async (sectionId) => {
   try {
-    const response = await fetch.put(`/api/notas/${notaId}/rechazar`);
+    const response = await fetch.put(`/api/notas/${sectionId}/rechazar`);
     return response;
   } catch (error) {
     console.error("Error en rechazarNota:", error);

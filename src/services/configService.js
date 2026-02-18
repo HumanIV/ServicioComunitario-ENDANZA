@@ -57,6 +57,28 @@ export const addAcademicYear = async (yearName) => {
 };
 
 // ============================================
+// LAPSOS
+// ============================================
+
+/**
+ * Obtiene los lapsos para un año académico
+ * @param {number|string} yearId - ID del año académico
+ * @returns {Promise<Array>} Lista de lapsos { id, name, start_date, end_date }
+ */
+export const getLapsosByYear = async (yearId) => {
+  try {
+    const response = await fetch.get(`/api/config/academic-years/${yearId}/lapsos`);
+    if (response.ok && response.data) {
+      return response.data;
+    }
+    return [];
+  } catch (error) {
+    console.error("Error en getLapsosByYear:", error);
+    return [];
+  }
+};
+
+// ============================================
 // PERÍODO DE INSCRIPCIÓN
 // ============================================
 

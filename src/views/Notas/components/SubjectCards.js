@@ -4,18 +4,20 @@ import CIcon from '@coreui/icons-react'
 import { cilArrowLeft, cilClock, cilBadge, cilPeople, cilBook, cilPencil } from '@coreui/icons'
 import PropTypes from 'prop-types'
 
-const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getColorEstado, determinarEstado }) => {
+const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getColorEstado, determinarEstado, showBackButton = true }) => {
     return (
         <div className="animate__animated animate__fadeIn">
             <div className="d-flex align-items-center mb-5 px-2">
-                <CButton
-                    color="light"
-                    className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent"
-                    onClick={onBack}
-                >
-                    <CIcon icon={cilArrowLeft} className="me-2" />
-                    Volver
-                </CButton>
+                {showBackButton && (
+                    <CButton
+                        color="light"
+                        className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent"
+                        onClick={onBack}
+                    >
+                        <CIcon icon={cilArrowLeft} className="me-2" />
+                        Volver
+                    </CButton>
+                )}
                 <div>
                     <h3 className="mb-0 fw-bold header-title-custom">{grade.grado}</h3>
                     <p className="text-muted-custom small mb-0 text-uppercase ls-1">Selecciona una materia para gestionar calificaciones</p>
@@ -57,35 +59,7 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
                                     </CCol>
                                 </CRow>
 
-                                <div className="p-4 rounded-4 subject-resumen-box">
-                                    <h6 className="text-primary small fw-bold text-uppercase ls-1 mb-3">Resumen de Calificaciones</h6>
-                                    <div className="d-flex flex-column gap-3">
-                                        {materia.estudiantes.slice(0, 3).map(est => {
-                                            const promedio = calculatePromedio(est.id)
-                                            const estado = determinarEstado(promedio)
-                                            return (
-                                                <div key={est.id} className="d-flex justify-content-between align-items-center">
-                                                    <div className="d-flex align-items-center">
-                                                        <div className="avatar-small me-2 bg-white text-primary fw-bold shadow-sm">
-                                                            {est.nombre.charAt(0)}
-                                                        </div>
-                                                        <span className="small header-title-custom fw-medium">{est.nombre}</span>
-                                                    </div>
-                                                    <CBadge color={getColorEstado(estado)} className={`rounded-pill px-3 py-1 ${promedio ? 'shadow-sm' : 'opacity-50'}`}>
-                                                        {promedio ? `${promedio}/20` : "PENDIENTE"}
-                                                    </CBadge>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                    {materia.estudiantes.length > 3 && (
-                                        <div className="mt-3 text-center">
-                                            <small className="text-muted-custom text-uppercase ls-1 fw-bold" style={{ fontSize: '0.6rem' }}>
-                                                + {materia.estudiantes.length - 3} estudiantes por calificar
-                                            </small>
-                                        </div>
-                                    )}
-                                </div>
+
                             </CCardBody>
                             <CCardFooter className="bg-transparent border-0 p-4 pt-0">
                                 <CButton

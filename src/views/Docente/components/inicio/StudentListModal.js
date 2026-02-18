@@ -18,6 +18,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilPeople, cilCheckCircle, cilXCircle, cilCalendarCheck, cilPlus, cilArrowLeft, cilSave } from '@coreui/icons'
+import { saveAttendance, getStudentAttendance } from '../../../../services/attendanceService'
 
 const StudentListModal = ({
     show,
@@ -32,7 +33,7 @@ const StudentListModal = ({
     const [selectedStudent, setSelectedStudent] = useState(null)
 
     // Estado para trackear el historial por cada estudiante
-    const [allHistories, setAllHistories] = useState({})
+    const [currentStudentHistory, setCurrentStudentHistory] = useState([])
 
     const today = new Date().toLocaleDateString('es-ES', {
         weekday: 'long',
@@ -53,48 +54,58 @@ const StudentListModal = ({
         setAttendance({})
     }
 
-    const handleSaveAttendance = () => {
-        setAllHistories(prev => {
-            const newHistories = { ...prev }
-            students.forEach(student => {
-                const currentHistory = newHistories[student.id] || [
-                    { date: 'Martes, 20 de Enero de 2026', status: 'present' },
-                    { date: 'Jueves, 22 de Enero de 2026', status: 'present' },
-                    { date: 'Martes, 27 de Enero de 2026', status: 'absent' },
-                    { date: 'Jueves, 29 de Enero de 2026', status: 'present' },
-                ]
+    const handleSaveAttendance = async () => {
+        try {
+            // Objeto de asistencia por defecto si no se marcó nada
+            const attendanceList = students.map(student => ({
+                studentId: student.id,
+                status: attendance[student.id] || 'present'
+            }));
 
-                // Añadimos el registro de hoy usando lo marcado en el toggle
-                // Por defecto si no se marcó nada, asumimos 'present'
-                newHistories[student.id] = [
-                    { date: today, status: attendance[student.id] || 'present' },
-                    ...currentHistory
-                ]
-            })
-            return newHistories
-        })
-        resetAttendance()
+            const today = new Date().toISOString().split('T')[0];
+
+            await saveAttendance({
+                sectionId: selectedSection?.id,
+                date: today,
+                attendance: attendanceList
+            });
+
+            // Feedback visual simple (alert temporal, luego toast)
+            // Se asume éxito
+            resetAttendance();
+        } catch (error) {
+            console.error("Error saving attendance:", error);
+            // Manejar error (mostrar toast si fuera posible)
+        }
     }
 
     const getStudentHistory = (studentId) => {
-        if (allHistories[studentId]) return allHistories[studentId]
-
-        return [
-            { date: 'Martes, 20 de Enero de 2026', status: 'present' },
-            { date: 'Jueves, 22 de Enero de 2026', status: 'present' },
-            { date: 'Martes, 27 de Enero de 2026', status: 'absent' },
-            { date: 'Jueves, 29 de Enero de 2026', status: 'present' },
-        ]
+        return currentStudentHistory || [];
     }
 
-    const handleSeeDetails = (student) => {
+    const handleSeeDetails = async (student) => {
         setSelectedStudent(student)
         setShowDetails(true)
+        setCurrentStudentHistory([]) // Limpiar previo
+
+        try {
+            const history = await getStudentAttendance(student.id);
+            // Transformar si es necesario (el backend devuelve {date, status, ...})
+            // El front espera {date: 'String fecha', status: 'present'}
+            const formatted = history.map(h => ({
+                date: new Date(h.date).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                status: h.status
+            }));
+            setCurrentStudentHistory(formatted);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const closeDetails = () => {
         setShowDetails(false)
         setSelectedStudent(null)
+        setCurrentStudentHistory([])
     }
 
     const handleCancelAttendance = () => {

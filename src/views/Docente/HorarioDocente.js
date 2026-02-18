@@ -28,21 +28,21 @@ import {
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import { cilCalendar, cilUser, cilSchool, cilRoom, cilClock, cilChevronBottom, cilPeople, cilCloudDownload } from "@coreui/icons"
-import { listSections, getAvailableYears } from 'src/services/schedules'
+import useUserRole from '../../hooks/useUserRole'
+import { listSections, getAvailableYears } from 'src/services/scheduleService'
 
 // Componentes estéticos
-import NavegacionDocente from './components/horario/NavegacionDocente'
-import ListaClasesDocente from './components/horario/ListaClasesDocente'
 import VistaSemanalDocente from './components/horario/VistaSemanalDocente'
+// VistaSemanalDocente eliminado
 
 const HorarioDocente = () => {
+    const { user, isDocente } = useUserRole()
     const [loading, setLoading] = useState(true)
     const [sections, setSections] = useState([])
     const [academicYears, setAcademicYears] = useState([])
     const [selectedYear, setSelectedYear] = useState('2025-2026')
     const [selectedTeacher, setSelectedTeacher] = useState('')
     const [activeDay, setActiveDay] = useState('LUNES')
-    const [modoVista, setModoVista] = useState('diario')
     const [toasts, setToasts] = useState([])
 
     const diasSemana = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES']
@@ -87,16 +87,44 @@ const HorarioDocente = () => {
             const data = await listSections({ academicYear: selectedYear })
             setSections(data)
 
-            // Si hay profesores, seleccionar el primero por defecto si no hay uno seleccionado
+            // Lógica de selección automática de docente
             const allTeachers = extractTeachers(data)
-            if (allTeachers.length > 0 && !selectedTeacher) {
-                setSelectedTeacher(allTeachers[0])
+            let teacherToSelect = ''
+
+            if (isDocente && user) {
+                // Buscar nombre del docente por ID de usuario
+                teacherToSelect = findTeacherNameByUserId(data, user.id)
+                console.log('🔍 Buscando clases para docente:', user.id, 'Encontrado:', teacherToSelect)
             }
+
+            if (teacherToSelect) {
+                setSelectedTeacher(teacherToSelect)
+            } else if (allTeachers.length > 0 && !selectedTeacher && !isDocente) {
+                // Solo auto-seleccionar el primero si NO es docente (modo admin)
+                setSelectedTeacher(allTeachers[0])
+            } else if (isDocente && !teacherToSelect && user) {
+                // Fallback: Intentar construir nombre si no tiene clases aun
+                setSelectedTeacher(`${user.name || ''} ${user.lastName || ''}`.trim())
+            }
+
         } catch (error) {
             console.error("Error fetching sections:", error)
         } finally {
             setLoading(false)
         }
+    }
+
+    const findTeacherNameByUserId = (sectionsData, userId) => {
+        for (const section of sectionsData) {
+            if (!section.schedules) continue
+            for (const sched of section.schedules) {
+                // Comparar IDs (asegurar tipos)
+                if (String(sched.teacherUserId) === String(userId)) {
+                    return sched.teacherName
+                }
+            }
+        }
+        return null
     }
 
     const extractTeachers = (sectionsData) => {
@@ -119,10 +147,14 @@ const HorarioDocente = () => {
         sections.forEach(section => {
             section.schedules.forEach(sched => {
                 if (sched.teacherName === selectedTeacher) {
-                    scheduleMap[sched.dayOfWeek]?.push({
+                    const dia = (sched.dayName || sched.day_name || '').toUpperCase()
+                    scheduleMap[dia]?.push({
                         ...sched,
                         sectionName: section.sectionName,
-                        gradeLevel: section.gradeLevel
+                        subjectName: section.subjectName,
+                        gradeLevel: section.gradeLevel,
+                        classroom: sched.classroomName || sched.classroom_name || 'Sin aula',
+                        subject: sched.subject || section.subjectName || 'Sin materia'
                     })
                 }
             })
@@ -199,20 +231,27 @@ const HorarioDocente = () => {
                                             </div>
                                             <div>
                                                 <div className="bg-glass-premium p-1 px-3 rounded-pill border border-primary border-opacity-10 shadow-sm d-inline-flex align-items-center mb-2">
-                                                    <CDropdown className="w-100">
-                                                        <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                                                    {isDocente ? (
+                                                        <div className="px-2 py-1 fw-bold text-primary d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
                                                             <CIcon icon={cilUser} size="sm" className="me-2 opacity-50" />
-                                                            {selectedTeacher || 'Seleccionar Docente'}
-                                                            <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
-                                                        </CDropdownToggle>
-                                                        <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll" style={{ maxHeight: '300px', width: '250px' }}>
-                                                            {teachersList.map(t => (
-                                                                <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
-                                                                    {t}
-                                                                </CDropdownItem>
-                                                            ))}
-                                                        </CDropdownMenu>
-                                                    </CDropdown>
+                                                            {selectedTeacher || `${user?.name} ${user?.lastName}` || 'Docente'}
+                                                        </div>
+                                                    ) : (
+                                                        <CDropdown className="w-100">
+                                                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                                                                <CIcon icon={cilUser} size="sm" className="me-2 opacity-50" />
+                                                                {selectedTeacher || 'Seleccionar Docente'}
+                                                                <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
+                                                            </CDropdownToggle>
+                                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll" style={{ maxHeight: '300px', width: '250px' }}>
+                                                                {teachersList.map(t => (
+                                                                    <CDropdownItem key={t} onClick={() => setSelectedTeacher(t)} active={selectedTeacher === t} className="py-2 px-3 dropdown-item-premium">
+                                                                        {t}
+                                                                    </CDropdownItem>
+                                                                ))}
+                                                            </CDropdownMenu>
+                                                        </CDropdown>
+                                                    )}
                                                 </div>
                                                 <div className="d-block">
                                                     <CBadge className="bg-success bg-opacity-10 text-success rounded-pill px-3 py-1 border border-success border-opacity-10 small fw-bold">ESTADO: ACTIVO</CBadge>
@@ -260,21 +299,13 @@ const HorarioDocente = () => {
                     </CCard>
 
                     <div className="d-flex flex-wrap gap-3 justify-content-between align-items-center mb-5 no-print">
-                        <div className="p-1 bg-neutral-100 rounded-pill shadow-sm border border-light d-flex">
-                            <CButton
-                                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all ${modoVista === 'diario' ? 'btn-premium text-white shadow-sm' : 'bg-transparent text-muted-custom'}`}
-                                onClick={() => setModoVista('diario')}
-                            >
-                                <CIcon icon={cilCalendar} className="me-2" />
-                                Vista por Día
-                            </CButton>
-                            <CButton
-                                className={`rounded-pill px-4 py-2 border-0 fw-bold transition-all ${modoVista === 'semanal' ? 'btn-premium text-white shadow-sm' : 'bg-transparent text-muted-custom'}`}
-                                onClick={() => setModoVista('semanal')}
-                            >
-                                <CIcon icon={cilCalendar} className="me-2" />
+                        {/* Botones de vista eliminados - Solo vista diaria */}
+                        <div className="p-1 d-flex">
+                            {/* Espacio reservado o título si se desea */}
+                            <span className="text-muted-custom small fw-bold text-uppercase ls-1 align-self-center ms-2">
+                                <CIcon icon={cilCalendar} className="me-2 text-primary" />
                                 Vista Semanal
-                            </CButton>
+                            </span>
                         </div>
 
                         <div className="d-flex gap-3">
@@ -296,35 +327,12 @@ const HorarioDocente = () => {
                     </div>
 
                     {selectedTeacher ? (
-                        modoVista === 'diario' ? (
-                            <div className="animate__animated animate__fadeIn">
-                                <NavegacionDocente
-                                    diasSemana={diasSemana}
-                                    activeDay={activeDay}
-                                    setActiveDay={setActiveDay}
-                                    teacherSchedules={teacherSchedules}
-                                />
-
-                                <div className="mt-4">
-                                    {diasSemana.map(dia => (
-                                        <div key={dia} className={activeDay === dia ? 'animate__animated animate__fadeIn' : 'd-none'}>
-                                            <ListaClasesDocente
-                                                dia={dia}
-                                                clases={teacherSchedules[dia] || []}
-                                                teacherName={selectedTeacher}
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="animate__animated animate__fadeIn">
-                                <VistaSemanalDocente
-                                    diasSemana={diasSemana}
-                                    horario={teacherSchedules}
-                                />
-                            </div>
-                        )
+                        <div className="animate__animated animate__fadeIn">
+                            <VistaSemanalDocente
+                                diasSemana={diasSemana}
+                                horario={teacherSchedules}
+                            />
+                        </div>
                     ) : (
                         <div className="text-center py-5 border border-dashed border-light-custom rounded-4 bg-light-custom bg-opacity-10 text-muted-custom shadow-sm">
                             <CIcon icon={cilUser} size="4xl" className="mb-3 opacity-25" />
