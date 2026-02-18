@@ -96,7 +96,7 @@ const validateAccountStatus = (userData) => {
       return true
     }
   }
-  
+
   return false
 }
 
@@ -216,7 +216,7 @@ const Login = () => {
       if (response.success) {
         // ✅ 1. Obtener usuario de la respuesta (NO de localStorage)
         const userData = response.user
-        
+
         // ✅ 2. Verificar estado con datos FRESCOS
         if (!validateAccountStatus(userData)) {
           setErrorMessage('Tu cuenta está inactiva. Contacta al administrador.')
@@ -224,18 +224,18 @@ const Login = () => {
           setLoading(false)
           return
         }
-        
+
         // ✅ 3. Obtener rol del usuario (ya viene mapeado del authService)
         const roleName = userData.rol || 'estudiante'
-        
+
         // ✅ 4. Redirigir INMEDIATAMENTE sin usar cache
         const redirectPath = getRedirectPathByRole(roleName)
         console.log(`🚀 Redirigiendo a ${redirectPath} como ${roleName}`)
         navigate(redirectPath, { replace: true })
-        
+
       } else {
         const errorType = detectErrorType({ msg: response.message })
-        
+
         switch (errorType) {
           case 'password':
             setVisiblePassError(true)
@@ -276,34 +276,7 @@ const Login = () => {
               <h1 className="text-white h3 fw-medium mb-1">ENDANZA</h1>
               <p className="text-white-50 fw-regular small mb-0">Escuela Nacional de Danza</p>
 
-              <div className="mt-3">
-                {backendStatus === 'checking' && (
-                  <div className="d-flex align-items-center justify-content-center text-warning">
-                    <CSpinner size="sm" className="me-2" />
-                    <small className="text-white-50">Conectando al servidor...</small>
-                  </div>
-                )}
-                {backendStatus === 'connected' && (
-                  <div className="d-flex align-items-center justify-content-center text-success">
-                    <CIcon icon={cilCheckCircle} className="me-2" />
-                    <small className="text-white-50">Conectado al servidor</small>
-                  </div>
-                )}
-                {backendStatus === 'error' && (
-                  <div className="d-flex align-items-center justify-content-center text-danger">
-                    <CIcon icon={cilWarning} className="me-2" />
-                    <small className="text-white-50">Error de conexión</small>
-                    <CButton
-                      size="sm"
-                      color="link"
-                      className="text-warning p-0 ms-2"
-                      onClick={handleRetryConnection}
-                    >
-                      Reintentar
-                    </CButton>
-                  </div>
-                )}
-              </div>
+
             </div>
 
             <CCard className="premium-card border-0 overflow-hidden shadow-lg">
@@ -408,15 +381,7 @@ const Login = () => {
               <div className="card-footer-accent"></div>
             </CCard>
 
-            <div className="mt-3 p-3 bg-dark bg-opacity-25 rounded">
-              <small className="text-white-50 d-block text-center">
-                Backend: http://localhost:3001
-              </small>
-              <small className="text-white-50 d-block text-center mt-1">
-                Estado: {backendStatus === 'connected' ? '🟢 Conectado' :
-                  backendStatus === 'error' ? '🔴 Error' : '🟡 Conectando...'}
-              </small>
-            </div>
+
 
             <p className="text-center text-white-50 mt-3 small mb-0">
               &copy; {new Date().getFullYear()} Escuela Nacional de Danza.

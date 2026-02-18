@@ -236,18 +236,20 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                 <CCardBody className="p-4">
                     <div className="mb-4">
                         <label className="form-label small fw-bold text-uppercase text-muted-custom ls-1 d-block mb-3">
-                            📌 El Representante es el/la:
+                            <CIcon icon={cilWarning} className="me-2 text-warning" />
+                            EL REPRESENTANTE ES EL/LA:
                         </label>
-                        <div className="d-flex gap-2">
+                        <div className="d-flex gap-2 flex-wrap flex-sm-nowrap">
                             {['Madre', 'Padre', 'Otro'].map((option) => (
                                 <CButton
                                     key={option}
                                     type="button"
-                                    color={formData.parentesco === option ? 'warning' : 'light'}
-                                    variant={formData.parentesco === option ? 'solid' : 'ghost'}
-                                    className={`flex-fill py-2 fw-bold border-2 parentesco-option ${formData.parentesco === option ? 'text-white shadow-sm' : 'text-muted-custom border-light-custom'}`}
+                                    className={`flex-fill py-3 fw-bold border-2 parentesco-option transition-all ${formData.parentesco === option
+                                        ? 'btn-warning text-white shadow-md border-warning'
+                                        : 'btn-outline-light bg-light-custom text-muted-custom border-light-custom'
+                                        }`}
                                     onClick={() => setFormData({ ...formData, parentesco: option })}
-                                    style={{ borderRadius: '12px' }}
+                                    style={{ borderRadius: '16px', fontSize: '0.85rem' }}
                                 >
                                     {option.toUpperCase()}
                                 </CButton>
@@ -403,10 +405,22 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
             </CCard>
 
             <style>{`
-                .parentesco-option:hover {
-                    background-color: var(--cui-warning, #f9b115) !important;
-                    color: white !important;
-                    border-color: var(--cui-warning, #f9b115) !important;
+                .parentesco-option {
+                    border: 1px solid rgba(0,0,0,0.08) !important;
+                }
+                .parentesco-option.btn-warning {
+                    background-color: #F28C0F !important;
+                    border-color: #C35604 !important;
+                }
+                .parentesco-option:hover:not(.btn-warning) {
+                    background-color: rgba(242, 140, 15, 0.1) !important;
+                    border-color: rgba(242, 140, 15, 0.3) !important;
+                    color: #C35604 !important;
+                }
+                [data-coreui-theme="dark"] .parentesco-option:not(.btn-warning) {
+                    background-color: rgba(255, 255, 255, 0.05) !important;
+                    border-color: rgba(255, 255, 255, 0.1) !important;
+                    color: rgba(255, 255, 255, 0.6) !important;
                 }
                 .text-contrast {
                     color: var(--neutral-900, #161413);
@@ -418,27 +432,28 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                 .search-suggestions-list { 
                     z-index: 9999 !important; 
                     border: 1px solid rgba(0,0,0,0.1);
-                    border-radius: 8px;
+                    border-radius: 12px;
                     overflow-x: hidden;
                     background: #fff;
+                    margin-top: 5px;
                 }
                 
                 .list-group-item-action:hover {
-                    background-color: rgba(245, 185, 55, 0.1) !important;
-                    color: var(--primary-700) !important;
+                    background-color: rgba(242, 140, 15, 0.08) !important;
+                    color: #C35604 !important;
                 }
 
                 [data-coreui-theme="dark"] .search-suggestions-list {
-                    background-color: #1a1a2e;
+                    background-color: #1e293b;
                     border-color: rgba(255,255,255,0.1);
                 }
                 [data-coreui-theme="dark"] .list-group-item-action:hover {
-                    background-color: rgba(245, 185, 55, 0.2) !important;
+                    background-color: rgba(242, 140, 15, 0.2) !important;
                     color: #f9b115 !important;
                 }
 
                 [data-coreui-theme="dark"] .list-group-item {
-                    background-color: #1a1a2e;
+                    background-color: #1e293b;
                     border-color: rgba(255,255,255,0.05);
                     color: rgba(255,255,255,0.8);
                 }

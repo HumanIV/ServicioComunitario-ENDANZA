@@ -87,14 +87,7 @@ const DefaultLayout = () => {
             isRepresentante={isRepresentante}
           />
 
-          {/* Indicador de modo desarrollo (opcional) */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="position-fixed bottom-0 end-0 m-3">
-              <div className="badge bg-warning shadow-sm">
-                Rol: {userRole} | ID: {userData?.Id_rol}
-              </div>
-            </div>
-          )}
+
         </div>
         <AppFooter />
       </div>

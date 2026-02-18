@@ -22,7 +22,7 @@ const WelcomeBanner = ({ title, subtitle, icon, colorClass = 'primary', bgIcon }
                         </p>
                     </div>
                     <div className={`d-none d-md-block ${bgSoftClass} p-4 rounded-circle`}>
-                        <CIcon icon={icon} size="3xl" className={`text-${colorClass}`} style={{ height: '60px' }} />
+                        <CIcon icon={icon} size="3xl" className="text-white" style={{ height: '60px' }} />
                     </div>
                 </div>
                 {bgIcon && (
@@ -35,8 +35,12 @@ const WelcomeBanner = ({ title, subtitle, icon, colorClass = 'primary', bgIcon }
                     .welcome-title { color: var(--neutral-900); }
                     .welcome-subtitle { color: var(--neutral-600); }
 
-                    [data-coreui-theme="dark"] .welcome-title { color: rgba(255, 255, 255, 0.95); }
-                    [data-coreui-theme="dark"] .welcome-subtitle { color: rgba(255, 255, 255, 0.7); }
+                    [data-coreui-theme="dark"] .welcome-title { color: white !important; }
+                    [data-coreui-theme="dark"] .welcome-subtitle { color: rgba(255, 255, 255, 0.7) !important; }
+                    [data-coreui-theme="dark"] .bg-orange-soft { background-color: rgba(242, 140, 15, 0.25) !important; border: 1px solid rgba(242, 140, 15, 0.3) !important; }
+                    [data-coreui-theme="dark"] .bg-green-soft { background-color: rgba(16, 185, 129, 0.25) !important; border: 1px solid rgba(16, 185, 129, 0.3) !important; }
+                    [data-coreui-theme="dark"] .bg-blue-soft { background-color: rgba(51, 153, 255, 0.25) !important; border: 1px solid rgba(51, 153, 255, 0.3) !important; }
+                    [data-coreui-theme="dark"] .bg-purple-soft { background-color: rgba(102, 16, 242, 0.25) !important; border: 1px solid rgba(102, 16, 242, 0.3) !important; }
                 `}</style>
             </CCardBody>
         </CCard>

@@ -1,4 +1,4 @@
-// src/hooks/useUserRole.js - VERSIÓN QUE FUNCIONABA
+// src/Hooks/useUserRole.js - VERSIÓN QUE FUNCIONABA
 import { useState, useEffect, useCallback } from 'react'
 import { userAPI } from '../api/user.api.js'
 
@@ -22,9 +22,9 @@ const useUserRole = () => {
       if (!token) return null
 
       console.log('🔍 useUserRole - Obteniendo datos del usuario desde backend...')
-      
+
       const response = await userAPI.getProfile()
-      
+
       if (response._ok === false) {
         if (response._status === 401) {
           localStorage.removeItem('accessToken')
@@ -39,9 +39,9 @@ const useUserRole = () => {
 
       const roleId = response.user.Id_rol
       const roleName = roleMap[roleId] || 'estudiante'
-      
+
       console.log(`🔄 useUserRole - Usuario ID: ${roleId} → Rol: ${roleName}`)
-      
+
       const completeUserData = {
         ...response.user,
         rol: roleName,
@@ -53,7 +53,7 @@ const useUserRole = () => {
       }
 
       localStorage.setItem('user', JSON.stringify(completeUserData))
-      
+
       return completeUserData
 
     } catch (err) {
@@ -68,14 +68,14 @@ const useUserRole = () => {
         console.log('🔄 useUserRole - Forzando obtención de datos frescos')
         return await fetchUserFromBackend()
       }
-      
+
       const cachedUser = localStorage.getItem('user')
       if (cachedUser) {
         const parsedUser = JSON.parse(cachedUser)
         console.log('📦 useUserRole - Usando datos cacheados')
         return parsedUser
       }
-      
+
       return null
     } catch (err) {
       console.error('❌ useUserRole - Error en getUserData:', err)
@@ -89,14 +89,14 @@ const useUserRole = () => {
     const loadUserData = async () => {
       try {
         if (isMounted) setIsLoading(true)
-        
+
         const userData = await getUserData(true)
-        
+
         if (isMounted && userData) {
           setUserData(userData)
           setUserRole(userData.rol)
           setUserId(userData.id)
-          
+
           console.log('✅ useUserRole - Datos cargados exitosamente:', {
             id: userData.id,
             rol: userData.rol,

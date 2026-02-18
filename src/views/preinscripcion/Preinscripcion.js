@@ -210,12 +210,12 @@ const Preinscripcion = () => {
                         <div className="d-flex align-items-center position-relative w-100" style={{ maxWidth: '600px' }}>
                             <div className="flex-fill text-center">
                                 <div
-                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all stepper-circle ${step >= 1 ? 'active shadow' : ''}`}
+                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all stepper-circle ${step >= 1 ? 'active shadow-glow' : ''}`}
                                     style={{ width: '50px', height: '50px', zIndex: 2 }}
                                 >
-                                    <CIcon icon={cilUser} style={{ color: step >= 1 ? '#C35604' : 'rgba(255,255,255,0.3)' }} />
+                                    <CIcon icon={cilUser} className={step >= 1 ? 'stepper-icon-active' : 'stepper-icon-inactive'} />
                                 </div>
-                                <span className={`small fw-bold text-uppercase ls-1 ${step >= 1 ? 'text-warning' : 'opacity-50'}`}>Representante</span>
+                                <span className={`small fw-bold text-uppercase ls-1 ${step >= 1 ? 'text-warning text-shadow-sm' : 'text-muted-custom opacity-40'}`}>Representante</span>
                             </div>
 
                             <div
@@ -225,23 +225,23 @@ const Preinscripcion = () => {
                                     top: '25px',
                                     width: '50%',
                                     height: '2px',
-                                    backgroundColor: step >= 2 ? 'var(--cui-warning)' : 'rgba(255,255,255,0.1)',
+                                    backgroundColor: step >= 2 ? '#F28C0F' : 'rgba(0,0,0,0.05)',
                                     zIndex: 1
                                 }}
                             ></div>
 
                             <div className="flex-fill text-center">
                                 <div
-                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all stepper-circle ${step >= 2 ? 'active shadow' : ''}`}
+                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all stepper-circle ${step >= 2 ? 'active shadow-glow' : ''}`}
                                     style={{
                                         width: '50px',
                                         height: '50px',
                                         zIndex: 2
                                     }}
                                 >
-                                    <CIcon icon={cilEducation} style={{ color: step >= 2 ? '#C35604' : 'rgba(255,255,255,0.3)' }} />
+                                    <CIcon icon={cilEducation} className={step >= 2 ? 'stepper-icon-active' : 'stepper-icon-inactive'} />
                                 </div>
-                                <span className={`small fw-bold text-uppercase ls-1 ${step >= 2 ? 'text-warning' : 'opacity-50'}`}>Estudiante(s)</span>
+                                <span className={`small fw-bold text-uppercase ls-1 ${step >= 2 ? 'text-warning text-shadow-sm' : 'text-muted-custom opacity-40'}`}>Estudiante(s)</span>
                             </div>
                         </div>
                     </div>
@@ -284,20 +284,38 @@ const Preinscripcion = () => {
                 .transition-all { transition: all 0.3s ease; }
                 .stepper-circle {
                     position: relative;
-                    background-color: #f8fafc !important;
+                    background-color: rgba(0, 0, 0, 0.03) !important;
                     border: 2px solid transparent;
                 }
                 .stepper-circle.active {
-                    background-color: #fff !important;
+                    background-color: white !important;
                     border-color: #F28C0F;
+                    box-shadow: 0 0 20px rgba(242, 140, 15, 0.5) !important;
+                }
+                .stepper-icon-active {
+                    color: #F28C0F !important;
+                    fill: #F28C0F !important;
+                    filter: drop-shadow(0 0 3px rgba(242, 140, 15, 0.5));
+                }
+                .stepper-icon-inactive {
+                    color: rgba(0, 0, 0, 0.3) !important;
+                    fill: rgba(0, 0, 0, 0.3) !important;
+                }
+                [data-coreui-theme="dark"] .stepper-icon-inactive {
+                    color: rgba(255, 255, 255, 0.25) !important;
+                    fill: rgba(255, 255, 255, 0.25) !important;
+                }
+                .shadow-glow {
                     box-shadow: 0 0 15px rgba(242, 140, 15, 0.4) !important;
                 }
                 [data-coreui-theme="dark"] .stepper-circle:not(.active) {
-                    background-color: #1a1a2e !important;
+                    background-color: rgba(255, 255, 255, 0.03) !important;
                     border: 1px solid rgba(255,255,255,0.05);
                 }
                 [data-coreui-theme="dark"] .stepper-circle.active {
-                    background-color: #fff !important; /* Círculo blanco para que resalte el icono naranja */
+                    background-color: rgba(242, 140, 15, 0.1) !important;
+                    border: 2px solid #F28C0F !important;
+                    box-shadow: 0 0 20px rgba(242, 140, 15, 0.3) !important;
                 }
                 .stepper-line {
                     pointer-events: none;

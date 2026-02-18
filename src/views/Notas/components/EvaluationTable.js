@@ -120,14 +120,14 @@ const EvaluationTable = ({
                 <CCardBody className="p-0">
                     <div className="table-responsive">
                         <CTable align="middle" className="mb-0 custom-premium-table">
-                            <CTableHead className="bg-light-custom bg-opacity-50">
-                                <CTableRow>
-                                    <CTableHeaderCell className="ps-4 py-3 text-muted-custom small fw-bold text-uppercase ls-1" style={{ minWidth: '160px' }}>Estudiante</CTableHeaderCell>
-                                    <CTableHeaderCell className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1 d-mobile-none">Reg.</CTableHeaderCell>
+                            <CTableHead>
+                                <CTableRow className="bg-glass-premium border-bottom-light">
+                                    <CTableHeaderCell className="ps-4 py-4 text-muted-custom small fw-heavy text-uppercase ls-1" style={{ minWidth: '180px' }}>ESTUDIANTE</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-4 text-center text-muted-custom small fw-heavy text-uppercase ls-1 d-mobile-none">REGISTRO</CTableHeaderCell>
                                     {[1, 2, 3, 4].map(num => (
-                                        <CTableHeaderCell key={num} className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1" style={{ minWidth: '70px' }}>C{num}</CTableHeaderCell>
+                                        <CTableHeaderCell key={num} className="py-4 text-center text-muted-custom small fw-heavy text-uppercase ls-1" style={{ minWidth: '85px' }}>CORTE {num}</CTableHeaderCell>
                                     ))}
-                                    <CTableHeaderCell className="py-3 text-center text-muted-custom small fw-bold text-uppercase ls-1 pe-4" style={{ minWidth: '100px' }}>PROMEDIO</CTableHeaderCell>
+                                    <CTableHeaderCell className="py-4 text-center text-muted-custom small fw-heavy text-uppercase ls-1 pe-4" style={{ minWidth: '110px' }}>DEF. LAPSO</CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
                             <CTableBody>
@@ -140,18 +140,18 @@ const EvaluationTable = ({
                                         <CTableRow key={estudiante.id} className="hover-row transition-all">
                                             <CTableDataCell className="ps-4 py-3 border-bottom-light">
                                                 <div className="d-flex align-items-center">
-                                                    <div className="avatar-circle me-2 me-md-3 bg-orange-soft text-primary fw-bold shadow-sm flex-shrink-0" style={{ width: '35px', height: '35px', minWidth: '35px' }}>
+                                                    <div className="avatar-circle me-3 bg-orange-soft text-warning fw-bold shadow-sm flex-shrink-0" style={{ width: '42px', height: '42px', minWidth: '42px', fontSize: '1.1rem' }}>
                                                         {estudiante.nombre.charAt(0)}
                                                     </div>
                                                     <div className="overflow-hidden">
-                                                        <div className="fw-bold header-title-custom text-truncate" style={{ maxWidth: '150px' }}>{estudiante.nombre}</div>
-                                                        <div className="text-muted-custom d-mobile-none" style={{ fontSize: '0.7rem' }}>Expediente: {estudiante.codigo}</div>
+                                                        <div className="fw-bold header-title-custom text-truncate mb-0" style={{ maxWidth: '180px' }}>{estudiante.nombre}</div>
+                                                        <div className="text-muted-custom d-mobile-none fw-medium" style={{ fontSize: '0.75rem', opacity: 0.7 }}>{estudiante.codigo}</div>
                                                     </div>
                                                 </div>
                                             </CTableDataCell>
 
                                             <CTableDataCell className="text-center border-bottom-light d-mobile-none">
-                                                <CBadge className="bg-light-custom text-muted-custom border border-light-custom rounded-pill px-2">
+                                                <CBadge className="bg-light-custom text-muted-custom border border-light-custom rounded-pill px-3 py-1 fw-bold">
                                                     {estudiante.codigo}
                                                 </CBadge>
                                             </CTableDataCell>
@@ -166,10 +166,11 @@ const EvaluationTable = ({
                                                         placeholder={`C${num}`}
                                                         value={notasEst[`n${num}`] || ""}
                                                         onChange={(e) => onNotaChange && onNotaChange(estudiante.id, num, e.target.value)}
-                                                        className={`text-center fw-bold evaluation-input rounded-3 shadow-sm ${notasEst[`n${num}`] ? 'bg-white' : 'bg-light-custom bg-opacity-50 border-dashed'}`}
+                                                        className={`text-center fw-bold input-premium rounded-3 shadow-xs mx-auto ${notasEst[`n${num}`] ? '' : 'border-dashed opacity-75'}`}
+                                                        style={{ maxWidth: '65px', minHeight: '38px', fontSize: '0.95rem' }}
                                                         disabled={modoLectura}
                                                     />
-                                                    <div className="text-muted-custom mt-1" style={{ fontSize: '0.6rem' }}>C{num}</div>
+                                                    <div className="text-muted-custom mt-1 label-micro fw-bold" style={{ opacity: 0.5 }}>C{num}</div>
                                                 </CTableDataCell>
                                             ))}
 
@@ -201,31 +202,38 @@ const EvaluationTable = ({
                         </CTable>
                     </div>
                 </CCardBody>
-                <CCardFooter className="bg-light-custom bg-opacity-50 border-0 p-4 no-print rounded-bottom-4">
-                    <div className="d-flex justify-content-between align-items-center">
+                <CCardFooter className="bg-glass-premium border-0 p-4 no-print rounded-bottom-4 border-top-light">
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         <div className="d-flex align-items-center text-muted-custom">
-                            <div className="p-2 bg-light-custom rounded-circle me-3 shadow-sm border border-light">
+                            <div className="p-3 bg-orange-soft rounded-circle me-3 shadow-sm border border-orange border-opacity-10 d-flex align-items-center justify-content-center">
                                 <CIcon icon={cilWarning} className="text-warning" />
                             </div>
-                            <small className="fw-medium">
-                                <strong className="header-title-custom">IMPORTANTE:</strong> Ingrese valores entre <strong>0 y 20</strong> siguiendo la escala institucional.
-                            </small>
+                            <div>
+                                <div className="fw-heavy header-title-custom small text-uppercase ls-1 mb-1">Guía de Evaluación:</div>
+                                <small className="fw-medium opacity-75">
+                                    Ingrese valores entre <strong>0 y 20</strong> conforme a la escala institucional de ENDANZA.
+                                </small>
+                            </div>
                         </div>
 
                         {/* SOLO MOSTRAR PROGRESO Y BOTÓN SI NO ESTÁ EN MODO LECTURA */}
                         {!modoLectura && (
-                            <div className="d-flex align-items-center gap-2">
-                                <CProgress
-                                    value={(subject.estudiantes.filter(est => calculatePromedio(est.id)).length / subject.estudiantes.length) * 100}
-                                    color="success"
-                                    className="progress-bg-custom progress-thin me-3 d-none d-lg-flex"
-                                    style={{ width: '100px', height: '6px' }}
-                                />
+                            <div className="d-flex align-items-center gap-4 w-100 w-md-auto justify-content-between">
+                                <div className="d-none d-lg-block">
+                                    <div className="label-micro text-end mb-1 opacity-50">PROGRESO DE CARGA</div>
+                                    <CProgress
+                                        value={(subject.estudiantes.filter(est => calculatePromedio(est.id)).length / subject.estudiantes.length) * 100}
+                                        color="success"
+                                        className="progress-bg-custom progress-thin shadow-xs"
+                                        style={{ width: '120px', height: '6px' }}
+                                    />
+                                </div>
                                 <CButton
-                                    className="btn-premium rounded-pill px-5 py-2 shadow-sm"
+                                    className="btn-premium rounded-pill px-5 py-3 shadow-md fw-bold text-uppercase ls-1"
                                     onClick={onPrepareSend}
+                                    style={{ fontSize: '0.8rem' }}
                                 >
-                                    <CIcon icon={cilSend} className="me-2" /> ENVIAR NOTAS
+                                    <CIcon icon={cilSend} className="me-2" /> ENVIAR CALIFICACIONES
                                 </CButton>
                             </div>
                         )}

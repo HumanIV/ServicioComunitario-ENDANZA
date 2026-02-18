@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react"
 import { CContainer, CToaster, CToast, CToastBody, CSpinner, CAlert, CBadge } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import { cilNotes } from "@coreui/icons"
-import useUserRole from '../../hooks/useUserRole'
+import useUserRole from '../../Hooks/useUserRole'
 
 // Servicios
 import { getSectionsForGrades, getGradesForSection, saveGrades, getTeacherSections } from '../../services/gradeService'
@@ -18,7 +18,7 @@ import EvaluationSummary from "./components/EvaluationSummary"
 import SendConfirmationModal from "./components/SendConfirmationModal"
 
 const SistemaEvaluacionDanza = () => {
-    const { userRole, isAdmin, isDocente } = useUserRole()
+    const { userRole, isAdmin, isDocente, userData } = useUserRole()
 
     // Estados
     const [data, setData] = useState([])
@@ -420,14 +420,21 @@ const SistemaEvaluacionDanza = () => {
         <CContainer fluid className="py-4 profile-container pb-5">
             <header className="mb-5 no-print">
                 <div className="d-flex align-items-center gap-3">
-                    <div className="p-3 bg-primary rounded-circle shadow-sm">
-                        <CIcon icon={cilNotes} size="xl" className="text-white" />
+                    <div className="p-3 bg-orange-soft rounded-circle shadow-sm">
+                        <CIcon icon={cilNotes} size="xl" className="text-warning" />
                     </div>
                     <div>
-                        <h2 className="mb-0 fw-bold header-title-custom text-uppercase ls-1">
+                        <h2 className="mb-0 fw-bold header-title-custom text-uppercase ls-1 fs-3 fs-md-2">
                             {isAdmin ? 'Consulta de Calificaciones' : 'Centro de Calificaciones'}
                         </h2>
-                        <p className="text-muted-custom small mb-0 text-uppercase ls-1">
+                        {userData && (
+                            <div className="d-flex align-items-center mt-1">
+                                <span className="text-muted-custom small text-uppercase ls-1 fw-bold" style={{ fontSize: '0.7rem' }}>
+                                    AUTORIZADO: <span className="text-warning">{userData.nombre} {userData.apellido}</span>
+                                </span>
+                            </div>
+                        )}
+                        <p className="text-muted-custom small mb-0 text-uppercase ls-1 d-none d-md-block">
                             {isAdmin
                                 ? 'Visualización de rendimiento académico'
                                 : 'Gestión académica de la Escuela Nacional de Danza'}
@@ -435,22 +442,22 @@ const SistemaEvaluacionDanza = () => {
                     </div>
                 </div>
 
-                {/* Barra de Herramientas Unificada: Año y Lapso */}
+                {/* Barra de Herramientas Premium: Año y Lapso */}
                 {years.length > 0 && (
-                    <div className="d-flex flex-column flex-md-row bg-dark bg-opacity-25 p-3 rounded-2 border border-secondary border-opacity-25 mt-4 gap-3 align-items-md-center shadow-sm">
+                    <div className="d-flex flex-column flex-md-row bg-glass-premium p-4 rounded-4 border border-light-custom mt-4 gap-4 align-items-md-center shadow-sm">
 
                         {/* Grupo Año */}
-                        <div className="d-flex align-items-center gap-2">
-                            <span className="text-secondary fw-bold text-uppercase small ls-1">Año Académico:</span>
+                        <div className="d-flex align-items-center gap-3">
+                            <span className="text-muted-custom fw-bold text-uppercase small ls-1">Académico:</span>
                             <select
-                                className="form-select form-select-sm w-auto bg-dark text-white border-secondary fw-bold shadow-sm"
+                                className="form-select form-select-sm w-auto input-premium fw-bold shadow-sm"
                                 value={selectedYear?.id || ''}
                                 onChange={(e) => {
                                     const year = years.find(y => y.id === parseInt(e.target.value))
                                     setSelectedYear(year)
                                 }}
                                 disabled={years.length <= 1}
-                                style={{ minWidth: '140px' }}
+                                style={{ minWidth: '160px', borderRadius: '12px' }}
                             >
                                 {years.map(year => (
                                     <option key={year.id} value={year.id}>
@@ -461,20 +468,20 @@ const SistemaEvaluacionDanza = () => {
                         </div>
 
                         {/* Separador vertical para desktop */}
-                        <div className="vr text-secondary mx-2 d-none d-md-block opacity-25"></div>
+                        <div className="vr text-muted-custom mx-2 d-none d-md-block opacity-25"></div>
 
                         {/* Grupo Lapso */}
                         {lapsos.length > 0 && (
-                            <div className="d-flex align-items-center gap-2">
-                                <span className="text-secondary fw-bold text-uppercase small ls-1">Lapso:</span>
+                            <div className="d-flex align-items-center gap-3">
+                                <span className="text-muted-custom fw-bold text-uppercase small ls-1">Lapso:</span>
                                 <select
-                                    className="form-select form-select-sm w-auto bg-dark text-white border-secondary fw-bold shadow-sm"
+                                    className="form-select form-select-sm w-auto input-premium fw-bold shadow-sm"
                                     value={selectedLapso?.id || ''}
                                     onChange={(e) => {
                                         const lapso = lapsos.find(l => l.id === parseInt(e.target.value))
                                         setSelectedLapso(lapso)
                                     }}
-                                    style={{ minWidth: '150px' }}
+                                    style={{ minWidth: '160px', borderRadius: '12px' }}
                                 >
                                     {lapsos.map(lapso => (
                                         <option key={lapso.id} value={lapso.id}>
@@ -498,16 +505,28 @@ const SistemaEvaluacionDanza = () => {
                                     const esVerde = isAdmin ? gradesPeriod.realmenteAbierto : gradesPeriod.abierto;
 
                                     return (
-                                        <CAlert color={esVerde ? "success" : "danger"} className="mb-0 py-1 px-3 small d-flex align-items-center rounded-pill border-0 shadow-sm" style={{ backgroundColor: esVerde ? 'rgba(25, 135, 84, 0.15)' : 'rgba(220, 53, 69, 0.15)', color: esVerde ? '#75b798' : '#ea868f' }}>
-                                            <div className={`rounded-circle me-2 ${esVerde ? 'bg-success' : 'bg-danger'}`} style={{ width: 8, height: 8, boxShadow: `0 0 8px ${esVerde ? 'rgba(25, 135, 84, 0.6)' : 'rgba(220, 53, 69, 0.6)'}` }}></div>
-                                            <strong className="me-2 text-uppercase" style={{ fontSize: '0.7rem', letterSpacing: '0.5px' }}>Estado:</strong>
-                                            <span style={{ fontSize: '0.8rem' }}>
-                                                {gradesPeriod.realmenteAbierto
-                                                    ? `Habilitado hasta ${formatDate(gradesPeriod.fechaFin)}`
-                                                    : `Cerrado (${gradesPeriod.mensaje})`
-                                                }
-                                                {isAdmin && <CBadge color="info" className="ms-2 py-0 px-2" style={{ fontSize: '0.65rem' }}>ADMIN</CBadge>}
-                                            </span>
+                                        <CAlert color={esVerde ? "success" : "warning"} className="mb-0 py-2 px-3 small d-flex align-items-center rounded-pill border-0 shadow-sm flex-wrap flex-md-nowrap"
+                                            style={{
+                                                backgroundColor: esVerde ? 'rgba(16, 185, 129, 0.1)' : 'rgba(242, 140, 15, 0.1)',
+                                                color: esVerde ? 'var(--success)' : 'var(--warning)',
+                                                border: `1px solid ${esVerde ? 'rgba(16, 185, 129, 0.2)' : 'rgba(242, 140, 15, 0.2)'}`
+                                            }}>
+                                            <div className="pulse-dot me-2 d-none d-sm-block" style={{
+                                                width: 8,
+                                                height: 8,
+                                                backgroundColor: esVerde ? 'var(--success)' : 'var(--warning)',
+                                                boxShadow: `0 0 8px ${esVerde ? 'var(--success)' : 'var(--warning)'}`
+                                            }}></div>
+                                            <div className="d-flex align-items-center gap-2">
+                                                <strong className="text-uppercase fw-heavy" style={{ fontSize: '0.65rem', letterSpacing: '0.5px' }}>ESTADO:</strong>
+                                                <span className="fw-bold text-nowrap" style={{ fontSize: '0.75rem' }}>
+                                                    {gradesPeriod.realmenteAbierto
+                                                        ? `Hasta ${formatDate(gradesPeriod.fechaFin)}`
+                                                        : gradesPeriod.mensaje
+                                                    }
+                                                </span>
+                                                {isAdmin && <CBadge color="info" className="ms-1 py-1 px-2 premium-role-badge" style={{ fontSize: '0.6rem' }}>ADMIN</CBadge>}
+                                            </div>
                                         </CAlert>
                                     );
                                 })()}

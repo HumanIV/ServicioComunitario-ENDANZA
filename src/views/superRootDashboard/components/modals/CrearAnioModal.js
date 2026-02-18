@@ -40,16 +40,16 @@ const CrearAnioModal = ({
     if (!pattern.test(anio)) {
       return 'Formato inválido. Debe ser YYYY-YYYY (ej: 2025-2026)'
     }
-    
+
     const [start, end] = anio.split('-').map(Number)
     if (start >= end) {
       return 'El año de inicio debe ser menor que el año de fin'
     }
-    
+
     if (end - start !== 1) {
       return 'Los años deben ser consecutivos (ej: 2025-2026)'
     }
-    
+
     return null
   }
 
@@ -63,21 +63,21 @@ const CrearAnioModal = ({
 
   const handleSubmit = async () => {
     setError('')
-    
+
     // Validar formato
     const errorFormato = validarFormato(nuevoAnio)
     if (errorFormato) {
       setError(errorFormato)
       return
     }
-    
+
     // Verificar si ya existe
     const errorExistente = verificarExistente(nuevoAnio)
     if (errorExistente) {
       setError(errorExistente)
       return
     }
-    
+
     setLoading(true)
     try {
       await onConfirm(nuevoAnio)
@@ -98,15 +98,15 @@ const CrearAnioModal = ({
   return (
     <CModal visible={visible} onClose={onClose} size="lg" backdrop="static">
       <div className="bg-primary" style={{ height: '6px', borderTopLeftRadius: 'var(--cui-modal-border-radius)', borderTopRightRadius: 'var(--cui-modal-border-radius)' }}></div>
-      
+
       <CModalHeader className="border-0 py-4 px-4">
         <CModalTitle className="fw-bold d-flex align-items-center w-100">
           <div className="bg-orange-soft p-3 rounded-4 me-3">
-            <CIcon icon={cilSchool} className="text-primary" size="xl" />
+            <CIcon icon={cilSchool} className="text-warning" size="xl" />
           </div>
           <div>
-            <h4 className="mb-0 fw-black">Crear Nueva Gestión</h4>
-            <div className="small text-muted">
+            <h4 className="mb-0 fw-black text-contrast">Crear Nueva Gestión</h4>
+            <div className="small text-muted-custom">
               Aperturar un nuevo ciclo académico
             </div>
           </div>
@@ -123,10 +123,10 @@ const CrearAnioModal = ({
           )}
 
           <div className="mb-4">
-            <CFormLabel className="fw-bold">Año académico actual</CFormLabel>
-            <div className="p-3 bg-light rounded-3 border">
-              <strong className="text-primary">{currentYear?.name || 'No seleccionado'}</strong>
-              <div className="small text-muted mt-1">
+            <CFormLabel className="fw-bold text-muted-custom small text-uppercase ls-1">Año académico actual</CFormLabel>
+            <div className="p-3 bg-glass-premium rounded-3 border-light-custom">
+              <strong className="text-warning fs-5">{currentYear?.name || 'No seleccionado'}</strong>
+              <div className="small text-muted-custom mt-1">
                 {currentYear?.active ? '(Activo)' : '(Inactivo)'}
               </div>
             </div>
@@ -134,17 +134,18 @@ const CrearAnioModal = ({
 
           {sugerencia && (
             <div className="mb-4">
-              <CFormLabel className="fw-bold">Sugerencia</CFormLabel>
+              <CFormLabel className="fw-bold text-muted-custom small text-uppercase ls-1">Sugerencia</CFormLabel>
               <div className="d-flex align-items-center gap-2">
                 <div className="p-3 bg-info bg-opacity-10 rounded-3 flex-grow-1 border border-info border-opacity-25">
                   <strong className="text-info">{sugerencia}</strong>
-                  <div className="small text-muted">Próximo año consecutivo</div>
+                  <div className="small text-muted-custom opacity-75">Próximo año consecutivo</div>
                 </div>
                 <CButton
                   color="info"
                   variant="outline"
                   onClick={usarSugerencia}
-                  className="rounded-pill"
+                  className="rounded-pill px-3 fw-bold border-2"
+                  style={{ fontSize: '0.8rem' }}
                 >
                   Usar sugerencia
                 </CButton>
@@ -153,7 +154,7 @@ const CrearAnioModal = ({
           )}
 
           <div className="mb-3">
-            <CFormLabel className="fw-bold">
+            <CFormLabel className="fw-bold text-muted-custom small text-uppercase ls-1">
               Nuevo año académico <span className="text-danger">*</span>
             </CFormLabel>
             <CFormInput
@@ -164,19 +165,19 @@ const CrearAnioModal = ({
                 setNuevoAnio(e.target.value)
                 setError('')
               }}
-              className="py-3"
+              className="py-3 input-premium fw-bold fs-5"
             />
-            <div className="small text-muted mt-2">
+            <div className="small text-muted-custom opacity-75 mt-2">
               Formato: AAAA-AAAA (ej: 2025-2026)
             </div>
           </div>
 
-          <div className="bg-light p-3 rounded-3 mt-4">
-            <h6 className="fw-bold mb-2">
+          <div className="bg-glass-premium p-3 rounded-4 mt-4 border-light-custom">
+            <h6 className="fw-bold mb-2 text-contrast">
               <CIcon icon={cilCheckCircle} className="text-success me-2" />
               Al crear un nuevo año:
             </h6>
-            <ul className="small mb-0 ps-3">
+            <ul className="small mb-0 ps-3 text-muted-custom fw-medium">
               <li className="mb-1">Se desactivará automáticamente el año actual</li>
               <li className="mb-1">Se crearán configuraciones por defecto para inscripciones y notas</li>
               <li className="mb-1">Podrás comenzar a cargar secciones y estudiantes</li>
@@ -230,6 +231,17 @@ const CrearAnioModal = ({
         .bg-orange-soft {
           background-color: rgba(242, 140, 15, 0.1);
         }
+        [data-coreui-theme="dark"] .bg-orange-soft {
+          background-color: rgba(242, 140, 15, 0.15) !important;
+          border: 1px solid rgba(242, 140, 15, 0.2);
+        }
+        .text-contrast {
+          color: var(--neutral-900, #1e293b);
+        }
+        [data-coreui-theme="dark"] .text-contrast {
+          color: white !important;
+        }
+        .ls-1 { letter-spacing: 0.5px; }
       `}</style>
     </CModal>
   )

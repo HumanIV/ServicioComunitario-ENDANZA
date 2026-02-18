@@ -28,7 +28,7 @@ import {
 } from "@coreui/react"
 import CIcon from "@coreui/icons-react"
 import { cilCalendar, cilUser, cilSchool, cilRoom, cilClock, cilChevronBottom, cilPeople, cilCloudDownload } from "@coreui/icons"
-import useUserRole from '../../hooks/useUserRole'
+import useUserRole from '../../Hooks/useUserRole'
 import { listSections, getAvailableYears } from 'src/services/scheduleService'
 import { getActiveYear } from 'src/services/configService'
 
