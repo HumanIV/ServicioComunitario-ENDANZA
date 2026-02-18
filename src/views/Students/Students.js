@@ -32,7 +32,7 @@ import StudentModals from "./components/StudentModals"
 
 const Students = () => {
   const navigate = useNavigate()
-  
+
   // Estados
   const [students, setStudents] = useState([])
   const [loading, setLoading] = useState(true)
@@ -64,6 +64,7 @@ const Students = () => {
     setLoading(true)
     try {
       const data = await listStudents()
+      console.log("📥 [Students] Estudiantes recibidos:", data);
       setStudents(data)
     } catch (error) {
       showToast("danger", "Error", "No se pudieron cargar los estudiantes")
@@ -87,13 +88,13 @@ const Students = () => {
       sortableItems.sort((a, b) => {
         let aValue = a[sortConfig.key]
         let bValue = b[sortConfig.key]
-        
+
         // Manejar campos anidados
         if (sortConfig.key === 'representative') {
           aValue = a.representative || ''
           bValue = b.representative || ''
         }
-        
+
         if (aValue < bValue) return sortConfig.direction === 'ascending' ? -1 : 1
         if (aValue > bValue) return sortConfig.direction === 'ascending' ? 1 : -1
         return 0
@@ -105,7 +106,7 @@ const Students = () => {
   // Filtrado
   const filteredStudents = sortedStudents.filter((s) => {
     const searchLower = searchText.toLowerCase()
-    
+
     const fullText = `
       ${s.first_name || ''} 
       ${s.last_name || ''} 
@@ -113,13 +114,13 @@ const Students = () => {
       ${s.dni || ''} 
       ${s.representative_phone || ''}
     `.toLowerCase()
-    
+
     const matchSearch = searchText === '' || fullText.includes(searchLower)
-    
+
     const matchGrade = filterGrade ? s.grade_level === filterGrade : true
-    const matchSection = filterSection ? 
+    const matchSection = filterSection ?
       s.sections?.some(sec => sec.section_name === filterSection) : true
-    
+
     return matchSearch && matchGrade && matchSection
   })
 
@@ -166,7 +167,7 @@ const Students = () => {
   }
 
   const handleSelectStudent = (id) => {
-    setSelectedStudents(prev => 
+    setSelectedStudents(prev =>
       prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
     )
   }
@@ -215,18 +216,18 @@ const Students = () => {
         </CCol>
         <CCol xs={12} md={6} className="text-md-end mt-3 mt-md-0">
           <div className="d-flex justify-content-md-end gap-2">
-            <CButton 
-              color="light" 
-              variant="outline" 
-              className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" 
+            <CButton
+              color="light"
+              variant="outline"
+              className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm"
               onClick={() => window.print()}
             >
               <CIcon icon={cilPrint} className="me-2 text-primary" />Imprimir
             </CButton>
-            <CButton 
-              color="light" 
-              variant="outline" 
-              className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm" 
+            <CButton
+              color="light"
+              variant="outline"
+              className="border-2 rounded-pill px-3 fw-bold header-title-custom hover-orange shadow-sm"
               onClick={() => showToast("info", "Exportar", "Generando reporte...")}
             >
               <CIcon icon={cilCloudDownload} className="me-2 text-primary" />Exportar

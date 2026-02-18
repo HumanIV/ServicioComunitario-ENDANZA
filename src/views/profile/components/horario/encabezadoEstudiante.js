@@ -8,7 +8,7 @@ const EncabezadoEstudiante = ({ estudiante, estadisticas }) => {
   return (
     <CCard className="premium-card border-0 overflow-hidden mb-5">
       <AcademicHeader
-        title="Mi Horario Académico"
+        title={`Horario de ${estudiante.grado || 'Mi Grado'}`}
         subtitle={`Escuela de Danza Endanza • ${estudiante.anoAcademico}`}
         studentCode={estudiante.codigo}
         icon={cilCalendar}

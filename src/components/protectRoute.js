@@ -11,26 +11,28 @@ const routePermissions = {
   '/students/*': ['admin'],
   '/inscripcion': ['representante'],
   '/aulas': ['admin'],
-  '/notas': ['admin'],
+  '/notas': ['admin', 'docente'],
   '/boletin': ['admin'],
   '/horario': ['admin'],
-  
+
   // Rutas de docente
   '/docente/*': ['docente'],
-  
+
   // Rutas de representante
   '/inicio': ['representante'],
+  '/inicio-boletines': ['representante'],
+  '/inicio-horarios': ['representante'],
   '/perfilRepresentanteEstudiante/*': ['representante'], // 👈 AGREGADA
   '/boletin-estudiante/*': ['representante'],
   '/horario-estudiante/*': ['representante'],
-  
+
   // Rutas compartidas
   '/profile': ['representante', 'admin', 'docente'],
   '/perfil': ['admin', 'docente', 'representante'],
 }
 
-const ProtectedRoute = ({ 
-  children, 
+const ProtectedRoute = ({
+  children,
   allowedRoles = []
 }) => {
   const location = useLocation()
@@ -63,7 +65,7 @@ const ProtectedRoute = ({
 
   // Verificar autenticación
   const isAuthenticated = !!localStorage.getItem('accessToken')
-  
+
   if (!isAuthenticated) {
     localStorage.setItem('redirectAfterLogin', location.pathname)
     return <Navigate to="/login" replace />
@@ -71,14 +73,14 @@ const ProtectedRoute = ({
 
   // Determinar los roles permitidos para esta ruta
   let allowedRolesForRoute = allowedRoles
-  
+
   // Si no se especificaron roles, usar el mapa de rutas
   if (allowedRolesForRoute.length === 0) {
     const path = location.pathname
-    
+
     // Buscar coincidencia exacta primero
     allowedRolesForRoute = routePermissions[path] || []
-    
+
     // Si no hay coincidencia exacta, buscar por patrón
     if (allowedRolesForRoute.length === 0) {
       // Rutas de admin con parámetros
@@ -112,7 +114,7 @@ const ProtectedRoute = ({
           <p><strong>Tu rol:</strong> {userRole || 'No definido'}</p>
           <p><strong>Roles requeridos:</strong> {allowedRolesForRoute.join(', ')}</p>
           <div className="mt-3">
-            <button 
+            <button
               className="btn btn-primary"
               onClick={() => window.history.back()}
             >

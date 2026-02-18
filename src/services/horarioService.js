@@ -3,24 +3,25 @@ import { helpFetch } from '../api/helpFetch';
 const fetch = helpFetch();
 
 /**
- * Obtiene el horario completo de un estudiante específico
+ * Obtiene el horario completo de un estudiante por su GRADO
+ * El backend busca la sección del estudiante, obtiene su nivel_academico,
+ * y devuelve todos los horarios de las secciones con ese mismo grado.
+ * 
  * @param {number} estudianteId - ID del estudiante
  * @returns {Promise<Object>} Datos del horario formateados para el frontend
  */
 export const getHorarioEstudiante = async (estudianteId) => {
     try {
-        console.log(`📥 Solicitando horario para estudiante ID: ${estudianteId}`);
-        
-        // PASO 1: Obtener la sección actual del estudiante
-        const seccionResponse = await fetch.get(`/api/students/${estudianteId}/seccion-actual`);
-        
-        console.log('📦 Respuesta completa de seccion-actual:', seccionResponse);
-        console.log('📦 seccionResponse.data:', seccionResponse.data);
-        console.log('📦 seccionResponse.data?.seccion:', seccionResponse.data?.seccion);
-        
-        // ✅ CORREGIDO: Verificar la estructura correcta de la respuesta
-        if (!seccionResponse.ok) {
-            console.log('⚠️ Error en la respuesta de seccion-actual');
+        console.log(`📥 Solicitando horario por GRADO para estudiante ID: ${estudianteId}`);
+
+        // PASO 1: Llamar al nuevo endpoint que obtiene horarios por grado
+        const response = await fetch.get(`/api/students/${estudianteId}/horario-grado`);
+
+        console.log('📦 Respuesta de horario-grado:', response);
+
+        if (!response.ok) {
+            console.log('⚠️ Error en la respuesta de horario-grado');
+            // Fallback: obtener datos básicos del estudiante
             return {
                 estudiante: await getDatosBasicosEstudiante(estudianteId),
                 estadisticas: { totalClasesSemana: 0, totalHorasSemana: 0 },
@@ -30,50 +31,27 @@ export const getHorarioEstudiante = async (estudianteId) => {
                 profesores: []
             };
         }
-        
-        // Verificar si hay sección en la respuesta
-        const seccion = seccionResponse.data?.seccion;
-        
-        if (!seccion) {
-            console.log('⚠️ Estudiante no tiene sección asignada');
-            console.log('   data recibida:', seccionResponse.data);
-            
-            const datosBasicos = await getDatosBasicosEstudiante(estudianteId);
-            return {
-                estudiante: datosBasicos,
-                estadisticas: { totalClasesSemana: 0, totalHorasSemana: 0 },
-                horarioCompleto: {
-                    LUNES: [], MARTES: [], MIERCOLES: [], JUEVES: [], VIERNES: []
-                },
-                profesores: []
-            };
-        }
-        
-        console.log('✅ Estudiante está en sección:', seccion);
-        console.log('   ID de sección:', seccion.id);
-        console.log('   Nombre de sección:', seccion.nombre_seccion);
-        
-        // PASO 2: Obtener los horarios de esa sección
-        console.log(`📥 Solicitando horarios para sección ID: ${seccion.id}`);
-        const horariosResponse = await fetch.get(`/api/schedule/sections/${seccion.id}/horarios`);
-        
-        console.log('📦 Respuesta de horarios:', horariosResponse);
-        
-        if (!horariosResponse.ok) {
-            console.log('⚠️ Error al obtener horarios:', horariosResponse.data);
-            throw new Error('Error al obtener horarios');
-        }
-        
-        const horarios = horariosResponse.data?.horarios || [];
-        console.log(`📋 Horarios encontrados: ${horarios.length}`);
-        
-        // PASO 3: Obtener datos del estudiante (usando la ruta para representantes)
+
+        const data = response.data;
+        const grado = data.grado;
+        const seccion = data.seccion;
+        const horarios = data.horarios || [];
+        const academicYearName = data.academic_year_name;
+
+        console.log(`✅ Grado del estudiante: "${grado}"`);
+        console.log(`📋 Horarios encontrados para el grado: ${horarios.length}`);
+
+        // PASO 2: Obtener datos del estudiante
         const estudianteData = await getDatosBasicosEstudiante(estudianteId);
         console.log('📦 Datos del estudiante:', estudianteData);
-        
-        // Transformar los datos al formato que espera el frontend
-        return transformarHorarioParaFrontend(estudianteData, seccion, horarios);
-        
+
+        // Transformar los datos al formato del frontend
+        return transformarHorarioParaFrontend(estudianteData, {
+            ...seccion,
+            nivel_academico: grado,
+            academic_year_name: academicYearName
+        }, horarios);
+
     } catch (error) {
         console.error('❌ Error en getHorarioEstudiante:', error);
         throw error;
@@ -87,14 +65,14 @@ const getDatosBasicosEstudiante = async (estudianteId) => {
     try {
         console.log(`📥 Obteniendo datos del estudiante ${estudianteId} vía /representante`);
         const response = await fetch.get(`/api/students/${estudianteId}/representante`);
-        
+
         console.log('📦 Respuesta de representante:', response);
-        
+
         if (response.ok && response.data) {
             // La estructura puede ser response.data.data o response.data directamente
             const data = response.data.data || response.data;
             console.log('📦 Datos extraídos:', data);
-            
+
             return {
                 id: data.id || estudianteId,
                 nombre: data.first_name || data.nombre || 'Estudiante',
@@ -102,17 +80,17 @@ const getDatosBasicosEstudiante = async (estudianteId) => {
                 cedula: data.dni || data.cedula || ''
             };
         }
-        
+
         // Si falla, usar datos de mis-estudiantes como fallback
         console.log('⚠️ Falló getStudentProfile, usando mis-estudiantes como fallback');
         const misEstudiantes = await fetch.get('/api/students/mis-estudiantes');
-        
+
         if (misEstudiantes.ok && misEstudiantes.data) {
             const estudiantes = misEstudiantes.data.data || misEstudiantes.data;
-            const estudiante = Array.isArray(estudiantes) 
-                ? estudiantes.find(e => e.id == estudianteId) 
+            const estudiante = Array.isArray(estudiantes)
+                ? estudiantes.find(e => e.id == estudianteId)
                 : null;
-            
+
             if (estudiante) {
                 return {
                     id: estudiante.id,
@@ -122,7 +100,7 @@ const getDatosBasicosEstudiante = async (estudianteId) => {
                 };
             }
         }
-        
+
         // Si todo falla, devolver datos por defecto
         console.log('⚠️ Usando datos por defecto para estudiante');
         return {
@@ -131,7 +109,7 @@ const getDatosBasicosEstudiante = async (estudianteId) => {
             apellido: '',
             cedula: `EST-${estudianteId}`
         };
-        
+
     } catch (error) {
         console.error('Error obteniendo datos del estudiante:', error);
         return {
@@ -148,7 +126,7 @@ const getDatosBasicosEstudiante = async (estudianteId) => {
  */
 const transformarHorarioParaFrontend = (estudiante, seccion, horarios) => {
     console.log('🔄 Transformando horarios:', horarios);
-    
+
     // Mapeo de días de la BD (Id_dia) a nombres y IDs del frontend
     const mapaDias = {
         1: { id: 'LUNES', nombre: 'Lunes', color: 'primary' },
@@ -188,7 +166,8 @@ const transformarHorarioParaFrontend = (estudiante, seccion, horarios) => {
             profesor: h.teacher_name || 'Profesor Asignado',
             aula: h.classroom_name || 'Aula Pendiente',
             hora: `${horaInicio} - ${horaFin}`,
-            tipo: h.subject_type || 'práctica'
+            tipo: h.subject_type || 'práctica',
+            seccion: h.section_name || '' // Incluir la sección de origen
         };
 
         console.log('   Clase transformada:', clase);
@@ -223,7 +202,7 @@ const transformarHorarioParaFrontend = (estudiante, seccion, horarios) => {
             if (inicio && fin) {
                 const [h1, m1] = inicio.split(':').map(Number);
                 const [h2, m2] = fin.split(':').map(Number);
-                const duracion = (h2 + m2/60) - (h1 + m1/60);
+                const duracion = (h2 + m2 / 60) - (h1 + m1 / 60);
                 totalHorasSemana += duracion;
             }
         });

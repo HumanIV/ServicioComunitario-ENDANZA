@@ -5,19 +5,19 @@ const fetch = helpFetch();
 
 export const representanteAPI = {
   // Crear representante con estudiantes (desde preinscripción)
-  createFromPreinscripcion: (data) => 
+  createFromPreinscripcion: (data) =>
     fetch.post('/api/representantes/preinscripcion', data),
-  
+
   // Obtener representante con sus estudiantes
-  getConEstudiantes: (id) => 
+  getConEstudiantes: (id) =>
     fetch.get(`/api/representantes/${id}/estudiantes`),
-  
+
   // Buscar representantes por término
-  search: (term) => 
+  search: (term) =>
     fetch.get(`/api/representantes/search?term=${encodeURIComponent(term)}`),
-  
+
   // Listar TODOS los representantes (NUEVO)
-  list: () => 
+  list: () =>
     fetch.get('/api/representantes/list')
 };
 
@@ -25,23 +25,23 @@ export const representanteAPI = {
 export const createRepresentanteConEstudiantes = async (data) => {
   try {
     const response = await representanteAPI.createFromPreinscripcion(data);
-    
+
     if (response && response.ok === true) {
       return response;
     }
-    
+
     if (response && response.msg) {
       throw new Error(response.msg);
     }
-    
+
     throw new Error('Error al crear representante');
   } catch (error) {
     console.error('❌ Error en createRepresentanteConEstudiantes:', error);
-    
+
     if (error.response?.data?.msg) {
       throw new Error(error.response.data.msg);
     }
-    
+
     throw error;
   }
 };
@@ -77,7 +77,7 @@ export const listRepresentantes = async () => {
   try {
     const response = await representanteAPI.list();
     console.log("📥 listRepresentantes - Respuesta:", response);
-    
+
     if (response && response.ok) {
       return response.representantes || [];
     }

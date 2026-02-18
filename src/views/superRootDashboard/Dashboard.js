@@ -18,7 +18,7 @@ import {
   CButton
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilExternalLink, cilChevronBottom } from '@coreui/icons'
+import { cilSpeedometer, cilPlus, cilSchool, cilUser, cilExternalLink, cilChevronBottom, cilCalendar } from '@coreui/icons'
 
 // Componentes
 import StatsWidgets from './components/widgets/statsWidgets'
@@ -50,12 +50,12 @@ export const SuperRootDashboard = () => {
     students,
     sections,
     loading,
-    
+
     // Nuevos datos
     notasPendientes,
     boletines,
     teachers, // ✅ AGREGADO - AHORA ESTÁ DEFINIDO
-    
+
     // Estados de modales
     visiblePeriodoInscripcion,
     setVisiblePeriodoInscripcion,
@@ -65,7 +65,7 @@ export const SuperRootDashboard = () => {
     setVisibleValidacionNotas,
     visibleControlBoletines,
     setVisibleControlBoletines,
-    
+
     // Acciones
     guardarPeriodoInscripcion,
     guardarPeriodoSubidaNotas,
@@ -96,7 +96,7 @@ export const SuperRootDashboard = () => {
       const years = await getAvailableYears()
       console.log("Años recibidos:", years)
       setAvailableYears(Array.isArray(years) ? years : [])
-      
+
       // Seleccionar el primer año por defecto, o el activo si existe
       if (years.length > 0 && !currentYear) {
         // Buscar el año 2024-2025 primero si existe
@@ -113,13 +113,13 @@ export const SuperRootDashboard = () => {
   const confirmCreateYear = async (nuevoAnio) => {
     try {
       const response = await addAcademicYear(nuevoAnio)
-      
+
       if (response.ok) {
         await fetchYears() // Recargar la lista
-        
+
         // Mostrar mensaje de éxito
         showSystemMessage('¡Éxito!', `Ciclo ${nuevoAnio} creado y aperturado correctamente.`, 'success')
-        
+
         return true
       } else {
         throw new Error(response.msg || 'No se pudo crear el ciclo')
@@ -175,13 +175,13 @@ export const SuperRootDashboard = () => {
   const handleHabilitarTodosBoletines = async () => {
     if (notasPendientes.length > 0) {
       showSystemMessage(
-        'Validación requerida', 
-        'No se pueden habilitar los boletines porque hay notas pendientes de validación.', 
+        'Validación requerida',
+        'No se pueden habilitar los boletines porque hay notas pendientes de validación.',
         'warning'
       )
       return
     }
-    
+
     const success = await habilitarTodosBoletinesDelAnio()
     if (success) {
       showSystemMessage('Éxito', 'Todos los boletines fueron habilitados', 'success')
@@ -223,14 +223,14 @@ export const SuperRootDashboard = () => {
         <CRow className="align-items-center g-3">
           <CCol xs={12} lg={7}>
             <div className="d-flex align-items-center">
-              <div className="bg-primary rounded-4 me-3 d-flex align-items-center justify-content-center shadow-orange flex-shrink-0" style={{ width: '56px', height: '56px' }}>
+              <div className="bg-orange rounded-4 me-3 d-flex align-items-center justify-content-center shadow-orange flex-shrink-0" style={{ width: '64px', height: '64px' }}>
                 <CIcon icon={cilSpeedometer} className="text-white" size="xl" />
               </div>
               <div className="overflow-hidden">
-                <h2 className="fw-black mb-0 header-title-custom ls-tight display-6 fs-3 fs-md-2">Consola SuperRoot</h2>
+                <h2 className="fw-black mb-0 header-title-custom ls-tight display-6 fs-3 fs-md-2 text-uppercase">Consola SuperRoot</h2>
                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                  <span className="text-muted-custom fw-medium small">Gestión Administrativa de</span>
-                  <span className="text-primary fw-bold px-2 py-0 rounded bg-orange-soft small">ENDANZA</span>
+                  <span className="text-muted-custom fw-medium small text-uppercase ls-1">Gestión Administrativa de</span>
+                  <span className="fw-bold px-2 py-0 rounded bg-orange-soft small ls-1" style={{ color: '#C35604' }}>ENDANZA</span>
                 </div>
               </div>
             </div>
@@ -238,19 +238,20 @@ export const SuperRootDashboard = () => {
           <CCol xs={12} lg={5} className="d-flex justify-content-lg-end align-items-center gap-2 flex-wrap flex-md-nowrap">
             <CDropdown className="cycle-dropdown">
               <CDropdownToggle
-                className="bg-glass-premium border border-light-custom border-opacity-10 fw-bold text-primary-header small d-flex align-items-center px-3 py-2 rounded-pill hover-lift shadow-none"
+                className="bg-glass-premium border border-light-custom border-opacity-10 fw-bold text-primary small d-flex align-items-center px-4 py-2 rounded-pill hover-lift shadow-sm btn-cycle-toggle"
               >
                 <CIcon icon={cilSchool} className="me-2 text-primary" />
-                <span>CICLO {currentYear?.name || 'CARGANDO...'}</span>
-                <CIcon icon={cilChevronBottom} className="ms-2 opacity-50" size="sm" />
+                <span className="ls-1">CICLO {currentYear?.name || 'CARGANDO...'}</span>
+                <CIcon icon={cilChevronBottom} className="ms-3 opacity-50" size="sm" />
               </CDropdownToggle>
-              <CDropdownMenu className="cycle-dropdown-menu">
+              <CDropdownMenu className="cycle-dropdown-menu premium-dropdown-menu border-0 shadow-lg animate__animated animate__fadeIn p-2" style={{ borderRadius: '16px' }}>
                 {availableYears.map(year => (
                   <CDropdownItem
                     key={year.id}
                     onClick={() => setCurrentYear(year)}
-                    className={`cycle-dropdown-item ${currentYear?.id === year.id ? 'active' : ''}`}
+                    className={`cycle-dropdown-item dropdown-item-premium rounded-3 py-2 px-3 mb-1 ${currentYear?.id === year.id ? 'active' : ''}`}
                   >
+                    <CIcon icon={cilCalendar} className="me-2 opacity-50" />
                     Período {year.name}
                   </CDropdownItem>
                 ))}
@@ -258,13 +259,12 @@ export const SuperRootDashboard = () => {
             </CDropdown>
 
             <CButton
-              color="primary"
-              className="rounded-pill px-4 py-2 fw-bold text-white shadow-sm d-flex align-items-center btn-premium"
+              className="rounded-pill px-4 py-2 fw-bold text-white shadow-sm d-flex align-items-center btn-premium-action border-0"
               onClick={handleCreateNextYear}
               style={{ height: '42px' }}
             >
               <CIcon icon={cilPlus} className="me-2" size="sm" />
-              <span className="text-nowrap">NUEVA GESTIÓN</span>
+              <span className="text-nowrap ls-1">NUEVA GESTIÓN</span>
             </CButton>
           </CCol>
         </CRow>
@@ -288,62 +288,62 @@ export const SuperRootDashboard = () => {
 
         <CRow className="gy-4">
           <CCol xs={12} lg={8}>
-            <TeacherSectionsList 
-              sections={sections || []} 
+            <TeacherSectionsList
+              sections={sections || []}
               teachers={teachers || []}  // ✅ AHORA teachers ESTÁ DEFINIDO
-              currentYear={currentYear} 
+              currentYear={currentYear}
               loading={loading}
             />
           </CCol>
 
           <CCol xs={12} lg={4}>
             {/* PANEL DE USUARIOS */}
-            <CCard className="premium-card border-0 shadow-sm overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
-              <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
+            <CCard className="premium-card border-0 shadow-lg overflow-hidden h-100 bg-glass-premium" style={{ borderRadius: '24px' }}>
+              <div className="premium-card-header p-4 pb-0 bg-transparent border-0">
                 <div className="d-flex align-items-center justify-content-between mb-2">
-                  <h5 className="fw-bold header-title-custom d-flex align-items-center mb-0">
-                    <CIcon icon={cilUser} className="me-2 text-primary" />
+                  <h5 className="fw-bold header-title-custom d-flex align-items-center mb-0 text-uppercase ls-1">
+                    <div className="header-icon-container me-3">
+                      <CIcon icon={cilUser} />
+                    </div>
                     Accesos
                   </h5>
-                  <CBadge color="primary" className="bg-opacity-10 text-primary rounded-pill px-2 py-1">
+                  <CBadge color="warning" className="premium-role-badge px-3 py-2 rounded-pill shadow-sm">
                     {usuarios?.length || 0} TOTAL
                   </CBadge>
                 </div>
-              </CCardHeader>
-              <CCardBody className="px-4 py-4">
-                <div className="d-flex flex-column gap-2 mb-4">
+              </div>
+              <CCardBody className="px-4 py-3">
+                <div className="d-flex flex-column gap-3 mb-4 mt-2">
                   {usuarios && usuarios.length > 0 ? (
                     usuarios.slice(0, 5).map(u => (
-                      <div key={u?.id || Math.random()} className="d-flex align-items-center p-3 rounded-4 bg-light-custom bg-opacity-25 border border-light-custom border-opacity-10 hover-lift-subtle shadow-xs">
-                        <div className="bg-orange-soft rounded-circle me-3 d-flex align-items-center justify-content-center text-primary fw-bold flex-shrink-0" 
-                             style={{ width: '40px', height: '40px' }}>
-                          {u?.nombre ? u.nombre[0] : '?'}
+                      <div key={u?.id || Math.random()} className="premium-info-box p-3 rounded-4 d-flex align-items-center transition-all bg-white shadow-xs border border-light-custom">
+                        <div className="avatar-square-premium me-3 d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                          style={{ background: 'linear-gradient(135deg, #F28C0F, #F8A13E)', width: '42px', height: '42px', borderRadius: '12px', color: 'white' }}>
+                          {u?.nombre ? u.nombre[0].toUpperCase() : '?'}
                         </div>
                         <div className="flex-grow-1 overflow-hidden">
-                          <div className="fw-bold header-title-custom text-truncate small">
-                            {u?.nombre || 'Sin nombre'}
+                          <div className="fw-bold text-dark-custom text-truncate mb-0" style={{ fontSize: '0.9rem' }}>
+                            {u?.nombre} {u?.apellido}
                           </div>
-                          <div className="text-muted-custom text-truncate" style={{ fontSize: '0.7rem' }}>
-                            {u?.rol?.toUpperCase() || 'SIN ROL'}
+                          <div className="text-muted-custom text-uppercase fw-bold ls-1" style={{ fontSize: '0.65rem' }}>
+                            {u?.rol?.toUpperCase() || 'USUARIO'}
                           </div>
                         </div>
-                        {u?.activo ? (
-                          <span className="badge-dot bg-success"></span>
-                        ) : (
-                          <span className="badge-dot bg-danger"></span>
-                        )}
+                        <div className={`pulse-dot ${u?.activo ? 'bg-success' : 'bg-danger'}`}
+                          style={{ width: '10px', height: '10px' }}></div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-4 text-muted-custom">
+                    <div className="text-center py-4 text-muted-custom fw-medium opacity-50 italic">
                       No hay usuarios para mostrar
                     </div>
                   )}
                 </div>
 
                 <CButton
-                  className="w-100 rounded-pill fw-bold py-3 btn-orange-outline d-flex align-items-center justify-content-center"
+                  className="w-100 rounded-pill fw-heavy py-3 premium-outline-btn d-flex align-items-center justify-content-center text-uppercase ls-1"
                   onClick={() => navigate('/users')}
+                  style={{ fontSize: '0.75rem' }}
                 >
                   GESTIONAR TODOS LOS USUARIOS
                   <CIcon icon={cilExternalLink} className="ms-2" size="sm" />

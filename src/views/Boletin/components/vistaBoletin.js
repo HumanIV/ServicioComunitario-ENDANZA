@@ -24,9 +24,7 @@ export const VistaBoletin = ({ boletinData, calculos, dispatch, academicYear }) 
     <div className="animate__animated animate__fadeIn">
       <div className="d-flex justify-content-between align-items-center mb-4 no-print">
         <CButton
-          color="secondary"
-          variant="ghost"
-          className="header-title-custom hover-lift"
+          className="btn-back-premium px-3 py-2"
           onClick={() => dispatch({ type: 'OCULTAR_BOLETIN' })}
         >
           <CIcon icon={cilArrowLeft} className="me-2" />

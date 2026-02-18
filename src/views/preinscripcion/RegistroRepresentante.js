@@ -80,13 +80,13 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
             parentesco_otro: '',
             id_representante: rep.id_representante
         });
-        
+
         setRepresentanteSeleccionado({
             first_name: rep.first_name,
             last_name: rep.last_name,
             dni: rep.dni
         });
-        
+
         setSearchTerm(`${rep.first_name} ${rep.last_name}`);
         setShowSuggestions(false);
     };
@@ -124,14 +124,14 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
         if (!formData.last_name.trim()) newErrors.last_name = 'El apellido es obligatorio';
         if (!formData.dni.trim() || formData.dni.trim() === 'V-') newErrors.dni = 'La cédula es obligatoria';
         if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Email inválido';
-        
+
         // Validar contraseña solo si es nuevo representante
         if (!representanteSeleccionado && !formData.password.trim()) {
             newErrors.password = 'La contraseña es obligatoria para nuevos representantes';
         } else if (!representanteSeleccionado && formData.password.trim().length < 4) {
             newErrors.password = 'La contraseña debe tener al menos 4 caracteres';
         }
-        
+
         if (formData.parentesco === 'Otro' && !formData.parentesco_otro.trim()) {
             newErrors.parentesco_otro = 'Especifique el parentesco';
         }
@@ -143,7 +143,7 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-        
+
         // Pasar los datos al componente padre
         onNext(formData);
     };
@@ -245,7 +245,7 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                                     type="button"
                                     color={formData.parentesco === option ? 'warning' : 'light'}
                                     variant={formData.parentesco === option ? 'solid' : 'ghost'}
-                                    className={`flex-fill py-2 fw-bold border-2 ${formData.parentesco === option ? 'text-white shadow-sm' : 'text-muted-custom border-light-custom'}`}
+                                    className={`flex-fill py-2 fw-bold border-2 parentesco-option ${formData.parentesco === option ? 'text-white shadow-sm' : 'text-muted-custom border-light-custom'}`}
                                     onClick={() => setFormData({ ...formData, parentesco: option })}
                                     style={{ borderRadius: '12px' }}
                                 >
@@ -258,8 +258,8 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                     <div className="mb-4 d-flex align-items-center">
                         <div className="flex-grow-1 border-bottom border-light-custom"></div>
                         <span className="px-3 small fw-bold text-uppercase opacity-50">
-                            {representanteSeleccionado 
-                                ? 'Datos del representante existente (no modificables)' 
+                            {representanteSeleccionado
+                                ? 'Datos del representante existente (no modificables)'
                                 : 'Complete los datos del nuevo representante'}
                         </span>
                         <div className="flex-grow-1 border-bottom border-light-custom"></div>
@@ -403,6 +403,17 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
             </CCard>
 
             <style>{`
+                .parentesco-option:hover {
+                    background-color: var(--cui-warning, #f9b115) !important;
+                    color: white !important;
+                    border-color: var(--cui-warning, #f9b115) !important;
+                }
+                .text-contrast {
+                    color: var(--neutral-900, #161413);
+                }
+                [data-coreui-theme="dark"] .text-contrast {
+                    color: white !important;
+                }
                 .ls-1 { letter-spacing: 0.5px; }
                 .search-suggestions-list { 
                     z-index: 9999 !important; 
@@ -412,19 +423,24 @@ const RegistroRepresentante = ({ onNext, initialData = {} }) => {
                     background: #fff;
                 }
                 
+                .list-group-item-action:hover {
+                    background-color: rgba(245, 185, 55, 0.1) !important;
+                    color: var(--primary-700) !important;
+                }
+
                 [data-coreui-theme="dark"] .search-suggestions-list {
                     background-color: #1a1a2e;
                     border-color: rgba(255,255,255,0.1);
+                }
+                [data-coreui-theme="dark"] .list-group-item-action:hover {
+                    background-color: rgba(245, 185, 55, 0.2) !important;
+                    color: #f9b115 !important;
                 }
 
                 [data-coreui-theme="dark"] .list-group-item {
                     background-color: #1a1a2e;
                     border-color: rgba(255,255,255,0.05);
                     color: rgba(255,255,255,0.8);
-                }
-
-                [data-coreui-theme="dark"] .list-group-item:hover {
-                    background-color: rgba(245, 185, 55, 0.1);
                 }
 
                 .border-light-custom {

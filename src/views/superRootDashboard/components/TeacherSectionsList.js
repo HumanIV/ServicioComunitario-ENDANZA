@@ -16,9 +16,9 @@ import {
     CSpinner
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { 
-    cilAddressBook, 
-    cilBookmark, 
+import {
+    cilAddressBook,
+    cilBookmark,
     cilStar,
     cilSchool,
     cilUser,
@@ -36,49 +36,14 @@ const TeacherSectionsList = ({ sections = [], teachers = [], currentYear, loadin
     useEffect(() => {
         if (currentYear && teachers.length > 0) {
             console.log('🔍 Filtrando docentes para año:', currentYear.id, currentYear.name);
-            console.log('📊 Teachers recibidos:', teachers);
-            
-            // Verificar estructura de specialties y grades
-            teachers.forEach(teacher => {
-                console.log(`\n📋 Teacher ${teacher.first_name} ${teacher.last_name}:`);
-                
-                if (teacher.specialties && teacher.specialties.length > 0) {
-                    console.log(`  ✅ Specialties:`, 
-                        teacher.specialties.map(s => ({ 
-                            name: s.name, 
-                            year: s.academicYearId,
-                            yearName: s.academicYearId === currentYear.id ? '✅ ACTUAL' : '❌ OTRO AÑO'
-                        }))
-                    );
-                } else {
-                    console.log(`  ⚠️ Sin especialidades`);
-                }
-                
-                if (teacher.grades && teacher.grades.length > 0) {
-                    console.log(`  ✅ Grades:`, 
-                        teacher.grades.map(g => ({ 
-                            name: g.name, 
-                            year: g.academicYearId,
-                            yearName: g.academicYearId === currentYear.id ? '✅ ACTUAL' : '❌ OTRO AÑO'
-                        }))
-                    );
-                } else {
-                    console.log(`  ⚠️ Sin grados`);
-                }
-            });
-            
+
             // Filtrar docentes que tienen asignaciones en el año actual
             const filtered = teachers.filter(teacher => {
-                // Verificar si tiene grados O especialidad del año actual
                 const hasGradesInCurrentYear = teacher.grades?.some(g => g.academicYearId === currentYear.id) || false;
                 const hasSpecialtyInCurrentYear = teacher.specialties?.some(s => s.academicYearId === currentYear.id) || false;
-                
-                console.log(`🔎 ${teacher.first_name} ${teacher.last_name}: ${hasGradesInCurrentYear ? 'TIENE GRADOS' : 'NO TIENE GRADOS'} | ${hasSpecialtyInCurrentYear ? 'TIENE ESPECIALIDAD' : 'NO TIENE ESPECIALIDAD'} en ${currentYear.name}`);
-                
                 return hasGradesInCurrentYear || hasSpecialtyInCurrentYear;
             });
-            
-            console.log('📋 Docentes filtrados para el año:', filtered.length);
+
             setTeachersByYear(filtered);
         } else {
             setTeachersByYear([]);
@@ -112,60 +77,44 @@ const TeacherSectionsList = ({ sections = [], teachers = [], currentYear, loadin
         return (
             <CCard className="premium-card border-0 shadow-sm h-100" style={{ borderRadius: '32px' }}>
                 <CCardBody className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
-                    <CSpinner style={{ color: '#E07A00' }} />
+                    <CSpinner style={{ color: '#F28C0F' }} />
                 </CCardBody>
             </CCard>
         )
     }
 
     return (
-        <CCard className="premium-card border-0 shadow-sm h-100 overflow-hidden" style={{ borderRadius: '32px' }}>
+        <CCard className="premium-card border-0 shadow-lg h-100 overflow-hidden bg-glass-premium" style={{ borderRadius: '32px' }}>
             <CCardHeader className="bg-transparent border-0 pt-4 px-4 pb-0">
                 <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
                     <div>
-                        <h4 className="fw-black header-title-custom mb-1 d-flex align-items-center">
-                            <div className="bg-orange rounded-3 p-2 me-3 d-flex align-items-center justify-content-center shadow-orange-sm">
-                                <CIcon icon={cilAddressBook} className="text-white" size="lg" />
+                        <h4 className="fw-black header-title-custom mb-1 d-flex align-items-center text-uppercase ls-1">
+                            <div className="header-icon-box me-3">
+                                <CIcon icon={cilAddressBook} size="lg" />
                             </div>
                             Plantilla Docente
                         </h4>
-                        <p className="text-muted-custom small mb-0 fw-medium d-flex align-items-center">
-                            <CIcon icon={cilCalendar} className="me-1" size="sm" style={{ color: '#E07A00' }} />
+                        <p className="text-muted-custom small mb-0 fw-medium d-flex align-items-center text-uppercase ls-1" style={{ fontSize: '0.65rem' }}>
+                            <CIcon icon={cilCalendar} className="me-2 text-primary" size="sm" />
                             {getYearMessage()}
                         </p>
                     </div>
-                    <div className="d-flex gap-2">
+                    <div className="d-flex gap-2 align-items-center">
                         <CButton
-                            className="rounded-pill px-4 py-2 fw-bold d-flex align-items-center border-2 hover-lift"
-                            style={{
-                                backgroundColor: 'transparent',
-                                borderColor: '#E07A00',
-                                color: '#E07A00'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.target.style.backgroundColor = '#E07A00';
-                                e.target.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.target.style.backgroundColor = 'transparent';
-                                e.target.style.color = '#E07A00';
-                            }}
+                            className="rounded-pill px-4 py-2 fw-bold d-flex align-items-center premium-outline-btn border-2 hover-lift text-uppercase ls-1"
                             onClick={() => navigate('/docenteAsignacion')}
+                            style={{ fontSize: '0.7rem' }}
                         >
                             <CIcon icon={cilSchool} className="me-2" size="sm" />
                             <span>GESTIONAR DOCENTES</span>
                             <CIcon icon={cilArrowRight} className="ms-2" size="sm" />
                         </CButton>
-                        <CBadge 
-                            style={{
-                                backgroundColor: 'rgba(224, 122, 0, 0.1)',
-                                color: '#E07A00',
-                                border: 'none'
-                            }}
-                            className="rounded-pill p-2 px-3 fw-bold d-flex align-items-center"
+                        <CBadge
+                            color="warning"
+                            className="premium-role-badge rounded-pill p-2 px-3 fw-bold d-flex align-items-center text-uppercase ls-1"
                         >
-                            <CIcon icon={cilStar} className="me-1" size="sm" />
-                            {teachersByYear.length} / {teachers.length} CON ASIGNACIONES
+                            <CIcon icon={cilStar} className="me-2" size="sm" />
+                            {teachersByYear.length} / {teachers.length} ASIGNADOS
                         </CBadge>
                     </div>
                 </div>
@@ -174,8 +123,8 @@ const TeacherSectionsList = ({ sections = [], teachers = [], currentYear, loadin
             <CCardBody className="px-4 py-4">
                 {teachersByYear.length > 0 ? (
                     <div className="table-responsive">
-                        <CTable align="middle" hover className="mb-0 bg-transparent custom-table-modern">
-                            <CTableHead className="border-0">
+                        <CTable align="middle" hover className="mb-0 bg-transparent premium-table">
+                            <CTableHead>
                                 <CTableRow>
                                     <CTableHeaderCell className="text-muted-custom small text-uppercase fw-black ls-1 border-0 pb-3">
                                         Docente
@@ -184,83 +133,82 @@ const TeacherSectionsList = ({ sections = [], teachers = [], currentYear, loadin
                                         Especialidad ({currentYear?.name || 'Año actual'})
                                     </CTableHeaderCell>
                                     <CTableHeaderCell className="text-center text-muted-custom small text-uppercase fw-black ls-1 border-0 pb-3">
-                                        Grados Asignados ({currentYear?.name || 'Año actual'})
+                                        Grados Asignados
                                     </CTableHeaderCell>
                                 </CTableRow>
                             </CTableHead>
-                            <CTableBody className="border-0">
+                            <CTableBody>
                                 {teachersByYear.map((teacher) => {
-                                    // Filtrar solo los grados del año actual
-                                    const currentYearGrades = currentYear 
+                                    const currentYearGrades = currentYear
                                         ? (teacher.grades || []).filter(g => g.academicYearId === currentYear.id)
                                         : teacher.grades || []
-                                    
-                                    // Obtener especialidad del año actual
+
                                     const currentYearSpecialty = getCurrentYearSpecialty(teacher)
-                                    
+
                                     return (
-                                        <CTableRow key={teacher.id} className="border-0">
-                                            <CTableDataCell className="py-4 border-0 border-bottom border-light-custom border-opacity-5">
+                                        <CTableRow key={teacher.id} className="premium-table-row">
+                                            <CTableDataCell className="py-4 border-0">
                                                 <div className="d-flex align-items-center">
                                                     <div className="avatar-square-premium me-3 d-flex align-items-center justify-content-center fw-bold shadow-sm"
                                                         style={{
-                                                            background: 'linear-gradient(135deg, #E07A00, #C66900)'
+                                                            background: 'linear-gradient(135deg, #F28C0F, #F8A13E)',
+                                                            width: '46px',
+                                                            height: '46px',
+                                                            borderRadius: '14px',
+                                                            color: 'white'
                                                         }}
                                                     >
                                                         {teacher.first_name?.[0]}{teacher.last_name?.[0]}
                                                     </div>
                                                     <div>
-                                                        <div className="fw-bold header-title-custom mb-0">{teacher.first_name} {teacher.last_name}</div>
-                                                        <div className="small fw-bold" style={{ color: '#E07A00', fontSize: '0.65rem', letterSpacing: '0.5px' }}>
-                                                            DOCENTE
+                                                        <div className="fw-bold header-title-custom mb-0" style={{ fontSize: '0.95rem' }}>{teacher.first_name} {teacher.last_name}</div>
+                                                        <div className="text-primary text-uppercase fw-bold ls-1" style={{ fontSize: '0.6rem' }}>
+                                                            DOCENTE ACTURANTE
                                                         </div>
                                                         {!hasAssignmentsInCurrentYear(teacher) && (
-                                                            <CBadge 
+                                                            <CBadge
                                                                 className="mt-1"
-                                                                color="warning"
+                                                                color="danger"
                                                                 style={{ fontSize: '0.6rem' }}
                                                             >
-                                                                Sin asignaciones en {currentYear?.name}
+                                                                SIN ASIGNACIÓN
                                                             </CBadge>
                                                         )}
                                                     </div>
                                                 </div>
                                             </CTableDataCell>
-                                            <CTableDataCell className="py-4 border-0 border-bottom border-light-custom border-opacity-5">
+                                            <CTableDataCell className="py-4 border-0">
                                                 <div className="d-flex align-items-center">
-                                                    <CIcon icon={cilBookmark} className="me-2 text-muted-custom opacity-50" size="sm" />
+                                                    <div className="bg-orange-soft p-2 rounded-3 me-3">
+                                                        <CIcon icon={cilBookmark} className="text-primary" size="sm" />
+                                                    </div>
                                                     <div>
-                                                        <span className="fw-semibold header-title-custom">
+                                                        <span className="fw-bold text-dark-custom d-block" style={{ fontSize: '0.9rem' }}>
                                                             {currentYearSpecialty?.name || teacher.specialty || 'Sin especialidad'}
                                                         </span>
                                                         {currentYearSpecialty && (
-                                                            <div className="small text-muted">
-                                                                {currentYearSpecialty.area || ''}
+                                                            <div className="small text-muted-custom opacity-75 fw-medium">
+                                                                {currentYearSpecialty.area || 'Área General'}
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
                                             </CTableDataCell>
-                                            <CTableDataCell className="py-4 border-0 border-bottom border-light-custom border-opacity-5 text-center">
-                                                <div className="d-flex gap-1 flex-wrap justify-content-center">
+                                            <CTableDataCell className="py-4 border-0 text-center">
+                                                <div className="d-flex gap-2 flex-wrap justify-content-center">
                                                     {currentYearGrades.length > 0 ? (
                                                         currentYearGrades.map(grade => (
-                                                            <CBadge 
-                                                                key={grade.id} 
-                                                                className="rounded-pill px-3 py-2 fw-bold"
-                                                                style={{
-                                                                    backgroundColor: 'rgba(224, 122, 0, 0.05)',
-                                                                    borderColor: 'rgba(224, 122, 0, 0.2)',
-                                                                    color: '#E07A00',
-                                                                    border: '1px solid'
-                                                                }}
+                                                            <CBadge
+                                                                key={grade.id}
+                                                                className="premium-info-box rounded-pill px-3 py-2 fw-bold border-light-custom text-primary"
+                                                                style={{ fontSize: '0.7rem' }}
                                                             >
                                                                 {grade.name}
                                                             </CBadge>
                                                         ))
                                                     ) : (
-                                                        <span className="small text-muted">
-                                                            Sin grados asignados en {currentYear?.name}
+                                                        <span className="small text-muted-custom opacity-50 italic">
+                                                            Sin grados asignados
                                                         </span>
                                                     )}
                                                 </div>
@@ -275,17 +223,16 @@ const TeacherSectionsList = ({ sections = [], teachers = [], currentYear, loadin
                     <div className="text-center py-5">
                         {currentYear ? (
                             <>
-                                <CIcon icon={cilWarning} size="3xl" className="text-muted opacity-25 mb-3" />
-                                <h5 className="text-muted">No hay docentes con asignaciones en {currentYear.name}</h5>
-                                <p className="small text-muted mb-3">
-                                    Los docentes deben ser asignados a especialidades y grados en este período académico
+                                <CIcon icon={cilWarning} size="3xl" className="text-primary opacity-25 mb-4" />
+                                <h5 className="header-title-custom fw-bold">No hay docentes con asignaciones</h5>
+                                <p className="text-muted-custom mb-4 small px-5">
+                                    Los docentes deben ser vinculados a especialidades y grados para el período <b>{currentYear.name}</b>.
                                 </p>
                                 <CButton
-                                    color="link"
+                                    className="premium-outline-btn rounded-pill px-4"
                                     onClick={() => navigate('/docenteAsignacion')}
-                                    style={{ color: '#E07A00' }}
                                 >
-                                    Ir a gestión de docentes para asignar
+                                    GESTIONAR DOCENTES
                                 </CButton>
                             </>
                         ) : (
@@ -296,47 +243,28 @@ const TeacherSectionsList = ({ sections = [], teachers = [], currentYear, loadin
                         )}
                     </div>
                 )}
-
-                {/* BOTÓN FLOTANTE MÓVIL */}
-                <div className="d-block d-lg-none mt-4 text-center">
-                    <CButton
-                        className="rounded-pill px-5 py-3 fw-bold text-white w-100 d-flex align-items-center justify-content-center border-0"
-                        style={{
-                            backgroundColor: '#E07A00'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#C66900'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = '#E07A00'}
-                        onClick={() => navigate('/docenteAsignacion')}
-                    >
-                        <CIcon icon={cilSchool} className="me-2" size="lg" />
-                        GESTIONAR DOCENTES
-                        <CIcon icon={cilArrowRight} className="ms-2" size="lg" />
-                    </CButton>
-                </div>
             </CCardBody>
 
             <style>{`
                 .fw-black { font-weight: 950; }
                 .ls-1 { letter-spacing: 1px; }
-                .shadow-orange-sm { box-shadow: 0 4px 8px rgba(224, 122, 0, 0.2); }
-                .hover-lift {
-                    transition: all 0.3s ease;
+                
+                .premium-table thead th {
+                    background: transparent !important;
+                    color: var(--cui-text-muted) !important;
                 }
-                .hover-lift:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 6px 12px rgba(224, 122, 0, 0.15);
+
+                .premium-table-row {
+                    transition: all 0.2s ease;
+                    border-bottom: 1px solid rgba(var(--cui-border-color-rgb), 0.05) !important;
                 }
-                .bg-orange {
-                    background-color: #E07A00 !important;
+
+                .premium-table-row:hover {
+                    background: rgba(var(--cui-primary-rgb), 0.02) !important;
                 }
-                .avatar-square-premium {
-                    width: 44px;
-                    height: 44px;
-                    color: white;
-                    border-radius: 12px;
-                }
-                .custom-table-modern thead th {
-                    border: none !important;
+
+                [data-coreui-theme="dark"] .premium-table-row:hover {
+                    background: rgba(255, 255, 255, 0.02) !important;
                 }
             `}</style>
         </CCard>

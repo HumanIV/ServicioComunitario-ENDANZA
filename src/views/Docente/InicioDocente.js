@@ -57,10 +57,13 @@ const InicioDocente = () => {
             const activeYearObj = await getActiveYear()
 
             if (activeYearObj && activeYearObj.name) {
+                // Solo permitimos el año activo
+                setAcademicYears([activeYearObj])
                 setSelectedYear(activeYearObj.name)
                 setSelectedYearId(activeYearObj.id)
             } else if (years.length > 0) {
                 // Fallback al primero de la lista si no hay activo
+                setAcademicYears([years[0]])
                 setSelectedYear(years[0].name)
                 setSelectedYearId(years[0].id)
             }

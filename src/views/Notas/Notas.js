@@ -169,10 +169,13 @@ const SistemaEvaluacionDanza = () => {
             const activeYear = await getActiveYear()
             if (activeYear) {
                 console.log('✅ Año activo encontrado:', activeYear)
+                // Restricción: Solo mostrar el año activo
+                setYears([activeYear])
                 setSelectedYear(activeYear)
             } else if (yearsData.length > 0) {
-                // Si no hay activo, seleccionar el primero
+                // Si no hay activo, seleccionar el primero (fallback)
                 console.log('📌 Seleccionando primer año disponible:', yearsData[0])
+                setYears([yearsData[0]])
                 setSelectedYear(yearsData[0])
             }
         } catch (error) {
@@ -432,18 +435,22 @@ const SistemaEvaluacionDanza = () => {
                     </div>
                 </div>
 
-                {/* Selector de año académico */}
+                {/* Barra de Herramientas Unificada: Año y Lapso */}
                 {years.length > 0 && (
-                    <div className="d-flex flex-column flex-md-row align-items-md-center mt-3 gap-3">
+                    <div className="d-flex flex-column flex-md-row bg-dark bg-opacity-25 p-3 rounded-2 border border-secondary border-opacity-25 mt-4 gap-3 align-items-md-center shadow-sm">
+
+                        {/* Grupo Año */}
                         <div className="d-flex align-items-center gap-2">
-                            <span className="text-muted-custom small fw-bold">Año Académico:</span>
+                            <span className="text-secondary fw-bold text-uppercase small ls-1">Año Académico:</span>
                             <select
-                                className="form-select form-select-sm w-auto"
+                                className="form-select form-select-sm w-auto bg-dark text-white border-secondary fw-bold shadow-sm"
                                 value={selectedYear?.id || ''}
                                 onChange={(e) => {
                                     const year = years.find(y => y.id === parseInt(e.target.value))
                                     setSelectedYear(year)
                                 }}
+                                disabled={years.length <= 1}
+                                style={{ minWidth: '140px' }}
                             >
                                 {years.map(year => (
                                     <option key={year.id} value={year.id}>
@@ -453,54 +460,59 @@ const SistemaEvaluacionDanza = () => {
                             </select>
                         </div>
 
-                        {gradesPeriod && (
-                            (() => {
-                                const formatDate = (dateStr) => {
-                                    if (!dateStr) return 'indefinida';
-                                    const parts = dateStr.split('T')[0].split('-');
-                                    return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
-                                };
+                        {/* Separador vertical para desktop */}
+                        <div className="vr text-secondary mx-2 d-none d-md-block opacity-25"></div>
 
-                                const esVerde = isAdmin ? gradesPeriod.realmenteAbierto : gradesPeriod.abierto;
-
-                                return (
-                                    <CAlert color={esVerde ? "success" : "danger"} className="mb-0 py-1 px-3 small d-flex align-items-center rounded-pill">
-                                        <div className={`rounded-circle me-2 ${esVerde ? 'bg-success' : 'bg-danger'}`} style={{ width: 8, height: 8 }}></div>
-                                        <strong className="me-2 text-uppercase" style={{ fontSize: '0.75rem' }}>Estado de Carga:</strong>
-                                        <span style={{ fontSize: '0.85rem' }}>
-                                            {gradesPeriod.realmenteAbierto
-                                                ? `Habilitado hasta ${formatDate(gradesPeriod.fechaFin)}`
-                                                : `Cerrado (${gradesPeriod.mensaje})`
-                                            }
-                                            {isAdmin && <CBadge color="info" className="ms-2 py-1 px-2 border-0">Modo Admin</CBadge>}
-                                        </span>
-                                    </CAlert>
-                                );
-                            })()
+                        {/* Grupo Lapso */}
+                        {lapsos.length > 0 && (
+                            <div className="d-flex align-items-center gap-2">
+                                <span className="text-secondary fw-bold text-uppercase small ls-1">Lapso:</span>
+                                <select
+                                    className="form-select form-select-sm w-auto bg-dark text-white border-secondary fw-bold shadow-sm"
+                                    value={selectedLapso?.id || ''}
+                                    onChange={(e) => {
+                                        const lapso = lapsos.find(l => l.id === parseInt(e.target.value))
+                                        setSelectedLapso(lapso)
+                                    }}
+                                    style={{ minWidth: '150px' }}
+                                >
+                                    {lapsos.map(lapso => (
+                                        <option key={lapso.id} value={lapso.id}>
+                                            {lapso.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         )}
-                    </div>
-                )}
 
-                {/* Selector de Lapso */}
-                {lapsos.length > 0 && (
-                    <div className="d-flex flex-column flex-md-row align-items-md-center mt-3 gap-3">
-                        <div className="d-flex align-items-center gap-2">
-                            <span className="text-muted-custom small fw-bold">Lapso:</span>
-                            <select
-                                className="form-select form-select-sm w-auto"
-                                value={selectedLapso?.id || ''}
-                                onChange={(e) => {
-                                    const lapso = lapsos.find(l => l.id === parseInt(e.target.value))
-                                    setSelectedLapso(lapso)
-                                }}
-                            >
-                                {lapsos.map(lapso => (
-                                    <option key={lapso.id} value={lapso.id}>
-                                        {lapso.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        {/* Estado a la derecha */}
+                        {gradesPeriod && (
+                            <div className="ms-md-auto mt-2 mt-md-0">
+                                {(() => {
+                                    const formatDate = (dateStr) => {
+                                        if (!dateStr) return 'indefinida';
+                                        const parts = dateStr.split('T')[0].split('-');
+                                        return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
+                                    };
+
+                                    const esVerde = isAdmin ? gradesPeriod.realmenteAbierto : gradesPeriod.abierto;
+
+                                    return (
+                                        <CAlert color={esVerde ? "success" : "danger"} className="mb-0 py-1 px-3 small d-flex align-items-center rounded-pill border-0 shadow-sm" style={{ backgroundColor: esVerde ? 'rgba(25, 135, 84, 0.15)' : 'rgba(220, 53, 69, 0.15)', color: esVerde ? '#75b798' : '#ea868f' }}>
+                                            <div className={`rounded-circle me-2 ${esVerde ? 'bg-success' : 'bg-danger'}`} style={{ width: 8, height: 8, boxShadow: `0 0 8px ${esVerde ? 'rgba(25, 135, 84, 0.6)' : 'rgba(220, 53, 69, 0.6)'}` }}></div>
+                                            <strong className="me-2 text-uppercase" style={{ fontSize: '0.7rem', letterSpacing: '0.5px' }}>Estado:</strong>
+                                            <span style={{ fontSize: '0.8rem' }}>
+                                                {gradesPeriod.realmenteAbierto
+                                                    ? `Habilitado hasta ${formatDate(gradesPeriod.fechaFin)}`
+                                                    : `Cerrado (${gradesPeriod.mensaje})`
+                                                }
+                                                {isAdmin && <CBadge color="info" className="ms-2 py-0 px-2" style={{ fontSize: '0.65rem' }}>ADMIN</CBadge>}
+                                            </span>
+                                        </CAlert>
+                                    );
+                                })()}
+                            </div>
+                        )}
                     </div>
                 )}
             </header>

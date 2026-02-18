@@ -295,9 +295,8 @@ const SistemaBoletinesDanza = () => {
             <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 mb-md-5">
               <div className="d-flex align-items-center justify-content-center justify-content-md-start">
                 <CButton
-                  color="light"
-                  className="me-3 rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm flex-shrink-0"
-                  style={{ width: '40px', height: '40px' }}
+                  className="me-3 btn-back-premium rounded-circle"
+                  style={{ width: '40px', height: '40px', padding: 0 }}
                   onClick={() => dispatch({ type: 'VOLVER_A_GRADOS' })}
                 >
                   <CIcon icon={cilArrowLeft} />

@@ -96,7 +96,7 @@ const Preinscripcion = () => {
             if (response?.ok) {
                 // Determinar si es nuevo representante (tiene credenciales)
                 const esNuevo = response.representante?.credenciales ? true : false;
-                
+
                 setModalConfig({
                     type: 'success',
                     title: esNuevo ? '✅ NUEVO REPRESENTANTE REGISTRADO' : '✅ ESTUDIANTES AGREGADOS',
@@ -108,7 +108,7 @@ const Preinscripcion = () => {
                             <div style={{ marginBottom: '10px' }}>
                                 <strong>Email:</strong> {response.representante.email}
                             </div>
-                            
+
                             {esNuevo && (
                                 <>
                                     <div style={{ marginBottom: '10px' }}>
@@ -122,25 +122,25 @@ const Preinscripcion = () => {
                                     </div>
                                 </>
                             )}
-                            
+
                             {!esNuevo && (
                                 <div style={{ color: '#28a745', marginBottom: '10px' }}>
                                     ℹ️ Las credenciales existentes no han sido modificadas.
                                     El representante puede seguir usando su contraseña actual.
                                 </div>
                             )}
-                            
+
                             <hr style={{ margin: '15px 0' }} />
-                            
+
                             <div style={{ marginBottom: '10px' }}>
                                 <strong>Estudiantes registrados en esta sesión:</strong> {response.estudiantes?.length || 0}
                             </div>
-                            
+
                             {response.estudiantes?.length > 0 ? (
                                 <ul style={{ marginTop: '5px', paddingLeft: '20px' }}>
                                     {response.estudiantes.map((e, i) => (
                                         <li key={i}>
-                                            {e.first_name} {e.last_name} 
+                                            {e.first_name} {e.last_name}
                                             {e.gradeLevel && ` - ${e.gradeLevel}`}
                                         </li>
                                     ))}
@@ -162,10 +162,10 @@ const Preinscripcion = () => {
 
         } catch (error) {
             console.error("❌ Error en preinscripción:", error);
-            
+
             // Manejar error específico de representante existente
             let errorMessage = error.message || 'Ocurrió un error al intentar guardar los datos.';
-            
+
             // Si el error es porque ya existe, mostrar opción de buscar
             if (error.message?.includes('Ya existe un representante')) {
                 errorMessage = (
@@ -179,7 +179,7 @@ const Preinscripcion = () => {
                     </div>
                 );
             }
-            
+
             setModalConfig({
                 type: 'error',
                 title: 'ERROR EN EL REGISTRO',
@@ -210,22 +210,36 @@ const Preinscripcion = () => {
                         <div className="d-flex align-items-center position-relative w-100" style={{ maxWidth: '600px' }}>
                             <div className="flex-fill text-center">
                                 <div
-                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all position-relative ${step >= 1 ? 'bg-warning text-white shadow' : 'bg-light-custom'}`}
+                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all stepper-circle ${step >= 1 ? 'active shadow' : ''}`}
                                     style={{ width: '50px', height: '50px', zIndex: 2 }}
                                 >
-                                    <CIcon icon={cilUser} />
+                                    <CIcon icon={cilUser} style={{ color: step >= 1 ? '#C35604' : 'rgba(255,255,255,0.3)' }} />
                                 </div>
                                 <span className={`small fw-bold text-uppercase ls-1 ${step >= 1 ? 'text-warning' : 'opacity-50'}`}>Representante</span>
                             </div>
 
-                            <div className="position-absolute w-50" style={{ left: '25%', top: '25px', height: '3px', backgroundColor: step >= 2 ? 'var(--cui-warning)' : 'var(--neutral-200)', zIndex: 0 }}></div>
+                            <div
+                                className="position-absolute stepper-line"
+                                style={{
+                                    left: '25%',
+                                    top: '25px',
+                                    width: '50%',
+                                    height: '2px',
+                                    backgroundColor: step >= 2 ? 'var(--cui-warning)' : 'rgba(255,255,255,0.1)',
+                                    zIndex: 1
+                                }}
+                            ></div>
 
                             <div className="flex-fill text-center">
                                 <div
-                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all position-relative ${step >= 2 ? 'bg-warning text-white shadow' : 'bg-light-custom'}`}
-                                    style={{ width: '50px', height: '50px', zIndex: 2, opacity: step >= 2 ? 1 : 0.5 }}
+                                    className={`rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2 transition-all stepper-circle ${step >= 2 ? 'active shadow' : ''}`}
+                                    style={{
+                                        width: '50px',
+                                        height: '50px',
+                                        zIndex: 2
+                                    }}
                                 >
-                                    <CIcon icon={cilEducation} />
+                                    <CIcon icon={cilEducation} style={{ color: step >= 2 ? '#C35604' : 'rgba(255,255,255,0.3)' }} />
                                 </div>
                                 <span className={`small fw-bold text-uppercase ls-1 ${step >= 2 ? 'text-warning' : 'opacity-50'}`}>Estudiante(s)</span>
                             </div>
@@ -268,6 +282,26 @@ const Preinscripcion = () => {
             <style>{`
                 .ls-1 { letter-spacing: 1px; }
                 .transition-all { transition: all 0.3s ease; }
+                .stepper-circle {
+                    position: relative;
+                    background-color: #f8fafc !important;
+                    border: 2px solid transparent;
+                }
+                .stepper-circle.active {
+                    background-color: #fff !important;
+                    border-color: #F28C0F;
+                    box-shadow: 0 0 15px rgba(242, 140, 15, 0.4) !important;
+                }
+                [data-coreui-theme="dark"] .stepper-circle:not(.active) {
+                    background-color: #1a1a2e !important;
+                    border: 1px solid rgba(255,255,255,0.05);
+                }
+                [data-coreui-theme="dark"] .stepper-circle.active {
+                    background-color: #fff !important; /* Círculo blanco para que resalte el icono naranja */
+                }
+                .stepper-line {
+                    pointer-events: none;
+                }
                 .border-light-custom { border-color: rgba(0, 0, 0, 0.05) !important; }
                 [data-coreui-theme="dark"] .border-light-custom { border-color: rgba(255, 255, 255, 0.05) !important; }
             `}</style>

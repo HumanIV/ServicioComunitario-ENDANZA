@@ -15,9 +15,6 @@ import { cilCalendar, cilWarning, cilArrowLeft } from "@coreui/icons"
 
 // Importar componentes
 import EncabezadoEstudiante from './components/horario/encabezadoEstudiante'
-import ControlesVista from './components/horario/controlesVista'
-import NavegacionDias from './components/horario/navegacionDias'
-import ListaClasesDia from './components/horario/listaClasesDia'
 import VistaSemanal from './components/horario/vistaSemanal'
 import InformacionAdicional from './components/horario/informacionAdicional'
 
@@ -26,7 +23,6 @@ import { getHorarioEstudiante } from 'src/services/horarioService'
 
 // Importar utilidades
 import { generarPDFHorario } from './components/horario/utils/pdfGenerator'
-import { calcularHorasDia } from './components/horario/utils/helpers'
 
 // Datos de días (estos sí pueden ser estáticos)
 const diasSemana = [
@@ -38,14 +34,12 @@ const diasSemana = [
 ]
 
 const HorarioUsuario = () => {
-  const { id } = useParams(); // Cambiado de estudianteId a id para coincidir con la ruta
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [horarioData, setHorarioData] = useState(null)
-  const [activeDay, setActiveDay] = useState('LUNES')
   const [toasts, setToasts] = useState([])
-  const [modoVista, setModoVista] = useState('diario')
 
   // Validar que hay un ID
   useEffect(() => {
@@ -64,13 +58,13 @@ const HorarioUsuario = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         console.log(`🔄 Cargando horario para estudiante ID: ${id}`);
         const data = await getHorarioEstudiante(id);
-        
+
         setHorarioData(data);
         showToast('success', '✅ Horario cargado correctamente');
-        
+
       } catch (err) {
         console.error('❌ Error cargando horario:', err);
         setError(err.message || 'Error al cargar el horario');
@@ -93,7 +87,7 @@ const HorarioUsuario = () => {
 
   const handleGenerarPDF = useCallback(() => {
     if (!horarioData) return;
-    
+
     showToast('info', 'Generando horario institucional...')
     try {
       generarPDFHorario(horarioData, diasSemana, () => {
@@ -112,10 +106,7 @@ const HorarioUsuario = () => {
     }, 500)
   }
 
-  const calcularHorasDelDia = useCallback((dia) => {
-    if (!horarioData) return 0;
-    return calcularHorasDia(horarioData.horarioCompleto, dia)
-  }, [horarioData])
+
 
   // Si no hay ID, mostrar mensaje de error con botón para volver
   if (!id) {
@@ -125,8 +116,8 @@ const HorarioUsuario = () => {
           <CIcon icon={cilWarning} size="xl" className="mb-3" />
           <h4 className="fw-bold">Estudiante no especificado</h4>
           <p className="mb-4">No se ha proporcionado un ID de estudiante válido.</p>
-          <CButton 
-            color="primary" 
+          <CButton
+            color="primary"
             className="rounded-pill px-4"
             onClick={() => navigate('/inicio-horarios')}
           >
@@ -158,8 +149,8 @@ const HorarioUsuario = () => {
           <h4 className="fw-bold">Error al cargar el horario</h4>
           <p>{error || 'No se pudo obtener la información del horario'}</p>
           <p className="small">Verifique que el estudiante esté inscrito en una sección</p>
-          <CButton 
-            color="primary" 
+          <CButton
+            color="primary"
             className="rounded-pill px-4 mt-3"
             onClick={() => navigate('/inicio-horarios')}
           >
@@ -186,8 +177,8 @@ const HorarioUsuario = () => {
         <CAlert color="info" className="text-center border-0 shadow-sm mt-4">
           <h5 className="fw-bold mb-2">Sin Horario Asignado</h5>
           <p className="mb-0">El estudiante no tiene clases programadas en este período.</p>
-          <CButton 
-            color="primary" 
+          <CButton
+            color="primary"
             className="rounded-pill px-4 mt-3"
             onClick={() => navigate('/inicio-horarios')}
           >
@@ -206,47 +197,14 @@ const HorarioUsuario = () => {
         estadisticas={horarioData.estadisticas}
       />
 
-      <ControlesVista
-        modoVista={modoVista}
-        setModoVista={setModoVista}
-        onDescargarPDF={handleGenerarPDF}
-        onImprimir={handleImprimir}
-      />
-
-      {modoVista === 'diario' ? (
-        <div className="animate__animated animate__fadeIn">
-          <NavegacionDias
-            diasSemana={diasSemana}
-            activeDay={activeDay}
-            setActiveDay={setActiveDay}
-            calcularHorasDia={calcularHorasDelDia}
-          />
-
-          <div className="mt-4">
-            {diasSemana.map(dia => (
-              <div
-                key={dia.id}
-                className={`tab-pane fade ${activeDay === dia.id ? 'show active' : 'd-none'}`}
-              >
-                <ListaClasesDia
-                  dia={dia}
-                  clases={horarioData.horarioCompleto[dia.id] || []}
-                  estudiante={horarioData.estudiante}
-                  colorDia={dia.color}
-                  horasDia={calcularHorasDelDia(dia.id)}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="animate__animated animate__fadeIn">
-          <VistaSemanal
-            diasSemana={diasSemana}
-            horarioCompleto={horarioData.horarioCompleto}
-          />
-        </div>
-      )}
+      <div className="animate__animated animate__fadeIn mt-4">
+        <VistaSemanal
+          diasSemana={diasSemana}
+          horarioCompleto={horarioData.horarioCompleto}
+          onDescargarPDF={handleGenerarPDF}
+          onImprimir={handleImprimir}
+        />
+      </div>
 
       <InformacionAdicional
         profesores={horarioData.profesores}

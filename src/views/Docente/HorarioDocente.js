@@ -30,6 +30,7 @@ import CIcon from "@coreui/icons-react"
 import { cilCalendar, cilUser, cilSchool, cilRoom, cilClock, cilChevronBottom, cilPeople, cilCloudDownload } from "@coreui/icons"
 import useUserRole from '../../hooks/useUserRole'
 import { listSections, getAvailableYears } from 'src/services/scheduleService'
+import { getActiveYear } from 'src/services/configService'
 
 // Componentes estéticos
 import VistaSemanalDocente from './components/horario/VistaSemanalDocente'
@@ -40,7 +41,7 @@ const HorarioDocente = () => {
     const [loading, setLoading] = useState(true)
     const [sections, setSections] = useState([])
     const [academicYears, setAcademicYears] = useState([])
-    const [selectedYear, setSelectedYear] = useState('2025-2026')
+    const [selectedYear, setSelectedYear] = useState('')
     const [selectedTeacher, setSelectedTeacher] = useState('')
     const [activeDay, setActiveDay] = useState('LUNES')
     const [toasts, setToasts] = useState([])
@@ -68,14 +69,42 @@ const HorarioDocente = () => {
     }, [])
 
     useEffect(() => {
-        fetchSections()
+        if (selectedYear) {
+            fetchSections()
+        }
     }, [selectedYear])
 
     const loadData = async () => {
         try {
+            // 1. Obtener todos los años (para el selector si es admin)
             const years = await getAvailableYears()
-            setAcademicYears(years)
-            if (years.length > 0) setSelectedYear(years[0])
+
+            // 2. Obtener el año ACTIVO actual
+            const activeYearObj = await getActiveYear()
+
+            if (isDocente) {
+                // Si es docente, SOLO permitimos ver el año activo
+                if (activeYearObj) {
+                    setAcademicYears([activeYearObj.name])
+                    setSelectedYear(activeYearObj.name)
+                } else if (years.length > 0) {
+                    setAcademicYears([years[0]])
+                    setSelectedYear(years[0])
+                }
+
+                // Setear nombre del docente logueado
+                const userObj = JSON.parse(localStorage.getItem('user'))
+                if (userObj) {
+                    setSelectedTeacher(`${userObj.nombre} ${userObj.apellido}`.trim())
+                }
+            } else {
+                setAcademicYears(years)
+                if (activeYearObj) {
+                    setSelectedYear(activeYearObj.name)
+                } else if (years.length > 0) {
+                    setSelectedYear(years[0])
+                }
+            }
         } catch (error) {
             console.error("Error loading years:", error)
         }
@@ -87,24 +116,18 @@ const HorarioDocente = () => {
             const data = await listSections({ academicYear: selectedYear })
             setSections(data)
 
-            // Lógica de selección automática de docente
-            const allTeachers = extractTeachers(data)
-            let teacherToSelect = ''
-
-            if (isDocente && user) {
-                // Buscar nombre del docente por ID de usuario
-                teacherToSelect = findTeacherNameByUserId(data, user.id)
-                console.log('🔍 Buscando clases para docente:', user.id, 'Encontrado:', teacherToSelect)
-            }
-
-            if (teacherToSelect) {
-                setSelectedTeacher(teacherToSelect)
-            } else if (allTeachers.length > 0 && !selectedTeacher && !isDocente) {
-                // Solo auto-seleccionar el primero si NO es docente (modo admin)
-                setSelectedTeacher(allTeachers[0])
-            } else if (isDocente && !teacherToSelect && user) {
-                // Fallback: Intentar construir nombre si no tiene clases aun
-                setSelectedTeacher(`${user.name || ''} ${user.lastName || ''}`.trim())
+            // Lógica de selección automática de docente (solo si no es docente)
+            if (!isDocente) {
+                const allTeachers = extractTeachers(data)
+                if (allTeachers.length > 0 && !selectedTeacher) {
+                    setSelectedTeacher(allTeachers[0])
+                }
+            } else {
+                // Forzar nombre del docente de nuevo por si acaso
+                const userObj = JSON.parse(localStorage.getItem('user'))
+                if (userObj) {
+                    setSelectedTeacher(`${userObj.nombre} ${userObj.apellido}`.trim())
+                }
             }
 
         } catch (error) {
@@ -203,19 +226,25 @@ const HorarioDocente = () => {
                                 </CCol>
                                 <CCol xs={12} md={4} className="text-md-end mt-2 mt-md-0">
                                     <div className="bg-glass-premium p-1 px-3 rounded-pill border border-primary border-opacity-10 shadow-sm d-inline-flex align-items-center">
-                                        <CDropdown className="w-100 text-center">
-                                            <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                                        {isDocente ? (
+                                            <div className="border-0 bg-transparent fw-bold text-primary p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
                                                 Ciclo {selectedYear}
-                                                <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
-                                            </CDropdownToggle>
-                                            <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll w-100 text-center">
-                                                {academicYears.map(y => (
-                                                    <CDropdownItem key={y} onClick={() => setSelectedYear(y)} active={selectedYear === y} className="py-2 px-3 dropdown-item-premium">
-                                                        Ciclo {y}
-                                                    </CDropdownItem>
-                                                ))}
-                                            </CDropdownMenu>
-                                        </CDropdown>
+                                            </div>
+                                        ) : (
+                                            <CDropdown className="w-100 text-center">
+                                                <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                                                    Ciclo {selectedYear}
+                                                    <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
+                                                </CDropdownToggle>
+                                                <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 overflow-hidden animate-fade-in dropdown-menu-premium-scroll w-100 text-center">
+                                                    {academicYears.map(y => (
+                                                        <CDropdownItem key={y} onClick={() => setSelectedYear(y)} active={selectedYear === y} className="py-2 px-3 dropdown-item-premium">
+                                                            Ciclo {y}
+                                                        </CDropdownItem>
+                                                    ))}
+                                                </CDropdownMenu>
+                                            </CDropdown>
+                                        )}
                                     </div>
                                 </CCol>
                             </CRow>
@@ -234,7 +263,7 @@ const HorarioDocente = () => {
                                                     {isDocente ? (
                                                         <div className="px-2 py-1 fw-bold text-primary d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
                                                             <CIcon icon={cilUser} size="sm" className="me-2 opacity-50" />
-                                                            {selectedTeacher || `${user?.name} ${user?.lastName}` || 'Docente'}
+                                                            {selectedTeacher || 'Docente'}
                                                         </div>
                                                     ) : (
                                                         <CDropdown className="w-100">

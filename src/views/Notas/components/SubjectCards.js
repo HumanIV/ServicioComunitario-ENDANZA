@@ -10,8 +10,7 @@ const SubjectCards = ({ grade, onBack, onSelectSubject, calculatePromedio, getCo
             <div className="d-flex align-items-center mb-5 px-2">
                 {showBackButton && (
                     <CButton
-                        color="light"
-                        className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent"
+                        className="me-3 btn-back-premium px-3 py-2"
                         onClick={onBack}
                     >
                         <CIcon icon={cilArrowLeft} className="me-2" />

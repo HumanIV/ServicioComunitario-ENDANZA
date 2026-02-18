@@ -32,7 +32,7 @@ import {
   cilArrowLeft
 } from "@coreui/icons"
 import useUserRole from '../../Hooks/useUserRole'
-import { getStudentBoletines  } from '../../services/studentsService'
+import { getStudentBoletines } from '../../services/studentsService'
 import { getActiveYearPublic } from '../../services/configService' // 👈 CAMBIO AQUÍ
 
 const BoletinEstudiante = () => {
@@ -40,7 +40,7 @@ const BoletinEstudiante = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { isRepresentante, isLoading: userLoading } = useUserRole()
-  
+
   const [loading, setLoading] = useState(true)
   const [loadingYear, setLoadingYear] = useState(true)
   const [studentInfo, setStudentInfo] = useState(null)
@@ -65,7 +65,7 @@ const BoletinEstudiante = () => {
   useEffect(() => {
     const fetchActiveYear = async () => {
       if (!isRepresentante || userLoading) return
-      
+
       setLoadingYear(true)
       try {
         const year = await getActiveYearPublic() // 👈 CAMBIO AQUÍ
@@ -84,7 +84,7 @@ const BoletinEstudiante = () => {
   // Cargar boletines cuando se tenga el año activo
   useEffect(() => {
     if (!activeYear) return
-    
+
     const fetchBoletines = async () => {
       setLoading(true)
       try {
@@ -92,7 +92,7 @@ const BoletinEstudiante = () => {
         const data = await getStudentBoletines(id)
         console.log("📊 Boletines recibidos:", data)
         setBoletines(data)
-        
+
         // Seleccionar primer período disponible
         if (data.length > 0 && data[0].periods.length > 0) {
           setActiveKey(data[0].periods[0].period_id)
@@ -149,7 +149,7 @@ const BoletinEstudiante = () => {
     return (
       <CContainer className="py-5">
         <CAlert color="danger">Estudiante no encontrado</CAlert>
-        <CButton color="warning" onClick={handleGoBack}>Volver a Boletines</CButton>
+        <CButton className="btn-back-premium px-4" onClick={handleGoBack}>Volver a Boletines</CButton>
       </CContainer>
     )
   }
@@ -158,10 +158,9 @@ const BoletinEstudiante = () => {
 
   return (
     <CContainer className="py-4 animate__animated animate__fadeIn">
-      <CButton 
-        color="light" 
+      <CButton
         onClick={handleGoBack}
-        className="mb-3 d-flex align-items-center"
+        className="mb-3 btn-back-premium px-3 py-2"
       >
         <CIcon icon={cilArrowLeft} className="me-2" />
         Volver a lista de estudiantes
@@ -221,11 +220,10 @@ const BoletinEstudiante = () => {
                 {boletines[0]?.periods.map(period => (
                   <CNavItem key={period.period_id} className="flex-shrink-0">
                     <CNavLink
-                      className={`rounded-pill px-4 fw-bold py-2 transition-all ${
-                        activeKey === period.period_id 
-                          ? 'bg-warning text-white shadow-sm' 
+                      className={`rounded-pill px-4 fw-bold py-2 transition-all ${activeKey === period.period_id
+                          ? 'bg-warning text-white shadow-sm'
                           : 'nav-pill-link hover-bg-orange-soft'
-                      }`}
+                        }`}
                       style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
                       onClick={() => setActiveKey(period.period_id)}
                     >

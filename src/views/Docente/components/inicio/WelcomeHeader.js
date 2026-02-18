@@ -26,27 +26,34 @@ const WelcomeHeader = ({
                         {/* CONTENEDOR DE FILTROS EN MOVIL: Full Width */}
                         <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
                             {/* SELECTOR DE CICLO */}
-                            <div className="bg-glass-premium p-2 px-3 rounded-pill border border-light-custom hover-shadow-sm transition-all shadow-sm w-100 d-flex justify-content-center" style={{ cursor: 'pointer' }}>
-                                <CDropdown className="w-100 text-center">
-                                    <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                            <div className="bg-glass-premium p-2 px-3 rounded-pill border border-light-custom hover-shadow-sm transition-all shadow-sm w-100 d-flex justify-content-center" style={{ cursor: isTeacherView ? 'default' : 'pointer' }}>
+                                {isTeacherView ? (
+                                    <div className="w-100 text-center border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center" style={{ whiteSpace: 'nowrap' }}>
                                         <CIcon icon={cilCalendar} className="me-2 opacity-50" />
-                                        {selectedYear ? `Ciclo ${selectedYear}` : 'Seleccionar Ciclo'}
-                                        <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
-                                    </CDropdownToggle>
-                                    <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll w-100 text-center">
-                                        {academicYears.map(y => (
-                                            <CDropdownItem key={y} onClick={() => setSelectedYear(y)} active={selectedYear === y} className="dropdown-item py-2 px-3 fw-semibold text-secondary hover-bg-light transition-all cursor-pointer">
-                                                Ciclo {y}
-                                            </CDropdownItem>
-                                        ))}
-                                    </CDropdownMenu>
-                                </CDropdown>
+                                        {selectedYear ? `Ciclo ${selectedYear}` : 'Ciclo Actual'}
+                                    </div>
+                                ) : (
+                                    <CDropdown className="w-100 text-center">
+                                        <CDropdownToggle caret={false} className="border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center w-100" style={{ whiteSpace: 'nowrap' }}>
+                                            <CIcon icon={cilCalendar} className="me-2 opacity-50" />
+                                            {selectedYear ? `Ciclo ${selectedYear}` : 'Seleccionar Ciclo'}
+                                            <CIcon icon={cilChevronBottom} size="sm" className="ms-2 opacity-50" />
+                                        </CDropdownToggle>
+                                        <CDropdownMenu className="shadow-xl border-0 rounded-4 mt-2 py-2 animate-fade-in dropdown-menu-premium-scroll w-100 text-center">
+                                            {academicYears.map(y => (
+                                                <CDropdownItem key={y} onClick={() => setSelectedYear(y)} active={selectedYear === y} className="dropdown-item py-2 px-3 fw-semibold text-secondary hover-bg-light transition-all cursor-pointer">
+                                                    Ciclo {y}
+                                                </CDropdownItem>
+                                            ))}
+                                        </CDropdownMenu>
+                                    </CDropdown>
+                                )}
                             </div>
 
                             {/* SELECTOR DE PROFESOR - Si es docente, solo muestra su nombre */}
                             <div className="bg-glass-premium p-2 px-3 rounded-pill border border-light-custom hover-shadow-sm transition-all shadow-sm w-100 d-flex justify-content-center" style={{ cursor: isTeacherView ? 'default' : 'pointer' }}>
                                 {isTeacherView ? (
-                                    <div className="w-100 text-center border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center">
+                                    <div className="w-100 text-center border-0 bg-transparent fw-bold text-primary shadow-none p-0 py-1 d-flex align-items-center justify-content-center" style={{ whiteSpace: 'nowrap' }}>
                                         <CIcon icon={cilUser} className="me-2 opacity-50" />
                                         {selectedTeacher || 'Docente'}
                                     </div>

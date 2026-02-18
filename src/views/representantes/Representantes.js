@@ -38,12 +38,16 @@ const Representantes = () => {
             console.log("🔍 Cargando representantes...");
             // Usar el nuevo servicio de listado
             const reps = await listRepresentantes();
-            console.log("📥 Representantes recibidos:", reps);
-            
-            setRepresentatives(reps || []);
-            
-            if (reps.length === 0) {
-                showToast('No hay representantes registrados', 'info');
+            console.log("📥 [DEBUG] Representantes recibidos en componente:", reps);
+
+            if (!reps || !Array.isArray(reps)) {
+                console.error("❌ Los representantes recibidos no son un array válido:", reps);
+                setRepresentatives([]);
+            } else {
+                setRepresentatives(reps);
+                if (reps.length === 0) {
+                    showToast('No hay representantes registrados', 'info');
+                }
             }
         } catch (error) {
             console.error('Error fetching representatives:', error);
@@ -60,9 +64,9 @@ const Representantes = () => {
     // Filtrar representantes por término de búsqueda
     const filteredReps = useMemo(() => {
         if (!searchTerm) return representatives;
-        
+
         const searchLower = searchTerm.toLowerCase();
-        return representatives.filter(rep => 
+        return representatives.filter(rep =>
             rep.first_name?.toLowerCase().includes(searchLower) ||
             rep.last_name?.toLowerCase().includes(searchLower) ||
             rep.dni?.toLowerCase().includes(searchLower) ||
@@ -84,11 +88,11 @@ const Representantes = () => {
         try {
             setLoading(true);
             console.log("🔍 Obteniendo detalles para representante ID:", rep.id_representante);
-            
+
             // Obtener representante con sus estudiantes usando el nuevo servicio
             const data = await getRepresentanteConEstudiantes(rep.id_representante);
             console.log("📥 Detalles recibidos:", data);
-            
+
             if (data && data.ok) {
                 setSelectedRep({
                     ...data.representante,

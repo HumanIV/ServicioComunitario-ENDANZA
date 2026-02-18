@@ -42,8 +42,7 @@ const EvaluationTable = ({
             <div className="d-flex flex-wrap justify-content-between align-items-center mb-5 no-print px-2 gap-3">
                 <div className="d-flex align-items-center justify-content-center justify-content-md-start">
                     <CButton
-                        color="light"
-                        className="me-3 rounded-pill border-2 hover-orange shadow-sm d-flex align-items-center header-title-custom bg-transparent p-2 p-md-3"
+                        className="me-3 btn-back-premium px-3 py-2"
                         onClick={onBack}
                     >
                         <CIcon icon={cilArrowLeft} className="me-md-2" />

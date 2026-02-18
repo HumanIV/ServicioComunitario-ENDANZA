@@ -60,14 +60,14 @@ const PerfilUsuarioGeneral = () => {
     try {
       setLoading(true)
       setError(null)
-      
+
       console.log('📥 Cargando perfil del usuario...')
       const response = await profileService.getProfile()
-      
+
       if (response.success) {
         console.log('✅ Perfil cargado:', response.user)
         setUser(response.user)
-        
+
         // Actualizar localStorage con datos frescos
         const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
         const updatedUser = { ...currentUser, ...response.user }
@@ -91,17 +91,17 @@ const PerfilUsuarioGeneral = () => {
       navigate('/login')
       return
     }
-    
+
     loadProfile()
   }, [navigate])
 
   const showToast = (type, title, message) => {
-    setToasts((prev) => [...prev, { 
-      id: Date.now(), 
-      type, 
-      title, 
-      message, 
-      delay: 3000 
+    setToasts((prev) => [...prev, {
+      id: Date.now(),
+      type,
+      title,
+      message,
+      delay: 3000
     }])
   }
 
@@ -112,13 +112,13 @@ const PerfilUsuarioGeneral = () => {
     setSaving(true)
     try {
       console.log('📤 Actualizando perfil...', updatedData)
-      
+
       const response = await profileService.updateProfile(updatedData)
-      
+
       if (response.success) {
         // Recargar perfil para obtener datos actualizados
         await loadProfile()
-        
+
         showToast("success", "Perfil Actualizado", "Tus datos se han guardado correctamente")
         setEditModalVisible(false)
       } else {
@@ -136,9 +136,9 @@ const PerfilUsuarioGeneral = () => {
     setSaving(true)
     try {
       console.log('🔐 Cambiando contraseña...')
-      
+
       const response = await profileService.changePassword(passwordData)
-      
+
       if (response.success) {
         showToast("success", "Contraseña Actualizada", "Tu contraseña ha sido cambiada exitosamente")
         setPasswordModalVisible(false)
@@ -193,149 +193,111 @@ const PerfilUsuarioGeneral = () => {
     ...user,
     fechaNacimiento: user.fechaNacimiento ? new Date(user.fechaNacimiento).toLocaleDateString('es-ES') : 'No registrada',
     edad: user.fechaNacimiento ? `${Math.floor((new Date() - new Date(user.fechaNacimiento)) / (365.25 * 24 * 60 * 60 * 1000))} años` : 'No registrada',
-    direccionCompleta: user.direccion ? 
+    direccionCompleta: user.direccion ?
       `${user.direccion.nombre_direccion || ''}, ${user.direccion.ciudad || ''}, ${user.direccion.estado || ''}, ${user.direccion.pais || ''}`.replace(/^, |, $/g, '') || 'No registrada'
       : 'No registrada'
   }
 
   return (
-    <CContainer className="py-4 profile-container pb-5 animate__animated animate__fadeIn">
-      {/* Header */}
-      <CRow className="mb-5 align-items-center no-print">
-        <CCol xs={12} md={6}>
-          <div className="d-flex align-items-center gap-3">
-            <Link to="/inicio" className="btn btn-outline-secondary rounded-circle shadow-sm border-2 profile-back-btn p-2 d-flex align-items-center justify-content-center" style={{ width: '45px', height: '45px' }}>
-              <CIcon icon={cilArrowLeft} />
-            </Link>
-            <div>
-              <h2 className="mb-0 fw-bold profile-header-title text-uppercase ls-1">Mi Perfil</h2>
-              <p className="footer-text small mb-0 text-uppercase ls-1 fw-bold">Configuración de Cuenta</p>
+    <CContainer className="py-2 profile-container pb-5 animate__animated animate__fadeIn">
+      {/* Header Premium */}
+      <div className="bg-glass-premium p-4 rounded-4 border border-light-custom shadow-sm mb-5 mt-3 no-print">
+        <CRow className="align-items-center">
+          <CCol xs={12} md={6}>
+            <div className="d-flex align-items-center gap-4">
+              <Link to="/inicio" className="premium-back-btn p-2 d-flex align-items-center justify-content-center">
+                <CIcon icon={cilArrowLeft} size="lg" />
+              </Link>
+              <div>
+                <h2 className="mb-1 fw-bold profile-header-title text-uppercase ls-1 fs-4">Gestión de Perfil</h2>
+                <div className="d-flex align-items-center gap-2">
+                  <div className="pulse-dot"></div>
+                  <p className="footer-text small mb-0 text-uppercase ls-1 fw-bold opacity-75">Configuración de Cuenta Personal</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </CCol>
-        <CCol xs={12} md={6} className="text-md-end mt-3 mt-md-0">
-          <div className="d-flex justify-content-md-end gap-3">
-            <CButton 
-              className="btn-premium px-4 d-flex align-items-center" 
-              onClick={handleEditProfile}
-              disabled={saving}
-            >
-              <CIcon icon={cilPencil} className="me-2" />
-              EDITAR PERFIL
-            </CButton>
-            <CButton 
-              variant="outline" 
-              className="border-2 shadow-sm rounded-pill px-4 fw-bold profile-outline-btn d-flex align-items-center"
-              onClick={handleChangePassword}
-              disabled={saving}
-            >
-              <CIcon icon={cilLockLocked} className="me-2" />
-              CAMBIAR CONTRASEÑA
-            </CButton>
-          </div>
-        </CCol>
-      </CRow>
+          </CCol>
+          <CCol xs={12} md={6} className="text-md-end mt-4 mt-md-0">
+            <div className="d-flex justify-content-md-end gap-3 flex-wrap">
+              <CButton
+                className="btn-premium-action px-4 py-2 d-flex align-items-center border-0"
+                onClick={handleEditProfile}
+                disabled={saving}
+              >
+                <CIcon icon={cilPencil} className="me-2" />
+                EDITAR INFORMACIÓN
+              </CButton>
+              <CButton
+                variant="outline"
+                className="premium-outline-btn px-4 py-2 d-flex align-items-center fw-bold transition-all"
+                onClick={handleChangePassword}
+                disabled={saving}
+              >
+                <CIcon icon={cilLockLocked} className="me-2" />
+                CAMBIAR CONTRASEÑA
+              </CButton>
+            </div>
+          </CCol>
+        </CRow>
+      </div>
 
-      {/* Profile Summary and Info */}
-      <CRow className="mb-4 g-4">
+      {/* Main Content Grid */}
+      <CRow className="g-4">
         <CCol xs={12} lg={4}>
           <ProfileSummary user={userDisplay} />
         </CCol>
         <CCol xs={12} lg={8}>
-          <CCard className="border-0 premium-card shadow-lg h-100">
-            <CCardBody className="p-4">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h5 className="fw-bold mb-0 d-flex align-items-center">
-                  <CIcon icon={cilInfo} className="me-2 text-warning" />
+          <CCard className="border-0 premium-card shadow-lg h-100 overflow-hidden">
+            <div className="premium-card-header p-4">
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="fw-bold mb-0 d-flex align-items-center header-title-custom">
+                  <div className="header-icon-container me-3">
+                    <CIcon icon={cilInfo} />
+                  </div>
                   Información General
                 </h5>
-                <CBadge color="warning" className="text-white px-3 py-2 rounded-pill">
-                  <CIcon icon={cilShieldAlt} className="me-1" />
-                  {user.rol || 'Usuario'}
+                <CBadge color="warning" className="premium-role-badge px-4 py-2 rounded-pill shadow-sm">
+                  <CIcon icon={cilShieldAlt} className="me-2" />
+                  ROL: {user.rol?.toUpperCase() || 'USUARIO'}
                 </CBadge>
               </div>
-              
+            </div>
+
+            <CCardBody className="p-4 pt-2">
               <CRow className="g-4">
-                <CCol sm={6}>
-                  <div className="d-flex align-items-start p-3 bg-light rounded-3">
-                    <div className="me-3 p-2 bg-white rounded-circle shadow-sm">
-                      <CIcon icon={cilUser} className="text-warning" />
+                {[
+                  { icon: cilUser, label: 'Nombre Completo', value: `${user.nombre} ${user.apellido}` },
+                  { icon: cilBadge, label: 'Cédula de Identidad', value: user.cedula || 'No registrada' },
+                  { icon: cilEnvelopeClosed, label: 'Correo Electrónico', value: user.email },
+                  { icon: cilPhone, label: 'Teléfono de Contacto', value: user.telefono || 'No registrado' },
+                  { icon: cilCalendar, label: 'Fecha de Nacimiento', value: `${userDisplay.fechaNacimiento} (${userDisplay.edad})` },
+                  { icon: cilClock, label: 'Último Acceso', value: user.ultimoAcceso || 'No registrado' }
+                ].map((item, idx) => (
+                  <CCol sm={6} key={idx}>
+                    <div className="premium-info-box p-3 rounded-4 transition-all">
+                      <div className="d-flex align-items-center">
+                        <div className="info-box-icon p-2 rounded-3 me-3">
+                          <CIcon icon={item.icon} />
+                        </div>
+                        <div className="flex-grow-1 overflow-hidden">
+                          <small className="text-muted-custom text-uppercase fw-bold ls-1 d-block mb-1" style={{ fontSize: '0.65rem' }}>{item.label}</small>
+                          <p className="mb-0 fw-bold text-dark-custom text-truncate">{item.value}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <small className="text-muted text-uppercase fw-bold small">Nombre Completo</small>
-                      <p className="mb-0 fw-semibold">{user.nombre} {user.apellido}</p>
-                    </div>
-                  </div>
-                </CCol>
-                
-                <CCol sm={6}>
-                  <div className="d-flex align-items-start p-3 bg-light rounded-3">
-                    <div className="me-3 p-2 bg-white rounded-circle shadow-sm">
-                      <CIcon icon={cilBadge} className="text-warning" />
-                    </div>
-                    <div>
-                      <small className="text-muted text-uppercase fw-bold small">Cédula de Identidad</small>
-                      <p className="mb-0 fw-semibold">{user.cedula || 'No registrada'}</p>
-                    </div>
-                  </div>
-                </CCol>
-
-                <CCol sm={6}>
-                  <div className="d-flex align-items-start p-3 bg-light rounded-3">
-                    <div className="me-3 p-2 bg-white rounded-circle shadow-sm">
-                      <CIcon icon={cilEnvelopeClosed} className="text-warning" />
-                    </div>
-                    <div>
-                      <small className="text-muted text-uppercase fw-bold small">Correo Electrónico</small>
-                      <p className="mb-0 fw-semibold">{user.email}</p>
-                    </div>
-                  </div>
-                </CCol>
-
-                <CCol sm={6}>
-                  <div className="d-flex align-items-start p-3 bg-light rounded-3">
-                    <div className="me-3 p-2 bg-white rounded-circle shadow-sm">
-                      <CIcon icon={cilPhone} className="text-warning" />
-                    </div>
-                    <div>
-                      <small className="text-muted text-uppercase fw-bold small">Teléfono</small>
-                      <p className="mb-0 fw-semibold">{user.telefono || 'No registrado'}</p>
-                    </div>
-                  </div>
-                </CCol>
-
-                <CCol sm={6}>
-                  <div className="d-flex align-items-start p-3 bg-light rounded-3">
-                    <div className="me-3 p-2 bg-white rounded-circle shadow-sm">
-                      <CIcon icon={cilCalendar} className="text-warning" />
-                    </div>
-                    <div>
-                      <small className="text-muted text-uppercase fw-bold small">Fecha Nacimiento</small>
-                      <p className="mb-0 fw-semibold">{userDisplay.fechaNacimiento} ({userDisplay.edad})</p>
-                    </div>
-                  </div>
-                </CCol>
-
-                <CCol sm={6}>
-                  <div className="d-flex align-items-start p-3 bg-light rounded-3">
-                    <div className="me-3 p-2 bg-white rounded-circle shadow-sm">
-                      <CIcon icon={cilClock} className="text-warning" />
-                    </div>
-                    <div>
-                      <small className="text-muted text-uppercase fw-bold small">Último Acceso</small>
-                      <p className="mb-0 fw-semibold">{user.ultimoAcceso || 'No registrado'}</p>
-                    </div>
-                  </div>
-                </CCol>
+                  </CCol>
+                ))}
 
                 <CCol xs={12}>
-                  <div className="d-flex align-items-start p-3 bg-light rounded-3">
-                    <div className="me-3 p-2 bg-white rounded-circle shadow-sm">
-                      <CIcon icon={cilLocationPin} className="text-warning" />
-                    </div>
-                    <div>
-                      <small className="text-muted text-uppercase fw-bold small">Dirección</small>
-                      <p className="mb-0 fw-semibold">{userDisplay.direccionCompleta}</p>
+                  <div className="premium-info-box p-3 rounded-4 transition-all">
+                    <div className="d-flex align-items-center">
+                      <div className="info-box-icon p-2 rounded-3 me-3">
+                        <CIcon icon={cilLocationPin} />
+                      </div>
+                      <div>
+                        <small className="text-muted-custom text-uppercase fw-bold ls-1 d-block mb-1" style={{ fontSize: '0.65rem' }}>Dirección de Residencia</small>
+                        <p className="mb-0 fw-bold text-dark-custom">{userDisplay.direccionCompleta}</p>
+                      </div>
                     </div>
                   </div>
                 </CCol>
@@ -345,34 +307,37 @@ const PerfilUsuarioGeneral = () => {
         </CCol>
       </CRow>
 
-      {/* Modales */}
-      <EditProfileModal 
-        visible={editModalVisible} 
-        onClose={() => setEditModalVisible(false)} 
-        userData={user} 
-        onSave={handleSaveProfile} 
-        loading={saving} 
+      {/* Modals y Toasters */}
+      <EditProfileModal
+        visible={editModalVisible}
+        onClose={() => setEditModalVisible(false)}
+        userData={user}
+        onSave={handleSaveProfile}
+        loading={saving}
       />
 
-      <ChangePasswordModal 
-        visible={passwordModalVisible} 
-        onClose={() => setPasswordModalVisible(false)} 
-        onSubmit={handleChangePasswordSubmit} 
-        loading={saving} 
+      <ChangePasswordModal
+        visible={passwordModalVisible}
+        onClose={() => setPasswordModalVisible(false)}
+        onSubmit={handleChangePasswordSubmit}
+        loading={saving}
       />
 
       <CToaster placement="top-end">
         {toasts.map((t) => (
-          <CToast 
-            key={t.id} 
-            autohide 
-            delay={t.delay} 
-            color={t.type === 'success' ? 'success' : 'danger'} 
-            visible 
-            className="border-0 shadow-lg text-white"
+          <CToast
+            key={t.id}
+            autohide
+            delay={t.delay}
+            color={t.type === 'success' ? 'success' : 'danger'}
+            visible
+            className="border-0 shadow-lg text-white premium-toast"
           >
             <CToastHeader closeButton className="bg-transparent text-white border-0">
-              <strong className="me-auto">{t.title}</strong>
+              <div className="d-flex align-items-center">
+                <CIcon icon={t.type === 'success' ? cilCheckCircle : cilInfo} className="me-2" />
+                <strong className="me-auto text-uppercase ls-1">{t.title}</strong>
+              </div>
             </CToastHeader>
             <CToastBody className="fw-medium">{t.message}</CToastBody>
           </CToast>
@@ -381,27 +346,128 @@ const PerfilUsuarioGeneral = () => {
 
       <style>{`
         .ls-1 { letter-spacing: 1px; }
-        .cursor-pointer { cursor: pointer; }
-        .transition-all { transition: all 0.2s ease; }
-        .bg-orange-soft { background-color: rgba(242, 140, 15, 0.08) !important; }
+        .transition-all { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .profile-header-title { color: var(--neutral-800); }
-        .profile-back-btn { color: var(--neutral-600); border-color: var(--neutral-200); }
-        .profile-outline-btn { color: var(--neutral-600) !important; border-color: var(--neutral-300) !important; background-color: transparent !important; }
-        .profile-outline-btn:hover { background-color: #F28C0F !important; color: white !important; border-color: #F28C0F !important; }
-        .footer-text { color: var(--neutral-500); }
-        .btn-premium { background: linear-gradient(135deg, #F28C0F 0%, #F8A13E 100%); border: none; color: white; border-radius: 50px; font-weight: 600; box-shadow: 0 4px 10px rgba(242, 140, 15, 0.3); }
-        .btn-premium:hover { background: linear-gradient(135deg, #E67E22 0%, #F28C0F 100%); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(242, 140, 15, 0.4); }
+        /* Header & Back Button */
+        .premium-back-btn { 
+          color: #64748b; 
+          border: 1px solid rgba(0,0,0,0.05); 
+          background: white; 
+          border-radius: 14px;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .premium-back-btn:hover { 
+          color: #F28C0F; 
+          transform: translateX(-3px);
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
 
-        [data-coreui-theme="dark"] .profile-header-title { color: white; }
-        [data-coreui-theme="dark"] .profile-back-btn { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.1); }
-        [data-coreui-theme="dark"] .profile-outline-btn { color: #F28C0F !important; border-color: #F28C0F !important; background-color: rgba(242, 140, 15, 0.05) !important; }
-        [data-coreui-theme="dark"] .profile-outline-btn:hover { background-color: #F28C0F !important; color: white !important; }
-        [data-coreui-theme="dark"] .footer-text { color: rgba(255,255,255,0.4); }
-        [data-coreui-theme="dark"] .bg-light { background-color: rgba(255,255,255,0.05) !important; }
-        [data-coreui-theme="dark"] .bg-white { background-color: #2d3a4f !important; }
+        /* Buttons */
+        .btn-premium-action {
+          background: linear-gradient(135deg, #F28C0F 0%, #F8A13E 100%);
+          color: white;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(242, 140, 15, 0.25);
+        }
+        .btn-premium-action:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(242, 140, 15, 0.35);
+          filter: brightness(1.05);
+        }
 
-        @media print { .no-print { display: none !important; } }
+        .premium-outline-btn {
+          border: 2px solid #e2e8f0;
+          color: #64748b;
+          border-radius: 12px;
+          background: white;
+        }
+        .premium-outline-btn:hover {
+          background: #F28C0F !important;
+          border-color: #F28C0F !important;
+          color: white !important;
+          transform: translateY(-2px);
+        }
+
+        /* Information Boxes */
+        .premium-info-box {
+          background: #f8fafc;
+          border: 1px solid rgba(0,0,0,0.03);
+        }
+        .premium-info-box:hover {
+          background: white;
+          border-color: #F28C0F;
+          box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+        .info-box-icon {
+          background: rgba(242, 140, 15, 0.08);
+          color: #F28C0F;
+          font-size: 1.1rem;
+        }
+
+        .premium-role-badge {
+          background: linear-gradient(135deg, #F28C0F 0%, #fbbf24 100%) !important;
+          font-weight: 800;
+          font-size: 0.75rem;
+          letter-spacing: 0.5px;
+          color: white !important;
+        }
+
+        .header-icon-container {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(242, 140, 15, 0.1);
+          color: #F28C0F;
+          border-radius: 10px;
+        }
+
+        .pulse-dot {
+          width: 8px;
+          height: 8px;
+          background: #10b981;
+          border-radius: 50%;
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+          animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        [data-coreui-theme="dark"] .bg-glass-premium { 
+          background: rgba(30, 41, 59, 0.7) !important; 
+          backdrop-filter: blur(15px);
+          border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        }
+        [data-coreui-theme="dark"] .premium-card {
+          background: rgba(30, 41, 59, 0.4) !important;
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        }
+        [data-coreui-theme="dark"] .premium-back-btn { background: #1e293b; border-color: rgba(255,255,255,0.05); color: #94a3b8; }
+        [data-coreui-theme="dark"] .premium-outline-btn { background: transparent; border-color: #334155; color: #94a3b8; }
+        [data-coreui-theme="dark"] .premium-info-box { 
+          background: rgba(255, 255, 255, 0.03) !important; 
+          border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        [data-coreui-theme="dark"] .premium-info-box:hover { 
+          background: rgba(255, 255, 255, 0.06) !important; 
+          border-color: #F28C0F !important;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+        }
+        [data-coreui-theme="dark"] .premium-toast { background: #1e293b !important; }
+        [data-coreui-theme="dark"] .header-title-custom { color: white; }
+        [data-coreui-theme="dark"] .text-dark-custom { color: #e2e8f0; }
+        [data-coreui-theme="dark"] .text-muted-custom { color: #94a3b8; }
+        [data-coreui-theme="dark"] .info-box-icon { background: rgba(242, 140, 15, 0.15); }
+
+        @media print { .no-print { display: none !important; } .premium-card { box-shadow: none !important; border: 1px solid #eee !important; } }
       `}</style>
     </CContainer>
   )
