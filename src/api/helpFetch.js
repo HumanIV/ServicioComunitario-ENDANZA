@@ -74,7 +74,7 @@ export const helpFetch = () => {
 
   const checkConnection = async () => {
     try {
-      const response = await fetch(`${URL}/api/health`)
+      const response = await fetch(`${URL}/health`)
       if (response.ok) {
         const data = await response.json()
         console.log('🔌 Backend connected:', data.message)
