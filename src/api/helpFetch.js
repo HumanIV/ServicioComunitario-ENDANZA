@@ -1,22 +1,33 @@
-// helpFetch.js - VERSIÓN INTELIGENTE CON DETECCIÓN DE ERRORES 🧠
+// helpFetch.js
 export const helpFetch = () => {
-  const URL = import.meta.env.VITE_API_URL || 'https://endanza-backend.onrender.com'
+  // Usa la variable de entorno si está disponible, fallback a localhost
+  const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '')
 
-  // Función para limpiar endpoints con doble /api
-  const cleanEndpoint = (endpoint) => {
-    // Si el endpoint tiene /api/api al inicio, lo corregimos
-    if (endpoint.includes('/api/api')) {
-      const cleaned = endpoint.replace(/\/api\/api/g, '/api');
-      console.warn(`⚠️ Detectado doble /api: "${endpoint}" → corregido a "${cleaned}"`);
-      return cleaned;
+  /**
+   * Normaliza el endpoint para evitar rutas duplicadas tipo /api/api/...
+   * - Elimina slashes dobles (//)
+   * - Si detecta /api/api colapsa a un solo /api
+   * - Si el endpoint no empieza con /api, agrega /api automáticamente
+   */
+  const normalizeEndpoint = (endpoint) => {
+    // Asegurarse de que empiece con /
+    let normalized = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+
+    // Colapsar dobles slashes (excepto en http://)
+    normalized = normalized.replace(/\/\/+/g, '/')
+
+    // Colapsar /api/api... a /api
+    normalized = normalized.replace(/^(\/api)+/, '/api')
+
+    // Si no empieza con /api, agregar el prefijo
+    if (!normalized.startsWith('/api')) {
+      normalized = `/api${normalized}`
     }
-    return endpoint;
-  };
+
+    return normalized
+  }
 
   const customFetch = async (endpoint, options = {}) => {
-    // Limpiar el endpoint antes de usarlo
-    const cleanEndpointPath = cleanEndpoint(endpoint);
-    
     options.method = options.method || 'GET'
 
     const defaultHeaders = {
@@ -37,38 +48,45 @@ export const helpFetch = () => {
       options.body = JSON.stringify(options.body)
     }
 
-    console.log(`🌐 ${options.method} ${URL}${cleanEndpointPath}`)
+    const normalizedEndpoint = normalizeEndpoint(endpoint)
+    const fullUrl = `${BASE_URL}${normalizedEndpoint}`
+
+    console.log(`🌐 ${options.method} ${fullUrl}`)
 
     try {
-      const response = await fetch(`${URL}${cleanEndpointPath}`, options)
-      
-      console.log(`📡 Response status: ${response.status}`)
-      
+      const response = await fetch(fullUrl, options)
+
+      console.log(`📡 Response status: ${response.status} ${response.statusText}`)
+
       const text = await response.text()
-      
+
       if (!text || text.trim() === '') {
+        console.log('✅ Response vacía')
         return { ok: response.ok, _ok: response.ok, _status: response.status }
       }
-      
+
       let data
       try {
         data = JSON.parse(text)
+        console.log(`✅ JSON Response:`, data)
       } catch (jsonError) {
+        console.log(`⚠️ Response no es JSON:`, text)
         data = { text, ok: response.ok, _ok: response.ok, _status: response.status }
       }
-      
+
       if (!data._ok) data._ok = response.ok
       if (!data._status) data._status = response.status
-      
+      if (!data._statusText) data._statusText = response.statusText
+
       return data
-      
     } catch (error) {
       console.error(`❌ Network error:`, error.message)
       return {
         ok: false,
         message: 'Error de conexión con el servidor',
         _ok: false,
-        _status: 0
+        _status: 0,
+        _statusText: 'Network Error',
       }
     }
   }
@@ -80,21 +98,26 @@ export const helpFetch = () => {
 
   const checkConnection = async () => {
     try {
-      // También limpiamos aquí por si acaso
-      const response = await customFetch('/api/health', { method: 'GET' });
-      return response.ok
+      const response = await fetch(`${BASE_URL}/api/health`)
+      if (response.ok) {
+        const data = await response.json()
+        console.log('🔌 Backend connected:', data.message)
+        return true
+      }
+      return false
     } catch (error) {
+      console.error('🔌 Connection check failed:', error)
       return false
     }
   }
 
-  return { 
-    get, 
-    post, 
-    put, 
+  return {
+    get,
+    post,
+    put,
     delete: del,
-    customFetch, 
-    checkConnection, 
-    URL 
+    customFetch,
+    checkConnection,
+    URL: BASE_URL,
   }
 }
