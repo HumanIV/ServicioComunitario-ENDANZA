@@ -1,7 +1,9 @@
-// helpFetch.js - Versión corregida
+// helpFetch.js - Versión para producción
 export const helpFetch = () => {
-  const URL = 'http://localhost:3001'
+  // ✅ IMPORTANTE: Usa variable de entorno o la URL de producción
+  const URL = import.meta.env.VITE_API_URL || 'https://endanza-backend.onrender.com'
 
+  // El resto del código queda IGUAL...
   const customFetch = async (endpoint, options = {}) => {
     options.method = options.method || 'GET'
 
@@ -68,7 +70,6 @@ export const helpFetch = () => {
   const post = (endpoint, body, options = {}) => customFetch(endpoint, { ...options, method: 'POST', body })
   const put = (endpoint, body, options = {}) => customFetch(endpoint, { ...options, method: 'PUT', body })
   const del = (endpoint, options = {}) => {
-    // Si endpoint ya incluye el ID, no agregar más
     return customFetch(endpoint, { ...options, method: 'DELETE' })
   }
 
@@ -91,7 +92,7 @@ export const helpFetch = () => {
     get, 
     post, 
     put, 
-    delete: del,  // ← Exportar como 'delete'
+    delete: del,
     customFetch, 
     checkConnection, 
     URL 
