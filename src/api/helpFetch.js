@@ -1,30 +1,40 @@
 // helpFetch.js
 export const helpFetch = () => {
   // Usa la variable de entorno si está disponible, fallback a localhost
-  const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '')
+  // Quitar trailing slash y también quitar /api del final si viene en la env var
+  const BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001')
+    .replace(/\/+$/, '')       // quitar slash(es) finales
+    .replace(/\/api\/+$/, '') // quitar /api final si existe
 
   /**
-   * Normaliza el endpoint para evitar rutas duplicadas tipo /api/api/...
-   * - Elimina slashes dobles (//)
-   * - Si detecta /api/api colapsa a un solo /api
-   * - Si el endpoint no empieza con /api, agrega /api automáticamente
+   * Normaliza la URL COMPLETA para evitar rutas duplicadas tipo /api/api/...
+   * Opera sobre la URL final (BASE_URL + endpoint) para cubrir todos los casos:
+   *   - VITE_API_URL con /api al final + endpoint con /api → /api/api → /api
+   *   - VITE_API_URL sin /api + endpoint sin /api → agrega /api una sola vez
    */
-  const normalizeEndpoint = (endpoint) => {
-    // Asegurarse de que empiece con /
-    let normalized = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
+  const normalizeUrl = (base, endpoint) => {
+    // Asegurarse que el endpoint empiece con /
+    const ep = endpoint.startsWith('/') ? endpoint : `/${endpoint}`
 
-    // Colapsar dobles slashes (excepto en http://)
-    normalized = normalized.replace(/\/\/+/g, '/')
+    // Combinar
+    let fullUrl = `${base}${ep}`
 
-    // Colapsar /api/api... a /api
-    normalized = normalized.replace(/^(\/api)+/, '/api')
+    // Colapsar dobles slashes que no sean parte de http:// o https://
+    fullUrl = fullUrl.replace(/(https?:\/\/[^/]+)(.*)/,
+      (_, origin, path) => origin + path.replace(/\/\/+/g, '/')
+    )
 
-    // Si no empieza con /api, agregar el prefijo
-    if (!normalized.startsWith('/api')) {
-      normalized = `/api${normalized}`
-    }
+    // Colapsar /api/api (o más) a un solo /api
+    fullUrl = fullUrl.replace(/(https?:\/\/[^/]+)((\/api)+)(.*)/, (_, origin, apis, _last, rest) => {
+      return `${origin}/api${rest}`
+    })
 
-    return normalized
+    // Asegurarse que la ruta incluya /api antes del primer segmento real
+    fullUrl = fullUrl.replace(/(https?:\/\/[^/]+)(\/(?!api))/,
+      (_, origin, start) => `${origin}/api${start}`
+    )
+
+    return fullUrl
   }
 
   const customFetch = async (endpoint, options = {}) => {
@@ -48,8 +58,7 @@ export const helpFetch = () => {
       options.body = JSON.stringify(options.body)
     }
 
-    const normalizedEndpoint = normalizeEndpoint(endpoint)
-    const fullUrl = `${BASE_URL}${normalizedEndpoint}`
+    const fullUrl = normalizeUrl(BASE_URL, endpoint)
 
     console.log(`🌐 ${options.method} ${fullUrl}`)
 
