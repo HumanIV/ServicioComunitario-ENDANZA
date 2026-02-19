@@ -1,9 +1,8 @@
-// helpFetch.js - Versión para producción
+// helpFetch.js - Versión CORREGIDA (como tú la tenías)
 export const helpFetch = () => {
-  // ✅ IMPORTANTE: Usa variable de entorno o la URL de producción
+  // ✅ SOLO CAMBIA LA URL, NADA MÁS
   const URL = import.meta.env.VITE_API_URL || 'https://endanza-backend.onrender.com'
 
-  // El resto del código queda IGUAL...
   const customFetch = async (endpoint, options = {}) => {
     options.method = options.method || 'GET'
 
