@@ -1,6 +1,5 @@
-// helpFetch.js - Versión CORREGIDA (como tú la tenías)
+// helpFetch.js - VERSIÓN SIMPLE Y CORRECTA ✅
 export const helpFetch = () => {
-  // ✅ SOLO CAMBIA LA URL, NADA MÁS
   const URL = import.meta.env.VITE_API_URL || 'https://endanza-backend.onrender.com'
 
   const customFetch = async (endpoint, options = {}) => {
@@ -29,27 +28,23 @@ export const helpFetch = () => {
     try {
       const response = await fetch(`${URL}${endpoint}`, options)
       
-      console.log(`📡 Response status: ${response.status} ${response.statusText}`)
+      console.log(`📡 Response status: ${response.status}`)
       
       const text = await response.text()
       
       if (!text || text.trim() === '') {
-        console.log('✅ Response vacía')
         return { ok: response.ok, _ok: response.ok, _status: response.status }
       }
       
       let data
       try {
         data = JSON.parse(text)
-        console.log(`✅ JSON Response:`, data)
       } catch (jsonError) {
-        console.log(`⚠️ Response no es JSON:`, text)
         data = { text, ok: response.ok, _ok: response.ok, _status: response.status }
       }
       
       if (!data._ok) data._ok = response.ok
       if (!data._status) data._status = response.status
-      if (!data._statusText) data._statusText = response.statusText
       
       return data
       
@@ -59,8 +54,7 @@ export const helpFetch = () => {
         ok: false,
         message: 'Error de conexión con el servidor',
         _ok: false,
-        _status: 0,
-        _statusText: 'Network Error'
+        _status: 0
       }
     }
   }
@@ -68,21 +62,13 @@ export const helpFetch = () => {
   const get = (endpoint, options = {}) => customFetch(endpoint, { ...options, method: 'GET' })
   const post = (endpoint, body, options = {}) => customFetch(endpoint, { ...options, method: 'POST', body })
   const put = (endpoint, body, options = {}) => customFetch(endpoint, { ...options, method: 'PUT', body })
-  const del = (endpoint, options = {}) => {
-    return customFetch(endpoint, { ...options, method: 'DELETE' })
-  }
+  const del = (endpoint, options = {}) => customFetch(endpoint, { ...options, method: 'DELETE' })
 
   const checkConnection = async () => {
     try {
-      const response = await fetch(`${URL}/health`)
-      if (response.ok) {
-        const data = await response.json()
-        console.log('🔌 Backend connected:', data.message)
-        return true
-      }
-      return false
+      const response = await fetch(`${URL}/api/health`)
+      return response.ok
     } catch (error) {
-      console.error('🔌 Connection check failed:', error)
       return false
     }
   }
