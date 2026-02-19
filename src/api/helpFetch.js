@@ -1,8 +1,22 @@
-// helpFetch.js - VERSIÓN SIMPLE Y CORRECTA ✅
+// helpFetch.js - VERSIÓN INTELIGENTE CON DETECCIÓN DE ERRORES 🧠
 export const helpFetch = () => {
   const URL = import.meta.env.VITE_API_URL || 'https://endanza-backend.onrender.com'
 
+  // Función para limpiar endpoints con doble /api
+  const cleanEndpoint = (endpoint) => {
+    // Si el endpoint tiene /api/api al inicio, lo corregimos
+    if (endpoint.includes('/api/api')) {
+      const cleaned = endpoint.replace(/\/api\/api/g, '/api');
+      console.warn(`⚠️ Detectado doble /api: "${endpoint}" → corregido a "${cleaned}"`);
+      return cleaned;
+    }
+    return endpoint;
+  };
+
   const customFetch = async (endpoint, options = {}) => {
+    // Limpiar el endpoint antes de usarlo
+    const cleanEndpointPath = cleanEndpoint(endpoint);
+    
     options.method = options.method || 'GET'
 
     const defaultHeaders = {
@@ -23,10 +37,10 @@ export const helpFetch = () => {
       options.body = JSON.stringify(options.body)
     }
 
-    console.log(`🌐 ${options.method} ${URL}${endpoint}`)
+    console.log(`🌐 ${options.method} ${URL}${cleanEndpointPath}`)
 
     try {
-      const response = await fetch(`${URL}${endpoint}`, options)
+      const response = await fetch(`${URL}${cleanEndpointPath}`, options)
       
       console.log(`📡 Response status: ${response.status}`)
       
@@ -66,7 +80,8 @@ export const helpFetch = () => {
 
   const checkConnection = async () => {
     try {
-      const response = await fetch(`${URL}/api/health`)
+      // También limpiamos aquí por si acaso
+      const response = await customFetch('/api/health', { method: 'GET' });
       return response.ok
     } catch (error) {
       return false
