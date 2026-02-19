@@ -105,21 +105,22 @@ export const helpFetch = () => {
   const put = (endpoint, body, options = {}) => customFetch(endpoint, { ...options, method: 'PUT', body })
   const del = (endpoint, options = {}) => customFetch(endpoint, { ...options, method: 'DELETE' })
 
-  const checkConnection = async () => {
-    try {
-      const response = await fetch(`${BASE_URL}/api/health`)
-      if (response.ok) {
-        const data = await response.json()
-        console.log('🔌 Backend connected:', data.message)
-        return true
-      }
-      return false
-    } catch (error) {
-      console.error('🔌 Connection check failed:', error)
-      return false
+  // helpFetch.js - SOLO CAMBIAR ESTA FUNCIÓN
+const checkConnection = async () => {
+  try {
+    // ✅ AHORA USA customFetch QUE TIENE LA NORMALIZACIÓN
+    const response = await customFetch('/api/health', { method: 'GET' });
+    
+    if (response.ok) {
+      console.log('🔌 Backend connected:', response.message)
+      return true
     }
+    return false
+  } catch (error) {
+    console.error('🔌 Connection check failed:', error)
+    return false
   }
-
+}
   return {
     get,
     post,
